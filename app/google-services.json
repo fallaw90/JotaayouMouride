@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1010011435830",
+    "firebase_url": "https://jotaayumourid.firebaseio.com",
+    "project_id": "jotaayumourid",
+    "storage_bucket": "jotaayumourid.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1010011435830:android:4ae06238637dd9ec",
+        "android_client_info": {
+          "package_name": "com.fallntic.jotaayumouride"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1010011435830-jfq76q67hkr45k43ob7j3n6gum27n6pr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fallntic.jotaayumouride",
+            "certificate_hash": "712f29363920f7a2ba9923a43aa2dedef237df36"
+          }
+        },
+        {
+          "client_id": "1010011435830-mr6mt1nov3j949k2ffdh93e0dmgq30o8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCAm8rSlBuJFBV8JaguLXbpyvVcbZrZY2Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1010011435830-mr6mt1nov3j949k2ffdh93e0dmgq30o8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/colorPrimary"
+    tools:context=".CreateDahiraActivity">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/scrollView"
+        android:layout_below="@id/toolbar">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/dahiraInfo"
+                android:textAlignment="center"
+                android:id="@+id/dahiraInfo"
+                android:textSize="@dimen/_20sdp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:orientation="vertical"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:layout_below="@id/dahiraInfo">
+
+                <EditText
+                    android:id="@+id/editText_dahiraName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:hint="@string/dahiraName"
+                    android:inputType="text"
+                    android:paddingBottom="15dp"
+                    android:textColorHint="@color/colorAccent" />
+
+                <EditText
+                    android:id="@+id/editText_dieuwrine"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:hint="@string/dieuwrine"
+                    android:inputType="text"
+                    android:paddingBottom="15dp"
+                    android:textColorHint="@color/colorAccent" />
+
+                <EditText
+                    android:id="@+id/editText_dahiraPhoneNumber"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:hint="@string/dahiraPhoneNumber"
+                    android:inputType="text"
+                    android:paddingBottom="15dp"
+                    android:textColorHint="@color/colorAccent" />
+
+                <EditText
+                    android:id="@+id/editText_siege"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:hint="@string/siege"
+                    android:inputType="text"
+                    android:paddingBottom="15dp"
+                    android:textColorHint="@color/colorAccent" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/AddCommissionInstruction"
+                    android:textAlignment="center"
+                    android:id="@+id/textView_addCommission"/>
+
+                <EditText
+                    android:id="@+id/editText_commission"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:hint="@string/commission"
+                    android:inputType="text"
+                    android:paddingBottom="15dp"
+                    android:textColorHint="@color/colorAccent" />
+
+                <EditText
+                    android:id="@+id/editText_responsible"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:hint="@string/responsible"
+                    android:inputType="text"
+                    android:paddingBottom="15dp"
+                    android:textColorHint="@color/colorAccent" />
+
+                <Button
+                    android:id="@+id/button_addCommission"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="7dp"
+                    android:background="@drawable/rounded_button_transparent"
+                    android:text="@string/addCommission"
+                    android:textAllCaps="false"
+                    android:textColor="@color/colorAccent"  />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/updateCommission"
+                    android:textAlignment="center"
+                    android:id="@+id/textViewUpdateCommission"/>
+
+                <ListView
+                    android:id="@+id/listView_commission"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+                <EditText
+                    android:id="@+id/editText_adiya"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:hint="@string/adiya"
+                    android:inputType="text"
+                    android:paddingBottom="15dp"
+                    android:textColorHint="@color/colorAccent" />
+
+                <EditText
+                    android:id="@+id/editText_sass"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:hint="@string/sass"
+                    android:inputType="text"
+                    android:paddingBottom="15dp"
+                    android:textColorHint="@color/colorAccent" />
+
+                <EditText
+                    android:id="@+id/editText_social"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:hint="@string/social"
+                    android:inputType="text"
+                    android:paddingBottom="15dp"
+                    android:textColorHint="@color/colorAccent" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_gravity="center">
+
+                    <Button
+                        android:id="@+id/button_back"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="7dp"
+                        android:background="@drawable/rounded_button_transparent"
+                        android:text="@string/backButton"
+                        android:textAllCaps="false"
+                        android:textColor="@color/colorAccent" />
+
+                    <Button
+                        android:id="@+id/button_next"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="7dp"
+                        android:background="@drawable/rounded_button_transparent"
+                        android:text="@string/nextButton"
+                        android:textAllCaps="false"
+                        android:textColor="@color/colorAccent" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/textView_login"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="15dp"
+                    android:text="@string/registeredAlready"
+                    android:textAlignment="center"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
+                    android:textColor="@color/colorAccent" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </ScrollView>
+
+</LinearLayout>

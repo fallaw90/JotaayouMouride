@@ -1,0 +1,39 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">Jotaayu Mouride</string>
+    <string name="name">Nom complet</string>
+    <string name="email">Email</string>
+    <string name="phoneNumber">Telephone (9 chiffres)</string>
+    <string name="address">Adresse</string>
+    <string name="mdp">Mot de passe</string>
+    <string name="confimerMdp" tools:ignore="ExtraTranslation">Confirmer votre de passe</string>
+    <string name="inscrire" tools:ignore="ExtraTranslation">S\'inscrire</string>
+    <string name="registeredAlready">Deja creer un dahira? Se connecter</string>
+    <string name="camera">Choisir une photo de profil</string>
+    <string name="verifyEmail">Cliquez ici pour recevoir un message de verification dans votre email pour continuer</string>
+    <string name="commission">Commission (exemple: culturelle, ...)</string>
+    <string name="admin">Administrateur</string>
+    <string name="simpleMember">Membre simple</string>
+    <string name="dahiraName">Nom du dahira</string>
+    <string name="dahiraPhoneNumber">Numero telephone du dahira</string>
+    <string name="siege">Siege du dahira</string>
+    <string name="addCommission">Ajouter cette commission</string>
+    <string name="responsible">Responsable de la commission</string>
+    <string name="createDahira">Vous etes administrateur? Cliquez ici pour enregistrer votre dahira</string>
+    <string name="dialogTitle">Modifier ou supprimer cette commission</string>
+    <string name="update">Modifier</string>
+    <string name="delete">Supprimer</string>
+    <string name="finish">Terminer</string>
+    <string name="infoDahira">Information du dahira</string>
+    <string name="userPhoneNumber">Votre numero de telephone</string>
+    <string name="dieuwrine">Nom dieuwrine</string>
+    <string name="adiya">Total adiya dans la caisse</string>
+    <string name="sass">Total sass dans la caisse</string>
+    <string name="social">Total social dans la caisse</string>
+    <string name="personalInfo">Informations personnelles</string>
+    <string name="dahiraInfo">Informations du dahira</string>
+    <string name="AddCommissionInstruction">Lister les commissions de votre dahira en fournissant le nom de la commission et le responsable. Repetez autant de fois necessaire cette procedure.</string>
+    <string name="updateCommission">Pour modifier ou supprimer une commission deja ajoutee, faites un appuis long la dessus.</string>
+    <string name="spinnerTitle">Selectionner une commission</string>
+    <string name="backButton">Precedent</string>
+    <string name="nextButton">Suivant</string>
+</resources>
