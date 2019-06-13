@@ -3,12 +3,18 @@ package com.fallntic.jotaayumouride;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Patterns;
@@ -54,7 +60,7 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
     private String commission = "";
 
     private ImageView imageView;
-    private Uri filePath;
+    private Uri uri;
     private final int PICK_IMAGE_REQUEST = 71;
 
     private boolean accountCreated = true;
@@ -63,8 +69,10 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
     private boolean commissionsSaved = true;
     private boolean imageSaved = true;
 
+    private ProgressDialog progressDialog;
+
     //Firebase
-    FirebaseStorage storage;
+    FirebaseStorage firebaseStorage;
     StorageReference storageReference;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -80,11 +88,15 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        progressDialog = new ProgressDialog(this);
+
         mAuth = FirebaseAuth.getInstance();
         //Initialize Firestore object
         db = FirebaseFirestore.getInstance();
-        storage = FirebaseStorage.getInstance();
-        storageReference = storage.getReference();
+        firebaseStorage = FirebaseStorage.getInstance();
+        storageReference = firebaseStorage.getReference();
+
+
 
         //User info
         imageView = (ImageView) findViewById(R.id.imageView);
@@ -96,6 +108,8 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
         editTextUserAddress = findViewById(R.id.editText_address);
         spinnerCommission = findViewById(R.id.spinner_commission);
         imageView = findViewById(R.id.imageView);
+
+        checkPermission();
 
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_item, DataHolder.listCommission);
@@ -124,10 +138,31 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
 
         switch(v.getId()){
             case R.id.imageView:
+                checkPermission();
                 chooseImage();
                 break;
             case R.id.button_finish:
+                progressDialog.setMessage("Chargement en cours ...");
+                progressDialog.setCancelable(false);
+                progressDialog.setCanceledOnTouchOutside(false);
+                if (progressDialog != null && !progressDialog.isShowing()) {
+                    progressDialog.show();
+                }
                 registration();
+                if(isRegistrationSuccessful()){
+
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            startActivity(new Intent(getApplicationContext(), ProfileAdminActivity.class));
+                            if (progressDialog != null && progressDialog.isShowing()) {
+                                progressDialog.dismiss();
+                            }
+                            finish();
+                        }
+                    }, 5000);
+                }
                 break;
             case R.id.button_back:
                 finish();
@@ -135,49 +170,6 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    private void chooseImage() {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Choisir une image"), PICK_IMAGE_REQUEST);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
-                && data != null && data.getData() != null ) {
-            filePath = data.getData();
-            try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
-                imageView.setImageBitmap(bitmap);
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void uploadImage(String userID) {
-
-        if(filePath != null) {
-            StorageReference ref = storageReference.child("images/"+ userID);
-            ref.putFile(filePath)
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            toastMessage("Image enregistree avec succes");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            toastMessage("Failed "+e.getMessage());
-                        }
-                    });
-        }
-    }
 
     private void registration() {
         //Info user
@@ -190,15 +182,25 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
         final String role = "admin";
 
         if(!hasValidationErrors(userName, userPhoneNumber, email, pwd, confPwd, userAddress)) {
+            progressDialog.setMessage("Creation de votre compte cours ...");
+            progressDialog.setCancelable(false);
+            progressDialog.setCanceledOnTouchOutside(false);
+            if (progressDialog != null && !progressDialog.isShowing()) {
+                progressDialog.show();
+            }
             mAuth.createUserWithEmailAndPassword(email, pwd).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
+                    while (!task.isSuccessful());
                     if (task.isSuccessful()) {
+                        if (progressDialog != null && progressDialog.isShowing()) {
+                            progressDialog.show();
+                        }
                         //Get ID of current user.
-                        String userID = mAuth.getCurrentUser().getUid();
+                        DataHolder.userID = mAuth.getCurrentUser().getUid();
 
                         //Upload image
-                        //uploadImage(userID);
+                        uploadImage(DataHolder.userID);
 
                         //Create a collection reference objects.
                         CollectionReference dbDahiras = db.collection("dahiras");
@@ -211,32 +213,11 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
                         saveDahira(dbDahiras, DataHolder.dahiraID);
 
                         //Save user info on the FireBase database
-                        saveUser(userID, DataHolder.dahiraID, DataHolder.dahira.getDahiraName(), userName, email,
+                        saveUser(DataHolder.userID, DataHolder.dahiraID, DataHolder.dahira.getDahiraName(), userName, email,
                                 userPhoneNumber, userAddress, commission, role);
 
                         //Save list commission on the FireBase database
                         saveCommissions(DataHolder.dahiraID, DataHolder.listCommission, DataHolder.listResponsible);
-
-                        if(accountCreated && userSaved && dahiraSaved && commissionsSaved){
-                            finish();
-                            startActivity(new Intent(CreateAdminActivity.this, ProfileAdminActivity.class));
-                        }
-                        else{
-                            deleteDahira(DataHolder.dahiraID);
-                            mAuth.getCurrentUser().delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if(task.isSuccessful()){
-                                        toastMessage("Erreur inscription! Reessayez plus tard.");
-                                        startActivity(new Intent(CreateAdminActivity.this, LoginActivity.class));
-                                    }
-                                    else {
-                                        toastMessage("Erreur inscription! Contactez votre administrateur SVP.");
-                                        startActivity(new Intent(CreateAdminActivity.this, LoginActivity.class));
-                                    }
-                                }
-                            });
-                        }
 
                     } else {
                         if (task.getException() instanceof FirebaseAuthUserCollisionException) {
@@ -252,20 +233,90 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
+    private void chooseImage() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Choisir une image"), PICK_IMAGE_REQUEST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
+                && data != null && data.getData() != null ) {
+            try {
+                uri = data.getData();
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                imageView.setImageBitmap(bitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void uploadImage(String userID) {
+
+        if(uri != null) {
+
+            progressDialog.setMessage("Enregistrement de votre image cours ...");
+            progressDialog.setCancelable(false);
+            progressDialog.setCanceledOnTouchOutside(false);
+            if (progressDialog != null && !progressDialog.isShowing()) {
+                progressDialog.show();
+            }
+            final StorageReference ref = storageReference.child("images").child(userID);
+            ref.putFile(uri)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
+                            while (!urlTask.isSuccessful());
+                            if (progressDialog != null && progressDialog.isShowing()) {
+                                progressDialog.dismiss();
+                            }
+                            //toastMessage("Image enregistree avec succes");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            if (progressDialog != null && progressDialog.isShowing()) {
+                                progressDialog.dismiss();
+                            }
+                            imageSaved = false;
+                            toastMessage("Failed "+e.getMessage());
+                        }
+                    });
+        }
+    }
+
     private void saveDahira(CollectionReference dbDahiras, String dahiraID){
 
+        progressDialog.setMessage("Enregistrement de votre dahira cours ...");
+        progressDialog.setCancelable(false);
+        progressDialog.setCanceledOnTouchOutside(false);
+        if (progressDialog != null && !progressDialog.isShowing()) {
+            progressDialog.show();
+        }
         DataHolder.dahira.setDahiraID(dahiraID);
         dbDahiras.document(dahiraID).set(DataHolder.dahira);
         dbDahiras.document(dahiraID).set(DataHolder.dahira)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        toastMessage("Dahira ajoute avec succes");
+                        if (progressDialog != null && progressDialog.isShowing()) {
+                            progressDialog.dismiss();
+                        }
+                        //toastMessage("Dahira ajoute avec succes");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        if (progressDialog != null && progressDialog.isShowing()) {
+                            progressDialog.dismiss();
+                        }
                         dahiraSaved = false;
                         toastMessage("Error adding user!");
                         Log.d(TAG, e.toString());
@@ -288,6 +339,12 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
         user.put("commission", commission);
         user.put("role", role);
 
+        progressDialog.setMessage("Enregistrement de vos informations personnelles cours ...");
+        progressDialog.setCancelable(false);
+        progressDialog.setCanceledOnTouchOutside(false);
+        if (progressDialog != null && !progressDialog.isShowing()) {
+            progressDialog.show();
+        }
         //Save user in firestore database
         db.collection("dahiras").document(dahiraID)
                 .collection("members").document(userID)
@@ -295,12 +352,18 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        toastMessage("Utilisateur enregistre avec succes");
+                        if (progressDialog != null && progressDialog.isShowing()) {
+                            progressDialog.dismiss();
+                        }
+                        //toastMessage("Utilisateur enregistre avec succes");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        if (progressDialog != null && progressDialog.isShowing()) {
+                            progressDialog.dismiss();
+                        }
                         userSaved = false;
                         toastMessage("Error adding user!");
                         Log.d(TAG, e.toString());
@@ -316,18 +379,31 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
             commissions.put("dahiraID", dahiraID);
             commissions.put("listCommission", listCommission);
             commissions.put("listResponsible", listResponsible);
+
+            progressDialog.setMessage("Enregistrement des commissions cours ...");
+            progressDialog.setCancelable(false);
+            progressDialog.setCanceledOnTouchOutside(false);
+            if (progressDialog != null && !progressDialog.isShowing()) {
+                progressDialog.show();
+            }
             //Save user in firestore database
             db.collection("dahiras").document(dahiraID)
                     .collection("commission").document(dahiraID).set(commissions)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            toastMessage("Liste commission enregistree avec succes");
+                            if (progressDialog != null && progressDialog.isShowing()) {
+                                progressDialog.dismiss();
+                            }
+                            //toastMessage("Liste commission enregistree avec succes");
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
+                            if (progressDialog != null && progressDialog.isShowing()) {
+                                progressDialog.dismiss();
+                            }
                             commissionsSaved = false;
                             toastMessage("Error adding list commission!");
                             Log.d(TAG, e.toString());
@@ -335,6 +411,31 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
                     });
         }
 
+    }
+
+    private boolean isRegistrationSuccessful(){
+        if(accountCreated && userSaved && dahiraSaved && commissionsSaved && imageSaved){
+            return true;
+        }
+        else{
+            deleteDahira(DataHolder.dahiraID);
+            deletePrifleImage(DataHolder.userID);
+            mAuth.getCurrentUser().delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if(task.isSuccessful()){
+                        toastMessage("Erreur inscription! Reessayez SVP.");
+                        startActivity(new Intent(CreateAdminActivity.this, LoginActivity.class));
+                    }
+                    else {
+                        toastMessage("Erreur inscription! Contactez votre administrateur SVP.");
+                        startActivity(new Intent(CreateAdminActivity.this, LoginActivity.class));
+                    }
+                }
+            });
+
+            return false;
+        }
     }
 
     private void deleteDahira(String dahiraID) {
@@ -351,6 +452,25 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
                     }
                 });
     }
+
+    private void deletePrifleImage(String userID) {
+        FirebaseStorage firebaseStorage;
+        StorageReference storageReference;
+        firebaseStorage = FirebaseStorage.getInstance();
+        storageReference = firebaseStorage.getReference();
+        storageReference.child("images").child(userID).delete()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            toastMessage("Image supprimee");
+                        }
+                        else {
+                            toastMessage(task.getException().getMessage());
+                        }
+                    }
+                });
+}
 
     private boolean hasValidationErrors(String userName, String userPhoneNumber, String email,
                                         String pwd, String confPwd, String userAddress) {
@@ -444,7 +564,28 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
         return false;
     }
 
+    public void checkPermission(){
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_EXTERNAL_STORAGE},
+                    1);
+
+        }
+    }
+
     public void toastMessage(String message){
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    public void reloadProfileAdminActivity(){
+        Intent i = new Intent(CreateAdminActivity.this, ProfileAdminActivity.class);
+        finish();
+        overridePendingTransition(0, 0);
+        startActivity(i);
+        overridePendingTransition(0, 0);
     }
 }

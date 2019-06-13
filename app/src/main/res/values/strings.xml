@@ -9,7 +9,7 @@
     <string name="inscrire" tools:ignore="ExtraTranslation">S\'inscrire</string>
     <string name="registeredAlready">Deja creer un dahira? Se connecter</string>
     <string name="camera">Choisir une photo de profile</string>
-    <string name="verifyEmail">Cliquez ici pour recevoir un message de verification dans votre email pour continuer</string>
+    <string name="verifyEmail">Pour continuer, cliquez sur le bouton ci-dessous recevoir un email de verification et suivez les instructions.</string>
     <string name="commission">Commission</string>
     <string name="admin">Administrateur</string>
     <string name="simpleMember">Membre simple</string>
@@ -38,4 +38,10 @@
     <string name="nextButton">Suivant</string>
     <string name="textView_commissionsTitle">Commissions</string>
     <string name="textView_responsiblesTitle">Responsable</string>
+    <string name="buttonVerifyEmail">Cliquez ici pour verifier votre email</string>
+    <string name="textView_labelUserName">Nom:</string>
+    <string name="textView_labelPhoneNumber">Telephone:</string>
+    <string name="textView_labelAddress">Adresse:</string>
+    <string name="textView_labelListDahira">Liste de tous les dahiras dont vous etes membre</string>
+    <string name="textView_labelProfile">Votre profile</string>
 </resources>

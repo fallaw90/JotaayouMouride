@@ -76,7 +76,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         editTextConfirmPassword = findViewById(R.id.editText_confirmPassword);
         editTextAddress = findViewById(R.id.editText_address);
         editTextCommission = findViewById(R.id.editText_commission);
-        imageViewProfile = (ImageView) findViewById(R.id.imageView_profile);
+        imageViewProfile = (ImageView) findViewById(R.id.imageView);
         radioRoleGroup=(RadioGroup)findViewById(R.id.radioGroup);
 
 
