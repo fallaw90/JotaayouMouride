@@ -40,13 +40,10 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
     private EditText editTextAdiya;
     private EditText editTextSass;
     private EditText editTextSocial;
-    private Button buttonAddCommission;
-    private Button buttonNext;
-    private TextView textViewLogin;
+    private TextView textViewLabelCommission;
+    private TextView getTextViewLabelResponsible;
 
     private ListView listViewCommission;
-
-    ProgressBar progressBar;
 
     // Array of strings...
 
@@ -64,8 +61,6 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        progressBar = (ProgressBar) findViewById(R.id.progressbar);
-
         //Dahira info
         editTextDahiraName = findViewById(R.id.editText_dahiraName);
         editTextDieuwrine = findViewById(R.id.editText_dieuwrine);
@@ -73,49 +68,30 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         editTextSiege = findViewById(R.id.editText_siege);
         editTextCommission = findViewById(R.id.editText_commission);
         editTextResponsible = findViewById(R.id.editText_responsible);
+        textViewLabelCommission = (TextView) findViewById(R.id.textView_labelCommission);
+        getTextViewLabelResponsible = (TextView) findViewById(R.id.textView_labelResponsible);
         listViewCommission = (ListView) findViewById(R.id.listView_commission);
         editTextResponsible = findViewById(R.id.editText_responsible);
         editTextAdiya = findViewById(R.id.editText_adiya);
         editTextSass = findViewById(R.id.editText_sass);
         editTextSocial = findViewById(R.id.editText_social);
 
+        //Hide label commission and label responsible
+        textViewLabelCommission.setVisibility(View.INVISIBLE);
+        getTextViewLabelResponsible.setVisibility(View.INVISIBLE);
+
         //Display and modify ListView commissions
-        arrayList=new ArrayList<>(new ArrayList(listCommission));
-        arrayAdapter=new ArrayAdapter<String>(this, R.layout.list_commission, R.id.textView_commission, arrayList);
+        arrayList = new ArrayList<>(new ArrayList(listCommission));
+        arrayAdapter = new ArrayAdapter<String>(this, R.layout.list_commission, R.id.textView_commission, arrayList);
         listViewCommission.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int index, long l) {
                 String com = listCommission.get(index);
-                String resp = listCommission.get(index);
+                String resp = listResponsible.get(index);
                 showUpdateDeleteDialog(com, resp, index);
                 return true;
             }
         });
-
-        /*
-        buttonAddCommission = findViewById(R.id.button_addCommission);
-        buttonAddCommission.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showListViewCommissions();
-            }
-        });
-
-        buttonNext = findViewById(R.id.button_next);
-        /*buttonNext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                SaveDahiraInfo();
-            }
-        });
-
-        textViewLogin = findViewById(R.id.textView_login);
-        textViewLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(CreateDahiraActivity.this, LoginActivity.class));
-            }
-        });*/
 
         findViewById(R.id.button_addCommission).setOnClickListener(this);
         findViewById(R.id.button_next).setOnClickListener(this);
@@ -221,15 +197,6 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         return false;
     }
 
-    public boolean isInt(String s) {
-        try {
-            int i = Integer.parseInt(s);
-            return true;
-        }
-        catch(NumberFormatException er)
-        { return false; }
-    }
-
     public void showListViewCommissions(){
         String commission = editTextCommission.getText().toString().trim();
         String responsible = editTextResponsible.getText().toString().trim();
@@ -245,6 +212,10 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
             editTextResponsible.requestFocus();
             return;
         }
+
+        //Show label commission and label responsible
+        textViewLabelCommission.setVisibility(View.VISIBLE);
+        getTextViewLabelResponsible.setVisibility(View.VISIBLE);
 
         listCommission.add(commission);
         listResponsible.add(responsible);
@@ -294,8 +265,10 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
 
         final EditText editTextCommissione = (EditText) dialogView.findViewById(R.id.editText_dialogCommission);
         final EditText editTextResponsible = (EditText) dialogView.findViewById(R.id.editText_dialogResponsible);
+
         Button buttonUpdate = (Button) dialogView.findViewById(R.id.button_dialogUpdate);
         Button buttonDelete = (Button) dialogView.findViewById(R.id.button_dialogDelete);
+
         editTextCommissione.setText(commission);
         editTextResponsible.setText(responsible);
 

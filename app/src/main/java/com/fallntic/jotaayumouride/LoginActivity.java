@@ -56,7 +56,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         if (mAuth.getCurrentUser() != null) {
             finish();
-            startActivity(new Intent(this, ProfileActivity.class));
+            startActivity(new Intent(this, ProfileAdminActivity.class));
         }
     }
 
@@ -108,7 +108,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 progressBar.setVisibility(View.GONE);
                 if (task.isSuccessful()) {
                     finish();
-                    Intent intent = new Intent(LoginActivity.this, ProfileActivity.class);
+                    Intent intent = new Intent(LoginActivity.this, ProfileAdminActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                 } else {

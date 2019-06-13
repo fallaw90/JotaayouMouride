@@ -8,16 +8,16 @@
     <string name="confimerMdp" tools:ignore="ExtraTranslation">Confirmer votre de passe</string>
     <string name="inscrire" tools:ignore="ExtraTranslation">S\'inscrire</string>
     <string name="registeredAlready">Deja creer un dahira? Se connecter</string>
-    <string name="camera">Choisir une photo de profil</string>
+    <string name="camera">Choisir une photo de profile</string>
     <string name="verifyEmail">Cliquez ici pour recevoir un message de verification dans votre email pour continuer</string>
-    <string name="commission">Commission (exemple: culturelle, ...)</string>
+    <string name="commission">Commission</string>
     <string name="admin">Administrateur</string>
     <string name="simpleMember">Membre simple</string>
     <string name="dahiraName">Nom du dahira</string>
     <string name="dahiraPhoneNumber">Numero telephone du dahira</string>
     <string name="siege">Siege du dahira</string>
     <string name="addCommission">Ajouter cette commission</string>
-    <string name="responsible">Responsable de la commission</string>
+    <string name="responsible">Responsable</string>
     <string name="createDahira">Vous etes administrateur? Cliquez ici pour enregistrer votre dahira</string>
     <string name="dialogTitle">Modifier ou supprimer cette commission</string>
     <string name="update">Modifier</string>
@@ -36,4 +36,6 @@
     <string name="spinnerTitle">Selectionner une commission</string>
     <string name="backButton">Precedent</string>
     <string name="nextButton">Suivant</string>
+    <string name="textView_commissionsTitle">Commissions</string>
+    <string name="textView_responsiblesTitle">Responsable</string>
 </resources>

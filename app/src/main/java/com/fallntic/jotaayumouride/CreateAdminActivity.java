@@ -1,11 +1,9 @@
 package com.fallntic.jotaayumouride;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
@@ -14,20 +12,14 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Patterns;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -38,10 +30,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
@@ -49,12 +39,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class CreateAdminActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "CreateDahiraActivity";
-    //private static final int CHOOSE_IMAGE = 101;
 
     private EditText editTextUserName;
     private EditText editTextUserPhoneNumber;
@@ -68,6 +56,12 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
     private ImageView imageView;
     private Uri filePath;
     private final int PICK_IMAGE_REQUEST = 71;
+
+    private boolean accountCreated = true;
+    private boolean dahiraSaved = true;
+    private boolean userSaved = true;
+    private boolean commissionsSaved = true;
+    private boolean imageSaved = true;
 
     //Firebase
     FirebaseStorage storage;
@@ -103,7 +97,6 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
         spinnerCommission = findViewById(R.id.spinner_commission);
         imageView = findViewById(R.id.imageView);
 
-        DataHolder.listCommission.add(0, "Selectionner une commission");
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_item, DataHolder.listCommission);
 
@@ -115,10 +108,6 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
                 commission = parent.getItemAtPosition(position).toString();
-
-                if (commission.equals("Selectionner une commission")){
-                    commission = "";
-                }
             }
             @Override
             public void onNothingSelected(AdapterView <?> parent) {
@@ -173,11 +162,6 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
     private void uploadImage(String userID) {
 
         if(filePath != null) {
-
-            final ProgressDialog progressDialog = new ProgressDialog(this);
-            progressDialog.setTitle("Eenregistrement de l'image...");
-            progressDialog.show();
-
             StorageReference ref = storageReference.child("images/"+ userID);
             ref.putFile(filePath)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -190,14 +174,6 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             toastMessage("Failed "+e.getMessage());
-                        }
-                    })
-                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                            double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot
-                                    .getTotalByteCount());
-                            progressDialog.setMessage("En cours "+(int)progress+"%");
                         }
                     });
         }
@@ -214,38 +190,53 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
         final String role = "admin";
 
         if(!hasValidationErrors(userName, userPhoneNumber, email, pwd, confPwd, userAddress)) {
-
-            //progressBar.setVisibility(View.VISIBLE);
-
             mAuth.createUserWithEmailAndPassword(email, pwd).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
-                    //progressBar.setVisibility(View.GONE);
                     if (task.isSuccessful()) {
                         //Get ID of current user.
                         String userID = mAuth.getCurrentUser().getUid();
 
                         //Upload image
-                        uploadImage(userID);
+                        //uploadImage(userID);
 
                         //Create a collection reference objects.
                         CollectionReference dbDahiras = db.collection("dahiras");
 
                         //Get ID of the dahira
-                        String dahiraID = db.collection("dahiras").document().getId();
+                        DataHolder.dahiraID = db.collection("dahiras").document().getId();
+                        DataHolder.listDahiraID.add(DataHolder.dahiraID);
 
                         //Save dahira info on the FireBase database
-                        saveDahira(dbDahiras, dahiraID);
+                        saveDahira(dbDahiras, DataHolder.dahiraID);
 
                         //Save user info on the FireBase database
-                        saveUser(userID, dahiraID, DataHolder.dahira.getDahiraName(), userName, email,
+                        saveUser(userID, DataHolder.dahiraID, DataHolder.dahira.getDahiraName(), userName, email,
                                 userPhoneNumber, userAddress, commission, role);
 
                         //Save list commission on the FireBase database
-                        saveCommissions(dahiraID, DataHolder.listCommission, DataHolder.listResponsible);
+                        saveCommissions(DataHolder.dahiraID, DataHolder.listCommission, DataHolder.listResponsible);
 
-                        finish();
-                        startActivity(new Intent(CreateAdminActivity.this, ProfileActivity.class));
+                        if(accountCreated && userSaved && dahiraSaved && commissionsSaved){
+                            finish();
+                            startActivity(new Intent(CreateAdminActivity.this, ProfileAdminActivity.class));
+                        }
+                        else{
+                            deleteDahira(DataHolder.dahiraID);
+                            mAuth.getCurrentUser().delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if(task.isSuccessful()){
+                                        toastMessage("Erreur inscription! Reessayez plus tard.");
+                                        startActivity(new Intent(CreateAdminActivity.this, LoginActivity.class));
+                                    }
+                                    else {
+                                        toastMessage("Erreur inscription! Contactez votre administrateur SVP.");
+                                        startActivity(new Intent(CreateAdminActivity.this, LoginActivity.class));
+                                    }
+                                }
+                            });
+                        }
 
                     } else {
                         if (task.getException() instanceof FirebaseAuthUserCollisionException) {
@@ -254,7 +245,7 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
                         } else {
                             toastMessage(task.getException().getMessage());
                         }
-
+                        accountCreated = false;
                     }
                 }
             });
@@ -264,17 +255,18 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
     private void saveDahira(CollectionReference dbDahiras, String dahiraID){
 
         DataHolder.dahira.setDahiraID(dahiraID);
+        dbDahiras.document(dahiraID).set(DataHolder.dahira);
         dbDahiras.document(dahiraID).set(DataHolder.dahira)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-
                         toastMessage("Dahira ajoute avec succes");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        dahiraSaved = false;
                         toastMessage("Error adding user!");
                         Log.d(TAG, e.toString());
                     }
@@ -287,7 +279,7 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
         //Map user's info
         Map<String, Object> user = new HashMap<>();
         user.put("userID", userID);
-        user.put("dahiraID", dahiraID);
+        user.put("dahiraID", DataHolder.listDahiraID);
         user.put("dahiraName", dahiraName);
         user.put("name", userName);
         user.put("email", email);
@@ -297,7 +289,9 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
         user.put("role", role);
 
         //Save user in firestore database
-        db.collection("users").document(userID).set(user)
+        db.collection("dahiras").document(dahiraID)
+                .collection("members").document(userID)
+                .set(user)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -307,6 +301,7 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        userSaved = false;
                         toastMessage("Error adding user!");
                         Log.d(TAG, e.toString());
                     }
@@ -316,16 +311,14 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
     private void saveCommissions(String dahiraID, ArrayList<String> listCommission, ArrayList<String> listResponsible){
 
         if (listCommission.size() > 1){
-
-            listCommission.remove(0);
             //Map user's info
             Map<String, Object> commissions = new HashMap<>();
             commissions.put("dahiraID", dahiraID);
             commissions.put("listCommission", listCommission);
             commissions.put("listResponsible", listResponsible);
-
             //Save user in firestore database
-            db.collection("commissions").document().set(commissions)
+            db.collection("dahiras").document(dahiraID)
+                    .collection("commission").document(dahiraID).set(commissions)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
@@ -335,12 +328,28 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
+                            commissionsSaved = false;
                             toastMessage("Error adding list commission!");
                             Log.d(TAG, e.toString());
                         }
                     });
         }
 
+    }
+
+    private void deleteDahira(String dahiraID) {
+        db.collection("dahiras").document(dahiraID).delete()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            toastMessage("Dahira supprime");
+                        }
+                        else {
+                            toastMessage(task.getException().getMessage());
+                        }
+                    }
+                });
     }
 
     private boolean hasValidationErrors(String userName, String userPhoneNumber, String email,
@@ -383,6 +392,7 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
                 validatePrefix = false;
                 break;
         }
+
         if(!validatePrefix) {
             editTextUserPhoneNumber.setError("Numero de telephone incorrect");
             editTextUserPhoneNumber.requestFocus();
@@ -433,9 +443,8 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
 
         return false;
     }
-    
+
     public void toastMessage(String message){
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
-
 }
