@@ -142,27 +142,7 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
                 chooseImage();
                 break;
             case R.id.button_finish:
-                progressDialog.setMessage("Chargement en cours ...");
-                progressDialog.setCancelable(false);
-                progressDialog.setCanceledOnTouchOutside(false);
-                if (progressDialog != null && !progressDialog.isShowing()) {
-                    progressDialog.show();
-                }
                 registration();
-                if(isRegistrationSuccessful()){
-
-                    final Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            startActivity(new Intent(getApplicationContext(), ProfileAdminActivity.class));
-                            if (progressDialog != null && progressDialog.isShowing()) {
-                                progressDialog.dismiss();
-                            }
-                            finish();
-                        }
-                    }, 5000);
-                }
                 break;
             case R.id.button_back:
                 finish();
@@ -185,7 +165,7 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
             progressDialog.setMessage("Creation de votre compte cours ...");
             progressDialog.setCancelable(false);
             progressDialog.setCanceledOnTouchOutside(false);
-            if (progressDialog != null && !progressDialog.isShowing()) {
+            if (progressDialog != null) {
                 progressDialog.show();
             }
             mAuth.createUserWithEmailAndPassword(email, pwd).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -219,6 +199,19 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
                         //Save list commission on the FireBase database
                         saveCommissions(DataHolder.dahiraID, DataHolder.listCommission, DataHolder.listResponsible);
 
+                        if(isRegistrationSuccessful()){
+                            progressDialog.setMessage("Chargement en cours ...");
+                            progressDialog.setCancelable(false);
+                            progressDialog.setCanceledOnTouchOutside(false);
+                            if (progressDialog != null) {
+                                progressDialog.show();
+                            }
+                            startActivity(new Intent(CreateAdminActivity.this, ProfileAdminActivity.class));
+                        }
+                        else{
+                            startActivity(new Intent(CreateAdminActivity.this, LoginActivity.class));
+                        }
+
                     } else {
                         if (task.getException() instanceof FirebaseAuthUserCollisionException) {
                             toastMessage("Adresse email deja utilise");
@@ -230,6 +223,9 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
                     }
                 }
             });
+        }
+        else{
+            return;
         }
     }
 
@@ -262,7 +258,7 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
             progressDialog.setMessage("Enregistrement de votre image cours ...");
             progressDialog.setCancelable(false);
             progressDialog.setCanceledOnTouchOutside(false);
-            if (progressDialog != null && !progressDialog.isShowing()) {
+            if (progressDialog != null) {
                 progressDialog.show();
             }
             final StorageReference ref = storageReference.child("images").child(userID);
@@ -296,7 +292,7 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
         progressDialog.setMessage("Enregistrement de votre dahira cours ...");
         progressDialog.setCancelable(false);
         progressDialog.setCanceledOnTouchOutside(false);
-        if (progressDialog != null && !progressDialog.isShowing()) {
+        if (progressDialog != null) {
             progressDialog.show();
         }
         DataHolder.dahira.setDahiraID(dahiraID);
@@ -342,7 +338,7 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
         progressDialog.setMessage("Enregistrement de vos informations personnelles cours ...");
         progressDialog.setCancelable(false);
         progressDialog.setCanceledOnTouchOutside(false);
-        if (progressDialog != null && !progressDialog.isShowing()) {
+        if (progressDialog != null) {
             progressDialog.show();
         }
         //Save user in firestore database
@@ -383,7 +379,7 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
             progressDialog.setMessage("Enregistrement des commissions cours ...");
             progressDialog.setCancelable(false);
             progressDialog.setCanceledOnTouchOutside(false);
-            if (progressDialog != null && !progressDialog.isShowing()) {
+            if (progressDialog != null) {
                 progressDialog.show();
             }
             //Save user in firestore database
@@ -425,7 +421,6 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
                 public void onComplete(@NonNull Task<Void> task) {
                     if(task.isSuccessful()){
                         toastMessage("Erreur inscription! Reessayez SVP.");
-                        startActivity(new Intent(CreateAdminActivity.this, LoginActivity.class));
                     }
                     else {
                         toastMessage("Erreur inscription! Contactez votre administrateur SVP.");
@@ -470,7 +465,7 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
                         }
                     }
                 });
-}
+    }
 
     private boolean hasValidationErrors(String userName, String userPhoneNumber, String email,
                                         String pwd, String confPwd, String userAddress) {
@@ -512,7 +507,6 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
                 validatePrefix = false;
                 break;
         }
-
         if(!validatePrefix) {
             editTextUserPhoneNumber.setError("Numero de telephone incorrect");
             editTextUserPhoneNumber.requestFocus();
@@ -581,11 +575,4 @@ public class CreateAdminActivity extends AppCompatActivity implements View.OnCli
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
 
-    public void reloadProfileAdminActivity(){
-        Intent i = new Intent(CreateAdminActivity.this, ProfileAdminActivity.class);
-        finish();
-        overridePendingTransition(0, 0);
-        startActivity(i);
-        overridePendingTransition(0, 0);
-    }
 }

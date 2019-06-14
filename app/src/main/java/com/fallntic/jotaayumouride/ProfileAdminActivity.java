@@ -125,6 +125,7 @@ public class ProfileAdminActivity extends AppCompatActivity implements View.OnCl
         // Download directly from StorageReference using Glide
         GlideApp.with(ProfileAdminActivity.this)
                 .load(profileImageReference)
+                .placeholder(R.drawable.icon_camera)
                 .into(imageViewProfile);
 
         if (progressDialog != null && progressDialog.isShowing()) {
