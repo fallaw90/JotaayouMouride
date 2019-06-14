@@ -3,15 +3,13 @@ package com.fallntic.jotaayumouride;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -19,25 +17,22 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.squareup.picasso.Picasso;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProfileAdminActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -47,44 +42,63 @@ public class ProfileAdminActivity extends AppCompatActivity implements View.OnCl
     private TextView textViewVerifyEmail;
     private ImageView imageViewProfile;
     private LinearLayout linearLayoutVerificationNeeded;
-    private ScrollView scrollView;
+    private LinearLayout linearLayoutVerified;
+    private SwipeRefreshLayout swipeLayout;
 
     private ProgressDialog progressDialog;
-
-    private String profileImageUrl;
+    private ProgressBar progressBar;
 
     private FirebaseAuth mAuth;
     private FirebaseUser firebaseUser;
     private FirebaseStorage firebaseStorage;
     private StorageReference storageReference;
+    private FirebaseFirestore db;
+
+    private RecyclerView recyclerViewDahira;
+    private DahiraAdapter dahiraAdapter;
+    private List<Dahira> dahiraList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_admin);
 
-        mAuth = FirebaseAuth.getInstance();
-        firebaseUser = mAuth.getCurrentUser();
-        String userID = mAuth.getCurrentUser().getUid();
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         progressDialog = new ProgressDialog(this);
 
-        firebaseStorage = FirebaseStorage.getInstance();
-        storageReference = firebaseStorage.getReference();
-
         textViewName = (TextView) findViewById(R.id.textView_userName);
         imageViewProfile = (ImageView) findViewById(R.id.imageView);
         textViewVerifyEmail = (TextView) findViewById(R.id.textView_verifyEmail);
-        linearLayoutVerificationNeeded = (LinearLayout) findViewById(R.id.linearLayout_verificationNeeded);
-        scrollView = (ScrollView) findViewById(R.id.scrollView);
 
+        //Retrieve userID and picture
+        mAuth = FirebaseAuth.getInstance();
+        firebaseUser = mAuth.getCurrentUser();
+        String userID = mAuth.getCurrentUser().getUid();
+
+
+
+        //Check user's auth
+        firebaseStorage = FirebaseStorage.getInstance();
+        storageReference = firebaseStorage.getReference();
         loadUserInformation(userID);
+
+
+
+        swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipeToRefresh);
+        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+
+            @Override
+            public void onRefresh() {
+                startActivity(new Intent(ProfileAdminActivity.this, ProfileAdminActivity.class));
+                swipeLayout.setRefreshing(false);
+            }
+        });
 
         findViewById(R.id.button_verifyEmail).setOnClickListener(this);
     }
+
 
     @Override
     protected void onStart() {
@@ -103,6 +117,9 @@ public class ProfileAdminActivity extends AppCompatActivity implements View.OnCl
                 firebaseUser.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
+                        logout();
+                        finish();
+                        startActivity(new Intent(ProfileAdminActivity.this, LoginActivity.class));
                         toastMessage("Verification Email envoye");
                     }
                 });
@@ -115,7 +132,7 @@ public class ProfileAdminActivity extends AppCompatActivity implements View.OnCl
 
         //Upload image from firestore
         progressDialog.setMessage("Chargement de l'image ...");
-        if (progressDialog != null && progressDialog.isShowing()) {
+        if (progressDialog != null) {
             progressDialog.show();
         }
 
@@ -128,6 +145,8 @@ public class ProfileAdminActivity extends AppCompatActivity implements View.OnCl
                 .placeholder(R.drawable.icon_camera)
                 .into(imageViewProfile);
 
+        linearLayoutVerificationNeeded = (LinearLayout) findViewById(R.id.linearLayout_verificationNeeded);
+        linearLayoutVerified = (LinearLayout) findViewById(R.id.linearLayout_verified);
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
@@ -135,14 +154,56 @@ public class ProfileAdminActivity extends AppCompatActivity implements View.OnCl
         if (firebaseUser != null) {
 
             if (firebaseUser.isEmailVerified()) {
-                linearLayoutVerificationNeeded.setVisibility(View.INVISIBLE);
-                scrollView.setVisibility(View.VISIBLE);
+                linearLayoutVerified.setVisibility(View.VISIBLE);
+                toastMessage("Email verified");
+
+                showListDahira();
+
             }
             else {
                 linearLayoutVerificationNeeded.setVisibility(View.VISIBLE);
-                scrollView.setVisibility(View.INVISIBLE);
+                toastMessage("Email non verified");
             }
         }
+    }
+
+    private void showListDahira() {
+
+        //Attach adapter to recyclerView
+        recyclerViewDahira = findViewById(R.id.recyclerview_dahiras);
+        recyclerViewDahira.setHasFixedSize(true);
+        recyclerViewDahira.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewDahira.setVisibility(View.VISIBLE);
+        dahiraList = new ArrayList<>();
+        dahiraAdapter = new DahiraAdapter(this, dahiraList);
+        recyclerViewDahira.setAdapter(dahiraAdapter);
+
+        progressBar = findViewById(R.id.progressbar);
+        db = FirebaseFirestore.getInstance();
+        db.collection("dahiras").get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+
+                        progressBar.setVisibility(View.GONE);
+
+                        if (!queryDocumentSnapshots.isEmpty()) {
+
+                            List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+
+                            for (DocumentSnapshot documentSnapshot : list) {
+
+                                Dahira dahira = documentSnapshot.toObject(Dahira.class);
+                                dahira.setDahiraID(documentSnapshot.getId());
+                                dahiraList.add(dahira);
+
+                            }
+
+                            dahiraAdapter.notifyDataSetChanged();
+
+                        }
+                    }
+                });
     }
 
     @Override
@@ -159,23 +220,27 @@ public class ProfileAdminActivity extends AppCompatActivity implements View.OnCl
 
             case R.id.logout:
 
-                DataHolder.dahira = null;
-                DataHolder.dahiraID = "";
-                DataHolder.listDahiraID.removeAll(DataHolder.listDahiraID);
-                DataHolder.listCommission.removeAll(DataHolder.listCommission);
-                DataHolder.listResponsible.removeAll(DataHolder.listResponsible);
-                DataHolder.dahira = null;
-
-                FirebaseAuth.getInstance().signOut();
-
+                logout();
                 finish();
                 startActivity(new Intent(this, MainActivity.class));
-
 
                 break;
         }
 
         return true;
+    }
+
+    public void logout(){
+        DataHolder.dahira = null;
+        DataHolder.dahiraID = "";
+        DataHolder.userID = "";
+        DataHolder.listDahiraID.removeAll(DataHolder.listDahiraID);
+        DataHolder.listCommission.removeAll(DataHolder.listCommission);
+        DataHolder.listResponsible.removeAll(DataHolder.listResponsible);
+        DataHolder.dahira = null;
+
+        FirebaseAuth.getInstance().signOut();
+
     }
 
     public void reloadActivity(){

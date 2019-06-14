@@ -8,6 +8,7 @@
     android:background="@color/colorPrimary"
     tools:context=".ProfileAdminActivity">
 
+
     <include
         android:id="@+id/toolbar"
         layout="@layout/toolbar" />
@@ -25,7 +26,8 @@
     <RelativeLayout
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:layout_gravity="center">
+        android:layout_gravity="center"
+        android:id="@+id/relativeLayout_imageView">
 
         <ImageView
             android:id="@+id/imageView"
@@ -37,136 +39,158 @@
             android:scaleType="centerCrop" />
     </RelativeLayout>
 
-    <LinearLayout
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeToRefresh"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone"
-        android:id="@+id/linearLayout_verificationNeeded">
+        android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/textView_verifyEmail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/verifyEmail"
-            android:gravity="center"
-            android:textColor="@color/colorAccent"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
-
-        <Button
-            android:id="@+id/button_verifyEmail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="7dp"
-            android:textAllCaps="false"
-            android:layout_marginTop="20dp"
-            android:textColor="@color/colorAccent"
-            android:text="@string/buttonVerifyEmail"
-            android:background="@drawable/rounded_button_transparent"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
-
-
-    </LinearLayout>
-
-
-    <ScrollView
-        android:layout_width="fill_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/button_verifyEmail"
-        android:id="@+id/scrollView">
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <ScrollView
+            android:layout_width="fill_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_below="@+id/relativeLayout_imageView"
+            android:id="@+id/scrollView">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="20dp"
-                android:orientation="horizontal">
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/textView_labelUserName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/colorAccent"
-                    android:text="@string/textView_labelUserName"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
-
-                <TextView
-                    android:id="@+id/textView_userName"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/colorAccent"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
-            </LinearLayout>
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:id="@+id/linearLayout_verificationNeeded">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="20dp"
-                android:orientation="horizontal">
+                    <TextView
+                        android:id="@+id/textView_verifyEmail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/verifyEmail"
+                        android:gravity="center"
+                        android:textColor="@color/colorAccent"
+                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
 
-                <TextView
-                    android:id="@+id/textView_labelPhoneNumber"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/colorAccent"
-                    android:text="@string/textView_labelPhoneNumber"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
+                    <Button
+                        android:id="@+id/button_verifyEmail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="7dp"
+                        android:textAllCaps="false"
+                        android:layout_marginTop="20dp"
+                        android:textColor="@color/colorAccent"
+                        android:text="@string/buttonVerifyEmail"
+                        android:background="@drawable/rounded_button_transparent"
+                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
 
-                <TextView
-                    android:id="@+id/textView_phoneNumber"
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/colorAccent"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:id="@+id/linearLayout_verified">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="20dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/textView_labelUserName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/colorAccent"
+                            android:text="@string/textView_labelUserName"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
+
+                        <TextView
+                            android:id="@+id/textView_userName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/colorAccent"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="20dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/textView_labelPhoneNumber"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/colorAccent"
+                            android:text="@string/textView_labelPhoneNumber"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
+
+                        <TextView
+                            android:id="@+id/textView_phoneNumber"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/colorAccent"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="20dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/textView_labelAddress"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/colorAccent"
+                            android:text="@string/textView_labelAddress"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
+
+                        <TextView
+                            android:id="@+id/textView_address"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/colorAccent"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/textView_labelListDahira"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/textView_labelListDahira"
+                        android:textColor="@color/colorAccent"
+                        android:gravity="center"
+                        android:layout_marginTop="20dp"
+                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recyclerview_dahiras"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"/>
+
+                    <ProgressBar
+                        android:layout_centerHorizontal="true"
+                        android:layout_centerVertical="true"
+                        android:id="@+id/progressbar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
+
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="20dp"
-                android:orientation="horizontal">
+        </ScrollView>
 
-                <TextView
-                    android:id="@+id/textView_labelAddress"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/colorAccent"
-                    android:text="@string/textView_labelAddress"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-                <TextView
-                    android:id="@+id/textView_address"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/colorAccent"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/textView_labelListDahira"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/textView_labelListDahira"
-                android:textColor="@color/colorAccent"
-                android:gravity="center"
-                android:layout_marginTop="20dp"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
-
-            <ListView
-                android:layout_marginTop="20dp"
-                android:id="@+id/listView_listDahira"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-
-        </LinearLayout>
-
-    </ScrollView>
 </LinearLayout>

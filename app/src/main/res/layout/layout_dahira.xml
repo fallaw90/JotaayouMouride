@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="5dp">
+
+            <TextView
+                android:id="@+id/textview_dahiraName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Khidmatoul Khadim"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textview_dieuwrine"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Dieuwrine: Serigne Bassirou Ndiaye"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
+
+            <TextView
+                android:id="@+id/textview_phoneNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="771866656"
+                android:textSize="32sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textview_siege"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Parcelles Assainies Unite 05"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</RelativeLayout>

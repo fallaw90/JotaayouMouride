@@ -44,4 +44,10 @@
     <string name="textView_labelAddress">Adresse:</string>
     <string name="textView_labelListDahira">Liste de tous les dahiras dont vous etes membre</string>
     <string name="textView_labelProfile">Votre profile</string>
+    <string name="textView_modifyDahiraTitle">Editer votre dahira</string>
+    <string name="updatePhoneNumber">Telephone</string>
+    <string name="totalAdiya">Total Adiya</string>
+    <string name="totalSass">Total sass</string>
+    <string name="totalSocial">Total Social</string>
+    <string name="totalMember">Nombre de personnes dans ce dahira</string>
 </resources>

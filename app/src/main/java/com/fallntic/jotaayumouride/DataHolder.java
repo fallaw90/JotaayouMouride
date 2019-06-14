@@ -6,7 +6,6 @@ import java.util.ArrayList;
 
 public class DataHolder {
 
-    public static Uri downloadUri;
     public static Dahira dahira;
     public static String dahiraID;
     public static String userID;
