@@ -7,7 +7,7 @@
     <string name="mdp">Mot de passe</string>
     <string name="confimerMdp" tools:ignore="ExtraTranslation">Confirmer votre de passe</string>
     <string name="inscrire" tools:ignore="ExtraTranslation">S\'inscrire</string>
-    <string name="registeredAlready">Deja creer un dahira? Se connecter</string>
+    <string name="registeredAlready">Vous avez deja un compte? Cliquez ici pour vous connecter</string>
     <string name="camera">Choisir une photo de profile</string>
     <string name="verifyEmail">Pour continuer, cliquez sur le bouton ci-dessous recevoir un email de verification et suivez les instructions.</string>
     <string name="commission">Commission</string>
@@ -18,10 +18,10 @@
     <string name="siege">Siege du dahira</string>
     <string name="addCommission">Ajouter cette commission</string>
     <string name="responsible">Responsable</string>
-    <string name="createDahira">Vous etes administrateur? Cliquez ici pour enregistrer votre dahira</string>
+    <string name="createDahira">Vous n\'avez pas encore de compte? Cliquez ici pour s\'inscrire</string>
     <string name="dialogTitle">Modifier ou supprimer cette commission</string>
-    <string name="update">Modifier</string>
-    <string name="delete">Supprimer</string>
+    <string name="update">Enregistrer mes changements</string>
+    <string name="delete">Supprimer ce membre</string>
     <string name="finish">Terminer</string>
     <string name="infoDahira">Information du dahira</string>
     <string name="userPhoneNumber">Votre numero de telephone</string>
@@ -31,7 +31,7 @@
     <string name="social">Total social dans la caisse</string>
     <string name="personalInfo">Informations personnelles</string>
     <string name="dahiraInfo">Informations du dahira</string>
-    <string name="AddCommissionInstruction">Lister les commissions de votre dahira en fournissant le nom de la commission et le responsable. Repetez autant de fois necessaire cette procedure.</string>
+    <string name="AddCommissionInstruction">Lister les listCommissions de votre dahira en fournissant le nom de la commission et le responsable. Repetez autant de fois necessaire cette procedure.</string>
     <string name="updateCommission">Pour modifier ou supprimer une commission deja ajoutee, faites un appuis long la dessus.</string>
     <string name="spinnerTitle">Selectionner une commission</string>
     <string name="backButton">Precedent</string>
@@ -50,4 +50,46 @@
     <string name="totalSass">Total sass</string>
     <string name="totalSocial">Total Social</string>
     <string name="totalMember">Nombre de personnes dans ce dahira</string>
+    <string name="country">Choisissez un pays</string>
+    <string name="region">Choisissez une region</string>
+    <string name="street">Rue</string>
+    <string name="spinner_country">Pays</string>
+    <string name="spinner_region">Region</string>
+    <string name="button_consultDahiras">Consulter mes dahiras</string>
+    <string name="button_createDahira">Enregistrer un dahira dont je suis l\'administrateur</string>
+    <string name="button_save">Enregistrer</string>
+    <string name="button_backToProfile">Retour sur mon profile</string>
+    <string name="textView_labelListUsers">List des membres du dahira</string>
+    <string name="textView_listExpenses">Liste des depenses du dahira</string>
+    <string name="button_dahiraMembers">Voir les membres du dahira</string>
+    <string name="userName">Nom </string>
+    <string name="textView_modifyUserTitle">Modifier vos informations</string>
+    <string name="adiyaVerse">Adiya verse</string>
+    <string name="sassVerse">Sass verse</string>
+    <string name="socialVerse">Social verse</string>
+    <string name="role">Role</string>
+    <string name="labelCommission">Commission</string>
+    <string name="textView_updateAdminTitle">Mettre a jour votre profil</string>
+    <string name="save">Enregistrer</string>
+    <string name="cancel">Annuler les changements</string>
+    <string name="textView_labelLogo">Cliquez sur la photo pour choisir un logo</string>
+    <string name="deleteDahira">Supprimer ce dahira</string>
+    <string name="btn_updateCommission">Eneregistrer</string>
+    <string name="btn_deleteCommission">Supprimer</string>
+    <string name="textView_labelAddMember">Ajouter un nouveau membre</string>
+    <string name="textView_or">OU</string>
+    <string name="btn_add">Ajouter</string>
+    <string name="btn_cancel">Annuler</string>
+    <string name="editText_dialogPhoneNumber">Telephone du membre (9 chiffres)</string>
+    <string name="editText_dialogEmail">Adresse email du membre</string>
+    <string name="button_dialogAddAdiya">Ajouter adiya</string>
+    <string name="button_dialogAddSass">Ajouter sass</string>
+    <string name="button_dialogAddSocial">Ajouter social</string>
+    <string-array name="country_array">
+        <item>Senegal</item>
+    </string-array>
+
+    <string-array name="region_array">
+        <item>Dakar</item>
+    </string-array>
 </resources>

@@ -34,7 +34,7 @@
             android:textColorHint="@color/colorAccent" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_gravity="center">
@@ -44,8 +44,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="7dp"
+                android:layout_weight="0.5"
                 android:background="@drawable/rounded_button_transparent"
-                android:text="@string/update"
+                android:text="@string/btn_updateCommission"
                 android:textAllCaps="false"
                 android:textColor="@color/colorAccent"  />
 
@@ -54,8 +55,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="7dp"
+                android:layout_weight="0.5"
                 android:background="@drawable/rounded_button_transparent"
-                android:text="@string/delete"
+                android:text="@string/btn_deleteCommission"
                 android:textAllCaps="false"
                 android:textColor="@color/colorAccent" />
 

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+tools:context=".SettingProfileActivity">
+
+<include
+    android:id="@+id/toolbar"
+    layout="@layout/toolbar" />
+
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/scrollView"
+    android:layout_below="@id/toolbar">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/labelImageView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/camera"
+            android:textAlignment="center"
+            android:layout_marginTop="@dimen/_20sdp"
+            android:textSize="20sp"/>
+
+        <RelativeLayout
+            android:id="@+id/relImageView"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_below="@+id/labelImageView"
+            android:layout_gravity="center"
+            android:layout_centerHorizontal="true">
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/icon_camera"
+                android:scaleType="centerCrop" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:orientation="vertical"
+            android:layout_below="@+id/relImageView"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textView_labelUserName"
+                    android:layout_width="135dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/userName"
+                    android:layout_marginRight="5dp"
+                    android:textColor="@color/blue"
+                    android:textSize="@dimen/_15sdp"/>
+
+                <EditText
+                    android:id="@+id/editText_userName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/edittext_background"
+                    android:hint="@string/userName"
+                    android:padding="10dp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textView_phoneNumber"
+                    android:layout_width="135dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/updatePhoneNumber"
+                    android:layout_marginRight="5dp"
+                    android:textColor="@color/blue"
+                    android:textSize="@dimen/_15sdp"/>
+
+                <EditText
+                    android:id="@+id/editText_userPhoneNumber"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/edittext_background"
+                    android:hint="@string/phoneNumber"
+                    android:padding="10dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textView_commission"
+                    android:layout_width="135dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/address"
+                    android:layout_marginRight="5dp"
+                    android:textColor="@color/blue"
+                    android:textSize="@dimen/_15sdp"/>
+
+                <EditText
+                    android:id="@+id/editText_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/edittext_background"
+                    android:hint="@string/address"
+                    android:padding="10dp" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/button_update"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="#7fa208"
+                android:text="@string/update"
+                android:textAllCaps="false"
+                android:textColor="@color/colorAccent" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</ScrollView>
+
+</RelativeLayout>

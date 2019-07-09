@@ -8,18 +8,19 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class CommissionListAdapter extends BaseAdapter {
 
     Context context;
 
-    ArrayList<String> listCommission = new ArrayList<String>();
-    ArrayList<String> listCommissionResponsible = new ArrayList<String>();
+    List<String> listCommission;
+    List<String> listCommissionResponsible;
 
     LayoutInflater inflater;
 
-    public CommissionListAdapter(Context applicationContext, ArrayList<String> listCommission, ArrayList<String> listCommissionResponsible) {
-        this.context = context;
+    public CommissionListAdapter(Context applicationContext, List<String> listCommission, List<String> listCommissionResponsible) {
+        this.context = applicationContext;
         this.listCommission = listCommission;
         this.listCommissionResponsible = listCommissionResponsible;
         inflater = (LayoutInflater.from(applicationContext));

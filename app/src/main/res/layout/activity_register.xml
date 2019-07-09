@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/colorPrimary"
-    tools:context=".CreateAdminActivity">
+    tools:context=".RegisterActivity">
 
     <include
         android:id="@+id/toolbar"
@@ -27,7 +27,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/camera"
                 android:textAlignment="center"
-                android:textSize="20sp"/>
+                android:textSize="@dimen/_20sdp"/>
 
             <RelativeLayout
                 android:layout_width="150dp"
@@ -66,13 +66,6 @@
                     android:orientation="vertical"
                     android:paddingLeft="15dp"
                     android:paddingRight="15dp">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/personalInfo"
-                        android:textAlignment="center"
-                        android:textSize="20sp"/>
 
                     <EditText
                         android:id="@+id/editText_name"
@@ -129,66 +122,57 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
-                        android:hint="@string/address"
+                        android:hint="@string/siege"
                         android:inputType="text"
                         android:paddingBottom="15dp"
                         android:textColorHint="@color/colorAccent" />
 
-                    <LinearLayout
-                        android:layout_width="wrap_content"
+                    <EditText
+                        android:id="@+id/editText_commission"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_gravity="center">
+                        android:fontFamily="sans-serif"
+                        android:hint="@string/commission"
+                        android:inputType="text"
+                        android:paddingBottom="15dp"
+                        android:textColorHint="@color/colorAccent" />
 
-                        <!-- Text Label -->
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="10dip"
-                            android:text="@string/spinnerTitle"
-                            android:layout_marginBottom="5dp"
-                            android:textColor="@color/colorAccent"
-                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
-
-                        <Spinner
-                            android:id="@+id/spinner_commission"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="sans-serif"
-                            android:layout_marginTop="10dp"
-                            android:layout_marginBottom="10dp"
-                            android:prompt="@string/spinnerTitle"
-                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
+                    <RadioGroup
+                        android:id="@+id/radioGroup"
+                        android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_gravity="center">
+                        android:weightSum="1" >
 
-                        <Button
-                            android:id="@+id/button_back"
+                        <RadioButton
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_margin="7dp"
-                            android:background="@drawable/rounded_button_transparent"
-                            android:text="@string/backButton"
-                            android:textAllCaps="false"
-                            android:textColor="@color/colorAccent" />
+                            android:text="@string/simpleMember"
+                            android:id="@+id/simpleMember"
+                            android:layout_gravity="center_horizontal"
+                            android:checked="true"
+                            android:textSize="20dp"/>
 
-                        <Button
-                            android:id="@+id/button_finish"
+                        <RadioButton
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_margin="7dp"
-                            android:background="@drawable/rounded_button_transparent"
-                            android:text="@string/finish"
-                            android:textAllCaps="false"
-                            android:textColor="@color/colorAccent" />
+                            android:layout_height="55dp"
+                            android:text="@string/admin"
+                            android:id="@+id/admin"
+                            android:layout_gravity="center_horizontal"
+                            android:checked="false"
+                            android:textSize="20dp" />
 
-                    </LinearLayout>
+                    </RadioGroup>
+
+                    <Button
+                        android:id="@+id/button_signUp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_margin="7dp"
+                        android:background="@drawable/rounded_button_transparent"
+                        android:text="@string/inscrire"
+                        android:textAllCaps="false"
+                        android:textColor="@color/colorAccent" />
 
                 </LinearLayout>
 

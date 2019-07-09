@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/colorPrimary"
+    tools:context=".ListDahiraActivity">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerview_dahiras"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar"/>
+
+    <Button
+        android:id="@+id/button_backToProfile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="7dp"
+        android:textAllCaps="false"
+        android:layout_marginTop="20dp"
+        android:textColor="@color/colorAccent"
+        android:text="@string/button_backToProfile"
+        android:layout_below="@+id/recyclerview_dahiras"
+        android:background="@drawable/rounded_button_transparent"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
+
+</RelativeLayout>

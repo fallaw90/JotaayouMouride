@@ -20,7 +20,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
-import static com.fallntic.jotaayumouride.R.id.textView_createDahira;
+import static com.fallntic.jotaayumouride.R.id.textView_ignUp;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -30,9 +30,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
@@ -45,7 +45,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         editTextPassword = (EditText) findViewById(R.id.editTextPassword);
         progressBar = (ProgressBar) findViewById(R.id.progressbar);
 
-        findViewById(textView_createDahira).setOnClickListener(this);
+        findViewById(textView_ignUp).setOnClickListener(this);
         findViewById(R.id.buttonLogin).setOnClickListener(this);
 
     }
@@ -56,15 +56,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         if (mAuth.getCurrentUser() != null) {
             finish();
-            startActivity(new Intent(this, ProfileAdminActivity.class));
+            startActivity(new Intent(this, ProfileActivity.class));
         }
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case textView_createDahira:
-                startActivity(new Intent(this, CreateDahiraActivity.class));
+            case textView_ignUp:
+                startActivity(new Intent(this, SignUpActivity.class));
                 break;
             case R.id.buttonLogin:
                 userLogin();
@@ -108,7 +108,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 progressBar.setVisibility(View.GONE);
                 if (task.isSuccessful()) {
                     finish();
-                    Intent intent = new Intent(LoginActivity.this, ProfileAdminActivity.class);
+                    Intent intent = new Intent(LoginActivity.this, ProfileActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                 } else {
@@ -117,4 +117,5 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             }
         });
     }
+
 }

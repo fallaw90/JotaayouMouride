@@ -3,32 +3,25 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/logout"
-        android:title="Se deconnecter"
+        android:id="@+id/searchUser"
+        android:title="Rechercher un membre"
         app:showAsAction="ifRoom" />
-
+    <item
+        android:id="@+id/addUser"
+        android:title="Ajouter un nouveau membre"
+        app:showAsAction="never" />
     <item
         android:id="@+id/setting"
         android:title="Parametres"
         app:showAsAction="never" />
-
     <item
         android:id="@+id/about"
         android:title="A propos"
         app:showAsAction="never">
-
-        <menu>
-
-            <item
-                android:id="@+id/subitem1"
-                android:title="Sub Item 1" />
-
-            <item
-                android:id="@+id/subitem2"
-                android:title="Sub Item 2" />
-
-        </menu>
-
     </item>
+    <item
+        android:id="@+id/logout"
+        android:title="Se deconnecter"
+        app:showAsAction="never" />
 
 </menu>

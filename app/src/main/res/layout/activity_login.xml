@@ -73,7 +73,7 @@
                 android:textColor="@color/colorAccent" />
 
             <TextView
-                android:id="@+id/textView_createDahira"
+                android:id="@+id/textView_ignUp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="15dp"

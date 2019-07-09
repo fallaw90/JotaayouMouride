@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/colorPrimary"
-    tools:context=".CreateDahiraActivity">
+    tools:context=".AddDahiraActivity">
 
     <include
         android:id="@+id/toolbar"
@@ -26,18 +26,36 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/dahiraInfo"
+                android:text="@string/textView_labelLogo"
                 android:textAlignment="center"
-                android:id="@+id/dahiraInfo"
+                android:id="@+id/textView_labelLogo"
                 android:textSize="@dimen/_20sdp"/>
+
+            <RelativeLayout
+                android:id="@+id/rel_imageView"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:layout_below="@+id/textView_labelLogo"
+                android:layout_gravity="center">
+
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:layout_centerHorizontal="true"
+                    android:layout_margin="10dp"
+                    android:background="@drawable/logo_dahira"
+                    android:scaleType="centerCrop" />
+
+            </RelativeLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/dahiraInfo"
                 android:layout_centerVertical="true"
                 android:orientation="vertical"
                 android:paddingLeft="15dp"
+                android:layout_below="@+id/rel_imageView"
                 android:paddingRight="15dp">
 
                 <EditText
@@ -69,6 +87,66 @@
                     android:inputType="text"
                     android:paddingBottom="15dp"
                     android:textColorHint="@color/colorAccent" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="50pt"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_weight="0.5"
+                        android:layout_gravity="center">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dip"
+                            android:text="@string/spinner_country"
+                            android:layout_marginBottom="5dp"
+                            android:textColor="@color/colorAccent"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
+
+                        <Spinner
+                            android:id="@+id/spinner_country"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:entries="@array/country_array"
+                            android:prompt="@string/country"
+                            android:textColor="@color/colorAccent"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="50pt"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_weight="0.5"
+                        android:layout_gravity="center">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dip"
+                            android:text="@string/spinner_region"
+                            android:layout_marginBottom="5dp"
+                            android:textColor="@color/colorAccent"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
+
+                        <Spinner
+                            android:id="@+id/spinner_region"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:entries="@array/region_array"
+                            android:prompt="@string/region"
+                            android:textColor="@color/colorAccent"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
+                    </LinearLayout>
+
+                </LinearLayout>
 
                 <EditText
                     android:id="@+id/editText_siege"
@@ -132,6 +210,7 @@
                     android:id="@+id/textViewUpdateCommission"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:visibility="gone"
                     android:text="@string/updateCommission"
                     android:textAlignment="center" />
 
@@ -148,6 +227,7 @@
                         android:layout_weight="0.5"
                         android:text="@string/textView_commissionsTitle"
                         android:gravity="center"
+                        android:visibility="gone"
                         android:textColor="@color/colorAccent"
                         android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
 
@@ -158,6 +238,7 @@
                         android:layout_weight="0.5"
                         android:text="@string/textView_responsiblesTitle"
                         android:gravity="center"
+                        android:visibility="gone"
                         android:textColor="@color/colorAccent"
                         android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
                 </LinearLayout>
@@ -214,26 +295,16 @@
                         android:textColor="@color/colorAccent" />
 
                     <Button
-                        android:id="@+id/button_next"
+                        android:id="@+id/button_save"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="7dp"
                         android:background="@drawable/rounded_button_transparent"
-                        android:text="@string/nextButton"
+                        android:text="@string/button_save"
                         android:textAllCaps="false"
                         android:textColor="@color/colorAccent" />
 
                 </LinearLayout>
-
-                <TextView
-                    android:id="@+id/textView_login"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="15dp"
-                    android:text="@string/registeredAlready"
-                    android:textAlignment="center"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-                    android:textColor="@color/colorAccent" />
 
             </LinearLayout>
 

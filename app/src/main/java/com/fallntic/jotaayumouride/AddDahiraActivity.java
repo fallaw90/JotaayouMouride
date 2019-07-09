@@ -20,8 +20,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -43,17 +41,15 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.fallntic.jotaayumouride.DataHolder.dahiraID;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.user;
 
-public class UpdateDahiraActivity extends AppCompatActivity implements View.OnClickListener  {
+public class AddDahiraActivity extends AppCompatActivity implements View.OnClickListener  {
 
-    private static final String TAG = "CreateDahiraActivity";
+    private static final String TAG = "AddDahiraActivity";
 
     private EditText editTextDahiraName;
     private EditText editTextDieuwrine;
@@ -86,6 +82,9 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
     private ArrayList<String> arrayList;
     private ArrayAdapter<String> arrayAdapter;
 
+    private List<String> listCommissionDahira = new ArrayList<>();
+    private List<String> listResponsibles = new ArrayList<>();
+
     private Uri uri;
     private final int PICK_IMAGE_REQUEST = 71;
 
@@ -100,17 +99,14 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_update_dahira);
+        setContentView(R.layout.activity_add_dahira);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setSubtitle("Modifier votre dahira");
+        toolbar.setSubtitle("Enregistrer un nouveau dahira");
         setSupportActionBar(toolbar);
 
         progressDialog = new ProgressDialog(this);
-
-        firebaseStorage = FirebaseStorage.getInstance();
-        storageReference = firebaseStorage.getReference();
 
         //Dahira info
         editTextDahiraName = findViewById(R.id.editText_dahiraName);
@@ -131,25 +127,17 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
         spinnerRegion = findViewById(R.id.spinner_region);
         imageView = (ImageView) findViewById(R.id.imageView);
 
-        editTextDahiraName.setText(dahira.getDahiraName());
-        editTextDieuwrine.setText(dahira.getDieuwrine());
-        String[] arraySiege = dahira.getDahiraName().split(",");
-        editTextDahiraPhoneNumber.setText(dahira.getDahiraPhoneNumber());
-        editTextSiege.setText(arraySiege[0]);
-        editTextAdiya.setText(dahira.getTotalAdiya());
-        editTextSass.setText(dahira.getTotalSass());
-        editTextSocial.setText(dahira.getTotalSocial());
-
-        showImage();
-        loadListCommissions();
+        editTextAdiya.setText("00,00");
+        editTextSass.setText("00,00");
+        editTextSocial.setText("00,00");
 
         //Display and modify ListView commissions
         arrayAdapter = new ArrayAdapter<String>(this, R.layout.list_commission, R.id.textView_commission, arrayList);
         listViewCommission.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int index, long l) {
-                String com = dahira.getListCommissions().get(index);
-                String resp = dahira.getListResponsibles().get(index);
+                String com = listCommissionDahira.get(index);
+                String resp = listResponsibles.get(index);
                 showUpdateDeleteDialog(com, resp, index);
                 return true;
             }
@@ -195,14 +183,15 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
                 showListViewCommissions();
                 break;
             case R.id.button_save:
-                updateData();
-                uploadImage();
+                saveDahira();
+                updateListDahiraID();
+                startActivity(new Intent(AddDahiraActivity.this, UpdateAdminActivity.class));
                 break;
             case R.id.button_back:
                 finish();
                 break;
             case R.id.textView_login:
-                startActivity(new Intent(UpdateDahiraActivity.this, LoginActivity.class));
+                startActivity(new Intent(AddDahiraActivity.this, LoginActivity.class));
                 break;
         }
     }
@@ -266,23 +255,7 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
-    public void showImage(){
-        // Reference to the image file in Cloud Storage
-        StorageReference storageReference;
-        storageReference = firebaseStorage.getReference();
-        final StorageReference profileImageReference = storageReference.child("logoImage").child(dahira.getDahiraID());
-
-        showProgressDialog("Chargement de l'image ...");
-        // Download directly from StorageReference using Glide
-        GlideApp.with(UpdateDahiraActivity.this)
-                .load(profileImageReference)
-                .placeholder(R.drawable.icon_camera)
-                .into(imageView);
-
-        dismissProgressDialog();
-    }
-
-    private void updateData(){
+    private void saveDahira(){
 
         //Info dahira
         dahiraName = editTextDahiraName.getText().toString().trim();
@@ -302,35 +275,44 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
 
             dahiraID = db.collection("dahiras").document().getId();
             dahira = new Dahira(dahiraID, dahiraName, dieuwrine, dahiraPhoneNumber, siege,
-                    totalAdiya, totalSass, totalSocial, dahira.getListCommissions(), dahira.getListResponsibles());
+                    totalAdiya, totalSass, totalSocial, listCommissionDahira, listResponsibles);
 
             List<String> listID = user.getListDahiraID();
             listID.add(dahiraID);
             user.setListDahiraID(listID);
 
             showProgressDialog("Enregistrement de votre dahira cours ...");
-            db.collection("dahiras").document(dahira.getDahiraID())
-                    .update(
-                            "dahiraID", dahira.getDahiraID(),
-                            "dahiraName", dahira.getDahiraName(),
-                            "dieuwrine", dahira.getDieuwrine(),
-                            "userPhoneNumber", dahira.getDahiraPhoneNumber(),
-                            "siege", dahira.getSiege(),
-                            "listCommissions", dahira.getListCommissions(),
-                            "listResponsibles", dahira.getListResponsibles(),
-                            "totalAdiya", dahira.getTotalAdiya(),
-                            "totalSass", dahira.getTotalSass(),
-                            "totalSocial", dahira.getTotalSocial()
-                    )
+            db.collection("dahiras").document(dahiraID).set(dahira)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Toast.makeText(UpdateDahiraActivity.this, "Dahira Updated", Toast.LENGTH_LONG).show();
+                            dismissProgressDialog();
+                            DataHolder.user.getListDahiraID().add(dahiraID);
+                            uploadImage();
+                            toastMessage("Dahira enregistre avec succes");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            dismissProgressDialog();
+                            dahiraSaved = false;
+                            toastMessage("Error adding dahira!");
+                            Log.d(TAG, e.toString());
                         }
                     });
-
-            startActivity(new Intent(UpdateDahiraActivity.this, DahiraInfoActivity.class));
         }
+    }
+
+    private void updateListDahiraID(){
+        db.collection("users").document(DataHolder.user.getUserID())
+                .update("listDahiraID", DataHolder.user.getListDahiraID())
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        toastMessage("User updated.");
+                    }
+                });
     }
 
     private boolean hasValidationErrors(String dahiraName, String dieuwrine, String dahiraPhoneNumber,
@@ -462,24 +444,11 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
         getTextViewLabelResponsible.setVisibility(View.VISIBLE);
         textViewUpdateCommission.setVisibility(View.VISIBLE);
 
-        dahira.getListCommissions().add(commission);
-        dahira.getListResponsibles().add(responsible);
+        listCommissionDahira.add(commission);
+        listResponsibles.add(responsible);
 
         CommissionListAdapter customAdapter = new CommissionListAdapter(getApplicationContext(),
-                dahira.getListCommissions(), dahira.getListResponsibles());
-        listViewCommission.setAdapter(customAdapter);
-
-        setListViewHeightBasedOnChildren(listViewCommission);
-
-        editTextCommission.setText("");
-        editTextResponsible.setText("");
-        editTextCommission.requestFocus();
-    }
-
-    public void loadListCommissions(){
-
-        CommissionListAdapter customAdapter = new CommissionListAdapter(getApplicationContext(),
-                dahira.getListCommissions(), dahira.getListResponsibles());
+                listCommissionDahira, listResponsibles);
         listViewCommission.setAdapter(customAdapter);
 
         setListViewHeightBasedOnChildren(listViewCommission);
@@ -540,11 +509,11 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
             public void onClick(View view) {
                 String c = editTextCommissione.getText().toString().trim();
                 String r = editTextResponsible.getText().toString().trim();
-                dahira.getListCommissions().set(index, c);
-                dahira.getListResponsibles().set(index, r);
+                listCommissionDahira.set(index, c);
+                listResponsibles.set(index, r);
 
                 CommissionListAdapter customAdapter = new CommissionListAdapter(getApplicationContext(),
-                        dahira.getListCommissions(), dahira.getListResponsibles());
+                        listCommissionDahira, listResponsibles);
                 listViewCommission.setAdapter(customAdapter);
                 alertDialog.dismiss();
             }
@@ -555,11 +524,11 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
             @Override
             public void onClick(View view) {
 
-                dahira.getListCommissions().remove(index);
-                dahira.getListResponsibles().remove(index);
+                listCommissionDahira.remove(index);
+                listResponsibles.remove(index);
 
                 CommissionListAdapter customAdapter = new CommissionListAdapter(getApplicationContext(),
-                        dahira.getListCommissions(), dahira.getListResponsibles());
+                        listCommissionDahira, listResponsibles);
                 listViewCommission.setAdapter(customAdapter);
                 alertDialog.dismiss();
                 setListViewHeightBasedOnChildren(listViewCommission);

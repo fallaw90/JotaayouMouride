@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/colorPrimary">
+
+    <Button
+        android:id="@+id/button_dialogAddAdiya"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_button_transparent"
+        android:text="@string/button_dialogAddAdiya"
+        android:layout_marginTop="15dp"
+        android:textAllCaps="false"
+        android:textColor="@color/colorAccent"  />
+
+    <Button
+        android:id="@+id/button_dialogAddSass"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_button_transparent"
+        android:text="@string/button_dialogAddSass"
+        android:layout_marginTop="15dp"
+        android:textAllCaps="false"
+        android:textColor="@color/colorAccent"  />
+
+    <Button
+        android:id="@+id/button_dialogAddSocial"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_button_transparent"
+        android:text="@string/button_dialogAddSocial"
+        android:layout_marginTop="15dp"
+        android:textAllCaps="false"
+        android:textColor="@color/colorAccent"  />
+
+    <Button
+        android:id="@+id/button_dialogCancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_button_transparent"
+        android:text="@string/btn_cancel"
+        android:layout_marginTop="15dp"
+        android:textAllCaps="false"
+        android:textColor="@color/colorAccent"  />
+
+</LinearLayout>

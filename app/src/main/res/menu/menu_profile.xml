@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/myDahiras"
+        android:title="Mes dahiras"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/displayDahiras"
+        android:title="Voir tous les dahiras de Dakar"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/setting"
+        android:title="Parametres"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/about"
+        android:title="A propos"
+        app:showAsAction="never">
+    </item>
+    <item
+        android:id="@+id/logout"
+        android:title="Se deconnecter"
+        app:showAsAction="never" />
+
+</menu>

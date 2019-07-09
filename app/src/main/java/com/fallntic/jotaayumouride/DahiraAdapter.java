@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+import static com.fallntic.jotaayumouride.DataHolder.dahira;
+
 public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraViewHolder> {
 
     private Context context;
@@ -32,11 +34,11 @@ public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraView
 
     @Override
     public void onBindViewHolder(@NonNull DahiraViewHolder holder, int position) {
-        Dahira dahira = dahiraList.get(position);
+        dahira = dahiraList.get(position);
 
-        holder.textViewDahiraName.setText(dahira.getDahiraName());
+        holder.textViewDahiraName.setText("Dahira " + dahira.getDahiraName());
         holder.textViewDieuwrine.setText("Dieuwrine: " + dahira.getDieuwrine());
-        holder.textViewPhoneNumber.setText("Telephone: " + dahira.getPhoneNumber());
+        holder.textViewPhoneNumber.setText("Telephone: " + dahira.getDahiraPhoneNumber());
         holder.textViewSiege.setText("Siege: " + dahira.getSiege());
     }
 
@@ -45,7 +47,7 @@ public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraView
         return dahiraList.size();
     }
 
-    class DahiraViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class DahiraViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         TextView textViewDahiraName;
         TextView textViewDieuwrine;
@@ -60,16 +62,24 @@ public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraView
             textViewPhoneNumber = itemView.findViewById(R.id.textview_phoneNumber);
             textViewSiege = itemView.findViewById(R.id.textview_siege);
 
+            itemView.setOnLongClickListener(this);
             itemView.setOnClickListener(this);
 
         }
 
         @Override
         public void onClick(View v) {
-            Dahira dahira = dahiraList.get(getAdapterPosition());
-            Intent intent = new Intent(context, UpdateDahiraActivity.class);
-            intent.putExtra("dahira", dahira);
+            dahira = dahiraList.get(getAdapterPosition());
+            Intent intent = new Intent(context, DahiraInfoActivity.class);
             context.startActivity(intent);
+        }
+
+        @Override
+        public boolean onLongClick(View view) {
+            dahira = dahiraList.get(getAdapterPosition());
+            Intent intent = new Intent(context, UpdateDahiraActivity.class);
+            context.startActivity(intent);
+            return false;
         }
     }
 }

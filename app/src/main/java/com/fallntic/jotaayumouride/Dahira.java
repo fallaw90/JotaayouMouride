@@ -1,34 +1,40 @@
 package com.fallntic.jotaayumouride;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class Dahira implements Serializable {
 
     private String dahiraID;
     private String dahiraName;
     private String dieuwrine;
-    private String phoneNumber;
+    private String dahiraPhoneNumber;
     private String siege;
-    private String adiya;
-    private String sass;
-    private String social;
+    private String totalAdiya;
+    private String totalSass;
+    private String totalSocial;
     private String totalMember;
+    private List<String> listCommissions;
+    private List<String> listResponsibles;
 
-    public Dahira(String dahiraName, String dieuwrine, String phoneNumber, String siege,
-                  String sass, String adiya, String social) {
 
-        this.dahiraID = "";
+    public Dahira(String dahiraID, String dahiraName, String dieuwrine, String dahiraPhoneNumber,
+                  String siege, String totalAdiya, String totalSass, String totalSocial,
+                  List<String> listCommissions, List<String> listResponsibles) {
+
+        this.dahiraID = dahiraID;
         this.dahiraName = dahiraName;
         this.dieuwrine = dieuwrine;
-        this.phoneNumber = phoneNumber;
+        this.dahiraPhoneNumber = dahiraPhoneNumber;
         this.siege = siege;
-        this.sass = sass;
-        this.adiya = adiya;
-        this.social = social;
-        this.totalMember = "";
+        this.totalAdiya = totalAdiya;
+        this.totalSass = totalSass;
+        this.totalSocial = totalSocial;
+        this.listCommissions = listCommissions;
+        this.listResponsibles = listResponsibles;
     }
 
-    public Dahira(){}
+    public Dahira() {}
 
     public String getDahiraID() {
         return dahiraID;
@@ -54,12 +60,12 @@ public class Dahira implements Serializable {
         this.dieuwrine = dieuwrine;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    public String getDahiraPhoneNumber() {
+        return dahiraPhoneNumber;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setDahiraPhoneNumber(String dahiraPhoneNumber) {
+        this.dahiraPhoneNumber = dahiraPhoneNumber;
     }
 
     public String getSiege() {
@@ -70,28 +76,28 @@ public class Dahira implements Serializable {
         this.siege = siege;
     }
 
-    public String getAdiya() {
-        return adiya;
+    public String getTotalAdiya() {
+        return totalAdiya;
     }
 
-    public void setAdiya(String adiya) {
-        this.adiya = adiya;
+    public void setTotalAdiya(String totalAdiya) {
+        this.totalAdiya = totalAdiya;
     }
 
-    public String getSass() {
-        return sass;
+    public String getTotalSass() {
+        return totalSass;
     }
 
-    public void setSass(String sass) {
-        this.sass = sass;
+    public void setTotalSass(String totalSass) {
+        this.totalSass = totalSass;
     }
 
-    public String getSocial() {
-        return social;
+    public String getTotalSocial() {
+        return totalSocial;
     }
 
-    public void setSocial(String social) {
-        this.social = social;
+    public void setTotalSocial(String totalSocial) {
+        this.totalSocial = totalSocial;
     }
 
     public String getTotalMember() {
@@ -102,4 +108,19 @@ public class Dahira implements Serializable {
         this.totalMember = totalMember;
     }
 
+    public List<String> getListCommissions() {
+        return listCommissions;
+    }
+
+    public void setListCommissions(List<String> listCommissions) {
+        this.listCommissions = listCommissions;
+    }
+
+    public List<String> getListResponsibles() {
+        return listResponsibles;
+    }
+
+    public void setListResponsibles(List<String> listResponsibles) {
+        this.listResponsibles = listResponsibles;
+    }
 }

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/addMember"
+        android:title="Ajouter un membre"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/displayMember"
+        android:title="Voir les membres"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/displayAnnounce"
+        android:title="Voir les annonces"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/displayEvent"
+        android:title="Voir les evenements"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/setting"
+        android:title="Parametres"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/logout"
+        android:title="Se deconnecter"
+        app:showAsAction="never" />
+
+</menu>
