@@ -8,10 +8,13 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -82,14 +85,17 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        if (!DataHolder.isConnected(this)){
+            toastMessage("Oops! Vous n'avez pas de connexion internet!");
+            finish();
+        }
 
         //Initialize Firestore object
         mAuth = FirebaseAuth.getInstance();
@@ -207,7 +213,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     private void uploadImage(String userID) {
         if(uri != null) {
             showProgressDialog("Enregistrement de votre image cours ...");
-            final StorageReference ref = storageReference.child("profileImage").child(userID);
+            final StorageReference ref = storageReference.child("profile_image").child(userID);
             ref.putFile(uri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override

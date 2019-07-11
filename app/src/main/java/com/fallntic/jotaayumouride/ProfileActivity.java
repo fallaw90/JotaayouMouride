@@ -6,8 +6,11 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -59,6 +62,9 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     private String userID;
     private String dahiraToUpdate;
 
+    public static boolean boolMyDahiras = false;
+    public static boolean boolAllDahiras = false;
+
     final Handler handler = new Handler();
 
     @Override
@@ -70,6 +76,11 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setSubtitle("Votre profile");
         setSupportActionBar(toolbar);
+
+        if (!DataHolder.isConnected(this)){
+            toastMessage("Oops! Vous n'avez pas de connexion internet!");
+            finish();
+        }
 
         progressDialog = new ProgressDialog(this);
 
@@ -143,34 +154,43 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             //Get the current user info
             showImage();
             getUser();
-            linearLayoutVerified.setVisibility(View.VISIBLE);
+            linearLayoutVerificationNeeded.setVisibility(View.GONE);
+
         }
         else{
-            linearLayoutVerificationNeeded.setVisibility(View.VISIBLE);
+            linearLayoutVerified.setVisibility(View.GONE);
             toastMessage("Email non verified");
         }
     }
 
     public void getUser() {
-        showProgressDialog("Chargement de vos informations ...");
-        db.collection("users").whereEqualTo("userID", userID).get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        dismissProgressDialog();
-                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+        if (user.getUserID() == null){
+            showProgressDialog("Chargement de vos informations ...");
+            db.collection("users").whereEqualTo("userID", userID).get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            dismissProgressDialog();
+                            for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
 
-                            user = documentSnapshot.toObject(User.class);
+                                user = documentSnapshot.toObject(User.class);
 
-                            textViewName.setText(DataHolder.user.getUserName());
-                            textViewPhoneNumber.setText(DataHolder.user.getUserPhoneNumber());
-                            textViewAdress.setText(DataHolder.user.getAddress());
-                            textViewEmail.setText(DataHolder.user.getEmail());
-
-                            getDahiraToUpdate();
+                                textViewName.setText(DataHolder.user.getUserName());
+                                textViewPhoneNumber.setText(DataHolder.user.getUserPhoneNumber());
+                                textViewAdress.setText(DataHolder.user.getAddress());
+                                textViewEmail.setText(DataHolder.user.getEmail());
+                                getDahiraToUpdate();
+                            }
                         }
-                    }
-                });
+                    });
+        }
+        else {
+            textViewName.setText(DataHolder.user.getUserName());
+            textViewPhoneNumber.setText(DataHolder.user.getUserPhoneNumber());
+            textViewAdress.setText(DataHolder.user.getAddress());
+            textViewEmail.setText(DataHolder.user.getEmail());
+            getDahiraToUpdate();
+        }
     }
 
     public void showImage(){
@@ -183,7 +203,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         // Download directly from StorageReference using Glide
         GlideApp.with(ProfileActivity.this)
                 .load(profileImageReference)
-                .placeholder(R.drawable.icon_camera)
+                .placeholder(R.drawable.profile_image)
                 .into(imageViewProfile);
 
         dismissProgressDialog();
@@ -253,6 +273,12 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         switch (item.getItemId()) {
 
             case R.id.myDahiras:
+                boolMyDahiras = true;
+                startActivity(new Intent(this, ListDahiraActivity.class));
+                break;
+
+            case R.id.allDahiras:
+                boolAllDahiras = true;
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 

@@ -10,6 +10,8 @@
 
     <include
         android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         layout="@layout/toolbar" />
 
     <ScrollView
@@ -31,23 +33,16 @@
                 android:id="@+id/textView_labelLogo"
                 android:textSize="@dimen/_20sdp"/>
 
-            <RelativeLayout
-                android:id="@+id/rel_imageView"
-                android:layout_width="match_parent"
-                android:layout_height="150dp"
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="10dp"
+                android:layout_gravity="center"
+                app:srcCompat="@drawable/logo_dahira"
                 android:layout_below="@+id/textView_labelLogo"
-                android:layout_gravity="center">
-
-                <ImageView
-                    android:id="@+id/imageView"
-                    android:layout_width="150dp"
-                    android:layout_height="match_parent"
-                    android:layout_centerHorizontal="true"
-                    android:layout_margin="10dp"
-                    android:background="@drawable/logo_dahira"
-                    android:scaleType="centerCrop" />
-
-            </RelativeLayout>
+                android:scaleType="centerCrop" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -55,7 +50,7 @@
                 android:layout_centerVertical="true"
                 android:orientation="vertical"
                 android:paddingLeft="15dp"
-                android:layout_below="@+id/rel_imageView"
+                android:layout_below="@+id/imageView"
                 android:paddingRight="15dp">
 
                 <EditText

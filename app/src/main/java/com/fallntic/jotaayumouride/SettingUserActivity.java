@@ -1,6 +1,5 @@
 package com.fallntic.jotaayumouride;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -10,26 +9,23 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.showProfileImage;
 import static com.fallntic.jotaayumouride.DataHolder.user;
 
 public class SettingUserActivity extends AppCompatActivity implements View.OnClickListener {
@@ -37,12 +33,9 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
 
     private RadioGroup radioRoleGroup;
     private RadioButton radioRoleButton;
-    private User user;
     private boolean commissionsSaved = true;
 
     private FirebaseFirestore db;
-    private ProgressDialog progressDialog;
-    final Handler handler = new Handler();
 
     private EditText editTextUserName;
     private EditText editTextPhoneNumber;
@@ -50,6 +43,7 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
     private EditText editTextAdiya;
     private EditText editTextSass;
     private EditText editTextSocial;
+    private ImageView imageView;
     private Spinner spinnerCommission;
     private String commission;
     private int index;
@@ -63,9 +57,12 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        db = FirebaseFirestore.getInstance();
+        if (!DataHolder.isConnected(this)){
+            toastMessage("Oops! Vous n'avez pas de connexion internet!");
+            finish();
+        }
 
-        progressDialog = new ProgressDialog(this);
+        db = FirebaseFirestore.getInstance();
 
         editTextUserName = findViewById(R.id.editText_userName);
         editTextPhoneNumber = findViewById(R.id.editText_userPhoneNumber);
@@ -73,6 +70,7 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         editTextAdiya = findViewById(R.id.editText_adiyaVerse);
         editTextSass = findViewById(R.id.editText_sassVerse);
         editTextSocial = findViewById(R.id.editText_socialVerse);
+        imageView = (ImageView) findViewById(R.id.imageView);
 
         editTextUserName.setText(user.getUserName());
         editTextUserName.setEnabled(false);
@@ -93,6 +91,7 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         // find the radiobutton by returned id
         radioRoleButton = (RadioButton) findViewById(selectedId);
 
+        showProfileImage(this, imageView);
         //Select a commission
         setSpinner();
 
@@ -273,19 +272,5 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
             public void onNothingSelected(AdapterView <?> parent) {
             }
         });
-    }
-
-    public void showProgressDialog(String str){
-        progressDialog.setMessage(str);
-        progressDialog.setCancelable(false);
-        progressDialog.setCanceledOnTouchOutside(false);
-        dismissProgressDialog();
-        progressDialog.show();
-    }
-
-    private void dismissProgressDialog() {
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
     }
 }

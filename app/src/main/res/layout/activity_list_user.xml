@@ -10,13 +10,14 @@
 
     <include
         android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         layout="@layout/toolbar" />
 
     <TextView
-        android:id="@+id/textView_labelListUsers"
+        android:id="@+id/textView_dahiraName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/textView_labelListUsers"
         android:textColor="@color/colorAccent"
         android:gravity="center"
         android:layout_marginTop="20dp"
@@ -27,7 +28,7 @@
         android:id="@+id/recyclerview_users"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/textView_labelListUsers"/>
+        android:layout_below="@+id/textView_dahiraName"/>
 
     <Button
         android:id="@+id/button_backToProfile"

@@ -9,10 +9,13 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -45,6 +48,11 @@ import java.util.List;
 
 import static com.fallntic.jotaayumouride.DataHolder.dahiraID;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.isConnected;
+import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.DataHolder.showLogoDahira;
 import static com.fallntic.jotaayumouride.DataHolder.user;
 
 public class AddDahiraActivity extends AppCompatActivity implements View.OnClickListener  {
@@ -77,7 +85,6 @@ public class AddDahiraActivity extends AppCompatActivity implements View.OnClick
     private String totalSocial;
 
     private ListView listViewCommission;
-    private ProgressDialog progressDialog;
 
     private ArrayList<String> arrayList;
     private ArrayAdapter<String> arrayAdapter;
@@ -106,7 +113,11 @@ public class AddDahiraActivity extends AppCompatActivity implements View.OnClick
         toolbar.setSubtitle("Enregistrer un nouveau dahira");
         setSupportActionBar(toolbar);
 
-        progressDialog = new ProgressDialog(this);
+        //Check internet connection
+        if (isConnected(this)){
+            toastMessage(this, "Oops! Vous n'avez pas de connexion internet!");
+            finish();
+        }
 
         //Dahira info
         editTextDahiraName = findViewById(R.id.editText_dahiraName);
@@ -220,7 +231,7 @@ public class AddDahiraActivity extends AppCompatActivity implements View.OnClick
 
     private void uploadImage() {
         if(uri != null) {
-            showProgressDialog("Enregistrement de votre image cours ...");
+            DataHolder.showProgressDialog(this, "Enregistrement de votre image cours ...");
             final StorageReference ref = storageReference.child("logoDahira").child(dahira.getDahiraID());
             ref.putFile(uri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -236,7 +247,7 @@ public class AddDahiraActivity extends AppCompatActivity implements View.OnClick
                         public void onFailure(@NonNull Exception e) {
                             dismissProgressDialog();
                             imageSaved = false;
-                            toastMessage("Failed "+e.getMessage());
+                            DataHolder.toastMessage(getApplicationContext(),"Failed "+e.getMessage());
                         }
                     });
         }
@@ -281,7 +292,7 @@ public class AddDahiraActivity extends AppCompatActivity implements View.OnClick
             listID.add(dahiraID);
             user.setListDahiraID(listID);
 
-            showProgressDialog("Enregistrement de votre dahira cours ...");
+            showProgressDialog(this, "Enregistrement de votre dahira cours ...");
             db.collection("dahiras").document(dahiraID).set(dahira)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
@@ -289,7 +300,7 @@ public class AddDahiraActivity extends AppCompatActivity implements View.OnClick
                             dismissProgressDialog();
                             DataHolder.user.getListDahiraID().add(dahiraID);
                             uploadImage();
-                            toastMessage("Dahira enregistre avec succes");
+                            toastMessage(getApplicationContext(), "Dahira enregistre avec succes");
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -297,7 +308,7 @@ public class AddDahiraActivity extends AppCompatActivity implements View.OnClick
                         public void onFailure(@NonNull Exception e) {
                             dismissProgressDialog();
                             dahiraSaved = false;
-                            toastMessage("Error adding dahira!");
+                            toastMessage(getApplicationContext(), "Error adding dahira!");
                             Log.d(TAG, e.toString());
                         }
                     });
@@ -310,7 +321,7 @@ public class AddDahiraActivity extends AppCompatActivity implements View.OnClick
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        toastMessage("User updated.");
+                        toastMessage(getApplicationContext(), "User updated.");
                     }
                 });
     }
@@ -535,23 +546,4 @@ public class AddDahiraActivity extends AppCompatActivity implements View.OnClick
             }
         });
     }
-
-    public void toastMessage(String message){
-        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-    }
-
-    public void showProgressDialog(String str){
-        progressDialog.setMessage(str);
-        progressDialog.setCancelable(false);
-        progressDialog.setCanceledOnTouchOutside(false);
-        dismissProgressDialog();
-        progressDialog.show();
-    }
-
-    private void dismissProgressDialog() {
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
-    }
-
 }

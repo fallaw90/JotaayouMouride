@@ -3,16 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/menuTitle"
+        android:title="Menu"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/myDahiras"
         android:title="Mes dahiras"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
     <item
-        android:id="@+id/displayDahiras"
+        android:id="@+id/allDahiras"
         android:title="Voir tous les dahiras de Dakar"
         app:showAsAction="never" />
     <item
         android:id="@+id/setting"
-        android:title="Parametres"
+        android:title="Parametres profil"
         app:showAsAction="never" />
     <item
         android:id="@+id/about"

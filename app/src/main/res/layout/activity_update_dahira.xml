@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,6 +8,8 @@
 
     <include
         android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         layout="@layout/toolbar" />
 
     <ScrollView
@@ -18,193 +20,197 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
+            android:layout_height="match_parent">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/textView_labelLogo"
-                android:textAlignment="center"
-                android:id="@+id/textView_labelLogo"
-                android:textSize="@dimen/_20sdp"/>
+                android:layout_centerVertical="true"
+                android:orientation="vertical"
+                android:padding="16dp">
 
-            <RelativeLayout
-                android:id="@+id/rel_imageView"
-                android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:layout_below="@+id/textView_labelLogo"
-                android:layout_gravity="center">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/changeLogo"
+                    android:textAlignment="center"
+                    android:id="@+id/textView_labelLogo"
+                    android:textSize="@dimen/_20sdp"/>
 
                 <ImageView
                     android:id="@+id/imageView"
-                    android:layout_width="150dp"
-                    android:layout_height="match_parent"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
                     android:layout_centerHorizontal="true"
                     android:layout_margin="10dp"
-                    android:background="@drawable/logo_dahira"
+                    android:layout_gravity="center"
+                    app:srcCompat="@drawable/logo_dahira"
+                    android:layout_below="@+id/textView_labelLogo"
                     android:scaleType="centerCrop" />
 
-            </RelativeLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginBottom="5dp"
-                android:layout_marginTop="5dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/textView_labelUserName"
-                    android:layout_width="135dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/dahiraName"
-                    android:layout_marginRight="5dp"
-                    android:textColor="@color/blue"
-                    android:textSize="@dimen/_15sdp"/>
-
-                <EditText
-                    android:id="@+id/editText_dahiraName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/edittext_background"
-                    android:hint="@string/dahiraName"
-                    android:padding="10dp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginBottom="5dp"
-                android:layout_marginTop="5dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="135dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/dieuwrine"
-                    android:layout_marginRight="5dp"
-                    android:textColor="@color/blue"
-                    android:textSize="@dimen/_15sdp"/>
-
-                <EditText
-                    android:id="@+id/editText_dieuwrine"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/edittext_background"
-                    android:hint="@string/dieuwrine"
-                    android:padding="10dp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginBottom="5dp"
-                android:layout_marginTop="5dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="135dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/dahiraPhoneNumber"
-                    android:layout_marginRight="5dp"
-                    android:textColor="@color/blue"
-                    android:textSize="@dimen/_15sdp"/>
-
-                <EditText
-                    android:id="@+id/editText_dahiraPhoneNumber"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/edittext_background"
-                    android:hint="@string/dahiraPhoneNumber"
-                    android:padding="10dp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal">
-
                 <LinearLayout
-                    android:layout_width="50pt"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_weight="0.5"
-                    android:layout_gravity="center">
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="5dp"
+                    android:orientation="horizontal">
 
                     <TextView
-                        android:layout_width="match_parent"
+                        android:id="@+id/textView_commission"
+                        android:layout_width="135dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dip"
-                        android:text="@string/spinner_country"
-                        android:layout_marginBottom="5dp"
-                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
+                        android:text="@string/dahiraName"
+                        android:layout_marginRight="5dp"
+                        android:textColor="@color/blue"
+                        android:textSize="@dimen/_15sdp"/>
 
-                    <Spinner
-                        android:id="@+id/spinner_country"
+                    <EditText
+                        android:id="@+id/editText_dahiraName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:entries="@array/country_array"
-                        android:prompt="@string/country"
-                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
+                        android:background="@drawable/edittext_background"
+                        android:hint="@string/dahiraName"
+                        android:padding="10dp" />
+
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="50pt"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_weight="0.5"
-                    android:layout_gravity="center">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dip"
-                        android:text="@string/spinner_region"
-                        android:layout_marginBottom="5dp"
-                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
-
-                    <Spinner
-                        android:id="@+id/spinner_region"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:entries="@array/region_array"
-                        android:prompt="@string/region"
-                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginBottom="5dp"
-                android:layout_marginTop="5dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/textView_siege"
-                    android:layout_width="135dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/userName"
-                    android:layout_marginRight="5dp"
-                    android:textColor="@color/blue"
-                    android:textSize="@dimen/_15sdp"/>
-
-                <EditText
-                    android:id="@+id/editText_siege"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/edittext_background"
-                    android:hint="@string/siege"
-                    android:padding="10dp" />
-            </LinearLayout>
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="5dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/textView_dieuwrine"
+                        android:layout_width="135dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/dieuwrine"
+                        android:layout_marginRight="5dp"
+                        android:textColor="@color/blue"
+                        android:textSize="@dimen/_15sdp"/>
+
+                    <EditText
+                        android:id="@+id/editText_dieuwrine"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/edittext_background"
+                        android:hint="@string/dieuwrine"
+                        android:padding="10dp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/textView_phoneNumber"
+                        android:layout_width="135dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/updatePhoneNumber"
+                        android:layout_marginRight="5dp"
+                        android:textColor="@color/blue"
+                        android:textSize="@dimen/_15sdp"/>
+
+                    <EditText
+                        android:id="@+id/editText_dahiraPhoneNumber"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/edittext_background"
+                        android:hint="@string/phoneNumber"
+                        android:padding="10dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="50pt"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_weight="0.5"
+                        android:layout_gravity="center">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dip"
+                            android:text="@string/spinner_country"
+                            android:layout_marginBottom="5dp"
+                            android:textColor="@color/blue"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
+
+                        <Spinner
+                            android:id="@+id/spinner_country"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:entries="@array/country_array"
+                            android:prompt="@string/country"
+                            android:textColor="@color/blue"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="50pt"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_weight="0.5"
+                        android:layout_gravity="center">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dip"
+                            android:text="@string/spinner_region"
+                            android:layout_marginBottom="5dp"
+                            android:textColor="@color/blue"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
+
+                        <Spinner
+                            android:id="@+id/spinner_region"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:entries="@array/region_array"
+                            android:prompt="@string/region"
+                            android:textColor="@color/blue"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="5dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/textView_siege"
+                        android:layout_width="135dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/siege"
+                        android:layout_marginRight="5dp"
+                        android:textColor="@color/blue"
+                        android:textSize="@dimen/_15sdp"/>
+
+                    <EditText
+                        android:id="@+id/editText_siege"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/edittext_background"
+                        android:hint="@string/siege"
+                        android:padding="10dp" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/textView_addCommission"
@@ -223,19 +229,25 @@
                         android:id="@+id/editText_commission"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif"
                         android:hint="@string/commission"
                         android:inputType="text"
-                        android:paddingBottom="15dp"
-                        android:layout_weight="0.5"/>
+                        android:padding="10dp"
+                        android:layout_weight="0.5"
+                        android:background="@drawable/edittext_background"
+                        android:textColorHint="@color/blue" />
 
                     <EditText
                         android:id="@+id/editText_responsible"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif"
                         android:hint="@string/responsible"
                         android:inputType="text"
-                        android:paddingBottom="15dp"
-                        android:layout_weight="0.5"/>
+                        android:padding="10dp"
+                        android:layout_weight="0.5"
+                        android:background="@drawable/edittext_background"
+                        android:textColorHint="@color/blue" />
 
                 </LinearLayout>
 
@@ -245,9 +257,10 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_margin="7dp"
-                    android:background="@drawable/rounded_button_transparent"
+                    android:background="@color/green"
                     android:text="@string/addCommission"
-                    android:textAllCaps="false"/>
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"/>
 
                 <TextView
                     android:id="@+id/textViewUpdateCommission"
@@ -269,6 +282,7 @@
                         android:layout_weight="0.5"
                         android:text="@string/textView_commissionsTitle"
                         android:gravity="center"
+                        android:textColor="@color/blue"
                         android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
 
                     <TextView
@@ -278,13 +292,15 @@
                         android:layout_weight="0.5"
                         android:text="@string/textView_responsiblesTitle"
                         android:gravity="center"
+                        android:textColor="@color/blue"
                         android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
                 </LinearLayout>
 
                 <ListView
                     android:id="@+id/listView_commission"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/blue"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -298,7 +314,7 @@
                         android:id="@+id/textView_adiya"
                         android:layout_width="135dp"
                         android:layout_height="wrap_content"
-                        android:text="@string/adiya"
+                        android:text="@string/totalAdiya"
                         android:layout_marginRight="5dp"
                         android:textColor="@color/blue"
                         android:textSize="@dimen/_15sdp"/>
@@ -324,7 +340,7 @@
                         android:id="@+id/textView_sass"
                         android:layout_width="135dp"
                         android:layout_height="wrap_content"
-                        android:text="@string/sass"
+                        android:text="@string/totalSass"
                         android:layout_marginRight="5dp"
                         android:textColor="@color/blue"
                         android:textSize="@dimen/_15sdp"/>
@@ -350,7 +366,7 @@
                         android:id="@+id/textView_social"
                         android:layout_width="135dp"
                         android:layout_height="wrap_content"
-                        android:text="@string/social"
+                        android:text="@string/totalSocial"
                         android:layout_marginRight="5dp"
                         android:textColor="@color/blue"
                         android:textSize="@dimen/_15sdp"/>
@@ -364,34 +380,56 @@
                         android:padding="10dp" />
                 </LinearLayout>
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/totalMember"
+                    android:layout_marginRight="5dp"
+                    android:textColor="@color/blue"
+                    android:layout_gravity="center"
+                    android:textSize="@dimen/_15sdp"/>
+
+                <TextView
+                    android:id="@+id/textView_totalMember"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="7dp"
+                    android:textAlignment="center"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+                    android:textColor="@color/colorPrimaryDark" />
+
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:orientation="horizontal">
 
-                    <Button
-                        android:id="@+id/button_back"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="7dp"
-                        android:background="@drawable/rounded_button_transparent"
-                        android:text="@string/backButton"
-                        android:textAllCaps="false"/>
-
-                    <Button
-                        android:id="@+id/button_save"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="7dp"
-                        android:background="@drawable/rounded_button_transparent"
-                        android:text="@string/button_save"
-                        android:textAllCaps="false" />
-
                 </LinearLayout>
+
+                <Button
+                    android:id="@+id/button_save"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="7dp"
+                    android:background="#7fa208"
+                    android:text="@string/update"
+                    android:textAllCaps="false"
+                    android:textColor="@color/colorAccent" />
+
+                <Button
+                    android:id="@+id/button_back"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="7dp"
+                    android:background="@color/gray"
+                    android:text="@string/backButton"
+                    android:textAllCaps="false"
+                    android:textColor="@color/colorAccent" />
+
+            </LinearLayout>
 
         </RelativeLayout>
 
     </ScrollView>
 
-</LinearLayout>
+</RelativeLayout>

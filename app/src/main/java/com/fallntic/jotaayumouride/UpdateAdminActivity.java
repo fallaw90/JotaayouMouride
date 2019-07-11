@@ -4,10 +4,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -62,6 +66,11 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setSubtitle("Mettre a jour votre profile");
         setSupportActionBar(toolbar);
+
+        if (!DataHolder.isConnected(this)){
+            toastMessage("Oops! Vous n'avez pas de connexion internet!");
+            finish();
+        }
 
         db = FirebaseFirestore.getInstance();
 
@@ -170,7 +179,6 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
 
     private void updateDahira(){
 
-
         int totalMember = Integer.parseInt(dahira.getTotalMember());
 
        dahira.setTotalMember(Integer.toString(totalMember++));
@@ -216,13 +224,13 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
         firebaseStorage = FirebaseStorage.getInstance();
         StorageReference storageReference;
         storageReference = firebaseStorage.getReference();
-        final StorageReference profileImageReference = storageReference.child("profileImage").child(user.getUserID());
+        final StorageReference profileImageReference = storageReference.child("profile_image").child(user.getUserID());
 
         showProgressDialog("Chargement de l'image ...");
         // Download directly from StorageReference using Glide
         GlideApp.with(UpdateAdminActivity.this)
                 .load(profileImageReference)
-                .placeholder(R.drawable.icon_camera)
+                .placeholder(R.drawable.profile_image)
                 .into(imageViewProfile);
 
         dismissProgressDialog();

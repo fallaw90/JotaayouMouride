@@ -3,8 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/menuTitle"
+        android:title="Menu"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/addMember"
-        android:title="Ajouter un membre"
+        android:title="Ajouter un nouveau membre"
         app:showAsAction="never" />
     <item
         android:id="@+id/displayMember"

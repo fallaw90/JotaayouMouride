@@ -6,11 +6,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -33,6 +37,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.user;
 
 public class DahiraInfoActivity extends AppCompatActivity implements View.OnClickListener {
@@ -42,24 +48,13 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
 
     private ImageView imageView;
 
-    //Firebase
-    private FirebaseStorage firebaseStorage;
-    private StorageReference storageReference;
-    private FirebaseAuth mAuth;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-    private Uri uri;
-    private final int PICK_IMAGE_REQUEST = 71;
-    private ProgressDialog progressDialog;
 
     private int index;
     private Menu menu;
     private MenuItem menuAddMember, menuSetting;
 
     User newMember = new User();
-    final Handler handler = new Handler();
-
-    boolean userFound = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +65,11 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setSubtitle("Votre Dahira");
         setSupportActionBar(toolbar);
+
+        if (!DataHolder.isConnected(this)){
+            toastMessage("Oops! Vous n'avez pas de connexion internet!");
+            finish();
+        }
 
         textViewDahiraName = (TextView) findViewById(R.id.textView_dahiraName);
         textViewDieuwrine = (TextView) findViewById(R.id.textView_dieuwrine);
@@ -86,29 +86,11 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         textViewSiege.setText("Siege " + dahira.getSiege());
         textViewPhoneNumber.setText("Telephone: " + dahira.getDahiraPhoneNumber());
         textViewtotalMembers.setText("Nombre de participant: " + dahira.getTotalMember());
-
-        firebaseStorage = FirebaseStorage.getInstance();
-        storageReference = firebaseStorage.getReference();
-
-        progressDialog = new ProgressDialog(this);
-
-        showImage();
-
-        if (dahira.getTotalAdiya() == "" || dahira.getTotalAdiya() == null){
-            dahira.setTotalAdiya("0");
-        }
         textViewTotalAdiya.setText("Total Adiya dans la caisse: " + dahira.getTotalAdiya() + " FCFA");
-        if (dahira.getTotalSass() == "" || dahira.getTotalSass() == null){
-            dahira.setTotalSass("0");
-        }
         textViewTotalSass.setText("Total Sass dans la caisse: " + dahira.getTotalSass() + " FCFA");
-        if (dahira.getTotalSocial() == "" || dahira.getTotalSocial() == null){
-            dahira.setTotalSocial("0");
-        }
-
         textViewTotalSocial.setText("Total Social dans la caisse: " + dahira.getTotalSocial() + " FCFA");
 
-        textViewtotalMembers.setText("Total membres: " + dahira.getDahiraName());
+        DataHolder.showLogoDahira(this, imageView);
 
         findViewById(R.id.button_back).setOnClickListener(this);
     }
@@ -122,22 +104,6 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
-    public void showImage(){
-        // Reference to the image file in Cloud Storage
-        StorageReference storageReference;
-        storageReference = firebaseStorage.getReference();
-        final StorageReference profileImageReference = storageReference.child("images").child(dahira.getDahiraID());
-
-        showProgressDialog("Chargement de l'image ...");
-        // Download directly from StorageReference using Glide
-        GlideApp.with(DahiraInfoActivity.this)
-                .load(profileImageReference)
-                .placeholder(R.drawable.icon_camera)
-                .into(imageView);
-
-        dismissProgressDialog();
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -145,7 +111,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
 
         menuAddMember = menu.findItem(R.id.addMember);
         menuSetting = menu.findItem(R.id.setting);
-        index = user.getListDahiraID().indexOf(dahira.getDahiraID());
+        index = user.getListDahiraID().indexOf(dahira.getDahiraID()); 
         if (!user.getListRoles().get(index).equals("Administrateur")){
             menuAddMember.setVisible(false);
             menuSetting.setVisible(false);
@@ -224,7 +190,6 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
             }
         });
 
-
         buttonCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -235,7 +200,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
     }
 
     public void getNewMemberToUpdate(String field, String value) {
-        showProgressDialog("Chargement de vos informations ...");
+        showProgressDialog(this,"Chargement de vos informations ...");
         db.collection("users").whereEqualTo(field, value).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
@@ -271,7 +236,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void updateDahira(){
-        showProgressDialog("Mis a jour de votre dahira");
+        showProgressDialog(this,"Mis a jour de votre dahira");
         int totalMember = Integer.parseInt(dahira.getTotalMember());
         totalMember++;
         dahira.setTotalMember(Integer.toString(totalMember));
@@ -290,7 +255,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void updateNewMember(User user){
-        showProgressDialog("Ajout du nouveau membre en cours ...");
+        showProgressDialog(this,"Ajout du nouveau membre en cours ...");
         user.getListDahiraID().add(dahira.getDahiraID());
         user.getListUpdatedDahiraID().add(dahira.getDahiraID());
         user.getListRoles().add("N/A");
@@ -374,19 +339,5 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
 
     public void toastMessage(String message){
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-    }
-
-    public void showProgressDialog(String str){
-        progressDialog.setMessage(str);
-        progressDialog.setCancelable(false);
-        progressDialog.setCanceledOnTouchOutside(false);
-        dismissProgressDialog();
-        progressDialog.show();
-    }
-
-    private void dismissProgressDialog() {
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
     }
 }

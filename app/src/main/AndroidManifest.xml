@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.fallntic.jotaayumouride">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+
 
     <application
         android:allowBackup="true"
@@ -12,9 +18,10 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:replace="android:appComponentFactory"
+        android:appComponentFactory="whateverString">
         <activity android:name=".SettingUserActivity" />
-        <activity android:name=".ContributionsActivity" />
         <activity android:name=".UserInfoActivity" />
         <activity android:name=".UpdateAdminActivity" />
         <activity android:name=".SettingProfileActivity" />
@@ -23,9 +30,8 @@
         <activity android:name=".ListDahiraActivity" />
         <activity android:name=".UpdateDahiraActivity" />
         <activity android:name=".SignUpActivity" />
-        <activity android:name=".CreateDahiraActivity" />
+        <activity android:name=".AddDahiraActivity" />
         <activity android:name=".LoginActivity" />
-        <activity android:name=".RegisterActivity" />
         <activity android:name=".ProfileActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>

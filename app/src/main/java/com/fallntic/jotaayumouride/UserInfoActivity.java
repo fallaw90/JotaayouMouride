@@ -7,9 +7,13 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -35,26 +39,31 @@ import com.google.firebase.storage.StorageReference;
 import java.util.List;
 
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.showProfileImage;
+import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.DataHolder.user;
 
 public class UserInfoActivity extends AppCompatActivity implements View.OnClickListener {
 
     private TextView textViewName;
+    private TextView textViewDahiraName;
     private TextView textViewAdress;
     private TextView textViewPhoneNumber;
     private TextView textViewEmail;
     private TextView textViewRole;
     private TextView textViewCommission;
-    private ImageView imageViewProfile;
-
-    private ProgressDialog progressDialog;
+    private TextView textViewAdiya;
+    private TextView textViewSass;
+    private TextView textViewSocial;
+    private ImageView imageView;
 
     private FirebaseAuth mAuth;
     private FirebaseUser firebaseUser;
     private FirebaseStorage firebaseStorage;
     private StorageReference storageReference;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private EditText editTextValue;
 
     boolean boolAdiya = false, boolSass = false, boolSocial = false;
 
@@ -68,31 +77,43 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         toolbar.setSubtitle("Info du membre");
         setSupportActionBar(toolbar);
 
-        progressDialog = new ProgressDialog(this);
+        if (!DataHolder.isConnected(this)){
+            toastMessage(this,"Oops! Vous n'avez pas de connexion internet!");
+            finish();
+        }
 
         firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
 
         textViewName = (TextView) findViewById(R.id.textView_userName);
+        textViewDahiraName = (TextView) findViewById(R.id.textView_dahiraName);
         textViewPhoneNumber = (TextView) findViewById(R.id.textView_phoneNumber);
         textViewAdress = (TextView) findViewById(R.id.textView_address);
         textViewEmail = (TextView) findViewById(R.id.textView_email);
         textViewCommission = (TextView) findViewById(R.id.textView_commission);
         textViewRole = (TextView) findViewById(R.id.textView_role);
-        imageViewProfile = (ImageView) findViewById(R.id.imageView);
+        textViewAdiya = (TextView) findViewById(R.id.totalAdiya);
+        textViewAdiya = (TextView) findViewById(R.id.textView_commission);
+        textViewSass = (TextView) findViewById(R.id.totalSass);
+        textViewSocial = (TextView) findViewById(R.id.totalSocial);
+        imageView = (ImageView) findViewById(R.id.imageView);
 
         int index = user.getListDahiraID().indexOf(dahira.getDahiraID());
 
-        showImage();
+        showProfileImage(this, imageView);
 
         textViewName.setText(user.getUserName());
+        textViewDahiraName.setText(dahira.getDahiraName());
         textViewPhoneNumber.setText(user.getUserPhoneNumber());
         textViewAdress.setText(user.getAddress());
         textViewEmail.setText(user.getEmail());
         textViewCommission.setText(user.getListCommissions().get(index));
+        textViewAdiya.setText(user.getListAdiya().get(index));
+        textViewSass.setText(user.getListSocial().get(index));
+        textViewSocial.setText(user.getListSass().get(index));
         textViewRole.setText(user.getListRoles().get(index));
 
-        findViewById(R.id.button_cancel).setOnClickListener(this);
+        findViewById(R.id.button_back).setOnClickListener(this);
     }
 
     @Override
@@ -113,7 +134,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_profile, menu);
+        inflater.inflate(R.menu.menu_user_info, menu);
         return true;
     }
 
@@ -126,7 +147,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
                 break;
 
             case R.id.setting:
-                startActivity(new Intent(this, SettingProfileActivity.class));
+                startActivity(new Intent(this, SettingUserActivity.class));
                 break;
 
             case R.id.logout:
@@ -144,34 +165,18 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         FirebaseAuth.getInstance().signOut();
     }
 
-    public void showImage(){
-        // Reference to the image file in Cloud Storage
-        StorageReference storageReference;
-        storageReference = firebaseStorage.getReference();
-        final StorageReference profileImageReference = storageReference.child("images").child(user.getUserID());
-
-        showProgressDialog("Chargement de l'image ...");
-        // Download directly from StorageReference using Glide
-        GlideApp.with(UserInfoActivity.this)
-                .load(profileImageReference)
-                .placeholder(R.drawable.icon_camera)
-                .into(imageViewProfile);
-
-        dismissProgressDialog();
-    }
-
     private void chooseContribution() {
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
-        final View dialogView = inflater.inflate(R.layout.dialog_add_member, null);
+        final View dialogView = inflater.inflate(R.layout.dialog_choose_contribution, null);
         dialogBuilder.setView(dialogView);
         dialogBuilder.setCancelable(false);
 
         final Button buttonAddAdiya = (Button) dialogView.findViewById(R.id.button_dialogAddAdiya);
         final Button buttonAddSass = (Button) dialogView.findViewById(R.id.button_dialogAddSass);
         final Button buttonAddSocial = (Button) dialogView.findViewById(R.id.button_dialogAddSocial);
-        final Button buttonCancel = (Button) dialogView.findViewById(R.id.button_cancel);
+        final Button buttonCancel = (Button) dialogView.findViewById(R.id.button_dialogCancel);
 
         dialogBuilder.setTitle("Ajouter une contribution");
         final AlertDialog alertDialog = dialogBuilder.create();
@@ -182,6 +187,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
             public void onClick(View view) {
                 boolAdiya = true;
                 addContribution();
+                alertDialog.dismiss();
             }
         });
 
@@ -190,6 +196,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
             public void onClick(View view) {
                 boolSass = true;
                 addContribution();
+                alertDialog.dismiss();
             }
         });
 
@@ -198,17 +205,17 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
             public void onClick(View view) {
                 boolSocial = true;
                 addContribution();
+                alertDialog.dismiss();
             }
         });
 
         buttonCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(UserInfoActivity.this, ListUserActivity.class));
+                alertDialog.dismiss();
             }
         });
 
-        alertDialog.dismiss();
     }
 
     private void addContribution() {
@@ -224,7 +231,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         Button buttonCancel = (Button) dialogView.findViewById(R.id.button_cancel);
 
         if (boolAdiya){
-            dialogBuilder.setTitle("Ajouter adiya pour " + user.getUserName() + " membre du dahira " + dahira.getDahiraName());
+            dialogBuilder.setTitle(user.getUserName() + "\ndahira " + dahira.getDahiraName());
             editTextDialogContribution.setHint("Montant adiya (Chiffre seulement)");
         }
         if (boolSass){
@@ -246,7 +253,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
                 String value = editTextDialogContribution.getText().toString().trim();
                 value = value.replace(",", ".");
 
-                if(!hasValidationErrors(value)){
+                if(!hasValidationErrors(editTextDialogContribution, value)){
 
                     if (boolAdiya){
                         double totalAdiyaUser = Double.parseDouble(user.getListAdiya().get(index));
@@ -254,7 +261,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
                         totalAdiyaUser += Double.parseDouble(value);
                         totalAdiyaDahira += Double.parseDouble(value);
                         dahira.setTotalAdiya(Double.toString(totalAdiyaDahira));
-                        user.getListAdiya().add(index, Double.toString(totalAdiyaUser));
+                        user.getListAdiya().set(index, Double.toString(totalAdiyaUser));
                         updateContribution("listAdiya", user.getListAdiya(), "adiya");
                         updateDahira("totalAdiya", dahira.getTotalAdiya());
                     }
@@ -265,7 +272,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
                         totalSassUser += Double.parseDouble(value);
                         totalSassDahira += Double.parseDouble(value);
                         dahira.setTotalAdiya(Double.toString(totalSassDahira));
-                        user.getListSass().add(index, Double.toString(totalSassUser));
+                        user.getListSass().set(index, Double.toString(totalSassUser));
                         updateContribution("listSass", user.getListSass(), "sass");
                         updateDahira("totalSass", dahira.getTotalSass());
                     }
@@ -276,7 +283,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
                         totalSocialUser += Double.parseDouble(value);
                         totalSocialDahira += Double.parseDouble(value);
                         dahira.setTotalSocial(Double.toString(totalSocialDahira));
-                        user.getListSocial().add(index, Double.toString(totalSocialUser));
+                        user.getListSocial().set(index, Double.toString(totalSocialUser));
                         updateContribution("listSocial", user.getListSocial(), "social");
                         updateDahira("totalSocial", dahira.getTotalSocial());
                     }
@@ -290,7 +297,6 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         buttonCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(UserInfoActivity.this, ListUserActivity.class));
                 alertDialog.dismiss();
             }
         });
@@ -298,28 +304,28 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
 
     private void updateContribution(String field, List<String> value, final String typeContribution){
 
-        showProgressDialog("Enregistrement " + typeContribution + " en cours ...");
+        showProgressDialog(this, "Enregistrement " + typeContribution + " en cours ...");
         db.collection("users").document(user.getUserID())
                 .update(field, value)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         dismissProgressDialog();
-                        toastMessage(typeContribution + " ajoute avec succes!");
+                        toastMessage(getApplicationContext(),typeContribution + " ajoute avec succes!");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         dismissProgressDialog();
-                        toastMessage("Error adding " + typeContribution + "!");
+                        toastMessage(getApplicationContext(),"Error adding " + typeContribution + "!");
                     }
                 });
     }
 
     private void updateDahira(String field, String value){
 
-        showProgressDialog("Mis a jour du dahira en cours ...");
+        showProgressDialog(this,"Mis a jour du dahira en cours ...");
         db.collection("dahiras").document(dahira.getDahiraID())
                 .update(field, value)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -332,12 +338,14 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         dismissProgressDialog();
-                        toastMessage("Error updating dahira!");
+                        toastMessage(getApplicationContext(),"Error updating dahira!");
                     }
                 });
+
+        startActivity(new Intent(UserInfoActivity.this, UserInfoActivity.class));
     }
 
-    private boolean hasValidationErrors(String value) {
+    private boolean hasValidationErrors(EditText editTextValue, String value) {
 
         if (value.isEmpty() || !isDouble(value)) {
             editTextValue.setError("Valeur incorrect!");
@@ -359,24 +367,6 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
             // this means it is not double
             e1.printStackTrace();
             return false;
-        }
-    }
-
-    public void toastMessage(String message){
-        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-    }
-
-    public void showProgressDialog(String str){
-        progressDialog.setMessage(str);
-        progressDialog.setCancelable(false);
-        progressDialog.setCanceledOnTouchOutside(false);
-        dismissProgressDialog();
-        progressDialog.show();
-    }
-
-    private void dismissProgressDialog() {
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
         }
     }
 }

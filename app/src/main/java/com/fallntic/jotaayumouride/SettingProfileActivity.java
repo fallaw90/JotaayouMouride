@@ -31,7 +31,7 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
 
-import static com.fallntic.jotaayumouride.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.DataHolder.showProfileImage;
 import static com.fallntic.jotaayumouride.DataHolder.user;
 
 public class SettingProfileActivity extends AppCompatActivity implements View.OnClickListener {
@@ -64,6 +64,11 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
         toolbar.setSubtitle("Parametres");
         setSupportActionBar(toolbar);
 
+        if (!DataHolder.isConnected(this)){
+            toastMessage("Oops! Vous n'avez pas de connexion internet!");
+            finish();
+        }
+
         progressDialog = new ProgressDialog(this);
 
         editTextUserName = findViewById(R.id.editText_userName);
@@ -75,7 +80,7 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
         editTextPhoneNumber.setText(user.getUserPhoneNumber());
         editTextAddress.setText(user.getAddress());
 
-        showImage();
+        showProfileImage(this, imageView);
 
         findViewById(R.id.button_update).setOnClickListener(this);
         findViewById(R.id.imageView).setOnClickListener(this);
@@ -196,23 +201,6 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
         }
     }
 
-    public void showImage(){
-        // Reference to the image file in Cloud Storage
-        FirebaseStorage firebaseStorage;
-        StorageReference storageReference;
-        firebaseStorage = FirebaseStorage.getInstance();
-        storageReference = firebaseStorage.getReference();
-        final StorageReference profileImageReference = storageReference.child("profileImage").child(user.getUserID());
-
-        showProgressDialog("Chargement de l'image ...");
-        // Download directly from StorageReference using Glide
-        GlideApp.with(SettingProfileActivity.this)
-                .load(profileImageReference)
-                .placeholder(R.drawable.icon_camera)
-                .into(imageView);
-
-        dismissProgressDialog();
-    }
 
     private boolean hasValidationErrors(String name, String phoneNumber, String address) {
 

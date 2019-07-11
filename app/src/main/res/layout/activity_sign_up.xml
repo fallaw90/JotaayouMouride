@@ -10,6 +10,8 @@
 
     <include
         android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         layout="@layout/toolbar" />
 
     <ScrollView
@@ -29,21 +31,15 @@
                 android:textAlignment="center"
                 android:textSize="20sp"/>
 
-            <RelativeLayout
-                android:layout_width="150dp"
-                android:layout_height="150dp"
-                android:layout_gravity="center">
-
-                <ImageView
-                    android:id="@+id/imageView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_centerHorizontal="true"
-                    android:layout_margin="10dp"
-                    android:background="@drawable/icon_camera"
-                    android:scaleType="centerCrop" />
-
-            </RelativeLayout>
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_centerHorizontal="true"
+                app:srcCompat="@drawable/profile_image"
+                android:layout_below="@+id/labelImageView"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop" />
 
             <RelativeLayout
                 android:layout_width="match_parent"

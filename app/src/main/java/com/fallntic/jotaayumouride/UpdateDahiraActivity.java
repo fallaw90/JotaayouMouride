@@ -20,8 +20,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -43,12 +41,12 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.fallntic.jotaayumouride.DataHolder.dahiraID;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.user;
 
 public class UpdateDahiraActivity extends AppCompatActivity implements View.OnClickListener  {
@@ -81,7 +79,6 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
     private String totalSocial;
 
     private ListView listViewCommission;
-    private ProgressDialog progressDialog;
 
     private ArrayList<String> arrayList;
     private ArrayAdapter<String> arrayAdapter;
@@ -107,7 +104,10 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
         toolbar.setSubtitle("Modifier votre dahira");
         setSupportActionBar(toolbar);
 
-        progressDialog = new ProgressDialog(this);
+        if (!DataHolder.isConnected(this)){
+            toastMessage("Oops! Vous n'avez pas de connexion internet!");
+            finish();
+        }
 
         firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
@@ -140,7 +140,7 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
         editTextSass.setText(dahira.getTotalSass());
         editTextSocial.setText(dahira.getTotalSocial());
 
-        showImage();
+        DataHolder.showLogoDahira(this, imageView);
         loadListCommissions();
 
         //Display and modify ListView commissions
@@ -200,9 +200,7 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
                 break;
             case R.id.button_back:
                 finish();
-                break;
-            case R.id.textView_login:
-                startActivity(new Intent(UpdateDahiraActivity.this, LoginActivity.class));
+                startActivity(new Intent(UpdateDahiraActivity.this, DahiraInfoActivity.class));
                 break;
         }
     }
@@ -231,7 +229,7 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
 
     private void uploadImage() {
         if(uri != null) {
-            showProgressDialog("Enregistrement de votre image cours ...");
+            showProgressDialog(this, "Enregistrement de votre image cours ...");
             final StorageReference ref = storageReference.child("logoDahira").child(dahira.getDahiraID());
             ref.putFile(uri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -266,22 +264,6 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
-    public void showImage(){
-        // Reference to the image file in Cloud Storage
-        StorageReference storageReference;
-        storageReference = firebaseStorage.getReference();
-        final StorageReference profileImageReference = storageReference.child("logoImage").child(dahira.getDahiraID());
-
-        showProgressDialog("Chargement de l'image ...");
-        // Download directly from StorageReference using Glide
-        GlideApp.with(UpdateDahiraActivity.this)
-                .load(profileImageReference)
-                .placeholder(R.drawable.icon_camera)
-                .into(imageView);
-
-        dismissProgressDialog();
-    }
-
     private void updateData(){
 
         //Info dahira
@@ -300,27 +282,21 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
 
         if(!hasValidationErrors(dahiraName, dieuwrine, dahiraPhoneNumber, siege, totalAdiya, totalSass, totalSocial)) {
 
-            dahiraID = db.collection("dahiras").document().getId();
-            dahira = new Dahira(dahiraID, dahiraName, dieuwrine, dahiraPhoneNumber, siege,
-                    totalAdiya, totalSass, totalSocial, dahira.getListCommissions(), dahira.getListResponsibles());
-
             List<String> listID = user.getListDahiraID();
             listID.add(dahiraID);
             user.setListDahiraID(listID);
 
-            showProgressDialog("Enregistrement de votre dahira cours ...");
+            showProgressDialog(this,"Enregistrement de votre dahira cours ...");
             db.collection("dahiras").document(dahira.getDahiraID())
-                    .update(
-                            "dahiraID", dahira.getDahiraID(),
-                            "dahiraName", dahira.getDahiraName(),
-                            "dieuwrine", dahira.getDieuwrine(),
-                            "userPhoneNumber", dahira.getDahiraPhoneNumber(),
-                            "siege", dahira.getSiege(),
+                    .update( "dahiraName", dahiraName,
+                            "dieuwrine", dieuwrine,
+                            "userPhoneNumber", dahiraPhoneNumber,
+                            "siege", siege,
                             "listCommissions", dahira.getListCommissions(),
                             "listResponsibles", dahira.getListResponsibles(),
-                            "totalAdiya", dahira.getTotalAdiya(),
-                            "totalSass", dahira.getTotalSass(),
-                            "totalSocial", dahira.getTotalSocial()
+                            "totalAdiya", totalAdiya,
+                            "totalSass", totalSass,
+                            "totalSocial", totalSocial
                     )
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
@@ -569,20 +545,6 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
 
     public void toastMessage(String message){
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-    }
-
-    public void showProgressDialog(String str){
-        progressDialog.setMessage(str);
-        progressDialog.setCancelable(false);
-        progressDialog.setCanceledOnTouchOutside(false);
-        dismissProgressDialog();
-        progressDialog.show();
-    }
-
-    private void dismissProgressDialog() {
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
     }
 
 }

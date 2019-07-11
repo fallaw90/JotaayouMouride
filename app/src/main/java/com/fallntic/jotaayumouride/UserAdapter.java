@@ -19,6 +19,7 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.List;
 
+import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.user;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
@@ -53,21 +54,13 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         holder.textViewAddress.setText(user.getAddress());
         holder.textViewUserPhoneNumber.setText(user.getUserPhoneNumber());
 
+        int index = user.getListDahiraID().indexOf(dahira.getDahiraID());
+        if (!user.getListDahiraID().get(index).equals("Administrateur")){
+            holder.textViewRole.setVisibility(View.GONE);
+        }
 
-        // Reference to the image file in Cloud Storage
-        progressDialog = new ProgressDialog(context);
-        firebaseStorage = FirebaseStorage.getInstance();
-        StorageReference storageReference;
-        storageReference = firebaseStorage.getReference();
-        StorageReference profileImageReference = storageReference.child("profileImage").child(user.getUserID());
-        showProgressDialog("Chargement de l'image ...");
-        // Download directly from StorageReference using Glide
-        GlideApp.with(context)
-                .load(profileImageReference)
-                .placeholder(R.drawable.icon_camera)
-                .into(imageView);
+        DataHolder.showProfileImage(context, imageView);
 
-        dismissProgressDialog();
     }
 
     @Override
@@ -80,7 +73,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         TextView textViewUserName;
         TextView textViewAddress;
         TextView textViewUserPhoneNumber;
-
+        TextView textViewRole;
 
         public UserViewHolder(View itemView) {
             super(itemView);
@@ -88,6 +81,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             textViewUserName = itemView.findViewById(R.id.textView_userName);
             textViewAddress = itemView.findViewById(R.id.textView_address);
             textViewUserPhoneNumber = itemView.findViewById(R.id.textView_userPhoneNumber);
+            textViewRole = itemView.findViewById(R.id.textView_role);
             imageView = itemView.findViewById(R.id.imageView);
 
             itemView.setOnClickListener(this);

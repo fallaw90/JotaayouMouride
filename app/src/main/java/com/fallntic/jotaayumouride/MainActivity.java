@@ -1,40 +1,59 @@
 package com.fallntic.jotaayumouride;
 
+import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
-import android.os.Handler;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.view.Window;
-import android.view.WindowManager;
+import android.os.Handler;
+import android.widget.Toast;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 
 public class MainActivity extends AppCompatActivity {
-
-    private final int SPLASH_DISPLAY_LENGTH = 5000;
+    private BroadcastReceiver myReceiver = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        ActionBar actionBar = getSupportActionBar();
-        if(actionBar != null){
-            actionBar.hide();
+        if (!DataHolder.isConnected(this)){
+            toastMessage("Oops! Vous n'avez pas de connexion internet!");
         }
 
-        new Handler().postDelayed(new Runnable(){
-            @Override
-            public void run(){
-                Intent startActivityIntent = new Intent(MainActivity.this, LoginActivity.class);
-                startActivity(startActivityIntent);
-                MainActivity.this.finish();
-            }
-        }, SPLASH_DISPLAY_LENGTH);
+        startActivity(new Intent(this, LoginActivity.class));
+        finish();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        try{
+            unregisterReceiver(myReceiver);
+        } catch (Exception e){
+            // already unregistered
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try{
+            unregisterReceiver(myReceiver);
+        } catch (Exception e){
+            // already unregistered
+        }
+    }
+
+    public void broadcastIntent() {
+        registerReceiver(myReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+    }
+
+    public void toastMessage(String message){
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
 }
