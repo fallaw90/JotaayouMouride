@@ -11,13 +11,9 @@
         android:title="Rechercher un dahira"
         app:showAsAction="never" />
     <item
-        android:id="@+id/addDahira"
+        android:id="@+id/createNewDahira"
         android:title="Creer un nouveau dahira"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/about"
-        android:title="A propos"
-        app:showAsAction="never"/>
     <item
         android:id="@+id/logout"
         android:title="Se deconnecter"

@@ -31,8 +31,10 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
 
+import static com.fallntic.jotaayumouride.DataHolder.checkPrefix;
+import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showProfileImage;
-import static com.fallntic.jotaayumouride.DataHolder.user;
 
 public class SettingProfileActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "UpdateUserActivity";
@@ -76,11 +78,11 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
         editTextAddress = findViewById(R.id.editText_address);
         imageView = (ImageView) findViewById(R.id.imageView);
 
-        editTextUserName.setText(user.getUserName());
-        editTextPhoneNumber.setText(user.getUserPhoneNumber());
-        editTextAddress.setText(user.getAddress());
+        editTextUserName.setText(onlineUser.getUserName());
+        editTextPhoneNumber.setText(onlineUser.getUserPhoneNumber());
+        editTextAddress.setText(onlineUser.getAddress());
 
-        showProfileImage(this, imageView);
+        showProfileImage(this, onlineUser.getUserID(), imageView);
 
         findViewById(R.id.button_update).setOnClickListener(this);
         findViewById(R.id.imageView).setOnClickListener(this);
@@ -130,7 +132,7 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
     private void uploadImage() {
         if(uri != null) {
             showProgressDialog("Enregistrement de votre image cours ...");
-            final StorageReference ref = storageReference.child("profileImage").child(user.getUserID());
+            final StorageReference ref = storageReference.child("profileImage").child(onlineUser.getUserID());
             ref.putFile(uri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
@@ -172,21 +174,21 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
         String address = editTextAddress.getText().toString().trim();
 
         if(!hasValidationErrors(name, phoneNumber, address)){
-            user.setUserName(name);
-            user.setUserPhoneNumber(phoneNumber);
-            user.setAddress(address);
+            onlineUser.setUserName(name);
+            onlineUser.setUserPhoneNumber(phoneNumber);
+            onlineUser.setAddress(address);
             showProgressDialog("Enregistrement de vos modification ...");
 
-            db.collection("users").document(user.getUserID())
-                    .update("userName", user.getUserName(),
-                            "userPhoneNumber", user.getUserPhoneNumber(),
-                            "address", user.getAddress())
+            db.collection("users").document(onlineUser.getUserID())
+                    .update("userName", onlineUser.getUserName(),
+                            "userPhoneNumber", onlineUser.getUserPhoneNumber(),
+                            "address", onlineUser.getAddress())
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             dismissProgressDialog();
                             uploadImage();
-                            toastMessage("User updated.");
+                            showAlertDialog(SettingProfileActivity.this, "Enregistrement reussi");
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -210,38 +212,7 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
             return true;
         }
 
-        if (phoneNumber.isEmpty()) {
-            editTextPhoneNumber.setError("Ce champ est obligatoir!");
-            editTextPhoneNumber.requestFocus();
-            return true;
-        }
-
-        if(!phoneNumber.matches("[0-9]+") || phoneNumber.length() != 9) {
-            editTextPhoneNumber.setError("Numero de telephone incorrect");
-            editTextPhoneNumber.requestFocus();
-            return true;
-        }
-
-        String prefix = phoneNumber.substring(0,2);
-        boolean validatePrefix;
-        switch(prefix){
-            case "70":
-                validatePrefix = true;
-                break;
-            case "76":
-                validatePrefix = true;
-                break;
-            case "77":
-                validatePrefix = true;
-                break;
-            case "78":
-                validatePrefix = true;
-                break;
-            default:
-                validatePrefix = false;
-                break;
-        }
-        if(!validatePrefix) {
+        if(!phoneNumber.isEmpty() && (!phoneNumber.matches("[0-9]+") || phoneNumber.length() != 9 || !checkPrefix(phoneNumber))) {
             editTextPhoneNumber.setError("Numero de telephone incorrect");
             editTextPhoneNumber.requestFocus();
             return true;

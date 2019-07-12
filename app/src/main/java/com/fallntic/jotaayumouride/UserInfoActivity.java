@@ -4,29 +4,19 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -40,11 +30,14 @@ import java.util.List;
 
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.isDouble;
+import static com.fallntic.jotaayumouride.DataHolder.logout;
+import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.DataHolder.selectedUser;
+import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showProfileImage;
 import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
-import static com.fallntic.jotaayumouride.DataHolder.user;
-
 public class UserInfoActivity extends AppCompatActivity implements View.OnClickListener {
 
     private TextView textViewName;
@@ -66,6 +59,10 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     boolean boolAdiya = false, boolSass = false, boolSocial = false;
+    boolean dahiraUpdated = true, contributionSaved = true;
+
+    private int indexOnlineUser = onlineUser.getListDahiraID().indexOf(dahira.getDahiraID());
+    private int indexSelectedUser = selectedUser.getListDahiraID().indexOf(dahira.getDahiraID());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +75,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         setSupportActionBar(toolbar);
 
         if (!DataHolder.isConnected(this)){
-            toastMessage(this,"Oops! Vous n'avez pas de connexion internet!");
+            showAlertDialog(this,"Oops! Vous n'avez pas de connexion internet!");
             finish();
         }
 
@@ -98,20 +95,18 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         textViewSocial = (TextView) findViewById(R.id.totalSocial);
         imageView = (ImageView) findViewById(R.id.imageView);
 
-        int index = user.getListDahiraID().indexOf(dahira.getDahiraID());
+        showProfileImage(this, selectedUser.getUserID(), imageView);
 
-        showProfileImage(this, imageView);
-
-        textViewName.setText(user.getUserName());
+        textViewName.setText(selectedUser.getUserName());
         textViewDahiraName.setText(dahira.getDahiraName());
-        textViewPhoneNumber.setText(user.getUserPhoneNumber());
-        textViewAdress.setText(user.getAddress());
-        textViewEmail.setText(user.getEmail());
-        textViewCommission.setText(user.getListCommissions().get(index));
-        textViewAdiya.setText(user.getListAdiya().get(index));
-        textViewSass.setText(user.getListSocial().get(index));
-        textViewSocial.setText(user.getListSass().get(index));
-        textViewRole.setText(user.getListRoles().get(index));
+        textViewPhoneNumber.setText(selectedUser.getUserPhoneNumber());
+        textViewAdress.setText(selectedUser.getAddress());
+        textViewEmail.setText(selectedUser.getEmail());
+        textViewCommission.setText(selectedUser.getListCommissions().get(indexSelectedUser));
+        textViewAdiya.setText(selectedUser.getListAdiya().get(indexSelectedUser));
+        textViewSass.setText(selectedUser.getListSocial().get(indexSelectedUser));
+        textViewSocial.setText(selectedUser.getListSass().get(indexSelectedUser));
+        textViewRole.setText(selectedUser.getListRoles().get(indexSelectedUser));
 
         findViewById(R.id.button_back).setOnClickListener(this);
     }
@@ -135,6 +130,21 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_user_info, menu);
+
+        MenuItem menuAddContributions, menuSetting;
+        menuAddContributions = menu.findItem(R.id.addContributions);
+        menuSetting = menu.findItem(R.id.setting);
+        menuAddContributions.setVisible(false);
+        menuSetting.setVisible(false);
+
+        if (onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")){
+            menuAddContributions.setVisible(true);
+            menuSetting.setVisible(true);
+        }
+        else if (onlineUser.getUserID().equals(selectedUser.getUserID())){
+            menuSetting.setVisible(true);
+        }
+
         return true;
     }
 
@@ -157,12 +167,6 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
                 break;
         }
         return true;
-    }
-
-    public void logout(){
-        user = null;
-        dahira = null;
-        FirebaseAuth.getInstance().signOut();
     }
 
     private void chooseContribution() {
@@ -231,15 +235,15 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         Button buttonCancel = (Button) dialogView.findViewById(R.id.button_cancel);
 
         if (boolAdiya){
-            dialogBuilder.setTitle(user.getUserName() + "\ndahira " + dahira.getDahiraName());
+            dialogBuilder.setTitle(selectedUser.getUserName() + "\ndahira " + dahira.getDahiraName());
             editTextDialogContribution.setHint("Montant adiya (Chiffre seulement)");
         }
         if (boolSass){
-            dialogBuilder.setTitle("Ajouter adiya pour " + user.getUserName() + " membre du dahira " + dahira.getDahiraName());
+            dialogBuilder.setTitle("Ajouter adiya pour " + selectedUser.getUserName() + " membre du dahira " + dahira.getDahiraName());
             editTextDialogContribution.setHint("Montant adiya (Chiffre seulement)");
         }
         if (boolSocial){
-            dialogBuilder.setTitle("Ajouter adiya pour " + user.getUserName() + " membre du dahira " + dahira.getDahiraName());
+            dialogBuilder.setTitle("Ajouter adiya pour " + selectedUser.getUserName() + " membre du dahira " + dahira.getDahiraName());
             editTextDialogContribution.setHint("Montant adiya (Chiffre seulement)");
         }
 
@@ -249,43 +253,49 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         buttonSave.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int index = user.getListDahiraID().indexOf(dahira.getDahiraID());
                 String value = editTextDialogContribution.getText().toString().trim();
                 value = value.replace(",", ".");
 
                 if(!hasValidationErrors(editTextDialogContribution, value)){
-
+                    String typeContribution = "Contribution";
                     if (boolAdiya){
-                        double totalAdiyaUser = Double.parseDouble(user.getListAdiya().get(index));
+                        double totalAdiyaUser = Double.parseDouble(selectedUser.getListAdiya().get(indexSelectedUser));
                         double totalAdiyaDahira = Double.parseDouble(dahira.getTotalAdiya());
                         totalAdiyaUser += Double.parseDouble(value);
                         totalAdiyaDahira += Double.parseDouble(value);
                         dahira.setTotalAdiya(Double.toString(totalAdiyaDahira));
-                        user.getListAdiya().set(index, Double.toString(totalAdiyaUser));
-                        updateContribution("listAdiya", user.getListAdiya(), "adiya");
+                        selectedUser.getListAdiya().set(indexSelectedUser, Double.toString(totalAdiyaUser));
+                        updateContribution("listAdiya", selectedUser.getListAdiya(), "adiya");
                         updateDahira("totalAdiya", dahira.getTotalAdiya());
+                        typeContribution = "Adiya";
                     }
 
                     if (boolSass){
-                        double totalSassUser = Double.parseDouble(user.getListSass().get(index));
+                        double totalSassUser = Double.parseDouble(selectedUser.getListSass().get(indexSelectedUser));
                         double totalSassDahira = Double.parseDouble(dahira.getTotalSass());
                         totalSassUser += Double.parseDouble(value);
                         totalSassDahira += Double.parseDouble(value);
                         dahira.setTotalAdiya(Double.toString(totalSassDahira));
-                        user.getListSass().set(index, Double.toString(totalSassUser));
-                        updateContribution("listSass", user.getListSass(), "sass");
+                        selectedUser.getListSass().set(indexSelectedUser, Double.toString(totalSassUser));
+                        updateContribution("listSass", selectedUser.getListSass(), "sass");
                         updateDahira("totalSass", dahira.getTotalSass());
+                        typeContribution = "Sass";
                     }
 
                     if (boolSocial){
-                        double totalSocialUser = Double.parseDouble(user.getListSocial().get(index));
+                        double totalSocialUser = Double.parseDouble(selectedUser.getListSocial().get(indexSelectedUser));
                         double totalSocialDahira = Double.parseDouble(dahira.getTotalSocial());
                         totalSocialUser += Double.parseDouble(value);
                         totalSocialDahira += Double.parseDouble(value);
                         dahira.setTotalSocial(Double.toString(totalSocialDahira));
-                        user.getListSocial().set(index, Double.toString(totalSocialUser));
-                        updateContribution("listSocial", user.getListSocial(), "social");
+                        selectedUser.getListSocial().set(indexSelectedUser, Double.toString(totalSocialUser));
+                        updateContribution("listSocial", selectedUser.getListSocial(), "social");
                         updateDahira("totalSocial", dahira.getTotalSocial());
+                        typeContribution = "Social";
+                    }
+                    
+                    if (contributionSaved && dahiraUpdated){
+                        showAlertDialog(UserInfoActivity.this, typeContribution + " ajoute avec succe.");
                     }
 
                     alertDialog.dismiss();
@@ -305,18 +315,20 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
     private void updateContribution(String field, List<String> value, final String typeContribution){
 
         showProgressDialog(this, "Enregistrement " + typeContribution + " en cours ...");
-        db.collection("users").document(user.getUserID())
+        db.collection("users").document(selectedUser.getUserID())
                 .update(field, value)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         dismissProgressDialog();
-                        toastMessage(getApplicationContext(),typeContribution + " ajoute avec succes!");
+                        
+                        //toastMessage(getApplicationContext(),typeContribution + " ajoute avec succes!");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        contributionSaved = false;
                         dismissProgressDialog();
                         toastMessage(getApplicationContext(),"Error adding " + typeContribution + "!");
                     }
@@ -337,8 +349,9 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        dahiraUpdated = false;
                         dismissProgressDialog();
-                        toastMessage(getApplicationContext(),"Error updating dahira!");
+                        //toastMessage(getApplicationContext(),"Error updating dahira!");
                     }
                 });
 
@@ -354,19 +367,5 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         }
 
         return false;
-    }
-
-    public boolean isDouble(String str){
-        str = str.replace(",", ".");
-        double value;
-        try {
-            value = Double.parseDouble(str);
-            return true;
-            // it means it is double
-        } catch (Exception e1) {
-            // this means it is not double
-            e1.printStackTrace();
-            return false;
-        }
     }
 }

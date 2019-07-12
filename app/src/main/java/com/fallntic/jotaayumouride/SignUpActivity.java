@@ -8,25 +8,18 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -36,7 +29,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -44,6 +40,13 @@ import com.google.firebase.storage.UploadTask;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.fallntic.jotaayumouride.DataHolder.checkPrefix;
+import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.onlineUserID;
+import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
+import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 
 public class SignUpActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -55,7 +58,6 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     private EditText editTextEmail;
     private EditText editTextPassword;
     private EditText editTextConfirmPassword;
-    private String userID;
     private String userName;
     private String userPhoneNumber;
     private String email;
@@ -93,7 +95,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         setSupportActionBar(toolbar);
 
         if (!DataHolder.isConnected(this)){
-            toastMessage("Oops! Vous n'avez pas de connexion internet!");
+            toastMessage(getApplicationContext(),"Oops! Vous n'avez pas de connexion internet!");
             finish();
         }
 
@@ -155,37 +157,61 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         confPwd = editTextConfirmPassword.getText().toString().trim();
 
         if(!hasValidationErrors(userName, userPhoneNumber, email, pwd, confPwd, userAddress)) {
-            showProgressDialog("Creation de votre compte ...");
-            mAuth.createUserWithEmailAndPassword(email, pwd).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    dismissProgressDialog();
-                    //while (!task.isSuccessful());
-                    if (task.isSuccessful()) {
-                        //Get ID of current user.
-                        userID = mAuth.getCurrentUser().getUid();
-                        //Upload image
-                        uploadImage(userID);
-                        //Save user info on the FireBase database
-                        saveUser();
-                        if(isRegistrationSuccessful()){
-                            finish();
-                            startActivity(new Intent(SignUpActivity.this, ProfileActivity.class));
+            showProgressDialog(this,"Creation de votre compte ...");
+            db.collection("users").whereEqualTo("userPhoneNumber", userPhoneNumber).get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                dismissProgressDialog();
+                                if (task.getResult().isEmpty()){
+                                    saveAllData();
+                                }else{
+                                    showAlertDialog(SignUpActivity.this, "Numero telephone deja utilise");
+                                    return;
+                                }
+                            }
+                            else {
+                                dismissProgressDialog();
+                                toastMessage(getApplicationContext(),"Error");
+                            }
                         }
-                    } else {
-                        if (task.getException() instanceof FirebaseAuthUserCollisionException) {
-                            toastMessage("Adresse email deja utilise");
+                    });
 
-                        } else {
-                            toastMessage(task.getException().getMessage());
-                        }
-                    }
-                }
-            });
         }
         else{
             return;
         }
+    }
+
+    public void saveAllData(){
+        mAuth.createUserWithEmailAndPassword(email, pwd).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                dismissProgressDialog();
+                //while (!task.isSuccessful());
+                if (task.isSuccessful()) {
+                    //Get ID of current user.
+                    onlineUserID = mAuth.getCurrentUser().getUid();
+                    //Upload image
+                    uploadImage(onlineUserID);
+                    //Save user info on the FireBase database
+                    saveUser();
+                    if(isRegistrationSuccessful()){
+                        finish();
+                        Intent intent = new Intent(SignUpActivity.this, ProfileActivity.class);
+                        startActivity(intent);
+                    }
+                } else {
+                    if (task.getException() instanceof FirebaseAuthUserCollisionException) {
+                        showAlertDialog(SignUpActivity.this, "Adresse email deja utilise");
+
+                    } else {
+                        toastMessage(getApplicationContext(), task.getException().getMessage());
+                    }
+                }
+            }
+        });
     }
 
     private void chooseImage() {
@@ -212,8 +238,8 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
 
     private void uploadImage(String userID) {
         if(uri != null) {
-            showProgressDialog("Enregistrement de votre image cours ...");
-            final StorageReference ref = storageReference.child("profile_image").child(userID);
+            showProgressDialog(this, "Enregistrement de votre image cours ...");
+            final StorageReference ref = storageReference.child("profileImage").child(userID);
             ref.putFile(uri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
@@ -228,19 +254,19 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                         public void onFailure(@NonNull Exception e) {
                             dismissProgressDialog();
                             imageSaved = false;
-                            toastMessage("Failed "+e.getMessage());
+                            toastMessage(getApplicationContext(),"Failed "+e.getMessage());
                         }
                     });
         }
     }
 
     private void saveUser(){
-        User user =  new User(userID, userName, userPhoneNumber, email, userAddress, listDahiraID,
+        User user =  new User(onlineUserID, userName, userPhoneNumber, email, userAddress, listDahiraID,
                 listUpdatedDahiraID, listCommissions, listAdiya, listSass, listSocial, listRoles);
 
-        showProgressDialog("Enregistrement de vos informations personnelles cours ...");
+        showProgressDialog(this,"Enregistrement de vos informations personnelles cours ...");
         //Save user in firestore database
-        db.collection("users").document(userID)
+        db.collection("users").document(onlineUserID)
                 .set(user)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -254,7 +280,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                     public void onFailure(@NonNull Exception e) {
                         dismissProgressDialog();
                         userSaved = false;
-                        toastMessage("Error adding user!");
+                        toastMessage(getApplicationContext(),"Error adding user!");
                         Log.d(TAG, e.toString());
                     }
                 });
@@ -271,10 +297,10 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if(task.isSuccessful()){
-                        toastMessage("Erreur inscription! Reessayez SVP.");
+                        showAlertDialog(SignUpActivity.this, "Erreur inscription! Reessayez SVP.");
                     }
                     else {
-                        toastMessage("Erreur inscription! Contactez votre administrateur SVP.");
+                        toastMessage(getApplicationContext(),"Erreur inscription! Contactez votre administrateur SVP.");
                         startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
                     }
                 }
@@ -284,8 +310,8 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void deleteUser() {
-        showProgressDialog("Chargement en cours ..");
-        db.collection("users").document(userID).delete()
+        showProgressDialog(this,"Chargement en cours ..");
+        db.collection("users").document(onlineUserID).delete()
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -294,26 +320,26 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                         }
                         else {
                             dismissProgressDialog();
-                            toastMessage(task.getException().getMessage());
+                            toastMessage(getApplicationContext(), task.getException().getMessage());
                         }
                     }
                 });
     }
 
     private void deleteProfileImage() {
-        showProgressDialog("Chargement en cours ..");
+        showProgressDialog(this,"Chargement en cours ..");
         //storageReference defined on the onCreate function
-        storageReference.child("images").child(userID).delete()
+        storageReference.child("images").child(onlineUserID).delete()
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
                             dismissProgressDialog();
-                            toastMessage("Image supprimee");
+                            toastMessage(getApplicationContext(), "Image supprimee");
                         }
                         else {
                             dismissProgressDialog();
-                            toastMessage(task.getException().getMessage());
+                            toastMessage(getApplicationContext(), task.getException().getMessage());
                         }
                     }
                 });
@@ -328,38 +354,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
             return true;
         }
 
-        if (userPhoneNumber.isEmpty()) {
-            editTextUserPhoneNumber.setError("Numero de telephone obligatoire");
-            editTextUserPhoneNumber.requestFocus();
-            return true;
-        }
-
-        if(!userPhoneNumber.matches("[0-9]+") || userPhoneNumber.length() != 9) {
-            editTextUserPhoneNumber.setError("Numero de telephone incorrect");
-            editTextUserPhoneNumber.requestFocus();
-            return true;
-        }
-
-        String prefix = userPhoneNumber.substring(0,2);
-        boolean validatePrefix;
-        switch(prefix){
-            case "70":
-                validatePrefix = true;
-                break;
-            case "76":
-                validatePrefix = true;
-                break;
-            case "77":
-                validatePrefix = true;
-                break;
-            case "78":
-                validatePrefix = true;
-                break;
-            default:
-                validatePrefix = false;
-                break;
-        }
-        if(!validatePrefix) {
+        if(!userPhoneNumber.isEmpty() && (!userPhoneNumber.matches("[0-9]+") || userPhoneNumber.length() != 9 || !checkPrefix(userPhoneNumber))) {
             editTextUserPhoneNumber.setError("Numero de telephone incorrect");
             editTextUserPhoneNumber.requestFocus();
             return true;
@@ -422,24 +417,5 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
 
         }
     }
-
-    public void showProgressDialog(String str){
-        progressDialog.setMessage(str);
-        progressDialog.setCancelable(false);
-        progressDialog.setCanceledOnTouchOutside(false);
-        dismissProgressDialog();
-        progressDialog.show();
-    }
-
-    private void dismissProgressDialog() {
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
-    }
-
-    public void toastMessage(String message){
-        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-    }
-
 
 }

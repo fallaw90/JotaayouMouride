@@ -17,11 +17,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -29,12 +27,14 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrors;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
+import static com.fallntic.jotaayumouride.DataHolder.logout;
+import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
-import static com.fallntic.jotaayumouride.DataHolder.user;
 
 public class ListDahiraActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -49,7 +49,6 @@ public class ListDahiraActivity extends AppCompatActivity implements View.OnClic
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setSubtitle("Mes dahiras");
         setSupportActionBar(toolbar);
 
         recyclerViewDahira = findViewById(R.id.recyclerview_dahiras);
@@ -60,10 +59,12 @@ public class ListDahiraActivity extends AppCompatActivity implements View.OnClic
         }
 
         if (ProfileActivity.boolMyDahiras){
+            toolbar.setSubtitle("Mes dahiras");
             getMyDahiras();
         }
 
         if (ProfileActivity.boolAllDahiras){
+            toolbar.setSubtitle("Liste des dahiras a Dakar");
             getAllDahiras();
         }
 
@@ -74,6 +75,13 @@ public class ListDahiraActivity extends AppCompatActivity implements View.OnClic
     protected void onDestroy() {
         dismissProgressDialog();
         super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        ProfileActivity.boolMyDahiras = false;
+        ProfileActivity.boolAllDahiras = false;
     }
 
     @Override
@@ -109,8 +117,7 @@ public class ListDahiraActivity extends AppCompatActivity implements View.OnClic
                             for (DocumentSnapshot documentSnapshot : list) {
                                 //documentSnapshot = dahira in list
                                 Dahira dahira = documentSnapshot.toObject(Dahira.class);
-                                if (user.getListDahiraID().contains(dahira.getDahiraID())){
-                                    dahira.setDahiraID(documentSnapshot.getId());
+                                if (onlineUser.getListDahiraID().contains(dahira.getDahiraID())){
                                     dahiraList.add(dahira);
                                 }
                             }
@@ -216,8 +223,8 @@ public class ListDahiraActivity extends AppCompatActivity implements View.OnClic
                             }
 
                             if (dahiraList.isEmpty()){
-                                toastMessage(getApplicationContext(), "Dahira non trouve!");
-                                startActivity(new Intent(ListDahiraActivity.this, ListDahiraActivity.class));
+                                Intent intent = new Intent(ListDahiraActivity.this, ListDahiraActivity.class);
+                                showAlertDialog(ListDahiraActivity.this, "Dahira non trouve.", intent);
                             }
                             else {
                                 dahiraAdapter.notifyDataSetChanged();
@@ -226,7 +233,8 @@ public class ListDahiraActivity extends AppCompatActivity implements View.OnClic
                         }
                         else {
                             dismissProgressDialog();
-                            toastMessage(getApplicationContext(),"Dahira non trouver!");
+                            Intent intent = new Intent(ListDahiraActivity.this, ListDahiraActivity.class);
+                            showAlertDialog(ListDahiraActivity.this, "Dahira non trouve.", intent);
                         }
                     }
                 })
@@ -294,8 +302,8 @@ public class ListDahiraActivity extends AppCompatActivity implements View.OnClic
                 dialogSearchDahira();
                 break;
 
-            case R.id.addDahira:
-                startActivity(new Intent(this, AddDahiraActivity.class));
+            case R.id.createNewDahira:
+                startActivity(new Intent(this, CreateDahiraActivity.class));
                 break;
 
             case R.id.logout:
@@ -305,61 +313,5 @@ public class ListDahiraActivity extends AppCompatActivity implements View.OnClic
                 break;
         }
         return true;
-    }
-
-    public void logout(){
-        user = null;
-        dahira = null;
-        FirebaseAuth.getInstance().signOut();
-    }
-
-    private boolean hasValidationErrors(String name, EditText editTextName, String phoneNumber, EditText editTextPhoneNumber) {
-
-        if (name.isEmpty() && phoneNumber.isEmpty()) {
-            if (name.isEmpty()) {
-                editTextName.setError("Entrer le nom du dahira!");
-                editTextName.requestFocus();
-                return true;
-            }
-            else {
-                if (phoneNumber.isEmpty()) {
-                    editTextPhoneNumber.setError("Entrer le numero du membre!");
-                    editTextPhoneNumber.requestFocus();
-                    return true;
-                }
-            }
-        }
-
-        if(!phoneNumber.isEmpty() && (!phoneNumber.matches("[0-9]+") || phoneNumber.length() != 9 || !checkPrefix(phoneNumber))) {
-            editTextPhoneNumber.setError("Numero de telephone incorrect");
-            editTextPhoneNumber.requestFocus();
-            return true;
-        }
-
-        return false;
-    }
-
-    public boolean checkPrefix(String str){
-        String prefix = str.substring(0,2);
-        boolean validatePrefix;
-        switch(prefix){
-            case "70":
-                validatePrefix = true;
-                break;
-            case "76":
-                validatePrefix = true;
-                break;
-            case "77":
-                validatePrefix = true;
-                break;
-            case "78":
-                validatePrefix = true;
-                break;
-            default:
-                validatePrefix = false;
-                break;
-        }
-
-        return validatePrefix;
     }
 }

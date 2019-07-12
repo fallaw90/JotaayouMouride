@@ -88,6 +88,7 @@
     <string name="changeLogo">Cliquez sur la photo pour changer votre logo</string>
     <string name="changeProfilePhoto">Cliquez sur la photo pour changer votre photo de profile</string>
     <string name="search">Rechercher</string>
+    <string name="textView_labelEmail">Adresse email:</string>
     <string-array name="country_array">
         <item>Senegal</item>
     </string-array>

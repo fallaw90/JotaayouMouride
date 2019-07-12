@@ -1,6 +1,5 @@
 package com.fallntic.jotaayumouride;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -8,19 +7,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-
 import java.util.List;
 
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.DataHolder.user;
 
 public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraViewHolder> {
 
@@ -28,9 +21,6 @@ public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraView
     private List<Dahira> dahiraList;
 
     private ImageView imageView;
-    private FirebaseUser firebaseUser;
-    private FirebaseStorage firebaseStorage;
-    private ProgressDialog progressDialog;
 
     public DahiraAdapter(Context context, List<Dahira> dahiraList) {
         this.context = context;
@@ -88,6 +78,7 @@ public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraView
             dahira = dahiraList.get(getAdapterPosition());
             Intent intent = new Intent(context, DahiraInfoActivity.class);
             context.startActivity(intent);
+            dahiraList.clear();
         }
 
         @Override
@@ -97,23 +88,5 @@ public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraView
             context.startActivity(intent);
             return false;
         }
-    }
-
-    public void showProgressDialog(String str){
-        progressDialog.setMessage(str);
-        progressDialog.setCancelable(false);
-        progressDialog.setCanceledOnTouchOutside(false);
-        dismissProgressDialog();
-        progressDialog.show();
-    }
-
-    private void dismissProgressDialog() {
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
-    }
-
-    public void toastMessage(String message){
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 }

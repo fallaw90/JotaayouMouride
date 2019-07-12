@@ -6,35 +6,25 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.SignInMethodQueryResult;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.URL;
-
+import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
+import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.R.id.textView_signUp;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
@@ -55,7 +45,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         setSupportActionBar(toolbar);
 
         if (!DataHolder.isConnected(this)){
-            toastMessage("Oops! Vous n'avez pas de connexion internet!");
+            showAlertDialog(this, "Oops! Vous n'avez pas de connexion internet!");
+            return;
         }
 
         mAuth = FirebaseAuth.getInstance();
@@ -74,7 +65,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         if (DataHolder.isConnected(this)){
             if (mAuth.getCurrentUser() != null) {
-                startActivity(new Intent(this, ProfileActivity.class));
+                String email = mAuth.getCurrentUser().getEmail();
+                if (isEmailExist(email)) {
+                    startActivity(new Intent(this, ProfileActivity.class));
+                }
+                else {
+                    FirebaseAuth.getInstance().signOut();
+                    startActivity(new Intent(this, LoginActivity.class));
+                }
             }
         }
     }
@@ -90,7 +88,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     userLogin();
                 }
                 else {
-                    toastMessage("Oops! Vous n'avez pas de connexion internet!");
+                    toastMessage(getApplicationContext(), "Oops! Vous n'avez pas de connexion internet!");
                 }
                 break;
         }
@@ -100,8 +98,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         String email = editTextEmail.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
 
-        if (!hasValidationErrors(email, password)){
-            showProgressDialog("Connection en cours ...");
+        if (!hasValidationErrorsLogin(email, editTextEmail, password, editTextPassword)){
+            showProgressDialog(this, "Connection en cours ...");
             mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
@@ -120,7 +118,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
-    private boolean hasValidationErrors(String email, String password) {
+    private boolean hasValidationErrorsLogin(String email, EditText editTextEmail, String password,
+                                             EditText editTextPassword) {
 
         if (email.isEmpty()) {
             editTextEmail.setError("Email is required");
@@ -149,22 +148,24 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         return false;
     }
 
-    public void toastMessage(String message){
-        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-    }
+    public boolean isEmailExist(String email){
+        final boolean[] isEmailExist = new boolean[1];
+        mAuth.fetchSignInMethodsForEmail(email)
+                .addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
 
-    public void showProgressDialog(String str){
-        progressDialog.setMessage(str);
-        progressDialog.setCancelable(false);
-        progressDialog.setCanceledOnTouchOutside(false);
-        dismissProgressDialog();
-        progressDialog.show();
-    }
+                        isEmailExist[0] = task.getResult().getSignInMethods().isEmpty();
 
-    private void dismissProgressDialog() {
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
+                        if (isEmailExist[0]) {
+                            Log.e("TAG", "Email not exist!");
+                        } else {
+                            Log.e("TAG", "Email exist!");
+                        }
+
+                    }
+                });
+        return isEmailExist[0];
     }
 
 }

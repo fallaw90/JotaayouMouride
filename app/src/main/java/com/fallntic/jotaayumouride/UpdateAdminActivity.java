@@ -4,14 +4,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -28,11 +24,17 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import static com.fallntic.jotaayumouride.DataHolder.checkPrefix;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.DataHolder.user;
+import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrors;
+import static com.fallntic.jotaayumouride.DataHolder.isDouble;
+import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
+import static com.fallntic.jotaayumouride.DataHolder.showProfileImage;
+import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 
 public class UpdateAdminActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "CreateDahiraActivity";
@@ -68,7 +70,7 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
         setSupportActionBar(toolbar);
 
         if (!DataHolder.isConnected(this)){
-            toastMessage("Oops! Vous n'avez pas de connexion internet!");
+            showAlertDialog(this, "Oops! Vous n'avez pas de connexion internet!");
             finish();
         }
 
@@ -86,11 +88,11 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
         imageViewProfile = findViewById(R.id.imageView);
 
         textViewDahiraName.setText("Dahira " + dahira.getDahiraName());
-        editTextUserName.setText(user.getUserName());
-        editTextPhoneNumber.setText(user.getUserPhoneNumber());
-        editTextAddress.setText(user.getAddress());
+        editTextUserName.setText(onlineUser.getUserName());
+        editTextPhoneNumber.setText(onlineUser.getUserPhoneNumber());
+        editTextAddress.setText(onlineUser.getAddress());
 
-        showImage();
+        showProfileImage(this, onlineUser.getUserID(), imageViewProfile);
         //getData();
         handler.postDelayed(new Runnable() {
             @Override
@@ -132,19 +134,21 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
         String adiya = editTextAdiya.getText().toString().trim();
         String sass = editTextSass.getText().toString().trim();
         String social = editTextSocial.getText().toString().trim();
-        String role = "administrateur";
+        String role = "Administrateur";
 
         adiya = adiya.replace(",", ".");
         sass = sass.replace(",", ".");
         social = social.replace(",", ".");
 
-        if(!hasValidationErrors(name, phoneNumber, address, adiya, sass, social)){
-            user.getListUpdatedDahiraID().add(dahira.getDahiraID());
-            user.getListCommissions().add(commission);
-            user.getListRoles().add(role);
-            user.getListAdiya().add(adiya);
-            user.getListSass().add(sass);
-            user.getListSocial().add(social);
+        if(!hasValidationErrors(name, editTextUserName, phoneNumber, editTextPhoneNumber,
+                address, editTextAddress, adiya, editTextAdiya, sass, editTextSass, social, editTextSocial)){
+
+            onlineUser.getListUpdatedDahiraID().add(dahira.getDahiraID());
+            onlineUser.getListCommissions().add(commission);
+            onlineUser.getListRoles().add(role);
+            onlineUser.getListAdiya().add(adiya);
+            onlineUser.getListSass().add(sass);
+            onlineUser.getListSocial().add(social);
 
             dahira.setTotalAdiya(adiya);
             dahira.setTotalSass(sass);
@@ -159,16 +163,16 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
 
     private void updateUser(){
 
-        db.collection("users").document(user.getUserID())
-                .update("listUpdatedDahiraID", user.getListUpdatedDahiraID(),
-                        "userName", user.getUserName(),
-                        "userPhoneNumber", user.getUserPhoneNumber(),
-                        "address", user.getAddress(),
-                        "listCommissions", user.getListCommissions(),
-                        "listAdiya", user.getListAdiya(),
-                        "listSass", user.getListSass(),
-                        "listSocial", user.getListSocial(),
-                        "listRoles", user.getListRoles())
+        db.collection("users").document(onlineUser.getUserID())
+                .update("listUpdatedDahiraID", onlineUser.getListUpdatedDahiraID(),
+                        "userName", onlineUser.getUserName(),
+                        "userPhoneNumber", onlineUser.getUserPhoneNumber(),
+                        "address", onlineUser.getAddress(),
+                        "listCommissions", onlineUser.getListCommissions(),
+                        "listAdiya", onlineUser.getListAdiya(),
+                        "listSass", onlineUser.getListSass(),
+                        "listSocial", onlineUser.getListSocial(),
+                        "listRoles", onlineUser.getListRoles())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -218,121 +222,4 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
         });
     }
 
-    public void showImage(){
-        // Reference to the image file in Cloud Storage
-        FirebaseStorage firebaseStorage;
-        firebaseStorage = FirebaseStorage.getInstance();
-        StorageReference storageReference;
-        storageReference = firebaseStorage.getReference();
-        final StorageReference profileImageReference = storageReference.child("profile_image").child(user.getUserID());
-
-        showProgressDialog("Chargement de l'image ...");
-        // Download directly from StorageReference using Glide
-        GlideApp.with(UpdateAdminActivity.this)
-                .load(profileImageReference)
-                .placeholder(R.drawable.profile_image)
-                .into(imageViewProfile);
-
-        dismissProgressDialog();
-    }
-
-    private boolean hasValidationErrors(String name, String phoneNumber, String address,
-                                        String adiya, String sass, String social) {
-
-        if (name.isEmpty()) {
-            editTextUserName.setError("Ce champ est obligatoir!");
-            editTextUserName.requestFocus();
-            return true;
-        }
-
-        if (phoneNumber.isEmpty()) {
-            editTextPhoneNumber.setError("Ce champ est obligatoir!");
-            editTextPhoneNumber.requestFocus();
-            return true;
-        }
-
-        if(!phoneNumber.matches("[0-9]+") || phoneNumber.length() != 9) {
-            editTextPhoneNumber.setError("Numero de telephone incorrect");
-            editTextPhoneNumber.requestFocus();
-            return true;
-        }
-
-        String prefix = phoneNumber.substring(0,2);
-        boolean validatePrefix;
-        switch(prefix){
-            case "70":
-                validatePrefix = true;
-                break;
-            case "76":
-                validatePrefix = true;
-                break;
-            case "77":
-                validatePrefix = true;
-                break;
-            case "78":
-                validatePrefix = true;
-                break;
-            default:
-                validatePrefix = false;
-                break;
-        }
-        if(!validatePrefix) {
-            editTextPhoneNumber.setError("Numero de telephone incorrect");
-            editTextPhoneNumber.requestFocus();
-            return true;
-        }
-
-        if (address.isEmpty()) {
-            editTextAddress.setError("Ce champ est obligatoir!");
-            editTextAddress.requestFocus();
-            return true;
-        }
-
-        if (adiya.isEmpty() || !isDouble(adiya)) {
-            editTextAdiya.setError("Valeur incorrecte!");
-            editTextAdiya.requestFocus();
-            return true;
-        }
-
-        if (sass.isEmpty() || !isDouble(sass)) {
-            editTextSass.setError("Valeur incorrecte!");
-            editTextSass.requestFocus();
-            return true;
-        }
-
-        if (social.isEmpty() || !isDouble(social)) {
-            editTextSocial.setError("Valeur incorrecte!");
-            editTextSocial.requestFocus();
-            return true;
-        }
-
-        return false;
-    }
-
-    public boolean isDouble(String str){
-        double value;
-        try {
-            value = Double.parseDouble(str);
-            return true;
-            // it means it is double
-        } catch (Exception e1) {
-            // this means it is not double
-            e1.printStackTrace();
-            return false;
-        }
-    }
-
-    public void showProgressDialog(String str){
-        progressDialog.setMessage(str);
-        progressDialog.setCancelable(false);
-        progressDialog.setCanceledOnTouchOutside(false);
-        dismissProgressDialog();
-        progressDialog.show();
-    }
-
-    private void dismissProgressDialog() {
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
-    }
 }

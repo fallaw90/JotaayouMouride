@@ -3,20 +3,18 @@ package com.fallntic.jotaayumouride;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -25,8 +23,12 @@ import java.util.List;
 
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrors;
+import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.DataHolder.onlineUserID;
+import static com.fallntic.jotaayumouride.DataHolder.selectedUser;
+import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showProfileImage;
-import static com.fallntic.jotaayumouride.DataHolder.user;
 
 public class SettingUserActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "CreateDahiraActivity";
@@ -45,8 +47,10 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
     private EditText editTextSocial;
     private ImageView imageView;
     private Spinner spinnerCommission;
+    private Button buttonDelete;
     private String commission;
-    private int index;
+    private int indexSelectedUser = selectedUser.getListDahiraID().indexOf(dahira.getDahiraID());
+    private int indexOnlineUser = onlineUser.getListDahiraID().indexOf(dahira.getDahiraID());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +62,7 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         setSupportActionBar(toolbar);
 
         if (!DataHolder.isConnected(this)){
-            toastMessage("Oops! Vous n'avez pas de connexion internet!");
+            showAlertDialog(this, "Oops! Vous n'avez pas de connexion internet!" );
             finish();
         }
 
@@ -71,19 +75,15 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         editTextSass = findViewById(R.id.editText_sassVerse);
         editTextSocial = findViewById(R.id.editText_socialVerse);
         imageView = (ImageView) findViewById(R.id.imageView);
+        buttonDelete = findViewById(R.id.button_delete);
 
-        editTextUserName.setText(user.getUserName());
-        editTextUserName.setEnabled(false);
-        editTextPhoneNumber.setText(user.getUserPhoneNumber());
-        editTextPhoneNumber.setEnabled(false);
-        editTextAddress.setText(user.getAddress());
-        editTextAddress.setEnabled(false);
+        editTextUserName.setText(selectedUser.getUserName());
+        editTextPhoneNumber.setText(selectedUser.getUserPhoneNumber());
+        editTextAddress.setText(selectedUser.getAddress());
 
-        index = user.getListDahiraID().indexOf(dahira.getDahiraID());
-
-        editTextAdiya.setText(user.getListAdiya().get(index));
-        editTextSass.setText(user.getListSass().get(index));
-        editTextSocial.setText(user.getListSocial().get(index));
+        editTextAdiya.setText(selectedUser.getListAdiya().get(indexSelectedUser));
+        editTextSass.setText(selectedUser.getListSass().get(indexSelectedUser));
+        editTextSocial.setText(selectedUser.getListSocial().get(indexSelectedUser));
 
         radioRoleGroup = (RadioGroup) findViewById(R.id.radioGroup);
         // get selected radio button from radioGroup
@@ -91,9 +91,20 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         // find the radiobutton by returned id
         radioRoleButton = (RadioButton) findViewById(selectedId);
 
-        showProfileImage(this, imageView);
+        showProfileImage(this, selectedUser.getUserID(), imageView);
         //Select a commission
         setSpinner();
+
+        if (selectedUser.getUserID().equals(onlineUserID)){
+            radioRoleGroup.setVisibility(View.GONE);
+            buttonDelete.setVisibility(View.GONE);
+        }
+        else if (onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")){
+            radioRoleGroup.setVisibility(View.GONE);
+            editTextUserName.setEnabled(false);
+            editTextPhoneNumber.setEnabled(false);
+            editTextAddress.setEnabled(false);
+        }
 
         findViewById(R.id.button_update).setOnClickListener(this);
         findViewById(R.id.button_cancel).setOnClickListener(this);
@@ -132,126 +143,36 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         sass = sass.replace(",", ".");
         social = social.replace(",", ".");
 
-        if(!hasValidationErrors(name, phoneNumber, address, adiya, sass, social)){
-            user.setUserName(name);
-            user.setUserPhoneNumber(phoneNumber);
-            user.setAddress(address);
-            user.getListAdiya().set(index, adiya);
-            user.getListSass().set(index, sass);
-            user.getListSocial().set(index, social);
-            user.getListCommissions().set(index, commission);
-            user.getListRoles().set(index, role);
+        if(!hasValidationErrors(name, editTextUserName, phoneNumber, editTextPhoneNumber, address,
+                editTextAddress, adiya, editTextAdiya, sass, editTextSass, social, editTextSocial)){
+            selectedUser.setUserName(name);
+            selectedUser.setUserPhoneNumber(phoneNumber);
+            selectedUser.setAddress(address);
+            selectedUser.getListAdiya().set(indexSelectedUser, adiya);
+            selectedUser.getListSass().set(indexSelectedUser, sass);
+            selectedUser.getListSocial().set(indexSelectedUser, social);
+            selectedUser.getListCommissions().set(indexSelectedUser, commission);
+            selectedUser.getListRoles().set(indexSelectedUser, role);
 
-            db.collection("users").document(user.getUserID())
-                    .update("userName", user.getUserName(),
-                            "userPhoneNumber", user.getUserPhoneNumber(),
-                            "address", user.getAddress(),
-                            "listCommissions", user.getListCommissions(),
-                            "listAdiya", user.getListAdiya(),
-                            "listSass", user.getListSass(),
-                            "listSocial", user.getListSocial(),
-                            "listRoles", user.getListRoles())
+            db.collection("users").document(selectedUser.getUserID())
+                    .update("userName", selectedUser.getUserName(),
+                            "userPhoneNumber", selectedUser.getUserPhoneNumber(),
+                            "address", selectedUser.getAddress(),
+                            "listCommissions", selectedUser.getListCommissions(),
+                            "listAdiya", selectedUser.getListAdiya(),
+                            "listSass", selectedUser.getListSass(),
+                            "listSocial", selectedUser.getListSocial(),
+                            "listRoles", selectedUser.getListRoles())
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            toastMessage("User updated.");
+                            showAlertDialog(SettingUserActivity.this, "Enregistrement reussi.");
                         }
                     });
 
             startActivity(new Intent(SettingUserActivity.this, UserInfoActivity.class));
         }
     }
-
-    private boolean hasValidationErrors(String name, String phoneNumber, String address, String adiya, String sass, String social) {
-
-        if (name.isEmpty()) {
-            editTextUserName.setError("Ce champ est obligatoir!");
-            editTextUserName.requestFocus();
-            return true;
-        }
-
-        if (phoneNumber.isEmpty()) {
-            editTextPhoneNumber.setError("Ce champ est obligatoir!");
-            editTextPhoneNumber.requestFocus();
-            return true;
-        }
-
-        if(!phoneNumber.matches("[0-9]+") || phoneNumber.length() != 9) {
-            editTextPhoneNumber.setError("Numero de telephone incorrect");
-            editTextPhoneNumber.requestFocus();
-            return true;
-        }
-
-        String prefix = phoneNumber.substring(0,2);
-        boolean validatePrefix;
-        switch(prefix){
-            case "70":
-                validatePrefix = true;
-                break;
-            case "76":
-                validatePrefix = true;
-                break;
-            case "77":
-                validatePrefix = true;
-                break;
-            case "78":
-                validatePrefix = true;
-                break;
-            default:
-                validatePrefix = false;
-                break;
-        }
-        if(!validatePrefix) {
-            editTextPhoneNumber.setError("Numero de telephone incorrect");
-            editTextPhoneNumber.requestFocus();
-            return true;
-        }
-
-        if (address.isEmpty()) {
-            editTextAddress.setError("Ce champ est obligatoir!");
-            editTextAddress.requestFocus();
-            return true;
-        }
-
-        if (adiya.isEmpty() || !isDouble(adiya)) {
-            editTextAdiya.setError("Valeur incorrecte!");
-            editTextAdiya.requestFocus();
-            return true;
-        }
-
-        if (sass.isEmpty() || !isDouble(sass)) {
-            editTextSass.setError("Valeur incorrecte!");
-            editTextSass.requestFocus();
-            return true;
-        }
-
-        if (social.isEmpty() || !isDouble(social)) {
-            editTextSocial.setError("Valeur incorrecte!");
-            editTextSocial.requestFocus();
-            return true;
-        }
-
-        return false;
-    }
-
-    public boolean isDouble(String str){
-        str = str.replace(",", ".");
-        double value;
-        try {
-            value = Double.parseDouble(str);
-            return true;
-            // it means it is double
-        } catch (Exception e1) {
-            // this means it is not double
-            e1.printStackTrace();
-            return false;
-        }
-    }
-
-    public void toastMessage(String message){
-        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-    }
-
 
     public void setSpinner(){
         spinnerCommission = findViewById(R.id.spinner_commission);

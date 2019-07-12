@@ -7,30 +7,19 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.util.Log;
-import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -40,9 +29,13 @@ import java.util.List;
 
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrors;
+import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrorsSearch;
+import static com.fallntic.jotaayumouride.DataHolder.logout;
+import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
-import static com.fallntic.jotaayumouride.DataHolder.user;
 
 public class ListUserActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -61,7 +54,7 @@ public class ListUserActivity extends AppCompatActivity implements View.OnClickL
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setSubtitle("Liste des membre du dahira ");
+        toolbar.setSubtitle("Liste des membres");
         setSupportActionBar(toolbar);
 
         if (!DataHolder.isConnected(this)){
@@ -131,17 +124,14 @@ public class ListUserActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-        MenuItem menuAddMember, menuSetting;
-
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_list_user, menu);
 
-        menuAddMember = menu.findItem(R.id.addMember);
-        menuSetting = menu.findItem(R.id.setting);
-        int index = user.getListDahiraID().indexOf(dahira.getDahiraID());
-        if (!user.getListRoles().get(index).equals("Administrateur")){
+        MenuItem menuAddMember;
+        menuAddMember = menu.findItem(R.id.addUser);
+        int indexOnlineUser = onlineUser.getListDahiraID().indexOf(dahira.getDahiraID());
+        if (!onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")){
             menuAddMember.setVisible(false);
-            menuSetting.setVisible(false);
         }
 
         return true;
@@ -190,7 +180,7 @@ public class ListUserActivity extends AppCompatActivity implements View.OnClickL
                 String phoneNumber = editTextPhoneNumber.getText().toString().trim();
                 String email = editTextEmail.getText().toString().trim();
 
-                if(!hasValidationErrors(editTextPhoneNumber, editTextEmail, phoneNumber, email)){
+                if(!hasValidationErrorsSearch(phoneNumber, editTextPhoneNumber, email, editTextEmail)){
 
                     if (!phoneNumber.isEmpty()) {
                         getNewMemberToUpdate("userPhoneNumber", phoneNumber);
@@ -221,13 +211,15 @@ public class ListUserActivity extends AppCompatActivity implements View.OnClickL
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         dismissProgressDialog();
                         if (queryDocumentSnapshots.isEmpty()){
-                            toastMessage(getApplicationContext(),"Utilisateur inconnu! SVP dites a votre membre de s'inscrire d'abord");
+                            showAlertDialog(ListUserActivity.this,
+                                    "Utilisateur inconnu!\n Pour ajouter un membre, assurez vous que l'utisateur s'est deja inscrit d'abord.");
                         }
                         else{
                             for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                                 User newMember = documentSnapshot.toObject(User.class);
                                 if (newMember.getListDahiraID().contains(dahira.getDahiraID())){
-                                    toastMessage(getApplicationContext(),newMember.getUserName() + " figure deja dans la liste de vos membre.");
+                                    showAlertDialog(ListUserActivity.this,
+                                            "Cet utilisateur est deja membre du dahira " + dahira.getDahiraName() + ".");
                                     return;
                                 }
                                 else {
@@ -249,32 +241,15 @@ public class ListUserActivity extends AppCompatActivity implements View.OnClickL
                 });
     }
 
-    private void updateDahira(){
-        showProgressDialog(this,"Mis a jour de votre dahira");
-        int totalMember = Integer.parseInt(dahira.getTotalMember());
-        totalMember++;
-        dahira.setTotalMember(Integer.toString(totalMember));
-
-        db.collection("dahiras").document(dahira.getDahiraID())
-                .update("totalMember", dahira.getTotalMember())
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        dismissProgressDialog();
-                        toastMessage(getApplicationContext(), "Dahira updated.");
-                    }
-                });
-    }
-
     private void updateNewMember(User user){
         showProgressDialog(this,"Ajout du nouveau membre en cours ...");
         user.getListDahiraID().add(dahira.getDahiraID());
         user.getListUpdatedDahiraID().add(dahira.getDahiraID());
         user.getListRoles().add("N/A");
         user.getListCommissions().add("N/A");
-        user.getListAdiya().add("N/A");
-        user.getListSass().add("N/A");
-        user.getListSocial().add("N/A");
+        user.getListAdiya().add("00");
+        user.getListSass().add("00");
+        user.getListSocial().add("00");
 
         db.collection("users").document(user.getUserID())
                 .update("listDahiraID", user.getListDahiraID(),
@@ -287,78 +262,28 @@ public class ListUserActivity extends AppCompatActivity implements View.OnClickL
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        dismissProgressDialog();
-                        toastMessage(getApplicationContext(),"Membre ajoute avec succes.");
+                        System.out.println("User updated");
                     }
                 });
     }
 
-    private void searchUser(final String name, final String phoneNumber) {
+    private void updateDahira(){
+        showProgressDialog(this,"Mis a jour de votre dahira");
+        int totalMember = Integer.parseInt(dahira.getTotalMember());
+        totalMember++;
+        dahira.setTotalMember(Integer.toString(totalMember));
 
-        //Attach adapter to recyclerView
-        recyclerViewUser.setHasFixedSize(true);
-        recyclerViewUser.setLayoutManager(new LinearLayoutManager(this));
-        recyclerViewUser.setVisibility(View.VISIBLE);
-        final List<User> listUsers = new ArrayList<>();
-        final UserAdapter userAdapter = new UserAdapter(this, listUsers);
-        recyclerViewUser.setAdapter(userAdapter);
-
-        showProgressDialog(this, "Recherche du membre en cours ...");
-        db.collection("users").get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+        db.collection("dahiras").document(dahira.getDahiraID())
+                .update("totalMember", dahira.getTotalMember())
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                    public void onSuccess(Void aVoid) {
                         dismissProgressDialog();
-                        if (!queryDocumentSnapshots.isEmpty()) {
-                            List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
-                            for (DocumentSnapshot documentSnapshot : list) {
-                                //documentSnapshot equals dahira in list
-                                User member = documentSnapshot.toObject(User.class);
-                                if (name != null && !name.equals("")){
-                                    if (name.equals(member.getUserName())){
-                                        listUsers.add(member);
-                                    }
-                                    else {
-                                        String[] splitSearchName = name.split(" ");
-                                        String dahiraName = member.getUserName();
-                                        dahiraName = dahiraName.toLowerCase();
-                                        for (String name : splitSearchName){
-                                            name = name.toLowerCase();
-                                            if(dahiraName.contains(name)){
-                                                listUsers.add(member);
-                                            }
-                                        }
-                                    }
-                                }
-                                if (phoneNumber != null && !phoneNumber.equals("")) {
-                                    if (phoneNumber.equals(member.getUserPhoneNumber())) {
-                                        listUsers.add(member);
-                                    }
-                                }
-                            }
-
-                            if (listUsers.isEmpty()){
-                                toastMessage(getApplicationContext(), "Membre non trouve!");
-                                startActivity(new Intent(ListUserActivity.this, ListUserActivity.class));
-                            }
-                            else {
-                                userAdapter.notifyDataSetChanged();
-                            }
-                            dismissProgressDialog();
-                        }
-                        else {
-                            dismissProgressDialog();
-                            toastMessage(getApplicationContext(),"Membre non trouve!");
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        dismissProgressDialog();
-                        toastMessage(getApplicationContext(),"Error search dahira in ListUserActivity!");
+                        Intent intent = new Intent(ListUserActivity.this, ListUserActivity.class);
+                        showAlertDialog(ListUserActivity.this, "Votre nouveau membre a ete ajoute avec succes. \n Selectionnez le sur la liste des membres pour mettre a jour son profil.", intent);
                     }
                 });
+        dismissProgressDialog();
     }
 
     private void dialogSearchUser() {
@@ -389,7 +314,6 @@ public class ListUserActivity extends AppCompatActivity implements View.OnClickL
 
                 if(!hasValidationErrors(userName, editTextDialogName, phoneNumber, editTextDialogPhoneNumber)){
                     searchUser(userName, phoneNumber);
-
                     alertDialog.dismiss();
                 }
             }
@@ -403,84 +327,72 @@ public class ListUserActivity extends AppCompatActivity implements View.OnClickL
         });
     }
 
-    private boolean hasValidationErrors(EditText editTextPhoneNumber, EditText editTextEmail,
-                                        String phoneNumber, String email) {
+    private void searchUser(final String name, final String phoneNumber) {
 
-        if (phoneNumber.isEmpty() && email.isEmpty()) {
-            editTextPhoneNumber.setError("Entrer le numero ou l'adresse email du membre");
-            editTextPhoneNumber.requestFocus();
-            return true;
-        }
+        //Attach adapter to recyclerView
+        recyclerViewUser.setHasFixedSize(true);
+        recyclerViewUser.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewUser.setVisibility(View.VISIBLE);
+        final List<User> listUsers = new ArrayList<>();
+        final UserAdapter userAdapter = new UserAdapter(this, listUsers);
+        recyclerViewUser.setAdapter(userAdapter);
 
-        if(!phoneNumber.isEmpty() && (!phoneNumber.matches("[0-9]+") || phoneNumber.length() != 9 || !checkPrefix(phoneNumber))) {
-            editTextPhoneNumber.setError("Numero de telephone incorrect");
-            editTextPhoneNumber.requestFocus();
-            return true;
-        }
+        showProgressDialog(this, "Recherche du membre en cours ...");
+        db.collection("users").get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        dismissProgressDialog();
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                            for (DocumentSnapshot documentSnapshot : list) {
+                                //documentSnapshot equals dahira in list
+                                User member = documentSnapshot.toObject(User.class);
+                                if (name != null && !name.equals("") && member.getUserID() != null){
+                                    if (name.equals(member.getUserName())){
+                                        listUsers.add(member);
+                                    }
+                                    else {
+                                        String[] splitSearchName = name.split(" ");
+                                        String userName = member.getUserName();
+                                        userName = userName.toLowerCase();
+                                        for (String name : splitSearchName){
+                                            name = name.toLowerCase();
+                                            if(userName.contains(name)){
+                                                listUsers.add(member);
+                                            }
+                                        }
+                                    }
+                                }
+                                if (phoneNumber != null && !phoneNumber.equals("")) {
+                                    if (phoneNumber.equals(member.getUserPhoneNumber())) {
+                                        listUsers.add(member);
+                                    }
+                                }
+                            }
 
-        if (!email.isEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            editTextEmail.setError("Adresse email incorrect");
-            editTextEmail.requestFocus();
-            return true;
-        }
-
-        return false;
+                            if (listUsers.isEmpty()){
+                                Intent intent = new Intent(ListUserActivity.this, ListUserActivity.class);
+                                showAlertDialog(ListUserActivity.this, "Membre non trouve!", intent);
+                            }
+                            else {
+                                userAdapter.notifyDataSetChanged();
+                            }
+                            dismissProgressDialog();
+                        }
+                        else {
+                            dismissProgressDialog();
+                            Intent intent = new Intent(ListUserActivity.this, ListUserActivity.class);
+                            showAlertDialog(ListUserActivity.this,"Membre non trouve!", intent);
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        dismissProgressDialog();
+                        toastMessage(getApplicationContext(),"Error search dahira in ListUserActivity!");
+                    }
+                });
     }
-
-    private boolean hasValidationErrors(String name, EditText editTextName, String phoneNumber, EditText editTextPhoneNumber) {
-
-        if (name.isEmpty() && phoneNumber.isEmpty()) {
-            if (name.isEmpty()) {
-                editTextName.setError("Entrer le nom du dahira!");
-                editTextName.requestFocus();
-                return true;
-            }
-            else {
-                if (phoneNumber.isEmpty()) {
-                    editTextPhoneNumber.setError("Entrer le numero du membre!");
-                    editTextPhoneNumber.requestFocus();
-                    return true;
-                }
-            }
-        }
-
-        if(!phoneNumber.isEmpty() && (!phoneNumber.matches("[0-9]+") || phoneNumber.length() != 9 || !checkPrefix(phoneNumber))) {
-            editTextPhoneNumber.setError("Numero de telephone incorrect");
-            editTextPhoneNumber.requestFocus();
-            return true;
-        }
-
-        return false;
-    }
-
-    public boolean checkPrefix(String str){
-        String prefix = str.substring(0,2);
-        boolean validatePrefix;
-        switch(prefix){
-            case "70":
-                validatePrefix = true;
-                break;
-            case "76":
-                validatePrefix = true;
-                break;
-            case "77":
-                validatePrefix = true;
-                break;
-            case "78":
-                validatePrefix = true;
-                break;
-            default:
-                validatePrefix = false;
-                break;
-        }
-
-        return validatePrefix;
-    }
-
-    public void logout(){
-        user = null;
-        dahira = null;
-        FirebaseAuth.getInstance().signOut();
-    }
-
 }

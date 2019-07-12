@@ -18,11 +18,11 @@
         android:id="@+id/textView_dahiraName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@color/colorAccent"
+        android:textColor="@color/black"
         android:gravity="center"
         android:layout_marginTop="20dp"
         android:layout_below="@+id/toolbar"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerview_users"

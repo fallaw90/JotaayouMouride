@@ -1,6 +1,5 @@
 package com.fallntic.jotaayumouride;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -8,30 +7,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-
 import java.util.List;
 
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.DataHolder.user;
+import static com.fallntic.jotaayumouride.DataHolder.selectedUser;
+import static com.fallntic.jotaayumouride.DataHolder.showProfileImage;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
 
     private Context context;
     private List<User> listUsers;
     ImageView imageView;
-
-    private FirebaseUser firebaseUser;
-    private FirebaseStorage firebaseStorage;
-
-    private ProgressDialog progressDialog;
 
     public UserAdapter(Context context, List<User> listUsers) {
         this.context = context;
@@ -48,18 +38,20 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
-        user = listUsers.get(position);
+        selectedUser = listUsers.get(position);
 
-        holder.textViewUserName.setText(user.getUserName());
-        holder.textViewAddress.setText(user.getAddress());
-        holder.textViewUserPhoneNumber.setText(user.getUserPhoneNumber());
+        int indexRole = selectedUser.getListDahiraID().indexOf(dahira.getDahiraID());
+        String role = selectedUser.getListRoles().get(indexRole);
 
-        int index = user.getListDahiraID().indexOf(dahira.getDahiraID());
-        if (!user.getListDahiraID().get(index).equals("Administrateur")){
+        holder.textViewUserName.setText(selectedUser.getUserName());
+        holder.textViewAddress.setText(selectedUser.getAddress());
+        holder.textViewUserPhoneNumber.setText(selectedUser.getUserPhoneNumber());
+        if (role.equals("Administrateur"))
+            holder.textViewRole.setText(role);
+        else
             holder.textViewRole.setVisibility(View.GONE);
-        }
 
-        DataHolder.showProfileImage(context, imageView);
+        showProfileImage(context, selectedUser.getUserID(), imageView);
 
     }
 
@@ -90,35 +82,17 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
         @Override
         public void onClick(View v) {
-            user = listUsers.get(getAdapterPosition());
+            selectedUser = listUsers.get(getAdapterPosition());
             Intent intent = new Intent(context, UserInfoActivity.class);
             context.startActivity(intent);
         }
 
         @Override
         public boolean onLongClick(View view) {
-            user = listUsers.get(getAdapterPosition());
+            selectedUser = listUsers.get(getAdapterPosition());
             Intent intent = new Intent(context, UserInfoActivity.class);
             context.startActivity(intent);
             return false;
         }
-    }
-
-    public void showProgressDialog(String str){
-        progressDialog.setMessage(str);
-        progressDialog.setCancelable(false);
-        progressDialog.setCanceledOnTouchOutside(false);
-        dismissProgressDialog();
-        progressDialog.show();
-    }
-
-    private void dismissProgressDialog() {
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
-    }
-
-    public void toastMessage(String message){
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 }

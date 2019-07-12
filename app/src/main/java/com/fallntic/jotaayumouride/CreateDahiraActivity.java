@@ -8,14 +8,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -31,7 +27,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -49,15 +44,15 @@ import java.util.List;
 import static com.fallntic.jotaayumouride.DataHolder.dahiraID;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrors;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
+import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
-import static com.fallntic.jotaayumouride.DataHolder.showLogoDahira;
-import static com.fallntic.jotaayumouride.DataHolder.user;
+public class CreateDahiraActivity extends AppCompatActivity implements View.OnClickListener  {
 
-public class AddDahiraActivity extends AppCompatActivity implements View.OnClickListener  {
-
-    private static final String TAG = "AddDahiraActivity";
+    private static final String TAG = "CreateDahiraActivity";
 
     private EditText editTextDahiraName;
     private EditText editTextDieuwrine;
@@ -95,7 +90,7 @@ public class AddDahiraActivity extends AppCompatActivity implements View.OnClick
     private Uri uri;
     private final int PICK_IMAGE_REQUEST = 71;
 
-    private boolean imageSaved = true, dahiraSaved = true;
+    private boolean imageSaved = true, dahiraSaved = true, dahiraUpdated = true;
 
     //Firebase
     private FirebaseStorage firebaseStorage;
@@ -106,7 +101,7 @@ public class AddDahiraActivity extends AppCompatActivity implements View.OnClick
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_dahira);
+        setContentView(R.layout.activity_create_dahira);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -114,7 +109,7 @@ public class AddDahiraActivity extends AppCompatActivity implements View.OnClick
         setSupportActionBar(toolbar);
 
         //Check internet connection
-        if (isConnected(this)){
+        if (!isConnected(this)){
             toastMessage(this, "Oops! Vous n'avez pas de connexion internet!");
             finish();
         }
@@ -195,14 +190,12 @@ public class AddDahiraActivity extends AppCompatActivity implements View.OnClick
                 break;
             case R.id.button_save:
                 saveDahira();
-                updateListDahiraID();
-                startActivity(new Intent(AddDahiraActivity.this, UpdateAdminActivity.class));
                 break;
             case R.id.button_back:
                 finish();
                 break;
             case R.id.textView_login:
-                startActivity(new Intent(AddDahiraActivity.this, LoginActivity.class));
+                startActivity(new Intent(CreateDahiraActivity.this, LoginActivity.class));
                 break;
         }
     }
@@ -282,15 +275,14 @@ public class AddDahiraActivity extends AppCompatActivity implements View.OnClick
         totalSass = totalSass.replace(",", ".");
         totalSocial = totalSocial.replace(",", ".");
 
-        if(!hasValidationErrors(dahiraName, dieuwrine, dahiraPhoneNumber, siege, totalAdiya, totalSass, totalSocial)) {
+        if(!hasValidationErrors(dahiraName, editTextDahiraName, dieuwrine, editTextDieuwrine,
+                dahiraPhoneNumber, editTextDahiraPhoneNumber, siege, editTextSiege, totalAdiya, editTextAdiya,
+                totalSass, editTextSass, totalSocial, editTextSocial)) {
 
             dahiraID = db.collection("dahiras").document().getId();
-            dahira = new Dahira(dahiraID, dahiraName, dieuwrine, dahiraPhoneNumber, siege,
-                    totalAdiya, totalSass, totalSocial, listCommissionDahira, listResponsibles);
-
-            List<String> listID = user.getListDahiraID();
-            listID.add(dahiraID);
-            user.setListDahiraID(listID);
+            dahira = new Dahira(dahiraID, dahiraName, dieuwrine, dahiraPhoneNumber, siege, totalAdiya,
+                    totalSass, totalSocial,"1", listCommissionDahira, listResponsibles,
+                    null, null, null);
 
             showProgressDialog(this, "Enregistrement de votre dahira cours ...");
             db.collection("dahiras").document(dahiraID).set(dahira)
@@ -298,9 +290,8 @@ public class AddDahiraActivity extends AppCompatActivity implements View.OnClick
                         @Override
                         public void onSuccess(Void aVoid) {
                             dismissProgressDialog();
-                            DataHolder.user.getListDahiraID().add(dahiraID);
                             uploadImage();
-                            toastMessage(getApplicationContext(), "Dahira enregistre avec succes");
+                            updateUserListDahiraID();
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -315,123 +306,27 @@ public class AddDahiraActivity extends AppCompatActivity implements View.OnClick
         }
     }
 
-    private void updateListDahiraID(){
-        db.collection("users").document(DataHolder.user.getUserID())
-                .update("listDahiraID", DataHolder.user.getListDahiraID())
+    private void updateUserListDahiraID(){
+        /*List<String> listID = user.getListDahiraID();
+            listID.add(dahiraID);
+            user.setListDahiraID(listID);
+            */
+        onlineUser.getListDahiraID().add(dahiraID);
+        db.collection("users").document(DataHolder.onlineUser.getUserID())
+                .update("listDahiraID", onlineUser.getListDahiraID())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        toastMessage(getApplicationContext(), "User updated.");
+                        final Intent intent = new Intent(CreateDahiraActivity.this, UpdateAdminActivity.class);
+                        showAlertDialog(CreateDahiraActivity.this, "Dahira cree avec succes", intent);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        dahiraUpdated = false;
                     }
                 });
-    }
-
-    private boolean hasValidationErrors(String dahiraName, String dieuwrine, String dahiraPhoneNumber,
-                                        String siege, String totalAdiya, String totalSass, String totalSocial) {
-
-        if (dahiraName.isEmpty()) {
-            editTextDahiraName.setError("Nom dahira obligatoire");
-            editTextDahiraName.requestFocus();
-            return true;
-        }
-
-        if (dieuwrine.isEmpty()) {
-            editTextDieuwrine.setError("Champ obligatoire");
-            editTextDieuwrine.requestFocus();
-            return true;
-        }
-
-        if (dahiraPhoneNumber.isEmpty()) {
-            editTextDahiraPhoneNumber.setError("Numero de telephone obligatoire");
-            editTextDahiraPhoneNumber.requestFocus();
-            return true;
-        }
-
-        if(!dahiraPhoneNumber.matches("[0-9]+") || dahiraPhoneNumber.length() != 9) {
-            editTextDahiraPhoneNumber.setError("Numero de telephone incorrect");
-            editTextDahiraPhoneNumber.requestFocus();
-            return true;
-        }
-
-        String prefix = dahiraPhoneNumber.substring(0,2);
-        boolean validatePrefix;
-        switch(prefix){
-            case "70":
-                validatePrefix = true;
-                break;
-            case "76":
-                validatePrefix = true;
-                break;
-            case "77":
-                validatePrefix = true;
-                break;
-            case "78":
-                validatePrefix = true;
-                break;
-            default:
-                validatePrefix = false;
-                break;
-        }
-        if(!validatePrefix) {
-            editTextDahiraPhoneNumber.setError("Numero de telephone incorrect");
-            editTextDahiraPhoneNumber.requestFocus();
-            return true;
-        }
-
-        if (siege.isEmpty()) {
-            editTextSiege.setError("Champ obligatoire");
-            editTextSiege.requestFocus();
-            return true;
-        }
-
-        if (totalAdiya.isEmpty()) {
-            editTextSiege.setError("Non montant, entrer 0");
-            editTextAdiya.requestFocus();
-            return true;
-        }
-        else if (!isDouble(totalAdiya)){
-            editTextAdiya.setText("Valeur adiya incorrecte");
-            editTextAdiya.requestFocus();
-            return true;
-        }
-
-        if (totalSass.isEmpty()) {
-            editTextSiege.setError("Non montant, entrer 0");
-            editTextSass.requestFocus();
-            return true;
-        }
-        else if (!isDouble(totalSass)){
-            editTextSass.setText("Valeur sass incorrecte");
-            editTextSass.requestFocus();
-            return true;
-        }
-
-        if (totalSocial.isEmpty()) {
-            editTextSiege.setError("Non montant, entrer 0");
-            editTextSass.requestFocus();
-            return true;
-        }
-        else if (!isDouble(totalSocial)){
-            editTextSocial.setText("Valeur sociale incorrecte");
-            editTextSocial.requestFocus();
-            return true;
-        }
-
-        return false;
-    }
-
-    public boolean isDouble(String str){
-        str = str.replace(",", ".");
-        double value;
-        try {
-            value = Double.parseDouble(str);
-            return true;
-            // it means it is double
-        } catch (Exception e1) {
-            // this means it is not double
-            e1.printStackTrace();
-            return false;
-        }
     }
 
     public void showListViewCommissions(){

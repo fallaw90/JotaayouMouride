@@ -30,7 +30,7 @@
         <activity android:name=".ListDahiraActivity" />
         <activity android:name=".UpdateDahiraActivity" />
         <activity android:name=".SignUpActivity" />
-        <activity android:name=".AddDahiraActivity" />
+        <activity android:name=".CreateDahiraActivity" />
         <activity android:name=".LoginActivity" />
         <activity android:name=".ProfileActivity" />
         <activity android:name=".MainActivity">

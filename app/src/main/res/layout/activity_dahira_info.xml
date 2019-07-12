@@ -30,8 +30,8 @@
 
             <ImageView
                 android:id="@+id/imageView"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
                 android:layout_centerHorizontal="true"
                 android:layout_margin="10dp"
                 android:layout_gravity="center"
@@ -42,9 +42,10 @@
                 android:id="@+id/textView_dahiraName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/colorAccent"
+                android:textColor="@color/black"
                 android:textStyle="bold"
                 android:layout_marginBottom="10dp"
+                android:layout_gravity="center"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <TextView
@@ -54,7 +55,7 @@
                 android:textColor="@color/colorAccent"
                 android:textStyle="bold"
                 android:layout_marginBottom="10dp"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
 
             <TextView
                 android:id="@+id/textView_siege"
@@ -63,7 +64,7 @@
                 android:textColor="@color/colorAccent"
                 android:textStyle="bold"
                 android:layout_marginBottom="10dp"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
 
             <TextView
                 android:id="@+id/textView_dahiraPhoneNumber"
@@ -72,7 +73,7 @@
                 android:textColor="@color/colorAccent"
                 android:textStyle="bold"
                 android:layout_marginBottom="10dp"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
 
             <TextView
                 android:id="@+id/textView_totalAdiya"
@@ -81,7 +82,7 @@
                 android:textColor="@color/colorAccent"
                 android:textStyle="bold"
                 android:layout_marginBottom="10dp"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
 
             <TextView
                 android:id="@+id/textView_totalSass"
@@ -90,7 +91,7 @@
                 android:textColor="@color/colorAccent"
                 android:textStyle="bold"
                 android:layout_marginBottom="10dp"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
 
             <TextView
                 android:id="@+id/textView_totalSocial"
@@ -99,7 +100,7 @@
                 android:textColor="@color/colorAccent"
                 android:textStyle="bold"
                 android:layout_marginBottom="10dp"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
 
             <TextView
                 android:id="@+id/textView_totalMembers"
@@ -108,7 +109,7 @@
                 android:textColor="@color/colorAccent"
                 android:textStyle="bold"
                 android:layout_marginBottom="10dp"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
 
             <Button
                 android:id="@+id/button_back"

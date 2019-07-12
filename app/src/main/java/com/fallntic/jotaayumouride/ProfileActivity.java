@@ -6,11 +6,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -21,7 +18,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -29,6 +25,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -36,7 +33,15 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.DataHolder.user;
+import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.isConnected;
+import static com.fallntic.jotaayumouride.DataHolder.logout;
+import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.DataHolder.onlineUserID;
+import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
+import static com.fallntic.jotaayumouride.DataHolder.showProfileImage;
+import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 
 public class ProfileActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "ProfileActivity";
@@ -51,19 +56,16 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     private LinearLayout linearLayoutVerified;
     private SwipeRefreshLayout swipeLayout;
 
-    private ProgressDialog progressDialog;
-
     private FirebaseAuth mAuth;
     private FirebaseUser firebaseUser;
     private FirebaseStorage firebaseStorage;
     private StorageReference storageReference;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    private String userID;
     private String dahiraToUpdate;
 
-    public static boolean boolMyDahiras = false;
-    public static boolean boolAllDahiras = false;
+    public static boolean boolMyDahiras;
+    public static boolean boolAllDahiras;
 
     final Handler handler = new Handler();
 
@@ -74,20 +76,19 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setSubtitle("Votre profile");
+        toolbar.setSubtitle("Mon profil");
         setSupportActionBar(toolbar);
-
-        if (!DataHolder.isConnected(this)){
-            toastMessage("Oops! Vous n'avez pas de connexion internet!");
-            finish();
-        }
-
-        progressDialog = new ProgressDialog(this);
 
         //Retrieve userID and picture
         mAuth = FirebaseAuth.getInstance();
 
-        userID = mAuth.getCurrentUser().getUid();
+        String email = mAuth.getCurrentUser().getEmail();
+        if (!isConnected(this)){
+            Intent intent = new Intent(this, LoginActivity.class);
+            showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
+        }
+
+        onlineUserID = mAuth.getCurrentUser().getUid();
 
         firebaseUser = mAuth.getCurrentUser();
         firebaseStorage = FirebaseStorage.getInstance();
@@ -108,10 +109,13 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
             @Override
             public void onRefresh() {
-                startActivity(new Intent(ProfileActivity.this, LoginActivity.class));
+                startActivity(new Intent(ProfileActivity.this, ProfileActivity.class));
                 swipeLayout.setRefreshing(false);
             }
         });
+
+        boolMyDahiras = false;
+        boolAllDahiras = false;
 
         findViewById(R.id.button_verifyEmail).setOnClickListener(this);
     }
@@ -142,7 +146,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                         logout();
                         finish();
                         startActivity(new Intent(ProfileActivity.this, LoginActivity.class));
-                        toastMessage("Verification Email envoyee");
+                        toastMessage(getApplicationContext(),"Verification Email envoyee");
                     }
                 });
                 break;
@@ -150,75 +154,58 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void loadUserInformation() {
+        showProfileImage(this, onlineUserID, imageViewProfile);
         if (firebaseUser != null && firebaseUser.isEmailVerified()) {
             //Get the current user info
-            showImage();
             getUser();
             linearLayoutVerificationNeeded.setVisibility(View.GONE);
-
         }
         else{
             linearLayoutVerified.setVisibility(View.GONE);
-            toastMessage("Email non verified");
+            showAlertDialog(ProfileActivity.this, "Inscription reussi! Merci de verifier votre email.");
         }
     }
 
     public void getUser() {
-        if (user.getUserID() == null){
-            showProgressDialog("Chargement de vos informations ...");
-            db.collection("users").whereEqualTo("userID", userID).get()
+        if (onlineUser.getUserID() == null){
+            showProgressDialog(this,"Chargement de vos informations ...");
+            db.collection("users").whereEqualTo("userID", onlineUserID).get()
                     .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                         @Override
                         public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                             dismissProgressDialog();
                             for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
 
-                                user = documentSnapshot.toObject(User.class);
+                                onlineUser = documentSnapshot.toObject(User.class);
 
-                                textViewName.setText(DataHolder.user.getUserName());
-                                textViewPhoneNumber.setText(DataHolder.user.getUserPhoneNumber());
-                                textViewAdress.setText(DataHolder.user.getAddress());
-                                textViewEmail.setText(DataHolder.user.getEmail());
+                                textViewName.setText(DataHolder.onlineUser.getUserName());
+                                textViewPhoneNumber.setText(DataHolder.onlineUser.getUserPhoneNumber());
+                                textViewAdress.setText(DataHolder.onlineUser.getAddress());
+                                textViewEmail.setText(DataHolder.onlineUser.getEmail());
                                 getDahiraToUpdate();
                             }
                         }
                     });
         }
         else {
-            textViewName.setText(DataHolder.user.getUserName());
-            textViewPhoneNumber.setText(DataHolder.user.getUserPhoneNumber());
-            textViewAdress.setText(DataHolder.user.getAddress());
-            textViewEmail.setText(DataHolder.user.getEmail());
+            textViewName.setText(DataHolder.onlineUser.getUserName());
+            textViewPhoneNumber.setText(DataHolder.onlineUser.getUserPhoneNumber());
+            textViewAdress.setText(DataHolder.onlineUser.getAddress());
+            textViewEmail.setText(DataHolder.onlineUser.getEmail());
             getDahiraToUpdate();
         }
     }
 
-    public void showImage(){
-        // Reference to the image file in Cloud Storage
-        StorageReference storageReference;
-        storageReference = firebaseStorage.getReference();
-        final StorageReference profileImageReference = storageReference.child("profileImage").child(userID);
-
-        showProgressDialog("Chargement de l'image ...");
-        // Download directly from StorageReference using Glide
-        GlideApp.with(ProfileActivity.this)
-                .load(profileImageReference)
-                .placeholder(R.drawable.profile_image)
-                .into(imageViewProfile);
-
-        dismissProgressDialog();
-    }
-
     public boolean isAdminUpdated() {
         boolean updated = true;
-        if (!user.getListDahiraID().isEmpty()) {
-            if (user.getListUpdatedDahiraID().isEmpty()) {
-                dahiraToUpdate = user.getListDahiraID().get(0);
+        if (!onlineUser.getListDahiraID().isEmpty()) {
+            if (onlineUser.getListUpdatedDahiraID().isEmpty()) {
+                dahiraToUpdate = onlineUser.getListDahiraID().get(0);
                 updated = false;
             }
             else {
-                for (String dahiraID : user.getListDahiraID()) {
-                    if (!user.getListUpdatedDahiraID().contains(dahiraID)) {
+                for (String dahiraID : onlineUser.getListDahiraID()) {
+                    if (!onlineUser.getListUpdatedDahiraID().contains(dahiraID)) {
                         dahiraToUpdate = dahiraID;
                         updated = false;
                         break;
@@ -231,7 +218,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
     public void getDahiraToUpdate() {
         if (!isAdminUpdated()){
-            showProgressDialog("Chargement du dahira ...");
+            showProgressDialog(this,"Chargement du dahira ...");
             db.collection("dahiras").whereEqualTo("dahiraID", dahiraToUpdate).get()
                     .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                         @Override
@@ -246,11 +233,11 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             dismissProgressDialog();
-                            toastMessage("Error chargement dahiraToUpdate!");
+                            toastMessage(getApplicationContext(), "Error chargement dahiraToUpdate!");
                             Log.d(TAG, e.toString());
                         }
                     });
-            showProgressDialog("Patientez svp ...");
+            showProgressDialog(this, "Patientez svp ...");
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -293,29 +280,5 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 break;
         }
         return true;
-    }
-
-    public void logout(){
-        user = null;
-        dahira = null;
-        FirebaseAuth.getInstance().signOut();
-    }
-
-    public void toastMessage(String message){
-        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-    }
-
-    public void showProgressDialog(String str){
-        progressDialog.setMessage(str);
-        progressDialog.setCancelable(false);
-        progressDialog.setCanceledOnTouchOutside(false);
-        dismissProgressDialog();
-        progressDialog.show();
-    }
-
-    private void dismissProgressDialog() {
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
     }
 }

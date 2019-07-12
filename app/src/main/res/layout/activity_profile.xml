@@ -138,7 +138,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="@color/colorAccent"
-                            android:text="@string/textView_labelAddress"
+                            android:text="@string/textView_labelEmail"
                             android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
 
                         <TextView

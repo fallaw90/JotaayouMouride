@@ -23,6 +23,14 @@
         android:title="Voir les evenements"
         app:showAsAction="never" />
     <item
+        android:id="@+id/createAnnounce"
+        android:title="Creer une annonce"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/createEvent"
+        android:title="Creer un evenement"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/setting"
         android:title="Parametres"
         app:showAsAction="never" />
