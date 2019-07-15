@@ -25,7 +25,6 @@ import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrors;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.onlineUserID;
 import static com.fallntic.jotaayumouride.DataHolder.selectedUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showProfileImage;
@@ -95,7 +94,7 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         //Select a commission
         setSpinner();
 
-        if (selectedUser.getUserID().equals(onlineUserID)){
+        if (selectedUser.getUserID().equals(onlineUser.getUserID())){
             radioRoleGroup.setVisibility(View.GONE);
             buttonDelete.setVisibility(View.GONE);
         }

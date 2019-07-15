@@ -16,16 +16,12 @@ public class Dahira implements Serializable {
     private String totalMember;
     private List<String> listCommissions;
     private List<String> listResponsibles;
-    private List<String> listAnnounces;
-    private List<String> listEvents;
-    private List<String> listExpenses;
 
     public Dahira(){}
 
     public Dahira(String dahiraID, String dahiraName, String dieuwrine, String dahiraPhoneNumber,
                   String siege, String totalAdiya, String totalSass, String totalSocial,
-                  String totalMember, List<String> listCommissions, List<String> listResponsibles,
-                  List<String> listAnnounces, List<String> listEvents, List<String> listExpenses) {
+                  String totalMember, List<String> listCommissions, List<String> listResponsibles) {
 
         this.dahiraID = dahiraID;
         this.dahiraName = dahiraName;
@@ -38,9 +34,6 @@ public class Dahira implements Serializable {
         this.totalMember = totalMember;
         this.listCommissions = listCommissions;
         this.listResponsibles = listResponsibles;
-        this.listAnnounces = listAnnounces;
-        this.listEvents = listEvents;
-        this.listExpenses = listExpenses;
     }
 
     public String getDahiraID() {
@@ -129,29 +122,5 @@ public class Dahira implements Serializable {
 
     public void setListResponsibles(List<String> listResponsibles) {
         this.listResponsibles = listResponsibles;
-    }
-
-    public List<String> getListAnnounces() {
-        return listAnnounces;
-    }
-
-    public void setListAnnounces(List<String> listAnnounces) {
-        this.listAnnounces = listAnnounces;
-    }
-
-    public List<String> getListEvents() {
-        return listEvents;
-    }
-
-    public void setListEvents(List<String> listEvents) {
-        this.listEvents = listEvents;
-    }
-
-    public List<String> getListExpenses() {
-        return listExpenses;
-    }
-
-    public void setListExpenses(List<String> listExpenses) {
-        this.listExpenses = listExpenses;
     }
 }

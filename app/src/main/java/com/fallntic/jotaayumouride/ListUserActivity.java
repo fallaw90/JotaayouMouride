@@ -212,14 +212,16 @@ public class ListUserActivity extends AppCompatActivity implements View.OnClickL
                         dismissProgressDialog();
                         if (queryDocumentSnapshots.isEmpty()){
                             showAlertDialog(ListUserActivity.this,
-                                    "Utilisateur inconnu!\n Pour ajouter un membre, assurez vous que l'utisateur s'est deja inscrit d'abord.");
+                                    "Utilisateur inconnu!\n Pour ajouter un membre, " +
+                                            "assurez vous que l'utisateur s'est deja inscrit d'abord.");
                         }
                         else{
                             for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                                 User newMember = documentSnapshot.toObject(User.class);
                                 if (newMember.getListDahiraID().contains(dahira.getDahiraID())){
                                     showAlertDialog(ListUserActivity.this,
-                                            "Cet utilisateur est deja membre du dahira " + dahira.getDahiraName() + ".");
+                                            "Cet utilisateur est deja membre du dahira " +
+                                                    dahira.getDahiraName() + ".");
                                     return;
                                 }
                                 else {

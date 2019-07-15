@@ -37,11 +37,11 @@ import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
 import static com.fallntic.jotaayumouride.DataHolder.logout;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.onlineUserID;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showProfileImage;
 import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.DataHolder.userID;
 
 public class ProfileActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "ProfileActivity";
@@ -88,7 +88,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
 
-        onlineUserID = mAuth.getCurrentUser().getUid();
+        userID = mAuth.getCurrentUser().getUid();
 
         firebaseUser = mAuth.getCurrentUser();
         firebaseStorage = FirebaseStorage.getInstance();
@@ -154,7 +154,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void loadUserInformation() {
-        showProfileImage(this, onlineUserID, imageViewProfile);
+        showProfileImage(this, userID, imageViewProfile);
         if (firebaseUser != null && firebaseUser.isEmailVerified()) {
             //Get the current user info
             getUser();
@@ -169,7 +169,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     public void getUser() {
         if (onlineUser.getUserID() == null){
             showProgressDialog(this,"Chargement de vos informations ...");
-            db.collection("users").whereEqualTo("userID", onlineUserID).get()
+            db.collection("users").whereEqualTo("userID", userID).get()
                     .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                         @Override
                         public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
@@ -241,6 +241,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
+                    dismissProgressDialog();
                     startActivity(new Intent(ProfileActivity.this, UpdateAdminActivity.class));
                 }
             }, 3000);

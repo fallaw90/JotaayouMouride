@@ -4,6 +4,16 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/button_date"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="center"
+        android:padding="7dp"
+        android:textColor="@color/colorAccent"
+        android:background="@color/green"/>
+
     <EditText
         android:id="@+id/editText_dialogContribution"
         android:layout_width="match_parent"

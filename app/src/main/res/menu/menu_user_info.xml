@@ -11,6 +11,18 @@
         android:title="Ajouter contributions"
         app:showAsAction="never" />
     <item
+        android:id="@+id/menu_adiya"
+        android:title="Détails adiya"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_sass"
+        android:title="Détails sass"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_social"
+        android:title="Détails social"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/setting"
         android:title="Parametres"
         app:showAsAction="never" /> 

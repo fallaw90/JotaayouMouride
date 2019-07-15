@@ -22,6 +22,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.SignInMethodQueryResult;
 
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.isConnected;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
@@ -66,7 +67,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         if (DataHolder.isConnected(this)){
             if (mAuth.getCurrentUser() != null) {
                 String email = mAuth.getCurrentUser().getEmail();
-                if (isEmailExist(email)) {
+                if (isConnected(this)) {
                     startActivity(new Intent(this, ProfileActivity.class));
                 }
                 else {
@@ -156,7 +157,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
 
                         isEmailExist[0] = task.getResult().getSignInMethods().isEmpty();
-
+                        isEmailExist[0] = true;
                         if (isEmailExist[0]) {
                             Log.e("TAG", "Email not exist!");
                         } else {

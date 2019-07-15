@@ -1,0 +1,43 @@
+package com.fallntic.jotaayumouride;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Adiya {
+
+    private List<String> listDahiraID = new ArrayList<String>();
+    private List<String> listDate = new ArrayList<String>();
+    private List<String> listAdiya = new ArrayList<String>();
+
+    public Adiya(List<String> listDahiraID, List<String> listDate, List<String> listAdiya) {
+        this.listDahiraID = listDahiraID;
+        this.listDate = listDate;
+        this.listAdiya = listAdiya;
+    }
+
+    public Adiya(){}
+
+    public List<String> getListDahiraID() {
+        return listDahiraID;
+    }
+
+    public void setListDahiraID(List<String> listDahiraID) {
+        this.listDahiraID = listDahiraID;
+    }
+
+    public List<String> getListDate() {
+        return listDate;
+    }
+
+    public void setListDate(List<String> listDate) {
+        this.listDate = listDate;
+    }
+
+    public List<String> getListAdiya() {
+        return listAdiya;
+    }
+
+    public void setListAdiya(List<String> listAdiya) {
+        this.listAdiya = listAdiya;
+    }
+}

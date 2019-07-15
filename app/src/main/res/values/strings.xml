@@ -64,9 +64,9 @@
     <string name="button_dahiraMembers">Voir les membres du dahira</string>
     <string name="userName">Nom </string>
     <string name="textView_modifyUserTitle">Modifier vos informations</string>
-    <string name="adiyaVerse">Total adiya verse</string>
-    <string name="sassVerse">Total sass verse</string>
-    <string name="socialVerse">Total social verse</string>
+    <string name="adiyaVerse">Adiya verse</string>
+    <string name="sassVerse">Sass verse</string>
+    <string name="socialVerse">Social verse</string>
     <string name="role">Role</string>
     <string name="labelCommission">Commission</string>
     <string name="textView_updateAdminTitle">Mettre a jour votre profil</string>
@@ -88,7 +88,9 @@
     <string name="changeLogo">Cliquez sur la photo pour changer votre logo</string>
     <string name="changeProfilePhoto">Cliquez sur la photo pour changer votre photo de profile</string>
     <string name="search">Rechercher</string>
+    <string name="button_back">Precedent</string>
     <string name="textView_labelEmail">Adresse email:</string>
+    <string name="textVview_updateAdmin">Mettez a jour votre profil pour terminer la creation de votre nouveau dahira.</string>
     <string-array name="country_array">
         <item>Senegal</item>
     </string-array>

@@ -20,7 +20,6 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -31,7 +30,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -43,7 +41,9 @@ import java.util.List;
 
 import static com.fallntic.jotaayumouride.DataHolder.checkPrefix;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.DataHolder.onlineUserID;
+import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.DataHolder.userID;
+import static com.fallntic.jotaayumouride.DataHolder.createNewCollection;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
@@ -52,27 +52,27 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
 
     private static final String TAG = "SignUpActivity";
 
-    private EditText editTextUserName;
-    private EditText editTextUserPhoneNumber;
-    private EditText editTextUserAddress;
+    private String pwd;
+    private String email;
+    private String confPwd;
+    private String userName;
+    private String userAddress;
+    private String userPhoneNumber;
+    private ImageView imageView;
     private EditText editTextEmail;
     private EditText editTextPassword;
+    private EditText editTextUserName;
+    private EditText editTextUserAddress;
+    private EditText editTextUserPhoneNumber;
     private EditText editTextConfirmPassword;
-    private String userName;
-    private String userPhoneNumber;
-    private String email;
-    private String pwd;
-    private String confPwd;
-    private String userAddress;
-    private List<String> listDahiraID = new ArrayList<String>();
-    private List<String> listUpdatedDahiraID = new ArrayList<String>();
-    private List<String> listCommissions = new ArrayList<String>();
-    private List<String> listAdiya = new ArrayList<String>();
     private List<String> listSass = new ArrayList<String>();
-    private List<String> listSocial = new ArrayList<String>();
     private List<String> listRoles = new ArrayList<String>();
+    private List<String> listAdiya = new ArrayList<String>();
+    private List<String> listSocial = new ArrayList<String>();
+    private List<String> listDahiraID = new ArrayList<String>();
+    private List<String> listCommissions = new ArrayList<String>();
+    private List<String> listUpdatedDahiraID = new ArrayList<String>();
 
-    private ImageView imageView;
     private Uri uri;
     private final int PICK_IMAGE_REQUEST = 71;
     private boolean imageSaved = true, userSaved = true;
@@ -167,7 +167,8 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                                 if (task.getResult().isEmpty()){
                                     saveAllData();
                                 }else{
-                                    showAlertDialog(SignUpActivity.this, "Numero telephone deja utilise");
+                                    showAlertDialog(SignUpActivity.this,
+                                            "Numero telephone deja utilise");
                                     return;
                                 }
                             }
@@ -177,7 +178,6 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                             }
                         }
                     });
-
         }
         else{
             return;
@@ -192,9 +192,9 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 //while (!task.isSuccessful());
                 if (task.isSuccessful()) {
                     //Get ID of current user.
-                    onlineUserID = mAuth.getCurrentUser().getUid();
+                    userID = mAuth.getCurrentUser().getUid();
                     //Upload image
-                    uploadImage(onlineUserID);
+                    uploadImage(userID);
                     //Save user info on the FireBase database
                     saveUser();
                     if(isRegistrationSuccessful()){
@@ -261,17 +261,18 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void saveUser(){
-        User user =  new User(onlineUserID, userName, userPhoneNumber, email, userAddress, listDahiraID,
+        User user =  new User(userID, userName, userPhoneNumber, email, userAddress, listDahiraID,
                 listUpdatedDahiraID, listCommissions, listAdiya, listSass, listSocial, listRoles);
 
         showProgressDialog(this,"Enregistrement de vos informations personnelles cours ...");
         //Save user in firestore database
-        db.collection("users").document(onlineUserID)
+        db.collection("users").document(userID)
                 .set(user)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         dismissProgressDialog();
+                        setAllNewCollection();
                         //toastMessage("Utilisateur enregistre avec succes");
                     }
                 })
@@ -297,10 +298,12 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if(task.isSuccessful()){
-                        showAlertDialog(SignUpActivity.this, "Erreur inscription! Reessayez SVP.");
+                        showAlertDialog(SignUpActivity.this,
+                                "Erreur inscription! Reessayez SVP.");
                     }
                     else {
-                        toastMessage(getApplicationContext(),"Erreur inscription! Contactez votre administrateur SVP.");
+                        toastMessage(getApplicationContext(),
+                                "Erreur inscription! Contactez votre administrateur SVP.");
                         startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
                     }
                 }
@@ -311,7 +314,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
 
     private void deleteUser() {
         showProgressDialog(this,"Chargement en cours ..");
-        db.collection("users").document(onlineUserID).delete()
+        db.collection("users").document(userID).delete()
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -329,7 +332,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     private void deleteProfileImage() {
         showProgressDialog(this,"Chargement en cours ..");
         //storageReference defined on the onCreate function
-        storageReference.child("images").child(onlineUserID).delete()
+        storageReference.child("images").child(userID).delete()
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -345,6 +348,41 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 });
     }
 
+    public void setAllNewCollection(){
+        if (onlineUser.getUserID() != null)
+            userID = onlineUser.getUserID();
+
+        db.collection("listAdiya").document(userID).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (!documentSnapshot.exists()) {
+                            initAllCollections();
+                            Log.d(TAG, "Collections (Adiya, Sass and Social) created!");
+                        } else {
+                            Log.d(TAG, "Collections Adiya, Sass and Social exist already!");
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        dismissProgressDialog();
+                        Log.d(TAG, "Error creating collections Adiya, Sass and Social!");
+                        Log.d(TAG, e.toString());
+                    }
+                });
+    }
+
+    public void initAllCollections(){
+        Adiya adiya = new Adiya(new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>());
+        Sass sass = new Sass(new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>());
+        Social social = new Social(new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>());
+        createNewCollection(this,"adiya", userID, adiya);
+        createNewCollection(this,"sass", userID, sass);
+        createNewCollection(this,"social", userID, social);
+    }
+
     private boolean hasValidationErrors(String userName, String userPhoneNumber, String email,
                                         String pwd, String confPwd, String userAddress) {
 
@@ -354,7 +392,14 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
             return true;
         }
 
-        if(!userPhoneNumber.isEmpty() && (!userPhoneNumber.matches("[0-9]+") || userPhoneNumber.length() != 9 || !checkPrefix(userPhoneNumber))) {
+        if (userPhoneNumber.isEmpty()) {
+            editTextUserPhoneNumber.setError("Veuillez entrer numero de telephone");
+            editTextUserPhoneNumber.requestFocus();
+            return true;
+        }
+
+        if(!userPhoneNumber.isEmpty() && (!userPhoneNumber.matches("[0-9]+") ||
+                userPhoneNumber.length() != 9 || !checkPrefix(userPhoneNumber))) {
             editTextUserPhoneNumber.setError("Numero de telephone incorrect");
             editTextUserPhoneNumber.requestFocus();
             return true;

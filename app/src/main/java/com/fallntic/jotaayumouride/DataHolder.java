@@ -1,15 +1,18 @@
 package com.fallntic.jotaayumouride;
 
+import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Handler;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -19,17 +22,31 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.SignInMethodQueryResult;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class DataHolder {
 
     public static String dahiraID;
-    public static String onlineUserID;
+    public static String userID;
+    public static String amountContribution;
+    public static String dateContribution;
+    public static String typeOfContribution = "";
     public static User onlineUser = new User();
     public static User selectedUser = new User();
     public static Dahira dahira = new Dahira();
@@ -180,7 +197,8 @@ public class DataHolder {
             return true;
         }
 
-        if (!phoneNumber.isEmpty() && (!phoneNumber.matches("[0-9]+") || phoneNumber.length() != 9 || !checkPrefix(phoneNumber))) {
+        if (!phoneNumber.isEmpty() && (!phoneNumber.matches("[0-9]+") ||
+                phoneNumber.length() != 9 || !checkPrefix(phoneNumber))) {
             editTextPhoneNumber.setError("Numero de telephone incorrect");
             editTextPhoneNumber.requestFocus();
             return true;
@@ -236,7 +254,8 @@ public class DataHolder {
             return true;
         }
 
-        if(!dahiraPhoneNumber.isEmpty() && (!dahiraPhoneNumber.matches("[0-9]+") || dahiraPhoneNumber.length() != 9 || !checkPrefix(dahiraPhoneNumber))) {
+        if(!dahiraPhoneNumber.isEmpty() && (!dahiraPhoneNumber.matches("[0-9]+") ||
+                dahiraPhoneNumber.length() != 9 || !checkPrefix(dahiraPhoneNumber))) {
             editTextDahiraPhoneNumber.setError("Numero de telephone incorrect");
             editTextDahiraPhoneNumber.requestFocus();
             return true;
@@ -254,7 +273,7 @@ public class DataHolder {
             return true;
         }
         else if (!isDouble(totalAdiya)){
-            editTextAdiya.setText("Valeur adiya incorrecte");
+            editTextAdiya.setText("Valeur listAdiya incorrecte");
             editTextAdiya.requestFocus();
             return true;
         }
@@ -293,7 +312,8 @@ public class DataHolder {
             return true;
         }
 
-        if(!phoneNumber.isEmpty() && (!phoneNumber.matches("[0-9]+") || phoneNumber.length() != 9 || !checkPrefix(phoneNumber))) {
+        if(!phoneNumber.isEmpty() && (!phoneNumber.matches("[0-9]+") ||
+                phoneNumber.length() != 9 || !checkPrefix(phoneNumber))) {
             editTextPhoneNumber.setError("Numero de telephone incorrect");
             editTextPhoneNumber.requestFocus();
             return true;
@@ -317,7 +337,8 @@ public class DataHolder {
             return true;
         }
 
-        if(!phoneNumber.isEmpty() && (!phoneNumber.matches("[0-9]+") || phoneNumber.length() != 9 || !checkPrefix(phoneNumber))) {
+        if(!phoneNumber.isEmpty() && (!phoneNumber.matches("[0-9]+") ||
+                phoneNumber.length() != 9 || !checkPrefix(phoneNumber))) {
             editTextPhoneNumber.setError("Numero de telephone incorrect");
             editTextPhoneNumber.requestFocus();
             return true;
@@ -364,19 +385,229 @@ public class DataHolder {
         }
     }
 
+    public static String getCurrentDate() {
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat mdformat = new SimpleDateFormat("dd / MM / yyyy ");
+        String strDate = mdformat.format(calendar.getTime());
+        return strDate;
+    }
+
+    public static String getPickDate(Context context){
+        int mYear, mMonth, mDay;
+        final Calendar c = Calendar.getInstance();
+        mYear = c.get(Calendar.YEAR);
+        mMonth = c.get(Calendar.MONTH);
+        mDay = c.get(Calendar.DAY_OF_MONTH);
+        final String[] strDate = new String[1];
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(context,
+                new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year,
+                                          int monthOfYear, int dayOfMonth) {
+                        strDate[0] = dayOfMonth + "/" +monthOfYear + "/" + year;
+                    }
+                }, mYear, mMonth, mDay);
+        datePickerDialog.show();
+        return strDate[0];
+    }
+
+    public static void createNewCollection(final Context context, final String collectionName,
+                                           String documentName, Object data){
+        FirebaseFirestore.getInstance().collection(collectionName).document(documentName)
+                .set(data)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        toastMessage(context, "New collection " + collectionName + " set successfully");
+                        Log.d(TAG, "New collection " + collectionName + " set successfully");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "Error initContributions function line 351");
+                    }
+                });
+    }
+
+    public static void updateDocument(final Context context , final String collectionName,
+                                      String documentName, String field, String value){
+        showProgressDialog(context,"Mis a jour " + collectionName + " en cours ...");
+        FirebaseFirestore.getInstance().collection(collectionName).document(documentName)
+                .update(field, value)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        dismissProgressDialog();
+                        toastMessage(context, collectionName + "updated");
+                        Log.d(TAG, collectionName + "updated");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        dismissProgressDialog();
+                        Log.d(TAG, "Error updated " + collectionName);
+                    }
+                });
+    }
+
+    public static void updateDocument(final Context context , final String collectionName, String documentName,
+                                      String field, List<String> listValue){
+        showProgressDialog(context,"Mis a jour " + collectionName + " en cours ...");
+        FirebaseFirestore.getInstance().collection(collectionName).document(documentName)
+                .update(field, listValue)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        dismissProgressDialog();
+                        Log.d(TAG, collectionName + "updated");
+                        toastMessage(context, collectionName + "updated");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        dismissProgressDialog();
+                        Log.d(TAG, "Error updated " + collectionName);
+                    }
+                });
+    }
+
+
+    public static void updateContribution(final Context context, final String collectionName, String documentName,
+                                          String field1, List<String> listValues1,
+                                          String field2, List<String> listValues2,
+                                          String field3, List<String> listValues3){
+
+        showProgressDialog(context,"Mis a jour " + collectionName + " en cours ...");
+        FirebaseFirestore.getInstance().collection(collectionName).document(documentName)
+                .update(field1, listValues1,
+                        field2, listValues2,
+                        field3, listValues3)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        toastMessage(context, collectionName + " added");
+                        dismissProgressDialog();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        dismissProgressDialog();
+                    }
+                });
+    }
+
+    public static void saveContribution(final Context context, final String nameCollection,
+                                     final String documentName, final String value){
+
+        showProgressDialog(context,"Enregistrement "+nameCollection+" en cours ...");
+        FirebaseFirestore.getInstance().collection(nameCollection).document(documentName).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        dismissProgressDialog();
+                        if (documentSnapshot.exists()) {
+                            if (nameCollection.equals("listAdiya")) {
+                                Adiya adiya = documentSnapshot.toObject(Adiya.class);
+                                adiya.getListAdiya().add(value);
+                                adiya.getListDahiraID().add(dahira.getDahiraID());
+                                adiya.getListDate().add(getCurrentDate());
+                                updateContribution(context,"adiya", documentName,
+                                        "listDahiraID", adiya.getListDahiraID(),
+                                        "listDate", adiya.getListDate(),
+                                        "adiya", adiya.getListAdiya());
+                            }
+
+                            if (nameCollection.equals("sass")) {
+                                Sass sass = documentSnapshot.toObject(Sass.class);
+                                sass.getListSass().add(value);
+                                sass.getListDahiraID().add(dahira.getDahiraID());
+                                sass.getListDate().add(getCurrentDate());
+                                updateContribution(context,"sass", documentName,
+                                        "listDahiraID",sass.getListDahiraID(),
+                                        "listDate", sass.getListDate(),
+                                        "listSass", sass.getListSass());
+                            }
+                            if (nameCollection.equals("social")) {
+                                Social social = documentSnapshot.toObject(Social.class);
+                                social.getListSocial().add(value);
+                                social.getListDahiraID().add(dahira.getDahiraID());
+                                social.getListDate().add(getCurrentDate());
+                                updateContribution(context,"listAdiya", documentName,
+                                        "listDahiraID",social.getListDahiraID(),
+                                        "listDate", social.getListDate(),
+                                        "listSocial", social.getListSocial());
+                            }
+
+                            Log.d(TAG, "Collection "+nameCollection+" updated");
+                        } else {
+                            //Create new collections listAdiya, sass and social
+                            List<String> listDahiraID = new ArrayList<String>();
+                            listDahiraID.add(dahira.getDahiraID());
+                            List<String> listDate = new ArrayList<String>();
+                            listDate.add(getCurrentDate());
+
+                            if (nameCollection.equals("listAdiya")){
+                                List<String> listAdiya = new ArrayList<String>();
+                                listAdiya.add(value);
+                                Adiya adiya = new Adiya(listDahiraID, listDate, listAdiya);
+                                createNewCollection(context, "listAdiya", documentName, adiya);
+                            }
+                            if (nameCollection.equals("sass")){
+                                List<String> listSass = new ArrayList<String>();
+                                listSass.add(value);
+                                Sass sass = new Sass(listDahiraID, listDate, listSass);
+                                createNewCollection(context,"sass", documentName, sass);
+                            }
+                            if (nameCollection.equals("social")){
+                                List<String> listSocial = new ArrayList<String>();
+                                listSocial.add(value);
+                                Social social = new Social(listDahiraID, listDate, listSocial);
+                                createNewCollection(context,"social", documentName, social);
+                            }
+
+                            toastMessage(context, "collection " + nameCollection + " set successfully");
+                            Log.d(TAG, "New collection "+nameCollection+" created");
+
+                            final Intent intent = new Intent(context, UserInfoActivity.class);
+                            showProgressDialog(context,"Finalisation de l'ajout de votre dahira en cours ...");
+                            final Handler handler = new Handler();
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    showAlertDialog(context, "Dahira cree avec succe!", intent);
+                                    dismissProgressDialog();
+                                }
+                            }, 5000);
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        dismissProgressDialog();
+                        Log.d(TAG, e.toString());
+                    }
+                });
+    }
+
     public static boolean isOnline(String email){
         final boolean[] connected = new boolean[1];
         FirebaseAuth.getInstance().fetchSignInMethodsForEmail(email)
                 .addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
-                @Override
-                public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
-                    if (task.isSuccessful()) {
-                        connected[0] = true;
-                    } else {
-                        connected[0] = false;
+                    @Override
+                    public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
+                        if (task.isSuccessful()) {
+                            connected[0] = true;
+                        } else {
+                            connected[0] = false;
+                        }
                     }
-                }
-        });
+                });
 
         return connected[0];
     }

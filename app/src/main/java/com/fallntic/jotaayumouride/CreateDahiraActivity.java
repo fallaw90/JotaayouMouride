@@ -32,6 +32,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -47,9 +48,12 @@ import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrors;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.DataHolder.createNewCollection;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.DataHolder.userID;
+
 public class CreateDahiraActivity extends AppCompatActivity implements View.OnClickListener  {
 
     private static final String TAG = "CreateDahiraActivity";
@@ -200,6 +204,17 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
+    public void checkPermission(){
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+        }
+    }
+
     private void chooseImage() {
         Intent intent = new Intent();
         intent.setType("image/*");
@@ -222,7 +237,53 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
-    private void uploadImage() {
+    private void saveDahira(){
+        //Info dahira
+        dahiraName = editTextDahiraName.getText().toString().trim();
+        dieuwrine = editTextDieuwrine.getText().toString().trim();
+        dahiraPhoneNumber = editTextDahiraPhoneNumber.getText().toString().trim();
+        siege = editTextSiege.getText().toString().trim();
+        siege = siege.concat(", " + region + " " + country);
+        totalAdiya = editTextAdiya.getText().toString().trim();
+        totalSass = editTextSass.getText().toString().trim();
+        totalSocial = editTextSocial.getText().toString().trim();
+
+        totalAdiya = totalAdiya.replace(",", ".");
+        totalSass = totalSass.replace(",", ".");
+        totalSocial = totalSocial.replace(",", ".");
+
+        if(!hasValidationErrors(dahiraName, editTextDahiraName, dieuwrine, editTextDieuwrine,
+                dahiraPhoneNumber, editTextDahiraPhoneNumber, siege, editTextSiege, totalAdiya, editTextAdiya,
+                totalSass, editTextSass, totalSocial, editTextSocial)) {
+
+            dahiraID = db.collection("dahiras").document().getId();
+            dahira = new Dahira(dahiraID, dahiraName, dieuwrine, dahiraPhoneNumber, siege, totalAdiya,
+                    totalSass, totalSocial,"1", listCommissionDahira, listResponsibles);
+
+            showProgressDialog(this, "Enregistrement de votre dahira cours ...");
+            db.collection("dahiras").document(dahiraID).set(dahira)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            dismissProgressDialog();
+                            saveLogoDahira();
+                            updateUserListDahiraID();
+                            setAllNewDahiraCollection();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            dismissProgressDialog();
+                            dahiraSaved = false;
+                            toastMessage(getApplicationContext(), "Error adding dahira!");
+                            Log.d(TAG, e.toString());
+                        }
+                    });
+        }
+    }
+
+    private void saveLogoDahira() {
         if(uri != null) {
             DataHolder.showProgressDialog(this, "Enregistrement de votre image cours ...");
             final StorageReference ref = storageReference.child("logoDahira").child(dahira.getDahiraID());
@@ -246,71 +307,7 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
-    public void checkPermission(){
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            Manifest.permission.READ_EXTERNAL_STORAGE},
-                    1);
-
-        }
-    }
-
-    private void saveDahira(){
-
-        //Info dahira
-        dahiraName = editTextDahiraName.getText().toString().trim();
-        dieuwrine = editTextDieuwrine.getText().toString().trim();
-        dahiraPhoneNumber = editTextDahiraPhoneNumber.getText().toString().trim();
-        siege = editTextSiege.getText().toString().trim();
-        siege = siege.concat(", " + region + " " + country);
-        totalAdiya = editTextAdiya.getText().toString().trim();
-        totalSass = editTextSass.getText().toString().trim();
-        totalSocial = editTextSocial.getText().toString().trim();
-
-        totalAdiya = totalAdiya.replace(",", ".");
-        totalSass = totalSass.replace(",", ".");
-        totalSocial = totalSocial.replace(",", ".");
-
-        if(!hasValidationErrors(dahiraName, editTextDahiraName, dieuwrine, editTextDieuwrine,
-                dahiraPhoneNumber, editTextDahiraPhoneNumber, siege, editTextSiege, totalAdiya, editTextAdiya,
-                totalSass, editTextSass, totalSocial, editTextSocial)) {
-
-            dahiraID = db.collection("dahiras").document().getId();
-            dahira = new Dahira(dahiraID, dahiraName, dieuwrine, dahiraPhoneNumber, siege, totalAdiya,
-                    totalSass, totalSocial,"1", listCommissionDahira, listResponsibles,
-                    null, null, null);
-
-            showProgressDialog(this, "Enregistrement de votre dahira cours ...");
-            db.collection("dahiras").document(dahiraID).set(dahira)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            dismissProgressDialog();
-                            uploadImage();
-                            updateUserListDahiraID();
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            dismissProgressDialog();
-                            dahiraSaved = false;
-                            toastMessage(getApplicationContext(), "Error adding dahira!");
-                            Log.d(TAG, e.toString());
-                        }
-                    });
-        }
-    }
-
     private void updateUserListDahiraID(){
-        /*List<String> listID = user.getListDahiraID();
-            listID.add(dahiraID);
-            user.setListDahiraID(listID);
-            */
         onlineUser.getListDahiraID().add(dahiraID);
         db.collection("users").document(DataHolder.onlineUser.getUserID())
                 .update("listDahiraID", onlineUser.getListDahiraID())
@@ -327,6 +324,42 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
                         dahiraUpdated = false;
                     }
                 });
+    }
+
+    public void setAllNewDahiraCollection(){
+        if (onlineUser.getUserID() != null)
+            userID = onlineUser.getUserID();
+
+        db.collection("listAdiya").document(userID).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (!documentSnapshot.exists()) {
+                            initAllNewDahiraCollections();
+                            Log.d(TAG, "Collections announcements, events and expenses created!");
+                        } else {
+                            Log.d(TAG, "Collections announcements, events and expenses exist already!");
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        dismissProgressDialog();
+                        Log.d(TAG, "Error creating collections announcements, events and expenses!");
+                        Log.d(TAG, e.toString());
+                    }
+                });
+    }
+
+    public void initAllNewDahiraCollections(){
+        Announcements announcements = new  Announcements(new ArrayList<String>(), new ArrayList<String>());
+        Events events = new Events(new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(),
+                new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>());
+        Expenses expenses = new Expenses(new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>());
+        createNewCollection(this,"announcements", dahiraID, announcements);
+        createNewCollection(this,"events", dahiraID, events);
+        createNewCollection(this,"expenses", dahiraID, expenses);
     }
 
     public void showListViewCommissions(){

@@ -1,13 +1,16 @@
 package com.fallntic.jotaayumouride;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -19,22 +22,22 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.DataHolder.checkPrefix;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrors;
-import static com.fallntic.jotaayumouride.DataHolder.isDouble;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.DataHolder.saveContribution;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showProfileImage;
-import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 
 public class UpdateAdminActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "CreateDahiraActivity";
@@ -53,9 +56,6 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
     private ImageView imageViewProfile;
     private Spinner spinnerCommission;
     private String commission;
-
-
-    private int index = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,8 +122,26 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
     @Override
     public void onBackPressed() {}
 
-    public void toastMessage(String message){
-        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+    public void setSpinner(){
+        spinnerCommission = findViewById(R.id.spinner_commission);
+
+        List<String> listCommissionDahira = dahira.getListCommissions();
+        listCommissionDahira.add(0, "N/A");
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, listCommissionDahira);
+        spinnerCommission.setAdapter(adapter);
+
+        spinnerCommission.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                commission = parent.getItemAtPosition(position).toString();
+            }
+            @Override
+            public void onNothingSelected(AdapterView <?> parent) {
+            }
+        });
     }
 
     private void updateAdmin(){
@@ -155,13 +173,34 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
             dahira.setTotalSocial(social);
 
             updateDahira();
-            updateUser();
+            updateUserCollection();
 
-            startActivity(new Intent(UpdateAdminActivity.this, ListDahiraActivity.class));
+            Intent intent = new Intent(this, ProfileActivity.class);
+            double value;
+
+            adiya = adiya.replace(",", ".");
+            value = Double.parseDouble(adiya);
+            if (value != 0){
+                saveContribution(this, "listAdiya", onlineUser.getUserID(), adiya);
+            }
+
+            sass = sass.replace(",", ".");
+            value = Double.parseDouble(sass);
+            if (value != 0){
+                saveContribution(this, "sass", onlineUser.getUserID(), sass);
+            }
+
+            social = social.replace(",", ".");
+            value = Double.parseDouble(social);
+            if (value != 0){
+                saveContribution(this, "social", onlineUser.getUserID(), social);
+            }
+
+            startActivity(new Intent(UpdateAdminActivity.this, ProfileActivity.class));
         }
     }
 
-    private void updateUser(){
+    private void updateUserCollection(){
 
         db.collection("users").document(onlineUser.getUserID())
                 .update("listUpdatedDahiraID", onlineUser.getListUpdatedDahiraID(),
@@ -176,7 +215,7 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        toastMessage("User updated.");
+                        toastMessage(getApplicationContext(), "User updated.");
                     }
                 });
     }
@@ -195,31 +234,8 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        toastMessage("Dahira updated.");
+                        toastMessage(getApplicationContext(),"Dahira updated.");
                     }
                 });
     }
-
-    public void setSpinner(){
-        spinnerCommission = findViewById(R.id.spinner_commission);
-
-        List<String> listCommissionDahira = dahira.getListCommissions();
-        listCommissionDahira.add(0, "N/A");
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, listCommissionDahira);
-        spinnerCommission.setAdapter(adapter);
-
-        spinnerCommission.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-                commission = parent.getItemAtPosition(position).toString();
-            }
-            @Override
-            public void onNothingSelected(AdapterView <?> parent) {
-            }
-        });
-    }
-
 }

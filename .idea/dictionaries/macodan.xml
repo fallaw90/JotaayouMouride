@@ -14,6 +14,7 @@
       <w>chargement</w>
       <w>commissione</w>
       <w>compte</w>
+      <w>cotisation</w>
       <w>cours</w>
       <w>creer</w>
       <w>dahira</w>
@@ -21,6 +22,7 @@
       <w>deconnecter</w>
       <w>deja</w>
       <w>dieuwrine</w>
+      <w>détails</w>
       <w>enregistre</w>
       <w>enregistrement</w>
       <w>enregistrer</w>
@@ -28,6 +30,7 @@
       <w>erreur</w>
       <w>evenement</w>
       <w>inconnu</w>
+      <w>informations</w>
       <w>liste</w>
       <w>membre</w>
       <w>membres</w>
@@ -36,20 +39,25 @@
       <w>nouveau</w>
       <w>numero</w>
       <w>obligatoir</w>
+      <w>obligatoire</w>
+      <w>personnelles</w>
       <w>propos</w>
       <w>rechercher</w>
       <w>recyclerview</w>
       <w>reessayez</w>
+      <w>remplir</w>
       <w>responsibles</w>
       <w>reussi</w>
       <w>succe</w>
       <w>succes</w>
+      <w>supprimee</w>
       <w>supprimer</w>
       <w>texthone</w>
       <w>trouve</w>
       <w>trouver</w>
       <w>utilisateur</w>
       <w>valeur</w>
+      <w>veuillez</w>
       <w>votre</w>
       <w>vous</w>
     </words>
