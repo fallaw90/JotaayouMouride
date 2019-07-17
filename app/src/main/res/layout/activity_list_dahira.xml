@@ -14,23 +14,39 @@
         android:layout_height="wrap_content"
         layout="@layout/toolbar" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerview_dahiras"
+    <include
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/toolbar"/>
+        layout="@layout/toolbar" />
 
-    <Button
-        android:id="@+id/button_backToProfile"
-        android:layout_width="match_parent"
+    <ScrollView
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="7dp"
-        android:textAllCaps="false"
-        android:layout_marginTop="20dp"
-        android:textColor="@color/colorAccent"
-        android:text="@string/button_backToProfile"
-        android:layout_below="@+id/recyclerview_dahiras"
-        android:background="@drawable/rounded_button_transparent"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
+        android:id="@+id/scrollView"
+        android:layout_below="@+id/toolbar">
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerview_dahiras"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <Button
+                android:id="@+id/button_backToProfile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="7dp"
+                android:textAllCaps="false"
+                android:layout_marginTop="20dp"
+                android:textColor="@color/colorAccent"
+                android:text="@string/button_backToProfile"
+                android:layout_below="@+id/recyclerview_dahiras"
+                android:background="@drawable/rounded_button_transparent"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
+        </RelativeLayout>
+    </ScrollView>
 </RelativeLayout>

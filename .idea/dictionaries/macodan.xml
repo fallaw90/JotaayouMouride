@@ -6,12 +6,19 @@
       <w>adresse</w>
       <w>ajout</w>
       <w>ajoute</w>
+      <w>ajoutee</w>
       <w>ajouter</w>
+      <w>annonce</w>
+      <w>annonces</w>
       <w>assurez</w>
+      <w>aucun</w>
+      <w>aucune</w>
       <w>avec</w>
       <w>caisse</w>
+      <w>cette</w>
       <w>changement</w>
       <w>chargement</w>
+      <w>choisir</w>
       <w>commissione</w>
       <w>compte</w>
       <w>cotisation</w>
@@ -19,28 +26,43 @@
       <w>creer</w>
       <w>dahira</w>
       <w>dahiras</w>
+      <w>debute</w>
       <w>deconnecter</w>
+      <w>deduit</w>
       <w>deja</w>
+      <w>depense</w>
+      <w>depenses</w>
       <w>dieuwrine</w>
       <w>détails</w>
       <w>enregistre</w>
+      <w>enregistree</w>
       <w>enregistrement</w>
       <w>enregistrer</w>
       <w>entrer</w>
+      <w>entrez</w>
       <w>erreur</w>
       <w>evenement</w>
+      <w>evenements</w>
+      <w>fcfa</w>
+      <w>heure</w>
       <w>inconnu</w>
       <w>informations</w>
+      <w>jour</w>
       <w>liste</w>
       <w>membre</w>
       <w>membres</w>
+      <w>mettre</w>
       <w>mmenu</w>
+      <w>modifie</w>
+      <w>modifiee</w>
       <w>nombre</w>
       <w>nouveau</w>
       <w>numero</w>
       <w>obligatoir</w>
       <w>obligatoire</w>
       <w>personnelles</w>
+      <w>plutard</w>
+      <w>prix</w>
       <w>propos</w>
       <w>rechercher</w>
       <w>recyclerview</w>
@@ -50,6 +72,7 @@
       <w>reussi</w>
       <w>succe</w>
       <w>succes</w>
+      <w>supprime</w>
       <w>supprimee</w>
       <w>supprimer</w>
       <w>texthone</w>
@@ -58,6 +81,9 @@
       <w>utilisateur</w>
       <w>valeur</w>
       <w>veuillez</w>
+      <w>vide</w>
+      <w>viewt</w>
+      <w>voir</w>
       <w>votre</w>
       <w>vous</w>
     </words>

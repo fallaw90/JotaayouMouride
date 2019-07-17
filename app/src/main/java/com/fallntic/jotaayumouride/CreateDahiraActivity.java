@@ -47,6 +47,7 @@ import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrors;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
+import static com.fallntic.jotaayumouride.DataHolder.logout;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.createNewCollection;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
@@ -114,8 +115,9 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
 
         //Check internet connection
         if (!isConnected(this)){
-            toastMessage(this, "Oops! Vous n'avez pas de connexion internet!");
-            finish();
+            Intent intent = new Intent(this, LoginActivity.class);
+            logout();
+            showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
 
         //Dahira info
@@ -268,7 +270,6 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
                             dismissProgressDialog();
                             saveLogoDahira();
                             updateUserListDahiraID();
-                            setAllNewDahiraCollection();
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -324,42 +325,6 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
                         dahiraUpdated = false;
                     }
                 });
-    }
-
-    public void setAllNewDahiraCollection(){
-        if (onlineUser.getUserID() != null)
-            userID = onlineUser.getUserID();
-
-        db.collection("listAdiya").document(userID).get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if (!documentSnapshot.exists()) {
-                            initAllNewDahiraCollections();
-                            Log.d(TAG, "Collections announcements, events and expenses created!");
-                        } else {
-                            Log.d(TAG, "Collections announcements, events and expenses exist already!");
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        dismissProgressDialog();
-                        Log.d(TAG, "Error creating collections announcements, events and expenses!");
-                        Log.d(TAG, e.toString());
-                    }
-                });
-    }
-
-    public void initAllNewDahiraCollections(){
-        Announcements announcements = new  Announcements(new ArrayList<String>(), new ArrayList<String>());
-        Events events = new Events(new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(),
-                new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>());
-        Expenses expenses = new Expenses(new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>());
-        createNewCollection(this,"announcements", dahiraID, announcements);
-        createNewCollection(this,"events", dahiraID, events);
-        createNewCollection(this,"expenses", dahiraID, expenses);
     }
 
     public void showListViewCommissions(){

@@ -1,6 +1,5 @@
 package com.fallntic.jotaayumouride;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -8,7 +7,6 @@ import androidx.appcompat.widget.Toolbar;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,24 +17,17 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static com.fallntic.jotaayumouride.DataHolder.createNewCollection;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.getCurrentDate;
-import static com.fallntic.jotaayumouride.DataHolder.getPickDate;
+import static com.fallntic.jotaayumouride.DataHolder.getDate;
+import static com.fallntic.jotaayumouride.DataHolder.indexOnlineUser;
+import static com.fallntic.jotaayumouride.DataHolder.indexSelectedUser;
+import static com.fallntic.jotaayumouride.DataHolder.isConnected;
 import static com.fallntic.jotaayumouride.DataHolder.isDouble;
 import static com.fallntic.jotaayumouride.DataHolder.logout;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
@@ -44,7 +35,6 @@ import static com.fallntic.jotaayumouride.DataHolder.saveContribution;
 import static com.fallntic.jotaayumouride.DataHolder.selectedUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showProfileImage;
-import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.typeOfContribution;
 import static com.fallntic.jotaayumouride.DataHolder.updateDocument;
 
@@ -63,20 +53,13 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
     private TextView textViewSocial;
     private ImageView imageView;
 
-    private FirebaseAuth mAuth;
-    private FirebaseUser firebaseUser;
     private FirebaseStorage firebaseStorage;
     private StorageReference storageReference;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     boolean boolAdiya = false, boolSass = false, boolSocial = false;
-    boolean dahiraUpdated = true, contributionSaved = true;
-
-    private int indexOnlineUser = onlineUser.getListDahiraID().indexOf(dahira.getDahiraID());
-    private int indexSelectedUser = selectedUser.getListDahiraID().indexOf(dahira.getDahiraID());
 
     private String mDate = getCurrentDate();
-    private Map<String, Object> contribution;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,10 +71,14 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         toolbar.setSubtitle("Info du membre");
         setSupportActionBar(toolbar);
 
-        if (!DataHolder.isConnected(this)){
-            showAlertDialog(this,"Oops! Vous n'avez pas de connexion internet!");
-            finish();
+        if (!isConnected(this)){
+            Intent intent = new Intent(this, LoginActivity.class);
+            logout();
+            showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
+
+        indexOnlineUser = onlineUser.getListDahiraID().indexOf(dahira.getDahiraID());
+        indexSelectedUser = selectedUser.getListDahiraID().indexOf(dahira.getDahiraID());
 
         firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
@@ -288,7 +275,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         dialogBuilder.setView(dialogView);
         dialogBuilder.setCancelable(false);
 
-        final Button buttonDate = (Button) dialogView.findViewById(R.id.button_date);
+        final EditText editTextDate = (EditText) dialogView.findViewById(R.id.editText_date);
         final EditText editTextDialogContribution = (EditText) dialogView.findViewById(R.id.editText_dialogContribution);
         final Button buttonSave = (Button) dialogView.findViewById(R.id.button_dialogSave);
         final Button buttonCancel = (Button) dialogView.findViewById(R.id.button_cancel);
@@ -309,11 +296,11 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         final AlertDialog alertDialog = dialogBuilder.create();
         alertDialog.show();
 
-        buttonDate.setText("Dakar, le " + mDate);
-        buttonDate.setOnClickListener(new View.OnClickListener() {
+        editTextDate.setText(mDate);
+        editTextDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mDate = getPickDate(UserInfoActivity.this);
+                getDate(UserInfoActivity.this, editTextDate);
             }
         });
 

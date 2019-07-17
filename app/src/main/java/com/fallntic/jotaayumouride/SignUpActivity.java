@@ -41,6 +41,8 @@ import java.util.List;
 
 import static com.fallntic.jotaayumouride.DataHolder.checkPrefix;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.isConnected;
+import static com.fallntic.jotaayumouride.DataHolder.logout;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.userID;
 import static com.fallntic.jotaayumouride.DataHolder.createNewCollection;
@@ -94,9 +96,10 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        if (!DataHolder.isConnected(this)){
-            toastMessage(getApplicationContext(),"Oops! Vous n'avez pas de connexion internet!");
-            finish();
+        if (!isConnected(this)){
+            Intent intent = new Intent(this, LoginActivity.class);
+            logout();
+            showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
 
         //Initialize Firestore object

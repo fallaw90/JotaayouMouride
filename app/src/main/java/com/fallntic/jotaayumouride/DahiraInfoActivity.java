@@ -8,6 +8,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,16 +25,23 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
+import static com.fallntic.jotaayumouride.DataHolder.announcement;
+import static com.fallntic.jotaayumouride.DataHolder.expense;
 import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrorsSearch;
+import static com.fallntic.jotaayumouride.DataHolder.indexOnlineUser;
+import static com.fallntic.jotaayumouride.DataHolder.isConnected;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.event;
 import static com.fallntic.jotaayumouride.DataHolder.logout;
 import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 
 public class DahiraInfoActivity extends AppCompatActivity implements View.OnClickListener {
+    private final String TAG = "DahiraInfoActivity";
 
     private TextView textViewDahiraName, textViewDieuwrine, textViewSiege, textViewtotalMembers,
             textViewTotalAdiya, textViewTotalSass, textViewTotalSocial, textViewPhoneNumber;
@@ -41,8 +49,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
     private ImageView imageView;
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    int indexOnlineUser = onlineUser.getListDahiraID().indexOf(dahira.getDahiraID());
-    User newMember = new User();
+    private User newMember = new User();
     private boolean imageSaved = true, dahiraSaved = true, dahiraUpdated = true, userSaved = true;
 
     @Override
@@ -55,9 +62,12 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         toolbar.setSubtitle("Mon Dahira");
         setSupportActionBar(toolbar);
 
-        if (!DataHolder.isConnected(this)){
-            toastMessage(getApplicationContext(),"Oops! Vous n'avez pas de connexion internet!");
-            finish();
+        indexOnlineUser = onlineUser.getListDahiraID().indexOf(dahira.getDahiraID());
+
+        if (!isConnected(this)){
+            Intent intent = new Intent(this, LoginActivity.class);
+            logout();
+            showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
 
         textViewDahiraName = (TextView) findViewById(R.id.textView_dahiraName);
@@ -79,6 +89,9 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         textViewTotalSass.setText("Total Sass dans la caisse: " + dahira.getTotalSass() + " FCFA");
         textViewTotalSocial.setText("Total Social dans la caisse: " + dahira.getTotalSocial() + " FCFA");
 
+        getExistingExpenses();
+        getExistingAnnouncements();
+        getExistingEvents();
         DataHolder.showLogoDahira(this, imageView);
 
         findViewById(R.id.button_back).setOnClickListener(this);
@@ -104,27 +117,33 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_dahira_info, menu);
 
-        MenuItem menuItemAddMember, menuItemSetting, menuItemDisplayMember, menuItemCreateAnnounce,
-                menuItemCreateEvent;
+        MenuItem menuItemAddMember, menuItemSetting, menuItemDisplayMember, menuItemAddAnnounce,
+                menuItemAddEvent, menuItemDisplayAnnounce, menuItemDisplayExpense,
+                menuItemAddExpense;
 
         menuItemAddMember = menu.findItem(R.id.addMember);
         menuItemSetting = menu.findItem(R.id.setting);
-        menuItemCreateAnnounce = menu.findItem(R.id.createAnnounce);
-        menuItemCreateEvent = menu.findItem(R.id.createEvent);
+        menuItemAddAnnounce = menu.findItem(R.id.addAnnounce);
+        menuItemAddEvent = menu.findItem(R.id.addEvent);
         menuItemDisplayMember = menu.findItem(R.id.displayMember);
+        menuItemDisplayAnnounce = menu.findItem(R.id.displayAnnounce);
+        menuItemDisplayExpense = menu.findItem(R.id.displayExpense);
+        menuItemAddExpense = menu.findItem(R.id.addExpense);
 
         if (onlineUser.getListDahiraID().contains(dahira.getDahiraID())){
             if (!onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")){
                 menuItemAddMember.setVisible(false);
                 menuItemSetting.setVisible(false);
-                menuItemCreateAnnounce.setVisible(false);
-                menuItemCreateEvent.setVisible(false);
+                menuItemAddEvent.setVisible(false);
+                menuItemAddExpense.setVisible(false);
             }
         }
         else {
             menuItemAddMember.setVisible(false);
             menuItemSetting.setVisible(false);
-            menuItemCreateAnnounce.setVisible(false);
+            menuItemAddAnnounce.setVisible(false);
+            menuItemDisplayAnnounce.setVisible(false);
+            menuItemDisplayExpense.setVisible(false);
             menuItemDisplayMember.setVisible(false);
         }
 
@@ -134,28 +153,51 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.addMember:
-                alertDialogAddNewMember();
-                break;
 
             case R.id.displayMember:
                 startActivity(new Intent(this, ListUserActivity.class));
                 break;
 
+            case R.id.displayExpense:
+                if (expense.getListUserID().size() == 0) {
+                    showAlertDialog(this, "La liste des depenses est vide!");
+                }
+                else
+                    startActivity(new Intent(this, ListExpenseActivity.class));
+                break;
+
             case R.id.displayAnnounce:
-                //Code here
+                if (announcement.getListUserID().size() == 0) {
+                    showAlertDialog(this, "La liste des annonces est vide!");
+                }
+                else
+                    startActivity(new Intent(this, ListAnnouncementActivity.class));
                 break;
 
             case R.id.displayEvent:
-                //More code here
+                if (event.getListUserID().size() == 0)
+                    showAlertDialog(this, "La liste des evenements est vide!");
+                else
+                    startActivity(new Intent(this, ListEventActivity.class));
                 break;
 
-            case R.id.createAnnounce:
-                //Code here
+            case R.id.addMember:
+                alertDialogAddNewMember();
                 break;
 
-            case R.id.createEvent:
-                //More code here
+            case R.id.addExpense:
+                actionSelected = "addNewExpense";
+                startActivity(new Intent(this, CreateExpenseActivity.class));
+                break;
+
+            case R.id.addAnnounce:
+                actionSelected = "addNewAnnouncement";
+                startActivity(new Intent(this, CreateAnnouncementActivity.class));
+                break;
+
+            case R.id.addEvent:
+                actionSelected = "addNewEvent";
+                startActivity(new Intent(this, CreateNewEventActivity.class));
                 break;
 
             case R.id.setting:
@@ -316,5 +358,86 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                         dismissProgressDialog();
                     }
                 });
+    }
+
+    public void getExistingEvents() {
+        if (event.getListUserID().size() <= 0) {
+            showProgressDialog(this, "Chargement de vos evenements en cours ...");
+            db.collection("events").whereEqualTo("dahiraID", dahira.getDahiraID()).get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            dismissProgressDialog();
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                    event = documentSnapshot.toObject(Event.class);
+                                }
+                                Log.d(TAG, "Even downloaded");
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            dismissProgressDialog();
+                            Log.d(TAG, "Error downloading event");
+                        }
+                    });
+        }
+        dismissProgressDialog();
+    }
+
+    public void getExistingAnnouncements() {
+        if (announcement.getListUserID().size() <= 0) {
+            showProgressDialog(this, "Chargement de vos annonces en cours ...");
+            db.collection("announcements").whereEqualTo("dahiraID", dahira.getDahiraID()).get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            dismissProgressDialog();
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                    announcement = documentSnapshot.toObject(Announcement.class);
+                                }
+                                Log.d(TAG, "Announcements downloaded");
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            dismissProgressDialog();
+                            Log.d(TAG, "Error downloading Announcements");
+                        }
+                    });
+        }
+        dismissProgressDialog();
+    }
+
+    public void getExistingExpenses() {
+        if (expense.getListUserID().size() <= 0) {
+            showProgressDialog(this, "Chargement de vos annonces en cours ...");
+            db.collection("expenses").whereEqualTo("dahiraID", dahira.getDahiraID()).get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            dismissProgressDialog();
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                    expense = documentSnapshot.toObject(Expense.class);
+                                }
+                                Log.d(TAG, "Expenses downloaded");
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            dismissProgressDialog();
+                            Log.d(TAG, "Error downloading Expenses");
+                        }
+                    });
+        }
+        dismissProgressDialog();
     }
 }

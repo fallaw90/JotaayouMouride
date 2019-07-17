@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/scrollView">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:padding="@dimen/_7sdp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textView_userName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Evenement 1: enregistre par "
+                    android:layout_margin="@dimen/_5sdp"
+                    android:textColor="@color/black"/>
+
+                <TextView
+                    android:id="@+id/textView_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Date"
+                    android:textColor="@color/red"
+                    android:textAlignment="center"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
+
+                <TextView
+                    android:id="@+id/textView_note"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Note"
+                    android:textColor="@color/black"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
+
+                <TextView
+                    android:id="@+id/textView_price"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Price "
+                    android:textAlignment="center"
+                    android:layout_marginRight="@dimen/_10sdp"
+                    android:textColor="@color/black"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"/>
+
+                <TextView
+                    android:id="@+id/textView_typeOfExpense"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Type of expense "
+                    android:textColor="@color/black"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+    </ScrollView>
+</RelativeLayout>

@@ -85,6 +85,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         String email = mAuth.getCurrentUser().getEmail();
         if (!isConnected(this)){
             Intent intent = new Intent(this, LoginActivity.class);
+            logout();
             showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
 

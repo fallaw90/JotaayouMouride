@@ -2,6 +2,7 @@ package com.fallntic.jotaayumouride;
 
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -16,6 +17,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -50,6 +52,15 @@ public class DataHolder {
     public static User onlineUser = new User();
     public static User selectedUser = new User();
     public static Dahira dahira = new Dahira();
+    public static Event event = new Event();
+    public static Announcement announcement = new Announcement();
+    public static Expense expense = new Expense();
+    public static int indexOnlineUser;
+    public static int indexSelectedUser;
+    public static int indexEventSelected;
+    public static int indexAnnouncementSelected;
+    public static int indexExpenseSelected;
+    public static String actionSelected = "";
     private static ProgressDialog progressDialog;
 
     public static boolean isConnected(Context context) {
@@ -392,24 +403,43 @@ public class DataHolder {
         return strDate;
     }
 
-    public static String getPickDate(Context context){
+    public static void getDate(Context context, final EditText editText){
         int mYear, mMonth, mDay;
         final Calendar c = Calendar.getInstance();
         mYear = c.get(Calendar.YEAR);
         mMonth = c.get(Calendar.MONTH);
         mDay = c.get(Calendar.DAY_OF_MONTH);
-        final String[] strDate = new String[1];
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(context,
                 new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year,
                                           int monthOfYear, int dayOfMonth) {
-                        strDate[0] = dayOfMonth + "/" +monthOfYear + "/" + year;
+
+                        String mDate = dayOfMonth + "/" +monthOfYear + "/" + year;
+                        editText.setText(mDate);
                     }
                 }, mYear, mMonth, mDay);
+
         datePickerDialog.show();
-        return strDate[0];
+    }
+
+    public static void getTime(Context context, final EditText editText, String title) {
+        TimePickerDialog timePickerDialog;
+        Calendar calendar = Calendar.getInstance();
+        int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
+        int currentMinute = calendar.get(Calendar.MINUTE);
+
+        timePickerDialog = new TimePickerDialog(context, android.R.style.Theme_Holo_Light_Dialog_NoActionBar,
+                new TimePickerDialog.OnTimeSetListener(){
+            @Override
+            public void onTimeSet(TimePicker timePicker, int hourOfDay, int minutes) {
+
+                editText.setText(String.format(hourOfDay + ":" + minutes));
+            }
+        }, currentHour, currentMinute, true);
+        timePickerDialog.setTitle(title);
+        timePickerDialog.show();
     }
 
     public static void createNewCollection(final Context context, final String collectionName,
@@ -419,7 +449,6 @@ public class DataHolder {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        toastMessage(context, "New collection " + collectionName + " set successfully");
                         Log.d(TAG, "New collection " + collectionName + " set successfully");
                     }
                 })
@@ -429,6 +458,7 @@ public class DataHolder {
                         Log.d(TAG, "Error initContributions function line 351");
                     }
                 });
+        actionSelected = "";
     }
 
     public static void updateDocument(final Context context , final String collectionName,
@@ -440,7 +470,7 @@ public class DataHolder {
                     @Override
                     public void onSuccess(Void aVoid) {
                         dismissProgressDialog();
-                        toastMessage(context, collectionName + "updated");
+                        //toastMessage(context, collectionName + "updated");
                         Log.d(TAG, collectionName + "updated");
                     }
                 })
@@ -591,6 +621,23 @@ public class DataHolder {
                     public void onFailure(@NonNull Exception e) {
                         dismissProgressDialog();
                         Log.d(TAG, e.toString());
+                    }
+                });
+    }
+
+    private void deleteDocument(final Context context, String collectionName, String documentID) {
+        showProgressDialog(context,"Suppression de votre evenement en cours ..");
+        FirebaseFirestore.getInstance().collection(collectionName).document(documentID).delete()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            dismissProgressDialog();
+                        }
+                        else {
+                            dismissProgressDialog();
+                            toastMessage(context, task.getException().getMessage());
+                        }
                     }
                 });
     }

@@ -54,8 +54,9 @@ public class ListDahiraActivity extends AppCompatActivity implements View.OnClic
         recyclerViewDahira = findViewById(R.id.recyclerview_dahiras);
 
         if (!isConnected(this)){
-            toastMessage(getApplicationContext(),"Oops! Vous n'avez pas de connexion internet.");
-            finish();
+            Intent intent = new Intent(this, LoginActivity.class);
+            logout();
+            showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
 
         if (ProfileActivity.boolMyDahiras){

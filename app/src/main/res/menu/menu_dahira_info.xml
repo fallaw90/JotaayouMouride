@@ -15,6 +15,10 @@
         android:title="Voir les membres"
         app:showAsAction="never" />
     <item
+        android:id="@+id/displayExpense"
+        android:title="Voir les depenses"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/displayAnnounce"
         android:title="Voir les annonces"
         app:showAsAction="never" />
@@ -23,12 +27,16 @@
         android:title="Voir les evenements"
         app:showAsAction="never" />
     <item
-        android:id="@+id/createAnnounce"
-        android:title="Creer une annonce"
+        android:id="@+id/addExpense"
+        android:title="Ajouter une depense"
         app:showAsAction="never" />
     <item
-        android:id="@+id/createEvent"
-        android:title="Creer un evenement"
+        android:id="@+id/addAnnounce"
+        android:title="Ajouter une annonce"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/addEvent"
+        android:title="Ajouter un evenement"
         app:showAsAction="never" />
     <item
         android:id="@+id/setting"

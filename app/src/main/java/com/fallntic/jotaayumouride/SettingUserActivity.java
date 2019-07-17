@@ -24,6 +24,8 @@ import java.util.List;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrors;
+import static com.fallntic.jotaayumouride.DataHolder.isConnected;
+import static com.fallntic.jotaayumouride.DataHolder.logout;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.selectedUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
@@ -60,9 +62,10 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        if (!DataHolder.isConnected(this)){
-            showAlertDialog(this, "Oops! Vous n'avez pas de connexion internet!" );
-            finish();
+        if (!isConnected(this)){
+            Intent intent = new Intent(this, LoginActivity.class);
+            logout();
+            showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
 
         db = FirebaseFirestore.getInstance();

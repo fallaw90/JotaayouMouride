@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.DataHolder.indexOnlineUser;
+import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 
 public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraViewHolder> {
 
@@ -83,9 +85,11 @@ public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraView
 
         @Override
         public boolean onLongClick(View view) {
-            dahira = dahiraList.get(getAdapterPosition());
-            Intent intent = new Intent(context, UpdateDahiraActivity.class);
-            context.startActivity(intent);
+            if (onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")){
+                dahira = dahiraList.get(getAdapterPosition());
+                Intent intent = new Intent(context, UpdateDahiraActivity.class);
+                context.startActivity(intent);
+            }
             return false;
         }
     }

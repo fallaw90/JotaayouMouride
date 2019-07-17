@@ -32,9 +32,12 @@ import com.google.firebase.storage.UploadTask;
 import java.io.IOException;
 
 import static com.fallntic.jotaayumouride.DataHolder.checkPrefix;
+import static com.fallntic.jotaayumouride.DataHolder.isConnected;
+import static com.fallntic.jotaayumouride.DataHolder.logout;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showProfileImage;
+import static com.fallntic.jotaayumouride.DataHolder.userID;
 
 public class SettingProfileActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "UpdateUserActivity";
@@ -66,9 +69,10 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
         toolbar.setSubtitle("Parametres");
         setSupportActionBar(toolbar);
 
-        if (!DataHolder.isConnected(this)){
-            toastMessage("Oops! Vous n'avez pas de connexion internet!");
-            finish();
+        if (!isConnected(this)){
+            Intent intent = new Intent(this, LoginActivity.class);
+            logout();
+            showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
 
         progressDialog = new ProgressDialog(this);
@@ -130,9 +134,9 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
     }
 
     private void uploadImage() {
-        if(uri != null) {
+        if(uri != null && onlineUser.getUserID() != null) {
             showProgressDialog("Enregistrement de votre image cours ...");
-            final StorageReference ref = storageReference.child("profileImage").child(onlineUser.getUserID());
+            final StorageReference ref = storageReference.child("profileImage").child(userID);
             ref.putFile(uri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override

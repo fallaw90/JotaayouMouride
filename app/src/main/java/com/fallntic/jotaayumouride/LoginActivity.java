@@ -23,6 +23,7 @@ import com.google.firebase.auth.SignInMethodQueryResult;
 
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
+import static com.fallntic.jotaayumouride.DataHolder.logout;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
@@ -45,9 +46,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         toolbar.setSubtitle("Se connecter");
         setSupportActionBar(toolbar);
 
-        if (!DataHolder.isConnected(this)){
-            showAlertDialog(this, "Oops! Vous n'avez pas de connexion internet!");
-            return;
+        if (!isConnected(this)){
+            Intent intent = new Intent(this, LoginActivity.class);
+            logout();
+            showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
 
         mAuth = FirebaseAuth.getInstance();
@@ -65,6 +67,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         super.onStart();
 
         if (DataHolder.isConnected(this)){
+
             if (mAuth.getCurrentUser() != null) {
                 String email = mAuth.getCurrentUser().getEmail();
                 if (isConnected(this)) {

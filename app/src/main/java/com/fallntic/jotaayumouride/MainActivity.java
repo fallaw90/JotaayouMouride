@@ -11,6 +11,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import static com.fallntic.jotaayumouride.DataHolder.isConnected;
+import static com.fallntic.jotaayumouride.DataHolder.logout;
+import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
+
 
 public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver myReceiver = null;
@@ -21,8 +25,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        if (!DataHolder.isConnected(this)){
-            toastMessage("Oops! Vous n'avez pas de connexion internet!");
+        if (!isConnected(this)){
+            Intent intent = new Intent(this, LoginActivity.class);
+            logout();
+            showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
 
         startActivity(new Intent(this, LoginActivity.class));
