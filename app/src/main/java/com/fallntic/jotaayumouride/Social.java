@@ -8,11 +8,13 @@ public class Social {
     private List<String> listDahiraID = new ArrayList<String>();
     private List<String> listDate = new ArrayList<String>();
     private List<String> listSocial = new ArrayList<String>();
+    private List<String> listUserName = new ArrayList<String>();
 
-    public Social(List<String> listDahiraID, List<String> listDate, List<String> listSocial) {
+    public Social(List<String> listDahiraID, List<String> listDate, List<String> listSocial, List<String> listUserName) {
         this.listDahiraID = listDahiraID;
         this.listDate = listDate;
         this.listSocial = listSocial;
+        this.listUserName = listUserName;
     }
 
     public Social() {}
@@ -39,5 +41,13 @@ public class Social {
 
     public void setListSocial(List<String> listSocial) {
         this.listSocial = listSocial;
+    }
+
+    public List<String> getListUserName() {
+        return listUserName;
+    }
+
+    public void setListUserName(List<String> listUserName) {
+        this.listUserName = listUserName;
     }
 }

@@ -148,17 +148,6 @@
                 android:textColor="@color/colorAccent"
                 android:background="@color/gray" />
 
-            <Button
-                android:id="@+id/button_delete"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="7dp"
-                android:text="Supprimer cette depense"
-                android:textAllCaps="false"
-                android:visibility="gone"
-                android:textColor="@color/colorAccent"
-                android:background="@color/red" />
-
         </LinearLayout>
 
     </ScrollView>

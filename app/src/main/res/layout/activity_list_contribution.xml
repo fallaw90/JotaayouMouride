@@ -1,109 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinatorLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@color/white"
+    android:orientation="vertical"
     tools:context=".ListDahiraActivity">
 
-    <include
-        android:id="@+id/toolbar"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        layout="@layout/toolbar" />
+        android:layout_height="match_parent">
 
-    <ScrollView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/scrollView"
-        android:layout_below="@+id/toolbar">
-
-        <RelativeLayout
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content" />
 
-            <TextView
-                android:id="@+id/textView_userName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_below="@+id/toolbar"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"/>
+        <ScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/toolbar">
 
-            <TextView
-                android:id="@+id/textView_dahiraName"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_below="@+id/textView_userName"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"/>
-
-            <TextView
-                android:id="@+id/textView_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="List des adiya verses"
-                android:textColor="@color/red"
-                android:layout_marginTop="@dimen/_20sdp"
-                android:layout_below="@+id/textView_dahiraName"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"/>
-
-            <LinearLayout
-                android:id="@+id/lin_label"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:orientation="horizontal"
-                android:layout_marginTop="@dimen/_20sdp"
-                android:layout_below="@+id/textView_title">
+                android:layout_height="wrap_content">
 
                 <TextView
-                    android:id="@+id/textView_labelDate"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/textView_title"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5"
+                    android:layout_marginTop="@dimen/_20sdp"
                     android:gravity="center"
-                    android:text="Date"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"/>
+                    android:text="List des adiya verses"
+                    android:textColor="@color/black"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
 
-                <TextView
-                    android:id="@+id/textView_labelamountAdiya"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/lin_label"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5"
-                    android:gravity="center"
-                    android:text="Montant Adiya"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"/>
-            </LinearLayout>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerview_contribution"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/lin_label"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/recyclerview_contribution"
-                android:layout_marginTop="@dimen/_20sdp"
-                android:gravity="center"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/button_back"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/textView_title"
                     android:layout_gravity="center"
-                    android:background="@color/green"
-                    android:text="Precedent"
-                    android:textAllCaps="false"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-                    android:textColor="@color/white" />
-            </LinearLayout>
-        </RelativeLayout>
-    </ScrollView>
-</RelativeLayout>
+                    android:layout_marginTop="@dimen/_20sdp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/textView_labelDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.5"
+                        android:gravity="center"
+                        android:text="Date"
+                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
+
+                    <TextView
+                        android:id="@+id/textView_labelAmountAdiya"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.5"
+                        android:gravity="center"
+                        android:text="Montant Adiya"
+                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
+                </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerview_contribution"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/lin_label" />
+
+                <TextView
+                    android:id="@+id/textView_deleteInstruction"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textColor="@color/red"
+                    android:layout_marginTop="@dimen/_20sdp"
+                    android:text="Glissez vers la gauche pour supprimer"
+                    android:layout_below="@+id/recyclerview_contribution"/>
+
+            </RelativeLayout>
+        </ScrollView>
+    </RelativeLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

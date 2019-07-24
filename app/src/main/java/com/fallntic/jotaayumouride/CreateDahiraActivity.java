@@ -113,10 +113,13 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         toolbar.setSubtitle("Enregistrer un nouveau dahira");
         setSupportActionBar(toolbar);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         //Check internet connection
         if (!isConnected(this)){
+            finish();
             Intent intent = new Intent(this, LoginActivity.class);
-            logout();
             showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
 
@@ -181,6 +184,12 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         findViewById(R.id.button_save).setOnClickListener(this);
         findViewById(R.id.button_back).setOnClickListener(this);
         findViewById(R.id.imageView).setOnClickListener(this);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
     @Override

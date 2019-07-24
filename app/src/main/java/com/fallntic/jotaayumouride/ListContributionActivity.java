@@ -1,48 +1,40 @@
 package com.fallntic.jotaayumouride;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.android.material.snackbar.Snackbar;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrors;
-import static com.fallntic.jotaayumouride.DataHolder.isConnected;
-import static com.fallntic.jotaayumouride.DataHolder.logout;
-import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.selectedUser;
-import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
-import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
-import static com.fallntic.jotaayumouride.DataHolder.typeOfContribution;
+import static com.fallntic.jotaayumouride.ContributionAdapter.*;
+import static com.fallntic.jotaayumouride.DataHolder.*;
+import static com.fallntic.jotaayumouride.UserInfoActivity.*;
 
-public class ListContributionActivity extends AppCompatActivity implements View.OnClickListener {
+public class ListContributionActivity extends AppCompatActivity {
 
-    private TextView textViewDahiraName;
-    private TextView textViewUserName;
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private TextView textViewTitle;
 
+    CoordinatorLayout coordinatorLayout;
     private RecyclerView recyclerViewContribution;
     private ContributionAdapter contributionAdapter;
     private List<String> listAmountAdiya;
     private List<String> listDateAdiya;
+    private List<String> listUserName;
+    private String amountDeleted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,25 +43,42 @@ public class ListContributionActivity extends AppCompatActivity implements View.
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setSubtitle("List " + typeOfContribution + " verse");
+        toolbar.setSubtitle("Liste " + typeOfContribution + " verse");
         setSupportActionBar(toolbar);
 
-        if (!isConnected(this)){
+        // add back arrow to toolbar
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+
+        if (!isConnected(this)) {
             Intent intent = new Intent(this, LoginActivity.class);
-            logout();
-            showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
+            showAlertDialog(this, "Oops! Pas de connexion, " +
+                    "verifier votre connexion internet puis reesayez SVP", intent);
+            return;
         }
 
         recyclerViewContribution = findViewById(R.id.recyclerview_contribution);
+        coordinatorLayout = findViewById(R.id.coordinatorLayout);
+        textViewTitle = findViewById(R.id.textView_title);
 
-        textViewUserName = findViewById(R.id.textView_userName);
-        textViewDahiraName = findViewById(R.id.textView_dahiraName);
-        textViewUserName.setText(selectedUser.getUserName());
-        textViewDahiraName.setText("Membre du dahira " + dahira.getDahiraName());
+        textViewTitle.setText("Dahira " + dahira.getDahiraName() +
+                "\nListe des " + typeOfContribution + "s verses par " + selectedUser.getUserName());
+
+        getAdiya();
+        getSass();
+        getSocial();
 
         showListContribution();
+        enableSwipeToDeleteAndUndo();
 
-        findViewById(R.id.button_back).setOnClickListener(this);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), UserInfoActivity.class));
+            }
+        });
     }
 
     @Override
@@ -79,13 +88,66 @@ public class ListContributionActivity extends AppCompatActivity implements View.
     }
 
     @Override
-    public void onClick(View v) {
-        switch(v.getId()){
+    public void onBackPressed() {
+        startActivity(new Intent(this, UserInfoActivity.class));
+        super.onBackPressed();
+    }
 
-            case R.id.button_back:
-                startActivity(new Intent(ListContributionActivity.this, UserInfoActivity.class));
-                break;
-        }
+    private void enableSwipeToDeleteAndUndo() {
+        SwipeToDeleteCallback swipeToDeleteCallback = new SwipeToDeleteCallback(this) {
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
+
+                final int position = viewHolder.getAdapterPosition();
+                final String mDate = getListDate().get(position);
+                final String userName;
+
+                if (getListUserName().isEmpty() && getListUserName().size() > position)
+                    userName = getListUserName().get(position);
+                else
+                    userName = "inconnu";
+
+                amountDeleted = getListAmount().get(position);
+
+                contributionAdapter.removeItem(position);
+
+                boolAddToDahira = false;
+                updateContribution(ListContributionActivity.this, typeOfContribution,
+                        selectedUser.getUserID(), amountDeleted);
+
+                Snackbar snackbar = null;
+                if (typeOfContribution.equals("adiya")) {
+                    snackbar = Snackbar.make(coordinatorLayout,
+                            "Adiya supprime.", Snackbar.LENGTH_LONG);
+                } else if (typeOfContribution.equals("sass")) {
+                    snackbar = Snackbar.make(coordinatorLayout,
+                            "Sass supprime.", Snackbar.LENGTH_LONG);
+                } else if (typeOfContribution.equals("social")) {
+                    snackbar = Snackbar.make(coordinatorLayout,
+                            "Social supprime.", Snackbar.LENGTH_LONG);
+                }
+
+                if (snackbar != null) {
+                    snackbar.setAction("Annuler la suppression", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+
+                            boolAddToDahira = true;
+                            updateContribution(ListContributionActivity.this, typeOfContribution,
+                                    selectedUser.getUserID(), amountDeleted);
+
+                            contributionAdapter.restoreItem(position, mDate, amountDeleted, userName);
+                            recyclerViewContribution.scrollToPosition(position);
+                        }
+                    });
+                    snackbar.setActionTextColor(Color.YELLOW);
+                    snackbar.show();
+                }
+            }
+        };
+
+        ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeToDeleteCallback);
+        itemTouchhelper.attachToRecyclerView(recyclerViewContribution);
     }
 
     private void showListContribution() {
@@ -96,83 +158,57 @@ public class ListContributionActivity extends AppCompatActivity implements View.
         recyclerViewContribution.setVisibility(View.VISIBLE);
         listAmountAdiya = new ArrayList<>();
         listDateAdiya = new ArrayList<>();
-        contributionAdapter = new ContributionAdapter(this, listDateAdiya, listAmountAdiya);
+        listUserName = new ArrayList<>();
+        contributionAdapter = new ContributionAdapter(this, listDateAdiya,
+                listAmountAdiya, listUserName);
+
         recyclerViewContribution.setAdapter(contributionAdapter);
 
-        showProgressDialog(this, "Chargement de vos " +typeOfContribution+ " en cours ...");
-        db.collection(typeOfContribution).get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        dismissProgressDialog();
-                        if (!queryDocumentSnapshots.isEmpty()) {
-                            List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
-                            for (DocumentSnapshot documentSnapshot : list) {
-                                if (documentSnapshot.getId().equals(selectedUser.getUserID())){
-                                    int index = 0;
-                                    if (typeOfContribution.equals("adiya")){
-                                        Adiya adiya = documentSnapshot.toObject(Adiya.class);
-                                        for (String id_dahira : adiya.getListDahiraID()) {
-                                            if (id_dahira.equals(dahira.getDahiraID())) {
-                                                listDateAdiya.add(adiya.getListDate().get(index));
-                                                listAmountAdiya.add(adiya.getListAdiya().get(index));
-                                            }
-                                            index++;
-                                        }
-                                    }
-                                    if (typeOfContribution.equals("sass")){
-                                        Sass sass = documentSnapshot.toObject(Sass.class);
-                                        for (String id_dahira : sass.getListDahiraID()) {
-                                            if (id_dahira.equals(dahira.getDahiraID())) {
-                                                listDateAdiya.add(sass.getListDate().get(index));
-                                                listAmountAdiya.add(sass.getListSass().get(index));
-                                            }
-                                            index++;
-                                        }
-                                    }
-                                    if (typeOfContribution.equals("social")){
-                                        Social social = documentSnapshot.toObject(Social.class);
-                                        for (String id_dahira : social.getListDahiraID()) {
-                                            if (id_dahira.equals(dahira.getDahiraID())) {
-                                                listDateAdiya.add(social.getListDate().get(index));
-                                                listAmountAdiya.add(social.getListSocial().get(index));
-                                            }
-                                            index++;
-                                        }
-                                    }
-                                }
-                            }
-                            contributionAdapter.notifyDataSetChanged();
-                        }
+        int index = 0;
+        Intent intent = new Intent(this, UserInfoActivity.class);
+        if (typeOfContribution.equals("adiya")) {
+            if (adiya != null && adiya.getListDahiraID() != null) {
+                for (String id_dahira : adiya.getListDahiraID()) {
+                    if (id_dahira.equals(dahira.getDahiraID())) {
+                        listDateAdiya.add(adiya.getListDate().get(index));
+                        listAmountAdiya.add(adiya.getListAdiya().get(index));
+                        listUserName.add(adiya.getListUserName().get(index));
                     }
-                });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_list_contribution, menu);
-
-        MenuItem menuItemAddContribution;
-        menuItemAddContribution = menu.findItem(R.id.addContribution);
-        menuItemAddContribution.setTitle("Ajouter " + typeOfContribution);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.addContribution:
-
-                break;
-
-            case R.id.logout:
-                logout();
-                finish();
-                startActivity(new Intent(this, LoginActivity.class));
-                break;
+                    index++;
+                }
+            } else {
+                showAlertDialog(this, selectedUser.getUserName() + " n'a aucun " +
+                        typeOfContribution + " enregistre!", intent);
+            }
+        } else if (typeOfContribution.equals("sass")) {
+            if (sass != null && sass.getListDahiraID() != null) {
+                for (String id_dahira : sass.getListDahiraID()) {
+                    if (id_dahira.equals(dahira.getDahiraID())) {
+                        listDateAdiya.add(sass.getListDate().get(index));
+                        listAmountAdiya.add(sass.getListSass().get(index));
+                    }
+                    index++;
+                }
+            } else {
+                showAlertDialog(this, selectedUser.getUserName() + " n'a aucun " +
+                        typeOfContribution + " enregistre!", intent);
+                return;
+            }
+        } else if (typeOfContribution.equals("social")) {
+            if (social != null && social.getListDahiraID() != null) {
+                for (String id_dahira : social.getListDahiraID()) {
+                    if (id_dahira.equals(dahira.getDahiraID())) {
+                        listDateAdiya.add(social.getListDate().get(index));
+                        listAmountAdiya.add(social.getListSocial().get(index));
+                    }
+                    index++;
+                }
+            } else {
+                showAlertDialog(this, selectedUser.getUserName() + " n'a aucun " +
+                        typeOfContribution + " enregistre!", intent);
+            }
         }
-        return true;
+
+        contributionAdapter.notifyDataSetChanged();
     }
 }

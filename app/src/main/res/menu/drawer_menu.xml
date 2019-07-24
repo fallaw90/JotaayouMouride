@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_profile"
+            android:icon="@drawable/ic_profile"
+            android:title="Mon profile" />
+
+        <item
+            android:id="@+id/nav_displayUsers"
+            android:icon="@drawable/ic_users"
+            android:title="Voir les membres" />
+        <item
+            android:id="@+id/nav_addUser"
+            android:icon="@drawable/ic_add_user"
+            android:title="Ajouter un nouveau membre" />
+
+        <item
+            android:id="@+id/nav_displayMyDahira"
+            android:icon="@drawable/ic_display_dahira"
+            android:title="Mes dahira" />
+        <item
+            android:id="@+id/nav_displayAllDahira"
+            android:icon="@drawable/ic_display_dahira"
+            android:title="Tous les dahira de Dakar" />
+        <item
+            android:id="@+id/nav_addDahira"
+            android:icon="@drawable/ic_add_dahira"
+            android:title="Creer un nouveau dahira" />
+
+        <item
+            android:id="@+id/nav_searchUser"
+            android:icon="@drawable/ic_search"
+            android:title="Rechercher un membre" />
+        <item
+            android:id="@+id/nav_searchDahira"
+            android:icon="@drawable/ic_search"
+            android:title="Rechercher un dahira" />
+    </group>
+
+    <item
+        android:id="@+id/nav_finance"
+        android:title="Finance">
+        <menu>
+            <item
+                android:id="@+id/nav_addContribution"
+                android:icon="@drawable/ic_account"
+                android:title="Ajouter (Addiya, Sass, Social)" />
+            <item
+                android:id="@+id/nav_addExpense"
+                android:icon="@drawable/ic_attach_money"
+                android:title="Ajouter une depense" />
+            <item
+                android:id="@+id/nav_displayExpenses"
+                android:icon="@drawable/ic_attach_money"
+                android:title="Voir les depenses du dahira" />
+            <item
+                android:id="@+id/nav_displayAdiya"
+                android:icon="@drawable/ic_account"
+                android:title="Voir liste Adiya versé" />
+            <item
+                android:id="@+id/nav_displaySass"
+                android:icon="@drawable/ic_account"
+                android:title="Voir liste Sass versé" />
+            <item
+                android:id="@+id/nav_displaySocial"
+                android:icon="@drawable/ic_account"
+                android:title="Voir liste Social versé" />
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/nav_release"
+        android:title="Communiqués">
+        <menu>
+            <item
+                android:id="@+id/nav_addAnnouncement"
+                android:icon="@drawable/ic_add_announcement"
+                android:title="Ajouter une annonce" />
+            <item
+                android:id="@+id/nav_displayAnnouncement"
+                android:icon="@drawable/ic_announcement"
+                android:title="Voir les annonces" />
+            <item
+                android:id="@+id/nav_addEvent"
+                android:icon="@drawable/ic_add_event"
+                android:title="Ajouter un evenement" />
+            <item
+                android:id="@+id/nav_displayEvent"
+                android:icon="@drawable/ic_event"
+                android:title="Voir les evenements" />
+            <item
+                android:id="@+id/nav_displayAllEvent"
+                android:icon="@drawable/ic_event"
+                android:title="Voir tous les evenements" />
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/nav_gallery"
+        android:title="Repertoire">
+        <menu>
+            <item
+                android:id="@+id/nav_photo"
+                android:icon="@drawable/ic_photo_library"
+                android:title="Photos" />
+            <item
+                android:id="@+id/nav_audio"
+                android:icon="@drawable/ic_audio"
+                android:title="Audio" />
+            <item
+                android:id="@+id/nav_video"
+                android:icon="@drawable/ic_video_library"
+                android:title="Videos" />
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/nav_contact"
+        android:title="Contact">
+        <menu>
+            <item
+                android:id="@+id/nav_callDahira"
+                android:icon="@drawable/ic_phone"
+                android:title="Appeler ce dahira" />
+            <item
+                android:id="@+id/nav_callUser"
+                android:icon="@drawable/ic_phone"
+                android:title="Appeler ce membre" />
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/nav_account"
+        android:title="Mon compte">
+        <menu>
+            <item
+                android:id="@+id/nav_setting"
+                android:icon="@drawable/ic_setting"
+                android:title="Paramettres" />
+
+            <item
+                android:id="@+id/nav_logout"
+                android:title="Se deconnecter" />
+        </menu>
+    </item>
+
+
+</menu>

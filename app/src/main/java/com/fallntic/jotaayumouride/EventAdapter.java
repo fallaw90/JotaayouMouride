@@ -1,7 +1,6 @@
 package com.fallntic.jotaayumouride;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,24 +9,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
-import static com.fallntic.jotaayumouride.DataHolder.indexEventSelected;
-import static com.fallntic.jotaayumouride.DataHolder.indexOnlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.DataHolder.*;
 
 public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHolder> {
 
     private Context context;
-    private List<String> listUserName = new ArrayList<String>();
-    private List<String> listDate = new ArrayList<String>();
-    private List<String> listTitle = new ArrayList<String>();
-    private List<String> listNote = new ArrayList<String>();
-    private List<String> listLocation = new ArrayList<String>();
-    private List<String> listStartTime = new ArrayList<String>();
-    private List<String> listEndTime = new ArrayList<String>();
 
     private String userName;
     private String mDate;
@@ -37,18 +23,8 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     private String startTime;
     private String endTime;
 
-    public EventAdapter(Context context, List<String> listUserName, List<String> listDate,
-                        List<String> listTitle, List<String> listNote, List<String> listLocation,
-                        List<String> listStartTime, List<String> listEndTime) {
-
+    public EventAdapter(Context context) {
         this.context = context;
-        this.listUserName = listUserName;
-        this.listDate = listDate;
-        this.listTitle = listTitle;
-        this.listNote = listNote;
-        this.listLocation = listLocation;
-        this.listStartTime = listStartTime;
-        this.listEndTime = listEndTime;
     }
 
     @NonNull
@@ -62,13 +38,13 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     @Override
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
 
-        userName = listUserName.get(position);
-        mDate = listDate.get(position);
-        title = listTitle.get(position);
-        note = listNote.get(position);
-        location = listLocation.get(position);
-        startTime = listStartTime.get(position);
-        endTime = listEndTime.get(position);
+        userName = event.getListUserName().get(position);
+        mDate = event.getListDate().get(position);
+        title = event.getListTitle().get(position);
+        note = event.getListNote().get(position);
+        location = event.getListLocation().get(position);
+        startTime = event.getListStartTime().get(position);
+        endTime = event.getListEndTime().get(position);
 
         holder.textViewUserName.setText("Enregistre par " + userName);
         holder.textViewTitle.setText(title);
@@ -82,10 +58,10 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
 
     @Override
     public int getItemCount() {
-        return listDate.size();
+        return event.getListDate().size();
     }
 
-    class EventViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    class EventViewHolder extends RecyclerView.ViewHolder {
         TextView textViewTitle;
         TextView textViewtDate;
         TextView textViewLocation;
@@ -104,18 +80,35 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             textViewNote = itemView.findViewById(R.id.textView_note);
             textViewStartTime = itemView.findViewById(R.id.textView_startTime);
             textViewEndTime = itemView.findViewById(R.id.textView_endTime);
-
-            itemView.setOnClickListener(this);
         }
+    }
 
-        @Override
-        public void onClick(View v) {
-            indexEventSelected = getAdapterPosition();
-            if (onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")){
-                actionSelected = "updateEvent";
-                Intent intent = new Intent(context, CreateNewEventActivity.class);
-                context.startActivity(intent);
-            }
-        }
+    public void removeItem(int position) {
+
+        event.getListUserName().remove(position);
+        event.getListDate().remove(position);
+        event.getListTitle().remove(position);
+        event.getListNote().remove(position);
+        event.getListLocation().remove(position);
+        event.getListStartTime().remove(position);
+        event.getListEndTime().remove(position);
+        event.getListUserID().remove(position);
+
+        notifyItemRemoved(position);
+    }
+
+    public void restoreItem(String userName, String mDate, String title, String note, String location,
+                            String startTime, String endTime, String userID, int position) {
+
+        event.getListUserName().add(position, userName);
+        event.getListDate().add(position, mDate);
+        event.getListTitle().add(position, title);
+        event.getListNote().add(position, note);
+        event.getListLocation().add(position, location);
+        event.getListStartTime().add(position, startTime);
+        event.getListEndTime().add(position, endTime);
+        event.getListUserID().add(position, userID);
+
+        notifyItemInserted(position);
     }
 }

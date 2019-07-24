@@ -20,11 +20,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:appComponentFactory">
-        <activity android:name=".ListExpenseActivity"></activity>
+        <activity android:name=".AddContributionActivity"></activity>
+        <activity android:name=".ListExpenseActivity" />
         <activity android:name=".CreateExpenseActivity" />
         <activity android:name=".ListAnnouncementActivity" />
         <activity android:name=".ListEventActivity" />
-        <activity android:name=".CreateNewEventActivity" />
+        <activity android:name=".CreateEventActivity" />
         <activity android:name=".CreateAnnouncementActivity" />
         <activity android:name=".ListContributionActivity" />
         <activity android:name=".SettingUserActivity" />

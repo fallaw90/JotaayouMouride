@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinatorLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ListEventActivity">
@@ -16,6 +18,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/scrollView"
+        android:layout_marginTop="@dimen/_50sdp"
         android:layout_below="@+id/toolbar">
 
         <RelativeLayout
@@ -27,36 +30,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textColor="@color/red"
+            android:textColor="@color/black"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerview_event"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_10sdp"
                 android:layout_below="@+id/textView_dahiraName"/>
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/textView_deleteInstruction"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_20sdp"
+                android:layout_marginTop="@dimen/_10sdp"
                 android:gravity="center"
+                android:padding="@dimen/_10sdp"
+                android:textColor="@color/red"
                 android:layout_below="@+id/recyclerview_event"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/button_back"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:background="@color/green"
-                    android:text="Precedent"
-                    android:textAllCaps="false"
-                    android:padding="@dimen/_10sdp"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-                    android:textColor="@color/white" />
-
-            </LinearLayout>
+                android:text="Glissez vers la gauche pour supprimer"/>
         </RelativeLayout>
     </ScrollView>
-</RelativeLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -78,6 +78,9 @@ public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraView
         @Override
         public void onClick(View v) {
             dahira = dahiraList.get(getAdapterPosition());
+            if (onlineUser.getListDahiraID().contains(dahira.getDahiraID())){
+                indexOnlineUser = onlineUser.getListDahiraID().indexOf(dahira.getDahiraID());
+            }
             Intent intent = new Intent(context, DahiraInfoActivity.class);
             context.startActivity(intent);
             dahiraList.clear();
@@ -85,11 +88,12 @@ public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraView
 
         @Override
         public boolean onLongClick(View view) {
-            if (onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")){
-                dahira = dahiraList.get(getAdapterPosition());
-                Intent intent = new Intent(context, UpdateDahiraActivity.class);
-                context.startActivity(intent);
+            dahira = dahiraList.get(getAdapterPosition());
+            if (onlineUser.getListDahiraID().contains(dahira.getDahiraID())) {
+                indexOnlineUser = onlineUser.getListDahiraID().indexOf(dahira.getDahiraID());
             }
+            Intent intent = new Intent(context, UpdateDahiraActivity.class);
+            context.startActivity(intent);
             return false;
         }
     }

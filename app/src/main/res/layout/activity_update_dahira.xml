@@ -34,13 +34,12 @@
                     android:layout_height="wrap_content"
                     android:text="@string/changeLogo"
                     android:textAlignment="center"
-                    android:id="@+id/textView_labelLogo"
-                    android:textSize="@dimen/_20sdp"/>
+                    android:id="@+id/textView_labelLogo"/>
 
                 <ImageView
                     android:id="@+id/imageView"
-                    android:layout_width="200dp"
-                    android:layout_height="200dp"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
                     android:layout_centerHorizontal="true"
                     android:layout_margin="10dp"
                     android:layout_gravity="center"
@@ -234,8 +233,8 @@
                         android:inputType="text"
                         android:padding="10dp"
                         android:layout_weight="0.5"
-                        android:background="@drawable/edittext_background"
-                        android:textColorHint="@color/blue" />
+                        android:layout_margin="@dimen/_4sdp"
+                        android:background="@drawable/edittext_background"/>
 
                     <EditText
                         android:id="@+id/editText_responsible"
@@ -246,8 +245,8 @@
                         android:inputType="text"
                         android:padding="10dp"
                         android:layout_weight="0.5"
-                        android:background="@drawable/edittext_background"
-                        android:textColorHint="@color/blue" />
+                        android:layout_margin="@dimen/_4sdp"
+                        android:background="@drawable/edittext_background"/>
 
                 </LinearLayout>
 
@@ -260,6 +259,7 @@
                     android:background="@color/green"
                     android:text="@string/addCommission"
                     android:textAllCaps="false"
+                    android:padding="@dimen/_7sdp"
                     android:textColor="@color/white"/>
 
                 <TextView
@@ -325,6 +325,7 @@
                         android:layout_height="wrap_content"
                         android:background="@drawable/edittext_background"
                         android:hint="@string/adiya"
+                        android:focusable="false"
                         android:padding="10dp" />
                 </LinearLayout>
 
@@ -351,6 +352,7 @@
                         android:layout_height="wrap_content"
                         android:background="@drawable/edittext_background"
                         android:hint="@string/sass"
+                        android:focusable="false"
                         android:padding="10dp" />
                 </LinearLayout>
 
@@ -377,26 +379,9 @@
                         android:layout_height="wrap_content"
                         android:background="@drawable/edittext_background"
                         android:hint="@string/social"
+                        android:focusable="false"
                         android:padding="10dp" />
                 </LinearLayout>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/totalMember"
-                    android:layout_marginRight="5dp"
-                    android:textColor="@color/blue"
-                    android:layout_gravity="center"
-                    android:textSize="@dimen/_15sdp"/>
-
-                <TextView
-                    android:id="@+id/textView_totalMember"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="7dp"
-                    android:textAlignment="center"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-                    android:textColor="@color/colorPrimaryDark" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"

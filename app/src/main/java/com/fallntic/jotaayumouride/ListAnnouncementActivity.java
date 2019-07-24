@@ -28,7 +28,7 @@ import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 
-public class ListAnnouncementActivity extends AppCompatActivity implements View.OnClickListener {
+public class ListAnnouncementActivity extends AppCompatActivity {
     private final String TAG = "ListAnnouncementActivity";
 
     private TextView textViewDahiraName;
@@ -45,10 +45,11 @@ public class ListAnnouncementActivity extends AppCompatActivity implements View.
         toolbar.setSubtitle("Liste des annonces");
         setSupportActionBar(toolbar);
 
-        if (!isConnected(this)){
+        if (!isConnected(this)) {
+            finish();
             Intent intent = new Intent(this, LoginActivity.class);
-            logout();
-            showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
+            showAlertDialog(this, "Oops! Pas de connexion, " +
+                    "verifier votre connexion internet puis reesayez SVP", intent);
         }
 
         recyclerViewAnnoucement = findViewById(R.id.recyclerview_announcement);
@@ -57,7 +58,12 @@ public class ListAnnouncementActivity extends AppCompatActivity implements View.
 
         showListAnnouncements();
 
-        findViewById(R.id.button_back).setOnClickListener(this);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
     }
 
     @Override
@@ -66,21 +72,12 @@ public class ListAnnouncementActivity extends AppCompatActivity implements View.
         super.onDestroy();
     }
 
-    @Override
-    public void onClick(View v) {
-        switch(v.getId()){
-            case R.id.button_back:
-                startActivity(new Intent(this, DahiraInfoActivity.class));
-                break;
-        }
-    }
-
     private void showListAnnouncements() {
 
         //Attach adapter to recyclerView
         Intent intent = new Intent(ListAnnouncementActivity.this, DahiraInfoActivity.class);
-        if (announcement.getDahiraID() != null){
-            if (announcement.getDahiraID().equals(dahira.getDahiraID())){
+        if (announcement.getDahiraID() != null) {
+            if (announcement.getDahiraID().equals(dahira.getDahiraID())) {
                 recyclerViewAnnoucement.setHasFixedSize(true);
                 recyclerViewAnnoucement.setLayoutManager(new LinearLayoutManager(this));
                 recyclerViewAnnoucement.setVisibility(View.VISIBLE);
@@ -89,46 +86,33 @@ public class ListAnnouncementActivity extends AppCompatActivity implements View.
 
                 recyclerViewAnnoucement.setAdapter(announcementAdapter);
                 announcementAdapter.notifyDataSetChanged();
-            }
-            else {
+            } else {
                 showAlertDialog(ListAnnouncementActivity.this, "Dahira " + dahira.getDahiraName() +
                         " n'a aucun evenement enregistre pour le moment", intent);
             }
-        }
-        else {
+        } else {
             showAlertDialog(ListAnnouncementActivity.this, "Dahira " + dahira.getDahiraName() +
                     " n'a aucun evenement enregistre pour le moment", intent);
         }
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_list_announcement, menu);
+        inflater.inflate(R.menu.menu_main_menu, menu);
 
-        MenuItem menuItemAddAannouncement;
-
-        menuItemAddAannouncement = menu.findItem(R.id.addAnnouncement);
-        menuItemAddAannouncement.setVisible(false);
-
-        if (onlineUser.getListDahiraID().contains(dahira.getDahiraID())){
-            menuItemAddAannouncement.setVisible(true);
-        }
-
+        MenuItem iconAdd;
+        iconAdd = menu.findItem(R.id.icon_add);
+        iconAdd.setVisible(true);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.addAnnouncement:
-                actionSelected = "addNewAnnouncement";
-                startActivity(new Intent(this, CreateAnnouncementActivity.class));
-                break;
 
-            case R.id.logout:
-                logout();
-                finish();
-                startActivity(new Intent(this, MainActivity.class));
+        switch (item.getItemId()) {
+            case R.id.icon_add:
+                startActivity(new Intent(this, CreateDahiraActivity.class));
                 break;
         }
         return true;

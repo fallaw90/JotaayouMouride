@@ -109,8 +109,8 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
         setSupportActionBar(toolbar);
 
         if (!isConnected(this)){
+            finish();
             Intent intent = new Intent(this, LoginActivity.class);
-            logout();
             showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
 
@@ -138,7 +138,7 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
 
         editTextDahiraName.setText(dahira.getDahiraName());
         editTextDieuwrine.setText(dahira.getDieuwrine());
-        String[] arraySiege = dahira.getDahiraName().split(",");
+        String[] arraySiege = dahira.getSiege().split(",");
         editTextDahiraPhoneNumber.setText(dahira.getDahiraPhoneNumber());
         editTextSiege.setText(arraySiege[0]);
         editTextAdiya.setText(dahira.getTotalAdiya());

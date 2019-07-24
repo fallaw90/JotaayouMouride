@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Handler;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
@@ -40,27 +39,35 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class DataHolder {
 
     public static String dahiraID;
     public static String userID;
-    public static String amountContribution;
-    public static String dateContribution;
+    public static String actionSelected = "";
     public static String typeOfContribution = "";
-    public static User onlineUser = new User();
-    public static User selectedUser = new User();
-    public static Dahira dahira = new Dahira();
-    public static Event event = new Event();
-    public static Announcement announcement = new Announcement();
-    public static Expense expense = new Expense();
-    public static int indexOnlineUser;
-    public static int indexSelectedUser;
+
+    public static boolean boolAddToDahira;
+
+    public static User onlineUser = null;
+    public static User selectedUser = null;
+    public static Dahira dahira = null;
+    public static Event event = null;
+    public static Adiya adiya = null;
+    public static Sass sass = null;
+    public static Social social = null;
+    public static Announcement announcement = null;
+    public static Expense expense = null;
+
+    public static int indexOnlineUser = -1;
+    public static int indexSelectedUser = -1;
     public static int indexEventSelected;
     public static int indexAnnouncementSelected;
     public static int indexExpenseSelected;
-    public static String actionSelected = "";
+
     private static ProgressDialog progressDialog;
 
     public static boolean isConnected(Context context) {
@@ -107,27 +114,44 @@ public class DataHolder {
         firebaseStorage = FirebaseStorage.getInstance();
         StorageReference storageReference;
         storageReference = firebaseStorage.getReference();
-        StorageReference logoDahiraReference = storageReference.child("profileImage").child(child);
+        StorageReference imageReference = storageReference.child("profileImage").child(child);
         showProgressDialog(context, "Chargement de l'image ...");
         // Download directly from StorageReference using Glide
         GlideApp.with(context)
-                .load(logoDahiraReference)
-                .placeholder(R.drawable.profile_image)
+                .load(imageReference)
                 .into(imageView);
 
         dismissProgressDialog();
     }
 
-    public static void toastMessage(Context context, String message){
+    public static void showProfileImage(Context context, String child, CircleImageView imageView) {
+        FirebaseUser firebaseUser;
+        FirebaseStorage firebaseStorage;
+        ProgressDialog progressDialog;
+        // Reference to the image file in Cloud Storage
+        firebaseStorage = FirebaseStorage.getInstance();
+        StorageReference storageReference;
+        storageReference = firebaseStorage.getReference();
+        StorageReference imageReference = storageReference.child("profileImage").child(child);
+        showProgressDialog(context, "Chargement de l'image ...");
+        // Download directly from StorageReference using Glide
+        GlideApp.with(context)
+                .load(imageReference)
+                .into(imageView);
+
+        dismissProgressDialog();
+    }
+
+    public static void toastMessage(Context context, String message) {
         Toast.makeText(context, message, Toast.LENGTH_LONG).show();
     }
 
-    public static void showProgressDialog(Context context, String str){
+    public static void showProgressDialog(Context context, String str) {
+        dismissProgressDialog();
         progressDialog = new ProgressDialog(context);
         progressDialog.setMessage(str);
         progressDialog.setCancelable(false);
         progressDialog.setCanceledOnTouchOutside(false);
-        dismissProgressDialog();
         progressDialog.show();
     }
 
@@ -137,18 +161,32 @@ public class DataHolder {
         }
     }
 
-    public static void logout(){
+    public static void logout(Context context) {
         onlineUser = null;
         selectedUser = null;
         dahira = null;
-        ProfileActivity.boolMyDahiras = false;
-        ProfileActivity.boolAllDahiras = false;
+        actionSelected = "";
+        FirebaseAuth.getInstance().signOut();
+        context.startActivity(new Intent(context, MainActivity.class));
+    }
+
+    public static void logout() {
+        typeOfContribution = "";
+        onlineUser = null;
+        selectedUser = null;
+        dahira = null;
+        event = null;
+        announcement = null;
+        expense = null;
+        indexOnlineUser = -1;
+        indexSelectedUser = -1;
+        actionSelected = "";
         FirebaseAuth.getInstance().signOut();
     }
 
-    public static void showAlertDialog(final Context context, String message){
+    public static void showAlertDialog(final Context context, String message) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View dialogView = inflater.inflate(R.layout.alert_dialog, null);
         dialogBuilder.setView(dialogView);
         dialogBuilder.setCancelable(false);
@@ -168,9 +206,9 @@ public class DataHolder {
         });
     }
 
-    public static void showAlertDialog(final Context context, String message, final Intent intent){
+    public static void showAlertDialog(final Context context, String message, final Intent intent) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View dialogView = inflater.inflate(R.layout.alert_dialog, null);
         dialogBuilder.setView(dialogView);
         dialogBuilder.setCancelable(false);
@@ -192,9 +230,9 @@ public class DataHolder {
     }
 
     public static boolean hasValidationErrors(String name, EditText editTextName, String phoneNumber,
-                                        EditText editTextPhoneNumber, String address, EditText editTextAddress,
-                                        String adiya, EditText editTextAdiya, String sass, EditText editTextSass,
-                                        String social, EditText editTextSocial) {
+                                              EditText editTextPhoneNumber, String address, EditText editTextAddress,
+                                              String adiya, EditText editTextAdiya, String sass, EditText editTextSass,
+                                              String social, EditText editTextSocial) {
 
         if (name.isEmpty()) {
             editTextName.setError("Ce champ est obligatoir!");
@@ -243,9 +281,9 @@ public class DataHolder {
     }
 
     public static boolean hasValidationErrors(String dahiraName, EditText editTextDahiraName, String dieuwrine,
-                                        EditText editTextDieuwrine, String dahiraPhoneNumber, EditText editTextDahiraPhoneNumber,
-                                        String siege, EditText editTextSiege, String totalAdiya, EditText editTextAdiya,
-                                        String totalSass, EditText editTextSass, String totalSocial, EditText editTextSocial) {
+                                              EditText editTextDieuwrine, String dahiraPhoneNumber, EditText editTextDahiraPhoneNumber,
+                                              String siege, EditText editTextSiege, String totalAdiya, EditText editTextAdiya,
+                                              String totalSass, EditText editTextSass, String totalSocial, EditText editTextSocial) {
 
         if (dahiraName.isEmpty()) {
             editTextDahiraName.setError("Nom dahira obligatoire");
@@ -265,7 +303,7 @@ public class DataHolder {
             return true;
         }
 
-        if(!dahiraPhoneNumber.isEmpty() && (!dahiraPhoneNumber.matches("[0-9]+") ||
+        if (!dahiraPhoneNumber.isEmpty() && (!dahiraPhoneNumber.matches("[0-9]+") ||
                 dahiraPhoneNumber.length() != 9 || !checkPrefix(dahiraPhoneNumber))) {
             editTextDahiraPhoneNumber.setError("Numero de telephone incorrect");
             editTextDahiraPhoneNumber.requestFocus();
@@ -282,8 +320,7 @@ public class DataHolder {
             editTextSiege.setError("Non montant, entrer 0");
             editTextAdiya.requestFocus();
             return true;
-        }
-        else if (!isDouble(totalAdiya)){
+        } else if (!isDouble(totalAdiya)) {
             editTextAdiya.setText("Valeur listAdiya incorrecte");
             editTextAdiya.requestFocus();
             return true;
@@ -293,8 +330,7 @@ public class DataHolder {
             editTextSiege.setError("Non montant, entrer 0");
             editTextSass.requestFocus();
             return true;
-        }
-        else if (!isDouble(totalSass)){
+        } else if (!isDouble(totalSass)) {
             editTextSass.setText("Valeur sass incorrecte");
             editTextSass.requestFocus();
             return true;
@@ -304,8 +340,7 @@ public class DataHolder {
             editTextSiege.setError("Non montant, entrer 0");
             editTextSass.requestFocus();
             return true;
-        }
-        else if (!isDouble(totalSocial)){
+        } else if (!isDouble(totalSocial)) {
             editTextSocial.setText("Valeur sociale incorrecte");
             editTextSocial.requestFocus();
             return true;
@@ -323,7 +358,7 @@ public class DataHolder {
             return true;
         }
 
-        if(!phoneNumber.isEmpty() && (!phoneNumber.matches("[0-9]+") ||
+        if (!phoneNumber.isEmpty() && (!phoneNumber.matches("[0-9]+") ||
                 phoneNumber.length() != 9 || !checkPrefix(phoneNumber))) {
             editTextPhoneNumber.setError("Numero de telephone incorrect");
             editTextPhoneNumber.requestFocus();
@@ -340,7 +375,7 @@ public class DataHolder {
     }
 
     public static boolean hasValidationErrors(String name, EditText editTextName, String phoneNumber,
-                                        EditText editTextPhoneNumber) {
+                                              EditText editTextPhoneNumber) {
 
         if (name.isEmpty() && phoneNumber.isEmpty()) {
             editTextName.setError("Entrer un nom ou un numero de telephone!");
@@ -348,7 +383,7 @@ public class DataHolder {
             return true;
         }
 
-        if(!phoneNumber.isEmpty() && (!phoneNumber.matches("[0-9]+") ||
+        if (!phoneNumber.isEmpty() && (!phoneNumber.matches("[0-9]+") ||
                 phoneNumber.length() != 9 || !checkPrefix(phoneNumber))) {
             editTextPhoneNumber.setError("Numero de telephone incorrect");
             editTextPhoneNumber.requestFocus();
@@ -358,10 +393,10 @@ public class DataHolder {
         return false;
     }
 
-    public static boolean checkPrefix(String str){
-        String prefix = str.substring(0,2);
+    public static boolean checkPrefix(String str) {
+        String prefix = str.substring(0, 2);
         boolean validatePrefix;
-        switch(prefix){
+        switch (prefix) {
             case "70":
                 validatePrefix = true;
                 break;
@@ -382,7 +417,7 @@ public class DataHolder {
         return validatePrefix;
     }
 
-    public static boolean isDouble(String str){
+    public static boolean isDouble(String str) {
         str = str.replace(",", ".");
         double value;
         try {
@@ -403,7 +438,7 @@ public class DataHolder {
         return strDate;
     }
 
-    public static void getDate(Context context, final EditText editText){
+    public static void getDate(Context context, final EditText editText) {
         int mYear, mMonth, mDay;
         final Calendar c = Calendar.getInstance();
         mYear = c.get(Calendar.YEAR);
@@ -416,7 +451,7 @@ public class DataHolder {
                     public void onDateSet(DatePicker view, int year,
                                           int monthOfYear, int dayOfMonth) {
 
-                        String mDate = dayOfMonth + "/" +monthOfYear + "/" + year;
+                        String mDate = dayOfMonth + "/" + monthOfYear + "/" + year;
                         editText.setText(mDate);
                     }
                 }, mYear, mMonth, mDay);
@@ -431,19 +466,19 @@ public class DataHolder {
         int currentMinute = calendar.get(Calendar.MINUTE);
 
         timePickerDialog = new TimePickerDialog(context, android.R.style.Theme_Holo_Light_Dialog_NoActionBar,
-                new TimePickerDialog.OnTimeSetListener(){
-            @Override
-            public void onTimeSet(TimePicker timePicker, int hourOfDay, int minutes) {
+                new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker timePicker, int hourOfDay, int minutes) {
 
-                editText.setText(String.format(hourOfDay + ":" + minutes));
-            }
-        }, currentHour, currentMinute, true);
+                        editText.setText(String.format(hourOfDay + ":" + minutes));
+                    }
+                }, currentHour, currentMinute, true);
         timePickerDialog.setTitle(title);
         timePickerDialog.show();
     }
 
     public static void createNewCollection(final Context context, final String collectionName,
-                                           String documentName, Object data){
+                                           String documentName, Object data) {
         FirebaseFirestore.getInstance().collection(collectionName).document(documentName)
                 .set(data)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -461,16 +496,15 @@ public class DataHolder {
         actionSelected = "";
     }
 
-    public static void updateDocument(final Context context , final String collectionName,
-                                      String documentName, String field, String value){
-        showProgressDialog(context,"Mis a jour " + collectionName + " en cours ...");
-        FirebaseFirestore.getInstance().collection(collectionName).document(documentName)
+    public static void updateDocument(final Context context, final String collectionName,
+                                      String documentID, String field, String value) {
+        showProgressDialog(context, "Mis a jour " + collectionName + " en cours ...");
+        FirebaseFirestore.getInstance().collection(collectionName).document(documentID)
                 .update(field, value)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         dismissProgressDialog();
-                        //toastMessage(context, collectionName + "updated");
                         Log.d(TAG, collectionName + "updated");
                     }
                 })
@@ -483,17 +517,16 @@ public class DataHolder {
                 });
     }
 
-    public static void updateDocument(final Context context , final String collectionName, String documentName,
-                                      String field, List<String> listValue){
-        showProgressDialog(context,"Mis a jour " + collectionName + " en cours ...");
-        FirebaseFirestore.getInstance().collection(collectionName).document(documentName)
+    public static void updateDocument(final Context context, final String collectionName, String documentID,
+                                      String field, List<String> listValue) {
+        showProgressDialog(context, "Mis a jour " + collectionName + " en cours ...");
+        FirebaseFirestore.getInstance().collection(collectionName).document(documentID)
                 .update(field, listValue)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         dismissProgressDialog();
-                        Log.d(TAG, collectionName + "updated");
-                        toastMessage(context, collectionName + "updated");
+                        Log.d(TAG, collectionName + " updated");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -505,115 +538,87 @@ public class DataHolder {
                 });
     }
 
-
-    public static void updateContribution(final Context context, final String collectionName, String documentName,
-                                          String field1, List<String> listValues1,
-                                          String field2, List<String> listValues2,
-                                          String field3, List<String> listValues3){
-
-        showProgressDialog(context,"Mis a jour " + collectionName + " en cours ...");
-        FirebaseFirestore.getInstance().collection(collectionName).document(documentName)
-                .update(field1, listValues1,
-                        field2, listValues2,
-                        field3, listValues3)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
+    public static void deleteDocument(final Context context, String collectionName, String documentID) {
+        showProgressDialog(context, "Suppression de votre evenement en cours ..");
+        FirebaseFirestore.getInstance().collection(collectionName).document(documentID).delete()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
-                    public void onSuccess(Void aVoid) {
-                        toastMessage(context, collectionName + " added");
-                        dismissProgressDialog();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        dismissProgressDialog();
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            dismissProgressDialog();
+                        } else {
+                            dismissProgressDialog();
+                            toastMessage(context, task.getException().getMessage());
+                        }
                     }
                 });
     }
 
     public static void saveContribution(final Context context, final String nameCollection,
-                                     final String documentName, final String value){
+                                        final String documentID, final String value, final String mDate) {
 
-        showProgressDialog(context,"Enregistrement "+nameCollection+" en cours ...");
-        FirebaseFirestore.getInstance().collection(nameCollection).document(documentName).get()
+        showProgressDialog(context, "Enregistrement " + nameCollection + " en cours ...");
+        FirebaseFirestore.getInstance().collection(nameCollection).document(documentID).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         dismissProgressDialog();
                         if (documentSnapshot.exists()) {
-                            if (nameCollection.equals("listAdiya")) {
-                                Adiya adiya = documentSnapshot.toObject(Adiya.class);
-                                adiya.getListAdiya().add(value);
+                            if (nameCollection.equals("adiya")) {
                                 adiya.getListDahiraID().add(dahira.getDahiraID());
-                                adiya.getListDate().add(getCurrentDate());
-                                updateContribution(context,"adiya", documentName,
-                                        "listDahiraID", adiya.getListDahiraID(),
-                                        "listDate", adiya.getListDate(),
-                                        "adiya", adiya.getListAdiya());
-                            }
-
-                            if (nameCollection.equals("sass")) {
-                                Sass sass = documentSnapshot.toObject(Sass.class);
-                                sass.getListSass().add(value);
+                                adiya.getListUserName().add(onlineUser.getUserName());
+                                adiya.getListAdiya().add(value);
+                                adiya.getListDate().add(mDate);
+                                updateContribution(context, "adiya", documentID, value);
+                            } else if (nameCollection.equals("sass")) {
                                 sass.getListDahiraID().add(dahira.getDahiraID());
-                                sass.getListDate().add(getCurrentDate());
-                                updateContribution(context,"sass", documentName,
-                                        "listDahiraID",sass.getListDahiraID(),
-                                        "listDate", sass.getListDate(),
-                                        "listSass", sass.getListSass());
-                            }
-                            if (nameCollection.equals("social")) {
-                                Social social = documentSnapshot.toObject(Social.class);
+                                sass.getListSass().add(value);
+                                sass.getListDate().add(mDate);
+                                sass.getListUserName().add(onlineUser.getUserName());
+                                updateContribution(context, "sass", documentID, value);
+                            } else if (nameCollection.equals("social")) {
                                 social.getListSocial().add(value);
                                 social.getListDahiraID().add(dahira.getDahiraID());
-                                social.getListDate().add(getCurrentDate());
-                                updateContribution(context,"listAdiya", documentName,
-                                        "listDahiraID",social.getListDahiraID(),
-                                        "listDate", social.getListDate(),
-                                        "listSocial", social.getListSocial());
+                                social.getListDate().add(mDate);
+                                social.getListUserName().add(onlineUser.getUserName());
+                                updateContribution(context, "social", documentID, value);
                             }
 
-                            Log.d(TAG, "Collection "+nameCollection+" updated");
+                            final Intent intent = new Intent(context, UserInfoActivity.class);
+                            showAlertDialog(context, " enregistrement reussi", intent);
+                            Log.d(TAG, "Collection " + nameCollection + " updated");
                         } else {
                             //Create new collections listAdiya, sass and social
                             List<String> listDahiraID = new ArrayList<String>();
                             listDahiraID.add(dahira.getDahiraID());
                             List<String> listDate = new ArrayList<String>();
-                            listDate.add(getCurrentDate());
+                            listDate.add(mDate);
+                            List<String> listUserName = new ArrayList<String>();
+                            listUserName.add(onlineUser.getUserName());
 
-                            if (nameCollection.equals("listAdiya")){
+                            if (nameCollection.equals("adiya")) {
                                 List<String> listAdiya = new ArrayList<String>();
                                 listAdiya.add(value);
-                                Adiya adiya = new Adiya(listDahiraID, listDate, listAdiya);
-                                createNewCollection(context, "listAdiya", documentName, adiya);
+                                Adiya adiya = new Adiya(listDahiraID, listDate, listAdiya, listUserName);
+                                createNewCollection(context, "adiya", documentID, adiya);
                             }
-                            if (nameCollection.equals("sass")){
+                            if (nameCollection.equals("sass")) {
                                 List<String> listSass = new ArrayList<String>();
                                 listSass.add(value);
-                                Sass sass = new Sass(listDahiraID, listDate, listSass);
-                                createNewCollection(context,"sass", documentName, sass);
+                                Sass sass = new Sass(listDahiraID, listDate, listSass, listUserName);
+                                createNewCollection(context, "sass", documentID, sass);
                             }
-                            if (nameCollection.equals("social")){
+                            if (nameCollection.equals("social")) {
                                 List<String> listSocial = new ArrayList<String>();
                                 listSocial.add(value);
-                                Social social = new Social(listDahiraID, listDate, listSocial);
-                                createNewCollection(context,"social", documentName, social);
+                                Social social = new Social(listDahiraID, listDate, listSocial, listUserName);
+                                createNewCollection(context, "social", documentID, social);
                             }
 
-                            toastMessage(context, "collection " + nameCollection + " set successfully");
-                            Log.d(TAG, "New collection "+nameCollection+" created");
-
-                            final Intent intent = new Intent(context, UserInfoActivity.class);
-                            showProgressDialog(context,"Finalisation de l'ajout de votre dahira en cours ...");
-                            final Handler handler = new Handler();
-                            handler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    showAlertDialog(context, "Dahira cree avec succe!", intent);
-                                    dismissProgressDialog();
-                                }
-                            }, 5000);
+                            Log.d(TAG, "New collection " + nameCollection + " created");
                         }
+                        final Intent intent = new Intent(context, UserInfoActivity.class);
+                        showAlertDialog(context, nameCollection + " ajoute avec succe!", intent);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -625,24 +630,114 @@ public class DataHolder {
                 });
     }
 
-    private void deleteDocument(final Context context, String collectionName, String documentID) {
-        showProgressDialog(context,"Suppression de votre evenement en cours ..");
-        FirebaseFirestore.getInstance().collection(collectionName).document(documentID).delete()
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
+    public static void updateContribution(final Context context, final String collectionName,
+                                          String documentID, String str_value) {
+
+        showProgressDialog(context, "Enregistrement " + collectionName + " en cours ...");
+
+        //Update totalAdiya dahira
+        final double value = Double.parseDouble(str_value);
+
+        if (collectionName.equals("adiya")) {
+            FirebaseFirestore.getInstance().collection(collectionName).document(documentID)
+                    .update("listDahiraID", adiya.getListDahiraID(),
+                            "listDate", adiya.getListDate(),
+                            "listAdiya", adiya.getListAdiya(),
+                            "listUserName", adiya.getListUserName())
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            dismissProgressDialog();
+
+                            double totalAdiyaDahira;
+                            if (boolAddToDahira)
+                                totalAdiyaDahira = Double.parseDouble(dahira.getTotalAdiya()) + value;
+                            else
+                                totalAdiyaDahira = Double.parseDouble(dahira.getTotalAdiya()) - value;
+
+                            dahira.setTotalAdiya(Double.toString(totalAdiyaDahira));
+
+                            updateDocument(context, "dahiras", dahira.getDahiraID(),
+                                    "totalAdiya", dahira.getTotalAdiya());
+
+                            boolAddToDahira = false;
+
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
                             dismissProgressDialog();
                         }
-                        else {
+                    });
+        } else if (collectionName.equals("sass")) {
+            FirebaseFirestore.getInstance().collection(collectionName).document(documentID)
+                    .update("listDahiraID", sass.getListDahiraID(),
+                            "listDate", sass.getListDate(),
+                            "listSass", sass.getListSass(),
+                            "listUserName", sass.getListUserName())
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
                             dismissProgressDialog();
-                            toastMessage(context, task.getException().getMessage());
+
+                            double totalAdiyaDahira;
+                            if (boolAddToDahira)
+                                totalAdiyaDahira = Double.parseDouble(dahira.getTotalAdiya()) + value;
+                            else
+                                totalAdiyaDahira = Double.parseDouble(dahira.getTotalAdiya()) - value;
+
+                            dahira.setTotalAdiya(Double.toString(totalAdiyaDahira));
+
+                            updateDocument(context, "dahiras", dahira.getDahiraID(),
+                                    "totalSass", dahira.getTotalSass());
+
+                            boolAddToDahira = false;
                         }
-                    }
-                });
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            dismissProgressDialog();
+                        }
+                    });
+
+        } else if (collectionName.equals("social")) {
+            FirebaseFirestore.getInstance().collection(collectionName).document(documentID)
+                    .update("listDahiraID", social.getListDahiraID(),
+                            "listDate", social.getListDate(),
+                            "listSocial", social.getListSocial(),
+                            "listUserName", social.getListUserName())
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            dismissProgressDialog();
+
+                            double totalAdiyaDahira;
+                            if (boolAddToDahira)
+                                totalAdiyaDahira = Double.parseDouble(dahira.getTotalAdiya()) + value;
+                            else
+                                totalAdiyaDahira = Double.parseDouble(dahira.getTotalAdiya()) - value;
+
+                            dahira.setTotalAdiya(Double.toString(totalAdiyaDahira));
+
+                            updateDocument(context, "dahiras", dahira.getDahiraID(),
+                                    "totalSocial", dahira.getTotalSocial());
+
+                            boolAddToDahira = false;
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            dismissProgressDialog();
+                        }
+                    });
+        }
     }
 
-    public static boolean isOnline(String email){
+
+    public static boolean isOnline(String email) {
         final boolean[] connected = new boolean[1];
         FirebaseAuth.getInstance().fetchSignInMethodsForEmail(email)
                 .addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
@@ -659,7 +754,7 @@ public class DataHolder {
         return connected[0];
     }
 
-    public static boolean isEmailExist(String email){
+    public static boolean isEmailExist(String email) {
         final boolean[] isEmailExist = new boolean[1];
         FirebaseAuth.getInstance().fetchSignInMethodsForEmail(email)
                 .addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {

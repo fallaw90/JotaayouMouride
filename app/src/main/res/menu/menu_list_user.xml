@@ -3,13 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/menuTitle"
-        android:title="Menu"
-        app:showAsAction="always" />
-    <item
         android:id="@+id/searchUser"
-        android:title="Rechercher un membre"
-        app:showAsAction="never" />
+        android:icon="@drawable/ic_search"
+        android:title="Rechercher"
+        app:showAsAction="always"/>
     <item
         android:id="@+id/addUser"
         android:title="Ajouter un nouveau membre"

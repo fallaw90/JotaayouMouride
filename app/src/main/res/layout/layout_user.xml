@@ -16,8 +16,8 @@
 
             <ImageView
                 android:id="@+id/imageView"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
+                android:layout_width="@dimen/_120sdp"
+                android:layout_height="@dimen/_120sdp"
                 android:layout_centerHorizontal="true"
                 app:srcCompat="@drawable/profile_image"
                 android:layout_below="@+id/textView_dahiraName"

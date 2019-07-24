@@ -1,6 +1,7 @@
 <component name="ProjectDictionaryState">
   <dictionary name="macodan">
     <words>
+      <w>addiya</w>
       <w>adiya</w>
       <w>administrateur</w>
       <w>adresse</w>
@@ -10,6 +11,8 @@
       <w>ajouter</w>
       <w>annonce</w>
       <w>annonces</w>
+      <w>annuler</w>
+      <w>appeler</w>
       <w>assurez</w>
       <w>aucun</w>
       <w>aucune</w>
@@ -17,10 +20,16 @@
       <w>caisse</w>
       <w>cette</w>
       <w>changement</w>
+      <w>changements</w>
       <w>chargement</w>
       <w>choisir</w>
+      <w>choisissez</w>
+      <w>cliquez</w>
       <w>commissione</w>
+      <w>communiqués</w>
       <w>compte</w>
+      <w>connecter</w>
+      <w>continuer</w>
       <w>cotisation</w>
       <w>cours</w>
       <w>creer</w>
@@ -33,39 +42,52 @@
       <w>depense</w>
       <w>depenses</w>
       <w>dieuwrine</w>
+      <w>drawerlayout</w>
       <w>détails</w>
       <w>enregistre</w>
       <w>enregistree</w>
       <w>enregistrement</w>
       <w>enregistrer</w>
+      <w>enregistré</w>
       <w>entrer</w>
       <w>entrez</w>
       <w>erreur</w>
       <w>evenement</w>
       <w>evenements</w>
       <w>fcfa</w>
+      <w>galerie</w>
+      <w>glissez</w>
       <w>heure</w>
       <w>inconnu</w>
       <w>informations</w>
+      <w>jotaayou</w>
       <w>jour</w>
       <w>liste</w>
+      <w>lors</w>
       <w>membre</w>
       <w>membres</w>
       <w>mettre</w>
       <w>mmenu</w>
       <w>modifie</w>
       <w>modifiee</w>
+      <w>montant</w>
+      <w>mouride</w>
       <w>nombre</w>
       <w>nouveau</w>
       <w>numero</w>
       <w>obligatoir</w>
       <w>obligatoire</w>
+      <w>parametres</w>
+      <w>paramettres</w>
       <w>personnelles</w>
       <w>plutard</w>
       <w>prix</w>
+      <w>profil</w>
       <w>propos</w>
+      <w>puis</w>
       <w>rechercher</w>
       <w>recyclerview</w>
+      <w>reesayez</w>
       <w>reessayez</w>
       <w>remplir</w>
       <w>responsibles</w>
@@ -76,12 +98,16 @@
       <w>supprimee</w>
       <w>supprimer</w>
       <w>texthone</w>
+      <w>tous</w>
       <w>trouve</w>
       <w>trouver</w>
       <w>utilisateur</w>
       <w>valeur</w>
+      <w>vers</w>
+      <w>versé</w>
       <w>veuillez</w>
       <w>vide</w>
+      <w>vides</w>
       <w>viewt</w>
       <w>voir</w>
       <w>votre</w>

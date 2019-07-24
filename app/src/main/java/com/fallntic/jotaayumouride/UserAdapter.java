@@ -14,8 +14,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.DataHolder.indexSelectedUser;
 import static com.fallntic.jotaayumouride.DataHolder.selectedUser;
 import static com.fallntic.jotaayumouride.DataHolder.showProfileImage;
+import static com.fallntic.jotaayumouride.UserInfoActivity.getAdiya;
+import static com.fallntic.jotaayumouride.UserInfoActivity.getSass;
+import static com.fallntic.jotaayumouride.UserInfoActivity.getSocial;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
 
@@ -83,6 +87,10 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         @Override
         public void onClick(View v) {
             selectedUser = listUsers.get(getAdapterPosition());
+            indexSelectedUser = selectedUser.getListDahiraID().indexOf(dahira.getDahiraID());
+            getAdiya();
+            getSass();
+            getSocial();
             Intent intent = new Intent(context, UserInfoActivity.class);
             context.startActivity(intent);
         }
@@ -90,6 +98,9 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         @Override
         public boolean onLongClick(View view) {
             selectedUser = listUsers.get(getAdapterPosition());
+            if (selectedUser.getListDahiraID().contains(dahira.getDahiraID())) {
+                indexSelectedUser = selectedUser.getListDahiraID().indexOf(dahira.getDahiraID());
+            }
             Intent intent = new Intent(context, UserInfoActivity.class);
             context.startActivity(intent);
             return false;

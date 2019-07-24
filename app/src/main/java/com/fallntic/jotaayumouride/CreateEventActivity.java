@@ -19,9 +19,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
 import static com.fallntic.jotaayumouride.DataHolder.createNewCollection;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
@@ -36,9 +33,8 @@ import static com.fallntic.jotaayumouride.DataHolder.logout;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
-import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 
-public class CreateNewEventActivity extends AppCompatActivity implements View.OnClickListener  {
+public class CreateEventActivity extends AppCompatActivity implements View.OnClickListener  {
 
     private static final String TAG = "CreateNewEventActivity";
 
@@ -63,7 +59,7 @@ public class CreateNewEventActivity extends AppCompatActivity implements View.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_new_event);
+        setContentView(R.layout.activity_create_event);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -71,9 +67,10 @@ public class CreateNewEventActivity extends AppCompatActivity implements View.On
         setSupportActionBar(toolbar);
 
         if (!isConnected(this)){
+            finish();
             Intent intent = new Intent(this, LoginActivity.class);
-            logout();
-            showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
+            showAlertDialog(this,"Oops! Pas de connexion, " +
+                    "verifier votre connexion internet puis reesayez SVP", intent);
         }
 
         textViewTitle = findViewById(R.id.textView_title);
@@ -114,22 +111,14 @@ public class CreateNewEventActivity extends AppCompatActivity implements View.On
     public void onClick(View view) {
         switch(view.getId()){
             case R.id.button_save:
-                if (actionSelected.equals("addNewEvent")) {
-                    saveEvent(this);
-                }
-                else if (actionSelected.equals("updateEvent")) {
-                    updateEvent(this, event);
-                }
-
+                saveEvent(this);
                 break;
 
             case R.id.button_cancel:
-                actionSelected = "";
                 finish();
                 break;
             case R.id.button_delete:
-                actionSelected = "deleteEvent";
-                updateEvent(this, event);
+                updateEvent(this);
                 break;
             case R.id.editText_date:
                 getDate(this, editTextDate);
@@ -160,22 +149,35 @@ public class CreateNewEventActivity extends AppCompatActivity implements View.On
         if (!hasValidationErrors(title, editTextTitleEvent, mDate, editTextDate, location, editTextLocation,
                 startTime, editTextStartTime, endTime, editTextEndTime, note, editTextNote)){
 
+            event.setDahiraID(dahira.getDahiraID());
+            event.getListUserID().add(onlineUser.getUserID());
+            event.getListUserName().add(onlineUser.getUserName());
+            event.getListDate().add(mDate);
+            event.getListTitle().add(title);
+            event.getListStartTime().add(startTime);
+            event.getListEndTime().add(endTime);
+            event.getListNote().add(note);
+            event.getListLocation().add(location);
+
             showProgressDialog(context,"Enregistrement de votre evenement en cours ...");
-            FirebaseFirestore.getInstance().collection("events").document(dahira.getDahiraID()).get()
+            FirebaseFirestore.getInstance().collection("events").
+                    document(dahira.getDahiraID()).get()
                     .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
                             dismissProgressDialog();
                             if (documentSnapshot.exists()) {
-                                event = documentSnapshot.toObject(Event.class);
-                                updateEvent(CreateNewEventActivity.this, event);
+                                updateEvent(CreateEventActivity.this);
+                                Intent intent = new Intent(context, ListEventActivity.class);
+                                showAlertDialog(context, "Evenement enregistre avec succe.", intent);
                                 Log.d(TAG, "Collection evenement updated");
                             }
                             else {
-                                event = newEventObject(dahira.getDahiraID(), mDate, title, note, location, startTime, endTime);
-                                createNewCollection(context, "events", dahira.getDahiraID(), event);
+                                createNewCollection(context, "events",
+                                        dahira.getDahiraID(), event);
                                 Intent intent = new Intent(context, ListEventActivity.class);
-                                showAlertDialog(CreateNewEventActivity.this, "Evenement cree avec succe.", intent);
+                                showAlertDialog(CreateEventActivity.this,
+                                        "Evenement enregistre avec succe.", intent);
                             }
                             Log.d(TAG, "Collection evenement created");
                         }
@@ -187,47 +189,13 @@ public class CreateNewEventActivity extends AppCompatActivity implements View.On
                             Log.d(TAG, e.toString());
                         }
                     });
-
-            //actionSelected = "";
         }
     }
 
-    public void updateEvent(final Context context, Event event){
-        mDate = editTextDate.getText().toString().trim();
-        title = editTextTitleEvent.getText().toString().trim();
-        note = editTextNote.getText().toString().trim();
-        location = editTextLocation.getText().toString().trim();
-        startTime = editTextStartTime.getText().toString().trim();
-        endTime = editTextEndTime.getText().toString().trim();
-
-        if (actionSelected.equals("addNewEvent")){
-            event.getListUserID().add(onlineUser.getUserID());
-            event.getListUserName().add(onlineUser.getUserName());
-            event.getListDate().add(mDate);
-            event.getListTitle().add(title);
-            event.getListNote().add(note);
-            event.getListLocation().add(location);
-            event.getListStartTime().add(startTime);
-            event.getListEndTime().add(endTime);
-        }
-        else if (actionSelected.equals("updateEvent")){
-            event.getListDate().set(indexEventSelected, mDate);
-            event.getListTitle().set(indexEventSelected, title);
-            event.getListNote().set(indexEventSelected, note);
-            event.getListLocation().set(indexEventSelected, location);
-            event.getListStartTime().set(indexEventSelected, startTime);
-            event.getListEndTime().set(indexEventSelected, endTime);
-        }
-        else if (actionSelected.equals("deleteEvent")){
-            event.getListDate().remove(indexEventSelected);
-            event.getListTitle().remove(indexEventSelected);
-            event.getListNote().remove(indexEventSelected);
-            event.getListLocation().remove(indexEventSelected);
-            event.getListStartTime().remove(indexEventSelected);
-            event.getListEndTime().remove(indexEventSelected);
-        }
+    public static void updateEvent(final Context context){
         showProgressDialog(context,"Enregistrement de votre evenement en cours ...");
-        FirebaseFirestore.getInstance().collection("events").document(dahira.getDahiraID())
+        FirebaseFirestore.getInstance().collection("events")
+                .document(dahira.getDahiraID())
                 .update("listUserID", event.getListUserID(),
                         "listUserName", event.getListUserName(),
                         "listDate", event.getListDate(),
@@ -240,20 +208,7 @@ public class CreateNewEventActivity extends AppCompatActivity implements View.On
                     @Override
                     public void onSuccess(Void aVoid) {
                         dismissProgressDialog();
-                        Intent intent = new Intent(context, ListEventActivity.class);
-                        if (actionSelected.equals("updateEvent")){
-                            showAlertDialog(CreateNewEventActivity.this, "Evenement modifie avec succe.", intent);
-                            Log.d(TAG, "Event updated");
-                        }
-                        else if (actionSelected.equals("deleteEvent")){
-                            showAlertDialog(context, "Evenement supprime avec succe.", intent);
-                            Log.d(TAG, "Event deleted");
-                        }
-                        else if (actionSelected.equals("addNewEvent")){
-                            showAlertDialog(context, "Evenement cree avec succe.", intent);
-                            Log.d(TAG, "New event added");
-                        }
-                        actionSelected = "";
+                        Log.d(TAG, "Event updated");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -261,45 +216,12 @@ public class CreateNewEventActivity extends AppCompatActivity implements View.On
                     public void onFailure(@NonNull Exception e) {
                         dismissProgressDialog();
                         actionSelected = "";
-                        Intent intent = new Intent(CreateNewEventActivity.this, ListEventActivity.class);
-                        showAlertDialog(CreateNewEventActivity.this, "Erreur lors de l'enregistrement de votre evenement." +
+                        Intent intent = new Intent(context, DataHolder.class);
+                        showAlertDialog(context, "Erreur lors de l'enregistrement de votre evenement." +
                                 "\nReessayez plutard SVP", intent);
                         Log.d(TAG, "Error updated event");
                     }
                 });
-    }
-
-    public Event newEventObject(String dahiraID, String mDate, String title, String note, String location,
-                                String startTime, String endTime){
-
-        List<String> listUserID = new ArrayList<String>();
-        listUserID.add(onlineUser.getUserID());
-
-        List<String> listUserName = new ArrayList<String>();
-        listUserName.add(onlineUser.getUserName());
-
-        List<String> listDate = new ArrayList<String>();
-        listDate.add(mDate);
-
-        List<String> listTitle = new ArrayList<String>();
-        listTitle.add(title);
-
-        List<String> listNote = new ArrayList<String>();
-        listNote.add(note);
-
-        List<String> listLocation = new ArrayList<String>();
-        listLocation.add(location);
-
-        List<String> listStartTime = new ArrayList<String>();
-        listStartTime.add(startTime);
-
-        List<String> listEndTime = new ArrayList<String>();
-        listEndTime.add(endTime);
-
-        Event event = new Event(dahiraID, listUserID, listUserName, listDate, listTitle,
-                                listNote, listLocation, listStartTime, listEndTime);
-
-        return event;
     }
 
     public static boolean hasValidationErrors(String title, EditText editTextTitleEvent,

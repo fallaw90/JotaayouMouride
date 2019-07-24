@@ -46,12 +46,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         toolbar.setSubtitle("Se connecter");
         setSupportActionBar(toolbar);
 
-        if (!isConnected(this)){
-            Intent intent = new Intent(this, LoginActivity.class);
-            logout();
-            showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
-        }
-
         mAuth = FirebaseAuth.getInstance();
         progressDialog = new ProgressDialog(this);
         editTextEmail = (EditText) findViewById(R.id.editTextEmail);
@@ -66,18 +60,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onStart() {
         super.onStart();
 
-        if (DataHolder.isConnected(this)){
-
+        if (isConnected(this)){
             if (mAuth.getCurrentUser() != null) {
-                String email = mAuth.getCurrentUser().getEmail();
-                if (isConnected(this)) {
-                    startActivity(new Intent(this, ProfileActivity.class));
-                }
-                else {
-                    FirebaseAuth.getInstance().signOut();
-                    startActivity(new Intent(this, LoginActivity.class));
-                }
+                finish();
+                startActivity(new Intent(this, ProfileActivity.class));
             }
+        }
+        else {
+            logout();
+            showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP!");
         }
     }
 
@@ -151,25 +142,4 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         return false;
     }
-
-    public boolean isEmailExist(String email){
-        final boolean[] isEmailExist = new boolean[1];
-        mAuth.fetchSignInMethodsForEmail(email)
-                .addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
-
-                        isEmailExist[0] = task.getResult().getSignInMethods().isEmpty();
-                        isEmailExist[0] = true;
-                        if (isEmailExist[0]) {
-                            Log.e("TAG", "Email not exist!");
-                        } else {
-                            Log.e("TAG", "Email exist!");
-                        }
-
-                    }
-                });
-        return isEmailExist[0];
-    }
-
 }

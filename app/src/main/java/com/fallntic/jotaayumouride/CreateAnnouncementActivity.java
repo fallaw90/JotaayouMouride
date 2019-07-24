@@ -66,8 +66,9 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
         setSupportActionBar(toolbar);
 
         if (!isConnected(this)){
+            logout(this);
+            finish();
             Intent intent = new Intent(this, LoginActivity.class);
-            logout();
             showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
 

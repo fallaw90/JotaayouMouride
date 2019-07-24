@@ -91,6 +91,8 @@
     <string name="button_back">Precedent</string>
     <string name="textView_labelEmail">Adresse email:</string>
     <string name="textVview_updateAdmin">Mettez a jour votre profil pour terminer la creation de votre nouveau dahira.</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
     <string-array name="country_array">
         <item>Senegal</item>
     </string-array>
@@ -98,4 +100,7 @@
     <string-array name="region_array">
         <item>Dakar</item>
     </string-array>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

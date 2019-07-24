@@ -11,7 +11,7 @@
         android:title="Rechercher un dahira"
         app:showAsAction="never" />
     <item
-        android:id="@+id/createNewDahira"
+        android:id="@+id/addNewDahira"
         android:title="Creer un nouveau dahira"
         app:showAsAction="never" />
     <item

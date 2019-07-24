@@ -96,9 +96,12 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         if (!isConnected(this)){
+            finish();
             Intent intent = new Intent(this, LoginActivity.class);
-            logout();
             showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
 
@@ -131,6 +134,12 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     protected void onDestroy() {
         dismissProgressDialog();
         super.onDestroy();
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
     @Override
@@ -378,9 +387,13 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     public void initAllCollections(){
-        Adiya adiya = new Adiya(new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>());
-        Sass sass = new Sass(new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>());
-        Social social = new Social(new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>());
+        Adiya adiya = new Adiya(new ArrayList<String>(), new ArrayList<String>(),
+                new ArrayList<String>(), new ArrayList<String>());
+        Sass sass = new Sass(new ArrayList<String>(), new ArrayList<String>(),
+                new ArrayList<String>(), new ArrayList<String>());
+        Social social = new Social(new ArrayList<String>(), new ArrayList<String>(),
+                new ArrayList<String>(), new ArrayList<String>());
+
         createNewCollection(this,"adiya", userID, adiya);
         createNewCollection(this,"sass", userID, sass);
         createNewCollection(this,"social", userID, social);

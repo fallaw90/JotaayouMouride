@@ -22,14 +22,6 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/textView_userName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Evenement 1: enregistre par "
-                    android:layout_margin="@dimen/_5sdp"
-                    android:textColor="@color/black"/>
-
-                <TextView
                     android:id="@+id/textView_date"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -44,6 +36,7 @@
                     android:layout_height="wrap_content"
                     android:text="Note"
                     android:textColor="@color/black"
+                    android:textAlignment="center"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
 
                 <TextView
@@ -62,7 +55,14 @@
                     android:layout_height="wrap_content"
                     android:text="Type of expense "
                     android:textColor="@color/black"
+                    android:textAlignment="center"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
+                <TextView
+                    android:id="@+id/textView_userName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Enregistre par "
+                    android:layout_marginTop="@dimen/_10sdp"/>
 
             </LinearLayout>
         </androidx.cardview.widget.CardView>

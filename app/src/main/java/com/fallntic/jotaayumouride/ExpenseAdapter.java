@@ -20,32 +20,22 @@ import static com.fallntic.jotaayumouride.DataHolder.indexAnnouncementSelected;
 import static com.fallntic.jotaayumouride.DataHolder.indexExpenseSelected;
 import static com.fallntic.jotaayumouride.DataHolder.indexOnlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.DataHolder.typeOfContribution;
 
 public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseViewHolder> {
 
     private Context context;
-    private List<String> listUserName = new ArrayList<String>();
-    private List<String> listDate = new ArrayList<String>();
-    private List<String> listNote = new ArrayList<String>();
-    private List<String> listPrice = new ArrayList<String>();
-    private List<String> listTypeOfExpense = new ArrayList<String>();
 
     private String userName;
     private String mDate;
-    private String note;
-    private String price;
     private String typeOfExpense;
+    private String price;
+    private String userID;
+    private String note;
 
-    public ExpenseAdapter(Context context, List<String> listUserName, List<String> listDate,
-                          List<String> listNote, List<String> listPrice, List<String> listTypeOfExpense) {
-
+    public ExpenseAdapter(Context context) {
         this.context = context;
-        this.listUserName = listUserName;
-        this.listDate = listDate;
-        this.listNote = listNote;
-        this.listPrice = listPrice;
-        this.listTypeOfExpense = listTypeOfExpense;
     }
 
     @NonNull
@@ -59,11 +49,12 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
     @Override
     public void onBindViewHolder(@NonNull ExpenseViewHolder holder, int position) {
 
-        userName = listUserName.get(position);
-        mDate = listDate.get(position);
-        note = listNote.get(position);
-        price = listPrice.get(position);
-        typeOfExpense = listTypeOfExpense.get(position);
+        typeOfExpense = expense.getListTypeOfExpense().get(position);
+        price = expense.getListPrice().get(position);
+        userID = expense.getListUserID().get(position);
+        mDate = expense.getListDate().get(position);
+        note = expense.getListNote().get(position);
+        userName = expense.getListUserName().get(position);
 
         holder.textViewUserName.setText("Enregistree par " + userName);
         holder.textViewtDate.setText(mDate);
@@ -75,10 +66,10 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
 
     @Override
     public int getItemCount() {
-        return listDate.size();
+        return expense.getListPrice().size();
     }
 
-    class ExpenseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    class ExpenseViewHolder extends RecyclerView.ViewHolder{
         TextView textViewUserName;
         TextView textViewtDate;
         TextView textViewNote;
@@ -93,17 +84,36 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
             textViewPrice = itemView.findViewById(R.id.textView_price);
             textViewTypeOfExpense = itemView.findViewById(R.id.textView_typeOfExpense);
 
-            itemView.setOnClickListener(this);
         }
+    }
 
-        @Override
-        public void onClick(View v) {
-            indexExpenseSelected = getAdapterPosition();
-            if (onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")){
-                actionSelected = "updateExpense";
-                Intent intent = new Intent(context, CreateExpenseActivity.class);
-                context.startActivity(intent);
-            }
-        }
+
+    public void removeItem(int position) {
+
+        expense.getListPrice().remove(position);
+        expense.getListDate().remove(position);
+        expense.getListTypeOfExpense().remove(position);
+        expense.getListNote().remove(position);
+        expense.getListUserName().remove(position);
+        expense.getListUserID().remove(position);
+
+        notifyItemRemoved(position);
+    }
+
+    public void restoreItem(String price, String mDate, String type,String note, String userID,
+                            String userName, int position) {
+
+        expense.getListPrice().add(position, price);
+        expense.getListDate().add(position, mDate);
+        expense.getListTypeOfExpense().add(position, type);
+        expense.getListNote().add(position, note);
+        expense.getListUserID().add(position, userID);
+        expense.getListUserName().add(position, userName);
+
+        notifyItemInserted(position);
+    }
+
+    public Expense getExpense() {
+        return expense;
     }
 }

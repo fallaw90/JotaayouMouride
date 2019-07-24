@@ -1,8 +1,12 @@
 package com.fallntic.jotaayumouride;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -15,14 +19,28 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
+import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
+import static com.fallntic.jotaayumouride.DataHolder.adiya;
+import static com.fallntic.jotaayumouride.DataHolder.announcement;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.event;
+import static com.fallntic.jotaayumouride.DataHolder.expense;
 import static com.fallntic.jotaayumouride.DataHolder.getCurrentDate;
 import static com.fallntic.jotaayumouride.DataHolder.getDate;
 import static com.fallntic.jotaayumouride.DataHolder.indexOnlineUser;
@@ -31,14 +49,20 @@ import static com.fallntic.jotaayumouride.DataHolder.isConnected;
 import static com.fallntic.jotaayumouride.DataHolder.isDouble;
 import static com.fallntic.jotaayumouride.DataHolder.logout;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.DataHolder.sass;
 import static com.fallntic.jotaayumouride.DataHolder.saveContribution;
 import static com.fallntic.jotaayumouride.DataHolder.selectedUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showProfileImage;
+import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.social;
+import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.DataHolder.typeOfContribution;
 import static com.fallntic.jotaayumouride.DataHolder.updateDocument;
+import static com.fallntic.jotaayumouride.DataHolder.userID;
 
-public class UserInfoActivity extends AppCompatActivity implements View.OnClickListener {
+public class UserInfoActivity extends AppCompatActivity implements View.OnClickListener,
+        NavigationView.OnNavigationItemSelectedListener {
     private final String TAG = "UserInfoActivity";
 
     private TextView textViewName;
@@ -52,6 +76,9 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
     private TextView textViewSass;
     private TextView textViewSocial;
     private ImageView imageView;
+    private LinearLayout linearLayoutAdiya;
+    private LinearLayout linearLayoutSass;
+    private LinearLayout linearLayoutSocial;
 
     private FirebaseStorage firebaseStorage;
     private StorageReference storageReference;
@@ -61,6 +88,14 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
 
     private String mDate = getCurrentDate();
 
+    private DrawerLayout drawerLayout;
+    private ActionBarDrawerToggle toggle;
+    private NavigationView navigationView;
+    private View navHeader;
+    private CircleImageView navImageView;
+    private TextView textViewNavUserName;
+    private TextView textViewNavEmail;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,13 +103,19 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("");
         toolbar.setSubtitle("Info du membre");
         setSupportActionBar(toolbar);
 
-        if (!isConnected(this)){
+        //********************** Drawer Menu **************************
+        setDrawerMenu();
+        //*************************************************************
+
+        if (!isConnected(this)) {
+            finish();
             Intent intent = new Intent(this, LoginActivity.class);
-            logout();
-            showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
+            showAlertDialog(this, "Oops! Pas de connexion, " +
+                    "verifier votre connexion internet puis reesayez SVP", intent);
         }
 
         indexOnlineUser = onlineUser.getListDahiraID().indexOf(dahira.getDahiraID());
@@ -93,9 +134,16 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         textViewAdiya = (TextView) findViewById(R.id.totalAdiya);
         textViewSass = (TextView) findViewById(R.id.totalSass);
         textViewSocial = (TextView) findViewById(R.id.totalSocial);
+        linearLayoutAdiya = (LinearLayout) findViewById(R.id.linearLayout_adiya);
+        linearLayoutSass = (LinearLayout) findViewById(R.id.linearLayout_sass);
+        linearLayoutSocial = (LinearLayout) findViewById(R.id.linearLayout_social);
         imageView = (ImageView) findViewById(R.id.imageView);
 
         showProfileImage(this, selectedUser.getUserID(), imageView);
+
+        getAdiya();
+        getSass();
+        getSocial();
 
         textViewName.setText(selectedUser.getUserName());
         textViewDahiraName.setText(dahira.getDahiraName());
@@ -107,20 +155,39 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         textViewSass.setText(selectedUser.getListSass().get(indexSelectedUser));
         textViewSocial.setText(selectedUser.getListSocial().get(indexSelectedUser));
         textViewRole.setText(selectedUser.getListRoles().get(indexSelectedUser));
-        if (!selectedUser.getListRoles().get(indexSelectedUser).equals("Administrateur")) {
-            textViewRole.setVisibility(View.GONE);
+
+        if (indexSelectedUser == -1) {
+            linearLayoutAdiya.setVisibility(View.GONE);
+            linearLayoutSass.setVisibility(View.GONE);
+            linearLayoutSocial.setVisibility(View.GONE);
+            if (!selectedUser.getListRoles().get(indexSelectedUser).equals("Administrateur")) {
+                textViewRole.setVisibility(View.GONE);
+            }
+        } else if (!selectedUser.getListRoles().get(indexSelectedUser).equals("Administrateur")) {
+            linearLayoutAdiya.setVisibility(View.GONE);
+            linearLayoutSass.setVisibility(View.GONE);
+            linearLayoutSocial.setVisibility(View.GONE);
         }
+
 
         findViewById(R.id.button_back).setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
-        switch(v.getId()){
+        switch (v.getId()) {
             case R.id.button_back:
+                indexSelectedUser = -1;
                 startActivity(new Intent(UserInfoActivity.this, ListUserActivity.class));
                 break;
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        indexSelectedUser = -1;
+        startActivity(new Intent(UserInfoActivity.this, ListUserActivity.class));
     }
 
     @Override
@@ -132,271 +199,216 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_user_info, menu);
+        inflater.inflate(R.menu.menu_main_menu, menu);
 
-        MenuItem menuAddContributions, menuSetting, menuDetailAdiya, menuDetailSass, menuDetailSocial;
-        menuAddContributions = menu.findItem(R.id.addContributions);
-        menuSetting = menu.findItem(R.id.setting);
+        MenuItem iconBack;
+        iconBack = menu.findItem(R.id.icon_back);
 
-        menuDetailAdiya = menu.findItem(R.id.menu_adiya);
-        menuDetailSass = menu.findItem(R.id.menu_sass);
-        menuDetailSocial = menu.findItem(R.id.menu_social);
-        menuAddContributions.setVisible(false);
-        menuSetting.setVisible(false);
-        menuDetailAdiya.setVisible(false);
-        menuDetailSass.setVisible(false);
-        menuDetailSocial.setVisible(false);
-
-        double amountAdiya = Double.parseDouble(selectedUser.getListAdiya().get(indexSelectedUser));
-        double amountSass = Double.parseDouble(selectedUser.getListSass().get(indexSelectedUser));
-        double amountSocial = Double.parseDouble(selectedUser.getListSocial().get(indexSelectedUser));
-
-        if (onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")){
-            menuAddContributions.setVisible(true);
-            menuSetting.setVisible(true);
-
-            if (amountAdiya > 0)
-                menuDetailAdiya.setVisible(true);
-            if (amountSass > 0)
-                menuDetailSass.setVisible(true);
-            if (amountSocial > 0)
-                menuDetailSocial.setVisible(true);
-        }
-        else if (onlineUser.getUserID().equals(selectedUser.getUserID())){
-            menuSetting.setVisible(true);
-
-            if (amountAdiya > 0)
-                menuDetailAdiya.setVisible(true);
-            if (amountSass > 0)
-                menuDetailSass.setVisible(true);
-            if (amountSocial > 0)
-                menuDetailSocial.setVisible(true);
-        }
+        iconBack.setVisible(true);
 
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (toggle.onOptionsItemSelected(item))
+            return true;
+
+        switch (item.getItemId()){
+            case R.id.icon_back:
+                startActivity(new Intent(this, ListUserActivity.class));
+                break;
+        }
+
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
         switch (item.getItemId()) {
 
-            case R.id.addContributions:
-                chooseContribution();
+            case R.id.nav_profile:
+                startActivity(new Intent(this, ProfileActivity.class));
                 break;
 
-            case R.id.menu_adiya:
+            case R.id.nav_displayUsers:
+                startActivity(new Intent(this, ListUserActivity.class));
+                break;
+
+            case R.id.nav_addUser:
+                actionSelected = "addNewUser";
+                startActivity(new Intent(this, UserInfoActivity.class));
+                break;
+
+            case R.id.nav_displayMyDahira:
+                actionSelected = "myDahira";
+                startActivity(new Intent(this, ListDahiraActivity.class));
+                break;
+
+            case R.id.nav_displayAllDahira:
+                actionSelected = "allDahira";
+                startActivity(new Intent(this, ListDahiraActivity.class));
+                break;
+
+            case R.id.nav_addDahira:
+                startActivity(new Intent(this, CreateDahiraActivity.class));
+                break;
+
+            case R.id.nav_addContribution:
+                startActivity(new Intent(this, AddContributionActivity.class));
+                break;
+
+            case R.id.nav_displayAdiya:
                 typeOfContribution = "adiya";
                 startActivity(new Intent(this, ListContributionActivity.class));
                 break;
 
-            case R.id.menu_sass:
+            case R.id.nav_displaySass:
                 typeOfContribution = "sass";
                 startActivity(new Intent(this, ListContributionActivity.class));
                 break;
 
-            case R.id.menu_social:
+            case R.id.nav_displaySocial:
                 typeOfContribution = "social";
                 startActivity(new Intent(this, ListContributionActivity.class));
                 break;
 
-            case R.id.setting:
-                startActivity(new Intent(this, SettingUserActivity.class));
+            case R.id.nav_displayAnnouncement:
+                if (announcement == null) {
+                    showAlertDialog(this, "La liste de vos annonces est vide!");
+                } else
+                    startActivity(new Intent(this, ListAnnouncementActivity.class));
                 break;
 
-            case R.id.logout:
-                logout();
+            case R.id.nav_addAnnouncement:
+                actionSelected = "addNewAnnouncement";
+                startActivity(new Intent(this, CreateAnnouncementActivity.class));
+                break;
+
+            case R.id.nav_displayEvent:
+                if (event.getListUserID().size() == 0)
+                    showAlertDialog(this, "La liste de vos evenements est vide!");
+                else
+                    startActivity(new Intent(this, ListEventActivity.class));
+                break;
+
+            case R.id.nav_addEvent:
+                actionSelected = "addNewEvent";
+                startActivity(new Intent(this, CreateEventActivity.class));
+                break;
+
+            case R.id.nav_displayExpenses:
+                if (expense.getListUserID().size() == 0) {
+                    showAlertDialog(this, "La liste des depenses de votre dahira est vide!");
+                } else
+                    startActivity(new Intent(this, ListExpenseActivity.class));
+                break;
+
+            case R.id.nav_addExpense:
+                actionSelected = "addNewExpense";
+                startActivity(new Intent(this, CreateExpenseActivity.class));
+                break;
+
+            case R.id.nav_logout:
+                toastMessage(this, "Logged out");
+                logout(this);
                 finish();
                 startActivity(new Intent(this, MainActivity.class));
                 break;
+
+            case R.id.nav_setting:
+                startActivity(new Intent(this, SettingUserActivity.class));
+                break;
         }
+
+        drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    private void chooseContribution() {
+    private void setDrawerMenu() {
+        drawerLayout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+        navHeader = navigationView.getHeaderView(0);
+        navImageView = navHeader.findViewById(R.id.nav_imageView);
+        textViewNavUserName = (TextView) navHeader.findViewById(R.id.textView_navUserName);
+        textViewNavEmail = (TextView) navHeader.findViewById(R.id.textView_navEmail);
+        toggle = new ActionBarDrawerToggle(this, drawerLayout,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+        showProfileImage(this, userID, navImageView);
+        textViewNavUserName.setText(onlineUser.getUserName());
+        textViewNavEmail.setText(onlineUser.getEmail());
+        navigationView.setCheckedItem(R.id.nav_displayMyDahira);
 
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        final View dialogView = inflater.inflate(R.layout.dialog_choose_contribution, null);
-        dialogBuilder.setView(dialogView);
-        dialogBuilder.setCancelable(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        final Button buttonAddAdiya = (Button) dialogView.findViewById(R.id.button_dialogAddAdiya);
-        final Button buttonAddSass = (Button) dialogView.findViewById(R.id.button_dialogAddSass);
-        final Button buttonAddSocial = (Button) dialogView.findViewById(R.id.button_dialogAddSocial);
-        final Button buttonCancel = (Button) dialogView.findViewById(R.id.button_dialogCancel);
-
-        dialogBuilder.setTitle("Ajouter une contribution");
-        final AlertDialog alertDialog = dialogBuilder.create();
-        alertDialog.show();
-
-
-
-        buttonAddAdiya.setOnClickListener( new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                boolAdiya = true;
-                addContribution();
-                alertDialog.dismiss();
-            }
-        });
-
-        buttonAddSass.setOnClickListener( new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                boolSass = true;
-                addContribution();
-                alertDialog.dismiss();
-            }
-        });
-
-        buttonAddSocial.setOnClickListener( new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                boolSocial = true;
-                addContribution();
-                alertDialog.dismiss();
-            }
-        });
-
-        buttonCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                alertDialog.dismiss();
-            }
-        });
-
+        hideMenuItem();
     }
 
-    private void addContribution() {
+    private void hideMenuItem() {
+        Menu nav_Menu = navigationView.getMenu();
+        nav_Menu.findItem(R.id.nav_setting).setTitle("Modifier ce membre");
 
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.dialog_add_contribution, null);
-        dialogBuilder.setView(dialogView);
-        dialogBuilder.setCancelable(false);
-
-        final EditText editTextDate = (EditText) dialogView.findViewById(R.id.editText_date);
-        final EditText editTextDialogContribution = (EditText) dialogView.findViewById(R.id.editText_dialogContribution);
-        final Button buttonSave = (Button) dialogView.findViewById(R.id.button_dialogSave);
-        final Button buttonCancel = (Button) dialogView.findViewById(R.id.button_cancel);
-
-        if (boolAdiya){
-            dialogBuilder.setTitle(selectedUser.getUserName() + "\ndahira " + dahira.getDahiraName());
-            editTextDialogContribution.setHint("Montant listAdiya (Chiffre seulement)");
-        }
-        if (boolSass){
-            dialogBuilder.setTitle("Ajouter listAdiya pour " + selectedUser.getUserName() + " membre du dahira " + dahira.getDahiraName());
-            editTextDialogContribution.setHint("Montant listAdiya (Chiffre seulement)");
-        }
-        if (boolSocial){
-            dialogBuilder.setTitle("Ajouter listAdiya pour " + selectedUser.getUserName() + " membre du dahira " + dahira.getDahiraName());
-            editTextDialogContribution.setHint("Montant listAdiya (Chiffre seulement)");
+        if (!onlineUser.getListDahiraID().contains(dahira.getDahiraID())) {
+            nav_Menu.findItem(R.id.nav_displayAnnouncement).setVisible(false);
+            nav_Menu.findItem(R.id.nav_addAnnouncement).setVisible(false);
+            nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
+            nav_Menu.findItem(R.id.nav_setting).setVisible(false);
+        } else if (!onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
+            nav_Menu.findItem(R.id.nav_setting).setVisible(false);
+            nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
+            nav_Menu.findItem(R.id.nav_finance).setVisible(false);
         }
 
-        final AlertDialog alertDialog = dialogBuilder.create();
-        alertDialog.show();
+        nav_Menu.findItem(R.id.nav_callDahira).setVisible(false);
+        nav_Menu.findItem(R.id.nav_searchUser).setVisible(false);
+        nav_Menu.findItem(R.id.nav_searchDahira).setVisible(false);
+        nav_Menu.findItem(R.id.nav_addExpense).setVisible(false);
+        nav_Menu.findItem(R.id.nav_displayExpenses).setVisible(false);
+        nav_Menu.findItem(R.id.nav_release).setVisible(false);
+        nav_Menu.findItem(R.id.nav_gallery).setVisible(false);
+        nav_Menu.findItem(R.id.nav_addUser).setVisible(false);
+        nav_Menu.findItem(R.id.nav_displayAllEvent).setVisible(false);
+        nav_Menu.findItem(R.id.nav_addDahira).setVisible(false);
+        nav_Menu.findItem(R.id.nav_displayUsers).setVisible(false);
+        nav_Menu.findItem(R.id.nav_displayMyDahira).setVisible(false);
+        nav_Menu.findItem(R.id.nav_displayAllDahira).setVisible(false);
+    }
 
-        editTextDate.setText(mDate);
-        editTextDate.setOnClickListener(new View.OnClickListener() {
+    public static void getAdiya() {
+        DocumentReference docRef = FirebaseFirestore.getInstance()
+                .collection("adiya").document(selectedUser.getUserID());
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
-            public void onClick(View view) {
-                getDate(UserInfoActivity.this, editTextDate);
-            }
-        });
-
-        buttonSave.setOnClickListener( new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String typeContribution = "Contribution";
-                String value = editTextDialogContribution.getText().toString().trim();
-                value = value.replace(",", ".");
-
-                if(!hasValidationErrors(editTextDialogContribution, value)){
-                    Intent intent = new Intent(UserInfoActivity.this, UserInfoActivity.class);
-                    if (boolAdiya){
-                        typeContribution = "Adiya";
-                        //Save to listAdiya collection
-                        saveContribution(UserInfoActivity.this, "listAdiya", selectedUser.getUserID(), value);
-
-                        //Update totalAdiya user
-                        double adiyaUserVerse = Double.parseDouble(value);
-                        double totalAdiyaUserVerse = Double.parseDouble(selectedUser.getListAdiya()
-                                                    .get(indexSelectedUser)) + adiyaUserVerse;
-                        selectedUser.getListAdiya().set(indexSelectedUser, Double.toString(totalAdiyaUserVerse));
-                        updateDocument(UserInfoActivity.this, "users", selectedUser.getUserID(),
-                                "listAdiya", selectedUser.getListAdiya());
-
-                        //Update totalAdiya dahira
-                        double totalAdiyaDahira = Double.parseDouble(dahira.getTotalAdiya()) + adiyaUserVerse;
-                        dahira.setTotalAdiya(Double.toString(totalAdiyaDahira));
-                        updateDocument(UserInfoActivity.this, "dahiras", dahira.getDahiraID(),
-                                "totalAdiya", dahira.getTotalAdiya());
-                    }
-
-                    if (boolSass){
-                        typeContribution = "Sass";
-                        //Save to sass collection
-                        saveContribution(UserInfoActivity.this, "sass",
-                                selectedUser.getUserID(), value);
-
-                        //Update totalAdiya user
-                        double sassUserVerse = Double.parseDouble(value);
-                        double totalSassUserVerse = Double.parseDouble(selectedUser.getListSass()
-                                                    .get(indexSelectedUser)) + sassUserVerse;
-                        selectedUser.getListSass().set(indexSelectedUser, Double.toString(totalSassUserVerse));
-                        updateDocument(UserInfoActivity.this, "users", selectedUser.getUserID(),
-                                "listSass", selectedUser.getListSass());
-
-                        //Update totalAdiya dahira
-                        double totalSassDahira = Double.parseDouble(dahira.getTotalSass()) + sassUserVerse;
-                        dahira.setTotalSass(Double.toString(totalSassDahira));
-                        updateDocument(UserInfoActivity.this, "dahiras", dahira.getDahiraID(),
-                                "totalSass", dahira.getTotalSass());
-                    }
-
-                    if (boolSocial){
-                        typeContribution = "Social";
-                        //Save to sass collection
-                        saveContribution(UserInfoActivity.this, "social",
-                                selectedUser.getUserID(), value);
-
-                        //Update totalAdiya user
-                        double socialUserVerse = Double.parseDouble(value);
-                        double totalSocialUserVerse = Double.parseDouble(selectedUser.getListSocial()
-                                .get(indexSelectedUser)) + socialUserVerse;
-                        selectedUser.getListSocial().set(indexSelectedUser, Double.toString(totalSocialUserVerse));
-                        updateDocument(UserInfoActivity.this, "users", selectedUser.getUserID(),
-                                "listSocial", selectedUser.getListSocial());
-
-                        //Update totalAdiya dahira
-                        double totalSocialDahira = Double.parseDouble(dahira.getTotalSocial()) + socialUserVerse;
-                        dahira.setTotalSass(Double.toString(totalSocialDahira));
-                        updateDocument(UserInfoActivity.this, "dahiras", dahira.getDahiraID(),
-                                "totalSocial", dahira.getTotalSocial());
-                    }
-
-                    //showAlertDialog(UserInfoActivity.this, typeContribution + " ajoute avec succe.");
-                    alertDialog.dismiss();
-                }
-            }
-        });
-
-
-        buttonCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                alertDialog.dismiss();
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                adiya = documentSnapshot.toObject(Adiya.class);
             }
         });
     }
-    private boolean hasValidationErrors(EditText editTextValue, String value) {
 
-        if (value.isEmpty() || !isDouble(value)) {
-            editTextValue.setError("Valeur incorrect!");
-            editTextValue.requestFocus();
-            return true;
-        }
+    public static void getSass() {
+        DocumentReference docRef = FirebaseFirestore.getInstance()
+                .collection("sass").document(selectedUser.getUserID());
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                sass = documentSnapshot.toObject(Sass.class);
+            }
+        });
+    }
 
-        return false;
+    public static void getSocial() {
+        DocumentReference docRef = FirebaseFirestore.getInstance()
+                .collection("social").document(selectedUser.getUserID());
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                social = documentSnapshot.toObject(Social.class);
+            }
+        });
     }
 }

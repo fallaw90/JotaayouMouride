@@ -62,9 +62,12 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         if (!isConnected(this)){
+            finish();
             Intent intent = new Intent(this, LoginActivity.class);
-            logout();
             showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
 
@@ -116,6 +119,12 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
     protected void onDestroy() {
         dismissProgressDialog();
         super.onDestroy();
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
     @Override

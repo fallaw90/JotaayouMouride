@@ -69,9 +69,15 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
         toolbar.setSubtitle("Parametres");
         setSupportActionBar(toolbar);
 
+        // add back arrow to toolbar
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+
         if (!isConnected(this)){
+            finish();
             Intent intent = new Intent(this, LoginActivity.class);
-            logout();
             showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
 
@@ -96,6 +102,12 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
     protected void onDestroy() {
         dismissProgressDialog();
         super.onDestroy();
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
     @Override

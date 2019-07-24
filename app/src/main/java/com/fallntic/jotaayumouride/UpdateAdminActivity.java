@@ -1,16 +1,13 @@
 package com.fallntic.jotaayumouride;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -20,26 +17,13 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrors;
-import static com.fallntic.jotaayumouride.DataHolder.isConnected;
-import static com.fallntic.jotaayumouride.DataHolder.logout;
-import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.saveContribution;
-import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.showProfileImage;
-import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.DataHolder.*;
 
 public class UpdateAdminActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "CreateDahiraActivity";
@@ -72,8 +56,8 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
         setSupportActionBar(toolbar);
 
         if (!isConnected(this)){
+            finish();
             Intent intent = new Intent(this, LoginActivity.class);
-            logout();
             showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
 
@@ -184,19 +168,19 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
             adiya = adiya.replace(",", ".");
             value = Double.parseDouble(adiya);
             if (value != 0){
-                saveContribution(this, "listAdiya", onlineUser.getUserID(), adiya);
+                saveContribution(this, "adiya", onlineUser.getUserID(), adiya, getCurrentDate());
             }
 
             sass = sass.replace(",", ".");
             value = Double.parseDouble(sass);
             if (value != 0){
-                saveContribution(this, "sass", onlineUser.getUserID(), sass);
+                saveContribution(this, "sass", onlineUser.getUserID(), sass, getCurrentDate());
             }
 
             social = social.replace(",", ".");
             value = Double.parseDouble(social);
             if (value != 0){
-                saveContribution(this, "social", onlineUser.getUserID(), social);
+                saveContribution(this, "social", onlineUser.getUserID(), social, getCurrentDate());
             }
 
             startActivity(new Intent(UpdateAdminActivity.this, ProfileActivity.class));
