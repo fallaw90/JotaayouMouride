@@ -46,10 +46,20 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         toolbar.setSubtitle("Se connecter");
         setSupportActionBar(toolbar);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         mAuth = FirebaseAuth.getInstance();
         progressDialog = new ProgressDialog(this);
         editTextEmail = (EditText) findViewById(R.id.editTextEmail);
         editTextPassword = (EditText) findViewById(R.id.editTextPassword);
+
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            }
+        });
 
         findViewById(textView_signUp).setOnClickListener(this);
         findViewById(R.id.buttonLogin).setOnClickListener(this);
@@ -63,7 +73,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         if (isConnected(this)){
             if (mAuth.getCurrentUser() != null) {
                 finish();
-                startActivity(new Intent(this, ProfileActivity.class));
+                startActivity(new Intent(this, MainActivity.class));
             }
         }
         else {
