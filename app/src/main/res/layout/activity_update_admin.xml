@@ -103,7 +103,10 @@
                         android:layout_height="wrap_content"
                         android:background="@drawable/edittext_background"
                         android:hint="@string/phoneNumber"
-                        android:padding="10dp" />
+                        android:digits="0123456789"
+                        android:inputType="phone"
+                        android:maxLength="9"
+                        android:padding="10dp"/>
                 </LinearLayout>
 
                 <LinearLayout

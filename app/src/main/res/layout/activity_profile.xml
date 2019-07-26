@@ -32,7 +32,7 @@
                 android:id="@+id/scrollView"
                 android:layout_width="fill_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@+id/relativeLayout_imageView">
+                android:layout_below="@+id/toolbar">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -135,6 +135,7 @@
                         </LinearLayout>
 
                         <LinearLayout
+                            android:id="@+id/lin_email"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"

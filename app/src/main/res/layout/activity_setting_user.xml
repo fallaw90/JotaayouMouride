@@ -82,30 +82,6 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/textView_phoneNumber"
-                        android:layout_width="155dp"
-                        android:layout_height="wrap_content"
-                        android:text="@string/updatePhoneNumber"
-                        android:layout_marginRight="5dp"
-                        android:textColor="@color/blue"
-                        android:textSize="@dimen/_15sdp"/>
-
-                    <EditText
-                        android:id="@+id/editText_userPhoneNumber"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/edittext_background"
-                        android:hint="@string/phoneNumber"
-                        android:padding="10dp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:orientation="horizontal">
-
-                    <TextView
                         android:id="@+id/textView_address"
                         android:layout_width="155dp"
                         android:layout_height="wrap_content"

@@ -35,19 +35,6 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/toolbar" />
 
-        <Button
-            android:id="@+id/button_backToProfile"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/recyclerview_dahiras"
-            android:layout_margin="7dp"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/rounded_button_transparent"
-            android:text="@string/button_backToProfile"
-            android:textAllCaps="false"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-            android:textColor="@color/colorAccent" />
-
     </LinearLayout>
 
     <com.google.android.material.navigation.NavigationView

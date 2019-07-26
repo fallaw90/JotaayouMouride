@@ -1,10 +1,5 @@
 package com.fallntic.jotaayumouride;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -14,19 +9,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
 import static com.fallntic.jotaayumouride.DataHolder.announcement;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.DataHolder.event;
-import static com.fallntic.jotaayumouride.DataHolder.indexOnlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
-import static com.fallntic.jotaayumouride.DataHolder.logout;
-import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 
 public class ListAnnouncementActivity extends AppCompatActivity {
     private final String TAG = "ListAnnouncementActivity";
@@ -44,6 +38,11 @@ public class ListAnnouncementActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setSubtitle("Liste des annonces");
         setSupportActionBar(toolbar);
+
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
 
         if (!isConnected(this)) {
             finish();

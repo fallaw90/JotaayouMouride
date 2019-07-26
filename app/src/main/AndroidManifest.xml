@@ -20,7 +20,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:appComponentFactory">
-        <activity android:name=".AddContributionActivity"></activity>
+        <activity android:name=".SignUpPhoneActivity"></activity>
+        <activity android:name=".VerifyPhoneActivity" />
+        <activity android:name=".LoginPhoneActivity" />
+        <activity android:name=".ShowImagesActivity" />
+        <activity android:name=".AddImagesActivity" />
+        <activity android:name=".AddContributionActivity" />
         <activity android:name=".ListExpenseActivity" />
         <activity android:name=".CreateExpenseActivity" />
         <activity android:name=".ListAnnouncementActivity" />

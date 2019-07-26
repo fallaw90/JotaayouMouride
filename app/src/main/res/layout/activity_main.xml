@@ -6,8 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".MainActivity"
-    tools:openDrawer="start">
+    tools:context=".MainActivity" >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,10 +20,28 @@
             layout="@layout/toolbar" />
 
         <TextView
+            android:id="@+id/textView_notOnline"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="My home page"
-            android:textSize="24sp"/>
+            android:layout_height="wrap_content"
+            android:text="Cette page est reservee pour les actualites
+            et est en cours de construction.\n Cliquez sur SE CONNECTER pour continuer"
+            android:textAlignment="center"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/textView_online"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Bienvevu dans votre platforme JOTAAYOU MOURIDE. \n
+            Si vous etes administrateur de votre dahira, naviguez sur le menu et creer votre dahira.
+            Sinon, merci de contacter l'administrateur de votre dahira pour qui'il puisse vous ajouter
+            en tant que membre.\n
+            Vous pouvez contacter n'importe quel dahira enregistrer en navigant sur MENU, TOUS LES
+            DAHIRA DE DAKAR. ou bien RECHERCHER UN DAHIRA."
+            android:textAlignment="center"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
+            android:visibility="gone"/>
 
         <FrameLayout
             android:id="@+id/fragment_container"

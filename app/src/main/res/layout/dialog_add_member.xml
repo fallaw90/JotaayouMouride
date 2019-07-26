@@ -11,8 +11,10 @@
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif"
         android:hint="@string/editText_dialogPhoneNumber"
-        android:inputType="text"
         android:layout_marginTop="20dp"
+        android:digits="0123456789"
+        android:inputType="phone"
+        android:maxLength="9"
         android:textColorHint="@color/colorAccent" />
 
     <TextView

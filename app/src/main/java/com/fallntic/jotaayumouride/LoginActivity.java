@@ -1,40 +1,44 @@
 package com.fallntic.jotaayumouride;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
-import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.SignInMethodQueryResult;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
 import static com.fallntic.jotaayumouride.DataHolder.logout;
+import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.R.id.textView_signUp;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
-    private BroadcastReceiver myReceiver = null;
-    private static final String TAG = "LoginActivity" ;
-    FirebaseAuth mAuth;
-    EditText editTextEmail, editTextPassword;
-    private ProgressDialog progressDialog;
+    private final String TAG = "LoginActivity";
+    private FirebaseAuth mAuth;
+    private EditText editTextEmail, editTextPassword;
+    private FirebaseUser firebaseUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,10 +53,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        //startActivity(new Intent(this, LoginPhoneActivity.class));
+
         mAuth = FirebaseAuth.getInstance();
-        progressDialog = new ProgressDialog(this);
-        editTextEmail = (EditText) findViewById(R.id.editTextEmail);
-        editTextPassword = (EditText) findViewById(R.id.editTextPassword);
+        firebaseUser = mAuth.getCurrentUser();
+
+        editTextEmail = findViewById(R.id.editTextEmail);
+        editTextPassword = findViewById(R.id.editTextPassword);
 
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,24 +68,24 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             }
         });
 
+        hideSoftKeyboard();
+
         findViewById(textView_signUp).setOnClickListener(this);
         findViewById(R.id.buttonLogin).setOnClickListener(this);
-
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        if (isConnected(this)){
+        if (isConnected(this)) {
             if (mAuth.getCurrentUser() != null) {
                 finish();
                 startActivity(new Intent(this, MainActivity.class));
             }
-        }
-        else {
-            logout();
-            showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP!");
+        } else {
+            logout(this );
+            showAlertDialog(this, "Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP!");
         }
     }
 
@@ -89,10 +96,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 startActivity(new Intent(this, SignUpActivity.class));
                 break;
             case R.id.buttonLogin:
-                if (DataHolder.isConnected(this)){
+                if (DataHolder.isConnected(this)) {
                     userLogin();
-                }
-                else {
+                } else {
                     toastMessage(getApplicationContext(), "Oops! Vous n'avez pas de connexion internet!");
                 }
                 break;
@@ -103,17 +109,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         String email = editTextEmail.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
 
-        if (!hasValidationErrorsLogin(email, editTextEmail, password, editTextPassword)){
+        if (!hasValidationErrorsLogin(email, editTextEmail, password, editTextPassword)) {
             showProgressDialog(this, "Connection en cours ...");
             mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
                         dismissProgressDialog();
-                        finish();
-                        Intent intent = new Intent(LoginActivity.this, ProfileActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(intent);
+                        getUser();
                     } else {
                         dismissProgressDialog();
                         Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
@@ -121,6 +124,33 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 }
             });
         }
+    }
+
+    public void getUser() {
+        FirebaseFirestore.getInstance().collection("users").
+                whereEqualTo("userID", mAuth.getCurrentUser().getUid()).get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        dismissProgressDialog();
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                onlineUser = documentSnapshot.toObject(User.class);
+                                startActivity(new Intent(LoginActivity.this, ProfileActivity.class));
+                            }
+                            Log.d(TAG, "User downloaded");
+                        } else {
+                            toastMessage(LoginActivity.this, "error!");
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        dismissProgressDialog();
+                        Log.d(TAG, "Error downloading Expenses");
+                    }
+                });
     }
 
     private boolean hasValidationErrorsLogin(String email, EditText editTextEmail, String password,
@@ -151,5 +181,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
 
         return false;
+    }
+
+    public void hideSoftKeyboard(){
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 }

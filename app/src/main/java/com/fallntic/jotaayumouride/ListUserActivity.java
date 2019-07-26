@@ -1,22 +1,8 @@
 package com.fallntic.jotaayumouride;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.Manifest;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -26,6 +12,17 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
@@ -33,6 +30,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +38,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
 import static com.fallntic.jotaayumouride.DataHolder.announcement;
+import static com.fallntic.jotaayumouride.DataHolder.call;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.event;
@@ -48,9 +47,11 @@ import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrors;
 import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrorsSearch;
 import static com.fallntic.jotaayumouride.DataHolder.indexOnlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
+import static com.fallntic.jotaayumouride.DataHolder.logout;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.DataHolder.selectedUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.showProfileImage;
+import static com.fallntic.jotaayumouride.DataHolder.showImage;
 import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.DataHolder.userID;
@@ -91,25 +92,35 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         if (!isConnected(this)){
             finish();
             Intent intent = new Intent(this, LoginActivity.class);
-            showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
+            showAlertDialog(this,"Oops! Pas de connexion, verifier " +
+                    "votre connexion internet puis reesayez SVP", intent);
         }
 
         recyclerViewUser = findViewById(R.id.recyclerview_users);
 
         textViewDahiraname = findViewById(R.id.textView_dahiraName);
-        textViewDahiraname.setText("Dahira " + dahira.getDahiraName());
+        textViewDahiraname.setText("Dahira " + dahira.getDahiraName() + "\nLis de tous les membres");
 
         showListUser();
+
+        if (actionSelected.equals("addNewMember")) {
+            addNewMember();
+        }
+        else if (actionSelected.equals("searchUser")) {
+            dialogSearchUser();
+        }
     }
 
     @Override
     protected void onDestroy() {
+        actionSelected = "";
         dismissProgressDialog();
         super.onDestroy();
     }
 
     @Override
     public void onBackPressed() {
+        actionSelected = "";
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
@@ -158,11 +169,11 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         dialogBuilder.setView(dialogView);
         dialogBuilder.setCancelable(false);
 
-        final EditText editTextPhoneNumber = (EditText) dialogView.findViewById(R.id.editText_dialogPhoneNumber);
-        final EditText editTextEmail = (EditText) dialogView.findViewById(R.id.editText_dialogEmail);
+        final EditText editTextPhoneNumber = dialogView.findViewById(R.id.editText_dialogPhoneNumber);
+        final EditText editTextEmail = dialogView.findViewById(R.id.editText_dialogEmail);
 
-        Button buttonAdd = (Button) dialogView.findViewById(R.id.button_dialogAdd);
-        Button buttonCancel = (Button) dialogView.findViewById(R.id.button_dialogCancel);
+        Button buttonAdd = dialogView.findViewById(R.id.button_dialogAdd);
+        Button buttonCancel = dialogView.findViewById(R.id.button_dialogCancel);
 
         dialogBuilder.setTitle("Ajouter un nouveau membre");
         final AlertDialog alertDialog = dialogBuilder.create();
@@ -177,6 +188,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                 if(!hasValidationErrorsSearch(phoneNumber, editTextPhoneNumber, email, editTextEmail)){
 
                     if (!phoneNumber.isEmpty()) {
+                        phoneNumber = "221"+phoneNumber;
                         getNewMemberToUpdate("userPhoneNumber", phoneNumber);
                     }
                     else if (!email.isEmpty()) {
@@ -207,7 +219,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                         if (queryDocumentSnapshots.isEmpty()){
                             showAlertDialog(ListUserActivity.this,
                                     "Utilisateur inconnu!\n Pour ajouter un membre, " +
-                                            "assurez vous que l'utisateur s'est deja inscrit d'abord.");
+                                            "assurez vous que la personne s'est inscrit d'abord.");
                         }
                         else{
                             for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
@@ -290,10 +302,10 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         dialogBuilder.setView(dialogView);
         dialogBuilder.setCancelable(false);
 
-        final EditText editTextDialogName = (EditText) dialogView.findViewById(R.id.editText_dialogName);
-        final EditText editTextDialogPhoneNumber = (EditText) dialogView.findViewById(R.id.editText_dialogPhoneNumber);
-        Button buttonSearch = (Button) dialogView.findViewById(R.id.button_dialogSearch);
-        Button buttonCancel = (Button) dialogView.findViewById(R.id.button_cancel);
+        final EditText editTextDialogName = dialogView.findViewById(R.id.editText_dialogName);
+        final EditText editTextDialogPhoneNumber = dialogView.findViewById(R.id.editText_dialogPhoneNumber);
+        Button buttonSearch = dialogView.findViewById(R.id.button_dialogSearch);
+        Button buttonCancel = dialogView.findViewById(R.id.button_cancel);
 
         editTextDialogName.setHint("Nom du membre");
         editTextDialogPhoneNumber.setHint("Numero telephone du membre");
@@ -309,6 +321,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                 String phoneNumber = editTextDialogPhoneNumber.getText().toString().trim();
 
                 if(!hasValidationErrors(userName, editTextDialogName, phoneNumber, editTextDialogPhoneNumber)){
+                    phoneNumber = "+221"+phoneNumber;
                     searchUser(userName, phoneNumber);
                     alertDialog.dismiss();
                 }
@@ -398,33 +411,8 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if(requestCode == 101) {
             if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                callDahira();
+                call(this, this, selectedUser.getUserPhoneNumber());
             }
-        }
-    }
-
-    public void callDahira() {
-        try {
-            if(Build.VERSION.SDK_INT > 22) {
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, 101);
-                    return;
-                }
-
-                Intent callIntent = new Intent(Intent.ACTION_CALL);
-                callIntent.setData(Uri.parse("tel:+221" + dahira.getDahiraPhoneNumber()));
-                startActivity(callIntent);
-
-            }
-            else {
-                Intent callIntent = new Intent(Intent.ACTION_CALL);
-                callIntent.setData(Uri.parse("tel:+221" + dahira.getDahiraPhoneNumber()));
-                startActivity(callIntent);
-            }
-        }
-        catch (Exception ex)
-        {
-            ex.printStackTrace();
         }
     }
 
@@ -447,6 +435,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
 
         switch (item.getItemId()) {
             case R.id.icon_back:
+                actionSelected = "";
                 startActivity(new Intent(ListUserActivity.this, DahiraInfoActivity.class));
                 break;
         }
@@ -457,6 +446,10 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
 
+            case R.id.nav_home:
+                startActivity(new Intent(this, MainActivity.class));
+                break;
+
             case R.id.nav_profile:
                 startActivity(new Intent(this, ProfileActivity.class));
                 break;
@@ -465,9 +458,12 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                 startActivity(new Intent(this, ListUserActivity.class));
                 break;
 
+            case R.id.nav_searchUser:
+                dialogSearchUser();
+                break;
+
             case R.id.nav_addUser:
-                actionSelected = "addNewUser";
-                startActivity(new Intent(this, DahiraInfoActivity.class));
+                addNewMember();
                 break;
 
             case R.id.nav_displayMyDahira:
@@ -527,11 +523,15 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
 
             case R.id.nav_callDahira:
                 navigationView.setCheckedItem(R.id.nav_callDahira);
-                callDahira();
+                call(this, this, dahira.getDahiraPhoneNumber());
                 break;
 
             case R.id.nav_setting:
                 startActivity(new Intent(this, UpdateDahiraActivity.class));
+                break;
+
+            case R.id.nav_logout:
+                logout(this);
                 break;
         }
 
@@ -546,14 +546,14 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         navigationView.setNavigationItemSelectedListener(this);
         navHeader = navigationView.getHeaderView(0);
         navImageView = navHeader.findViewById(R.id.nav_imageView);
-        textViewNavUserName = (TextView) navHeader.findViewById(R.id.textView_navUserName);
-        textViewNavEmail = (TextView) navHeader.findViewById(R.id.textView_navEmail);
+        textViewNavUserName = navHeader.findViewById(R.id.textView_navUserName);
+        textViewNavEmail = navHeader.findViewById(R.id.textView_navEmail);
         toggle = new ActionBarDrawerToggle(this, drawerLayout,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        showProfileImage(this, userID, navImageView);
+        showImage(this, "profileImage", userID, navImageView);
         textViewNavUserName.setText(onlineUser.getUserName());
         textViewNavEmail.setText(onlineUser.getEmail());
         navigationView.setCheckedItem(R.id.nav_displayUsers);

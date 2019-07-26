@@ -1,15 +1,5 @@
 package com.fallntic.jotaayumouride;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -21,6 +11,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -37,18 +37,17 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrors;
-import static com.fallntic.jotaayumouride.DataHolder.indexOnlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
 import static com.fallntic.jotaayumouride.DataHolder.logout;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.showProfileImage;
+import static com.fallntic.jotaayumouride.DataHolder.showImage;
 import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.DataHolder.userID;
 
-public class ListDahiraActivity extends AppCompatActivity implements View.OnClickListener,
-        DrawerMenu, NavigationView.OnNavigationItemSelectedListener {
+public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
+        NavigationView.OnNavigationItemSelectedListener {
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -72,10 +71,10 @@ public class ListDahiraActivity extends AppCompatActivity implements View.OnClic
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
 
-        if (!isConnected(this)){
+        if (!isConnected(this)) {
             finish();
             Intent intent = new Intent(this, LoginActivity.class);
-            showAlertDialog(this,"Oops! Pas de connexion, " +
+            showAlertDialog(this, "Oops! Pas de connexion, " +
                     "verifier votre connexion internet puis reesayez SVP", intent);
         }
 
@@ -90,23 +89,20 @@ public class ListDahiraActivity extends AppCompatActivity implements View.OnClic
             actionSelected = "allDahira";
         }
 
-        if (actionSelected.equals("myDahira")){
+        if (actionSelected.equals("myDahira")) {
             toolbar.setSubtitle("Mes dahiras");
             getMyDahiras();
         }
 
-        if (actionSelected.equals("allDahira")){
+        if (actionSelected.equals("allDahira")) {
             toolbar.setSubtitle("Liste des dahiras a Dakar");
             getAllDahiras();
         }
-
-        findViewById(R.id.button_backToProfile).setOnClickListener(this);
     }
 
     @Override
     protected void onDestroy() {
         dismissProgressDialog();
-        actionSelected = "";
         super.onDestroy();
     }
 
@@ -114,19 +110,8 @@ public class ListDahiraActivity extends AppCompatActivity implements View.OnClic
     public void onBackPressed() {
         super.onBackPressed();
         actionSelected = "";
+        finish();
         startActivity(new Intent(this, ProfileActivity.class));
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch(v.getId()){
-
-            case R.id.button_backToProfile:
-                actionSelected = "";
-                finish();
-                startActivity(new Intent(ListDahiraActivity.this, ProfileActivity.class));
-                break;
-        }
     }
 
     private void getMyDahiras() {
@@ -149,14 +134,13 @@ public class ListDahiraActivity extends AppCompatActivity implements View.OnClic
                             for (DocumentSnapshot documentSnapshot : list) {
                                 //documentSnapshot = dahira in list
                                 Dahira dahira = documentSnapshot.toObject(Dahira.class);
-                                if (onlineUser.getListDahiraID().contains(dahira.getDahiraID())){
+                                if (onlineUser.getListDahiraID().contains(dahira.getDahiraID())) {
                                     dahiraList.add(dahira);
                                 }
                             }
                             dahiraAdapter.notifyDataSetChanged();
-                        }
-                        else {
-                            toastMessage(getApplicationContext(),"Vous n'etes associe a auccun dahira!");
+                        } else {
+                            toastMessage(getApplicationContext(), "Vous n'etes associe a auccun dahira!");
                         }
                     }
                 })
@@ -164,7 +148,7 @@ public class ListDahiraActivity extends AppCompatActivity implements View.OnClic
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         dismissProgressDialog();
-                        toastMessage(getApplicationContext(),"Error charging dahira!");
+                        toastMessage(getApplicationContext(), "Error charging dahira!");
                     }
                 });
     }
@@ -194,9 +178,8 @@ public class ListDahiraActivity extends AppCompatActivity implements View.OnClic
                                 dahiraList.add(dahira);
                             }
                             dahiraAdapter.notifyDataSetChanged();
-                        }
-                        else {
-                            toastMessage(getApplicationContext(),"Vous n'etes associe a auccun dahira!");
+                        } else {
+                            toastMessage(getApplicationContext(), "Vous n'etes associe a auccun dahira!");
                         }
                     }
                 })
@@ -204,7 +187,7 @@ public class ListDahiraActivity extends AppCompatActivity implements View.OnClic
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         dismissProgressDialog();
-                        toastMessage(getApplicationContext(),"Error charging dahira!");
+                        toastMessage(getApplicationContext(), "Error charging dahira!");
                     }
                 });
     }
@@ -230,17 +213,16 @@ public class ListDahiraActivity extends AppCompatActivity implements View.OnClic
                             for (DocumentSnapshot documentSnapshot : list) {
                                 //documentSnapshot equals dahira in list
                                 Dahira dahira = documentSnapshot.toObject(Dahira.class);
-                                if (name != null && !name.equals("")){
-                                    if (name.equals(dahira.getDahiraName())){
+                                if (name != null && !name.equals("")) {
+                                    if (name.equals(dahira.getDahiraName())) {
                                         dahiraList.add(dahira);
-                                    }
-                                    else {
+                                    } else {
                                         String[] splitSearchName = name.split(" ");
                                         String dahiraName = dahira.getDahiraName();
                                         dahiraName = dahiraName.toLowerCase();
-                                        for (String name : splitSearchName){
+                                        for (String name : splitSearchName) {
                                             name = name.toLowerCase();
-                                            if(dahiraName.contains(name)){
+                                            if (dahiraName.contains(name)) {
                                                 dahiraList.add(dahira);
                                             }
                                         }
@@ -253,16 +235,14 @@ public class ListDahiraActivity extends AppCompatActivity implements View.OnClic
                                 }
                             }
 
-                            if (dahiraList.isEmpty()){
+                            if (dahiraList.isEmpty()) {
                                 Intent intent = new Intent(ListDahiraActivity.this, ListDahiraActivity.class);
                                 showAlertDialog(ListDahiraActivity.this, "Dahira non trouve.", intent);
-                            }
-                            else {
+                            } else {
                                 dahiraAdapter.notifyDataSetChanged();
                             }
                             dismissProgressDialog();
-                        }
-                        else {
+                        } else {
                             dismissProgressDialog();
                             Intent intent = new Intent(ListDahiraActivity.this, ListDahiraActivity.class);
                             showAlertDialog(ListDahiraActivity.this, "Dahira non trouve.", intent);
@@ -286,10 +266,10 @@ public class ListDahiraActivity extends AppCompatActivity implements View.OnClic
         dialogBuilder.setView(dialogView);
         dialogBuilder.setCancelable(false);
 
-        final EditText editTextDialogName = (EditText) dialogView.findViewById(R.id.editText_dialogName);
-        final EditText editTextDialogPhoneNumber = (EditText) dialogView.findViewById(R.id.editText_dialogPhoneNumber);
-        Button buttonSearch = (Button) dialogView.findViewById(R.id.button_dialogSearch);
-        Button buttonCancel = (Button) dialogView.findViewById(R.id.button_cancel);
+        final EditText editTextDialogName = dialogView.findViewById(R.id.editText_dialogName);
+        final EditText editTextDialogPhoneNumber = dialogView.findViewById(R.id.editText_dialogPhoneNumber);
+        Button buttonSearch = dialogView.findViewById(R.id.button_dialogSearch);
+        Button buttonCancel = dialogView.findViewById(R.id.button_cancel);
 
         editTextDialogName.setHint("Nom du dahira");
         editTextDialogPhoneNumber.setHint("Numero telephone du dahira");
@@ -298,13 +278,13 @@ public class ListDahiraActivity extends AppCompatActivity implements View.OnClic
         alertDialog.setTitle("Rechercher un dahira");
         alertDialog.show();
 
-        buttonSearch.setOnClickListener( new View.OnClickListener() {
+        buttonSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String userName = editTextDialogName.getText().toString().trim();
                 String phoneNumber = editTextDialogPhoneNumber.getText().toString().trim();
 
-                if(!hasValidationErrors(userName, editTextDialogName, phoneNumber, editTextDialogPhoneNumber)){
+                if (!hasValidationErrors(userName, editTextDialogName, phoneNumber, editTextDialogPhoneNumber)) {
                     searchDahira(userName, phoneNumber);
                     alertDialog.dismiss();
                 }
@@ -322,6 +302,11 @@ public class ListDahiraActivity extends AppCompatActivity implements View.OnClic
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
+
+            case R.id.nav_home:
+                startActivity(new Intent(this, MainActivity.class));
+                break;
+
             case R.id.nav_profile:
                 startActivity(new Intent(this, ProfileActivity.class));
                 break;
@@ -366,9 +351,11 @@ public class ListDahiraActivity extends AppCompatActivity implements View.OnClic
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main_menu, menu);
 
-        MenuItem iconAdd;
-        iconAdd = menu.findItem(R.id.icon_add);
-        iconAdd.setVisible(true);
+        MenuItem iconBack;
+        iconBack = menu.findItem(R.id.icon_back);
+
+        iconBack.setVisible(true);
+
         return true;
     }
 
@@ -379,27 +366,28 @@ public class ListDahiraActivity extends AppCompatActivity implements View.OnClic
         }
 
         switch (item.getItemId()) {
-            case R.id.icon_add:
-                startActivity(new Intent(this, CreateDahiraActivity.class));
+            case R.id.icon_back:
+                finish();
+                startActivity(new Intent(this, ProfileActivity.class));
                 break;
         }
         return true;
     }
 
-    public void setDrawerMenu(){
+    public void setDrawerMenu() {
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         navHeader = navigationView.getHeaderView(0);
         navImageView = navHeader.findViewById(R.id.nav_imageView);
-        textViewNavUserName = (TextView) navHeader.findViewById(R.id.textView_navUserName);
-        textViewNavEmail = (TextView) navHeader.findViewById(R.id.textView_navEmail);
+        textViewNavUserName = navHeader.findViewById(R.id.textView_navUserName);
+        textViewNavEmail = navHeader.findViewById(R.id.textView_navEmail);
         toggle = new ActionBarDrawerToggle(this, drawerLayout,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        showProfileImage(this, userID, navImageView);
+        showImage(this, "profileImage", userID, navImageView);
         textViewNavUserName.setText(onlineUser.getUserName());
         textViewNavEmail.setText(onlineUser.getEmail());
 

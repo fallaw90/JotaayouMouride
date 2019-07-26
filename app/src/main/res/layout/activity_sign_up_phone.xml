@@ -4,20 +4,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@color/colorPrimary"
-    tools:context=".SignUpActivity">
+    android:orientation="vertical"
+    tools:context=".SignUpPhoneActivity">
 
     <include
         android:id="@+id/toolbar"
+        layout="@layout/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        layout="@layout/toolbar" />
+        android:layout_height="wrap_content" />
 
     <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="fill_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/scrollView">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -27,19 +27,27 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/camera"
+                android:text="Completer votre profil pour terminer"
                 android:textAlignment="center"
-                android:textSize="20sp"/>
+                android:textColor="@color/white"
+                android:textSize="30sp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_30sdp"
+                android:text="@string/camera"
+                android:textAlignment="center"/>
 
             <ImageView
                 android:id="@+id/imageView"
                 android:layout_width="@dimen/_100sdp"
                 android:layout_height="@dimen/_100sdp"
-                android:layout_centerHorizontal="true"
-                app:srcCompat="@drawable/profile_image"
                 android:layout_below="@+id/labelImageView"
+                android:layout_centerHorizontal="true"
                 android:layout_gravity="center"
-                android:scaleType="centerCrop" />
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/profile_image" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -50,16 +58,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
+                    android:layout_marginTop="@dimen/_30sdp"
                     android:orientation="vertical"
                     android:paddingLeft="15dp"
                     android:paddingRight="15dp">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/personalInfo"
-                        android:textAlignment="center"
-                        android:textSize="20sp"/>
 
                     <EditText
                         android:id="@+id/editText_name"
@@ -72,49 +74,10 @@
                         android:textColorHint="@color/colorAccent" />
 
                     <EditText
-                        android:id="@+id/editText_phoneNumber"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif"
-                        android:hint="@string/phoneNumber"
-                        android:inputType="text"
-                        android:paddingBottom="15dp"
-                        android:textColorHint="@color/colorAccent" />
-
-                    <EditText
-                        android:id="@+id/editText_email"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif"
-                        android:hint="@string/email"
-                        android:inputType="textEmailAddress"
-                        android:paddingBottom="15dp"
-                        android:textColorHint="@color/colorAccent" />
-
-                    <EditText
-                        android:id="@+id/editText_password"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif"
-                        android:hint="@string/mdp"
-                        android:inputType="textPassword"
-                        android:paddingBottom="15dp"
-                        android:textColorHint="@color/colorAccent" />
-
-                    <EditText
-                        android:id="@+id/editText_confirmPassword"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif"
-                        android:hint="@string/confimerMdp"
-                        android:inputType="textPassword"
-                        android:paddingBottom="15dp"
-                        android:textColorHint="@color/colorAccent" />
-
-                    <EditText
                         android:id="@+id/editText_address"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_20sdp"
                         android:fontFamily="sans-serif"
                         android:hint="@string/address"
                         android:inputType="text"
@@ -124,8 +87,9 @@
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_gravity="center">
+                        android:layout_gravity="center"
+                        android:layout_marginTop="@dimen/_30sdp"
+                        android:orientation="horizontal">
 
                         <Button
                             android:id="@+id/button_back"
@@ -143,7 +107,7 @@
                             android:layout_height="wrap_content"
                             android:layout_margin="7dp"
                             android:background="@drawable/rounded_button_transparent"
-                            android:text="@string/finish"
+                            android:text="Terminer"
                             android:textAllCaps="false"
                             android:textColor="@color/colorAccent" />
 

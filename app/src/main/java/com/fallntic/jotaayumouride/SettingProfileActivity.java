@@ -1,11 +1,5 @@
 package com.fallntic.jotaayumouride;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -16,9 +10,16 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -31,12 +32,10 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
 
-import static com.fallntic.jotaayumouride.DataHolder.checkPrefix;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
-import static com.fallntic.jotaayumouride.DataHolder.logout;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.showProfileImage;
+import static com.fallntic.jotaayumouride.DataHolder.showImage;
 import static com.fallntic.jotaayumouride.DataHolder.userID;
 
 public class SettingProfileActivity extends AppCompatActivity implements View.OnClickListener {
@@ -45,7 +44,6 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
     private ProgressDialog progressDialog;
 
     private EditText editTextUserName;
-    private EditText editTextPhoneNumber;
     private EditText editTextAddress;
 
     private ImageView imageView;
@@ -84,15 +82,15 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
         progressDialog = new ProgressDialog(this);
 
         editTextUserName = findViewById(R.id.editText_userName);
-        editTextPhoneNumber = findViewById(R.id.editText_userPhoneNumber);
         editTextAddress = findViewById(R.id.editText_address);
-        imageView = (ImageView) findViewById(R.id.imageView);
+        imageView = findViewById(R.id.imageView);
 
         editTextUserName.setText(onlineUser.getUserName());
-        editTextPhoneNumber.setText(onlineUser.getUserPhoneNumber());
         editTextAddress.setText(onlineUser.getAddress());
 
-        showProfileImage(this, onlineUser.getUserID(), imageView);
+        showImage(this, "profileImage", onlineUser.getUserID(), imageView);
+
+        hideSoftKeyboard();
 
         findViewById(R.id.button_update).setOnClickListener(this);
         findViewById(R.id.imageView).setOnClickListener(this);
@@ -186,18 +184,15 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
     public void updateData(){
 
         String name = editTextUserName.getText().toString().trim();
-        String phoneNumber = editTextPhoneNumber.getText().toString().trim();
         String address = editTextAddress.getText().toString().trim();
 
-        if(!hasValidationErrors(name, phoneNumber, address)){
+        if(!hasValidationErrors(name, address)){
             onlineUser.setUserName(name);
-            onlineUser.setUserPhoneNumber(phoneNumber);
             onlineUser.setAddress(address);
             showProgressDialog("Enregistrement de vos modification ...");
 
             db.collection("users").document(onlineUser.getUserID())
                     .update("userName", onlineUser.getUserName(),
-                            "userPhoneNumber", onlineUser.getUserPhoneNumber(),
                             "address", onlineUser.getAddress())
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
@@ -220,17 +215,11 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
     }
 
 
-    private boolean hasValidationErrors(String name, String phoneNumber, String address) {
+    private boolean hasValidationErrors(String name, String address) {
 
         if (name.isEmpty()) {
             editTextUserName.setError("Ce champ est obligatoir!");
             editTextUserName.requestFocus();
-            return true;
-        }
-
-        if(!phoneNumber.isEmpty() && (!phoneNumber.matches("[0-9]+") || phoneNumber.length() != 9 || !checkPrefix(phoneNumber))) {
-            editTextPhoneNumber.setError("Numero de telephone incorrect");
-            editTextPhoneNumber.requestFocus();
             return true;
         }
 
@@ -259,5 +248,9 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
+    }
+
+    public void hideSoftKeyboard(){
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 }

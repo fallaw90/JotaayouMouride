@@ -10,9 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.util.Patterns;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 
@@ -22,16 +20,13 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -40,7 +35,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.DataHolder.checkPrefix;
 import static com.fallntic.jotaayumouride.DataHolder.createNewCollection;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
@@ -50,23 +44,15 @@ import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.DataHolder.userID;
 
-public class SignUpActivity extends AppCompatActivity implements View.OnClickListener {
+public class SignUpPhoneActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "SignUpActivity";
-
-    private String pwd;
-    private String email;
-    private String confPwd;
+    private final int PICK_IMAGE_REQUEST = 71;
     private String userName;
     private String userAddress;
-    private String userPhoneNumber;
     private ImageView imageView;
-    private EditText editTextEmail;
-    private EditText editTextPassword;
     private EditText editTextUserName;
     private EditText editTextUserAddress;
-    private EditText editTextUserPhoneNumber;
-    private EditText editTextConfirmPassword;
     private List<String> listSass = new ArrayList<String>();
     private List<String> listRoles = new ArrayList<String>();
     private List<String> listAdiya = new ArrayList<String>();
@@ -74,12 +60,12 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     private List<String> listDahiraID = new ArrayList<String>();
     private List<String> listCommissions = new ArrayList<String>();
     private List<String> listUpdatedDahiraID = new ArrayList<String>();
-
     private Uri uri;
-    private final int PICK_IMAGE_REQUEST = 71;
     private boolean imageSaved = true, userSaved = true;
 
     private ProgressDialog progressDialog;
+
+    private FirebaseUser firebaseUser;
 
     //Firebase
     private FirebaseStorage firebaseStorage;
@@ -90,7 +76,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sign_up);
+        setContentView(R.layout.activity_sign_up_phone);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -99,14 +85,17 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        if (!isConnected(this)){
+        if (!isConnected(this)) {
             finish();
             Intent intent = new Intent(this, LoginActivity.class);
-            showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
+            showAlertDialog(this, "Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
 
         //Initialize Firestore object
         mAuth = FirebaseAuth.getInstance();
+        userID = mAuth.getCurrentUser().getUid();
+        firebaseUser = mAuth.getCurrentUser();
+
         db = FirebaseFirestore.getInstance();
         firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
@@ -116,16 +105,10 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         //User info
         imageView = findViewById(R.id.imageView);
         editTextUserName = findViewById(R.id.editText_name);
-        editTextUserPhoneNumber = findViewById(R.id.editText_phoneNumber);
-        editTextEmail = findViewById(R.id.editText_email);
-        editTextPassword = findViewById(R.id.editText_password);
-        editTextConfirmPassword = findViewById(R.id.editText_confirmPassword);
         editTextUserAddress = findViewById(R.id.editText_address);
 
         //Check access gallery permission
         checkPermission();
-
-        hideSoftKeyboard();
 
         findViewById(R.id.button_back).setOnClickListener(this);
         findViewById(R.id.button_signUp).setOnClickListener(this);
@@ -147,7 +130,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onClick(View v) {
 
-        switch(v.getId()){
+        switch (v.getId()) {
             case R.id.imageView:
                 checkPermission();
                 chooseImage();
@@ -165,68 +148,13 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         //Info user
         userName = editTextUserName.getText().toString().trim();
         userAddress = editTextUserAddress.getText().toString().trim();
-        userPhoneNumber = editTextUserPhoneNumber.getText().toString().trim();
-        email = editTextEmail.getText().toString().trim();
-        pwd = editTextPassword.getText().toString().trim();
-        confPwd = editTextConfirmPassword.getText().toString().trim();
 
-        if(!hasValidationErrors(userName, userPhoneNumber, email, pwd, confPwd, userAddress)) {
-            userPhoneNumber = "+221" + userPhoneNumber;
-            showProgressDialog(this,"Creation de votre compte ...");
-            db.collection("users").whereEqualTo("userPhoneNumber", userPhoneNumber).get()
-                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if (task.isSuccessful()) {
-                                dismissProgressDialog();
-                                if (task.getResult().isEmpty()){
-                                    saveAllData();
-                                }else{
-                                    showAlertDialog(SignUpActivity.this,
-                                            "Numero telephone deja utilise");
-                                    return;
-                                }
-                            }
-                            else {
-                                dismissProgressDialog();
-                                toastMessage(getApplicationContext(),"Error");
-                            }
-                        }
-                    });
+        if (!hasValidationErrors(userName, userAddress)) {
+            saveUser();
+            uploadImage(userID);
+            Intent intent = new Intent(SignUpPhoneActivity.this, ProfileActivity.class);
+            startActivity(intent);
         }
-        else{
-            return;
-        }
-    }
-
-    public void saveAllData(){
-        mAuth.createUserWithEmailAndPassword(email, pwd).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                dismissProgressDialog();
-                //while (!task.isSuccessful());
-                if (task.isSuccessful()) {
-                    //Get ID of current user.
-                    userID = mAuth.getCurrentUser().getUid();
-                    //Upload image
-                    uploadImage(userID);
-                    //Save user info on the FireBase database
-                    saveUser();
-                    if(isRegistrationSuccessful()){
-                        finish();
-                        Intent intent = new Intent(SignUpActivity.this, ProfileActivity.class);
-                        startActivity(intent);
-                    }
-                } else {
-                    if (task.getException() instanceof FirebaseAuthUserCollisionException) {
-                        showAlertDialog(SignUpActivity.this, "Adresse email deja utilise");
-
-                    } else {
-                        toastMessage(getApplicationContext(), task.getException().getMessage());
-                    }
-                }
-            }
-        });
     }
 
     private void chooseImage() {
@@ -239,8 +167,8 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
-                && data != null && data.getData() != null ) {
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
+                && data != null && data.getData() != null) {
             try {
                 uri = data.getData();
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
@@ -252,7 +180,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void uploadImage(String userID) {
-        if(uri != null) {
+        if (uri != null) {
             showProgressDialog(this, "Enregistrement de votre image cours ...");
             final StorageReference ref = storageReference.child("profileImage").child(userID);
             ref.putFile(uri)
@@ -260,7 +188,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
-                            while (!urlTask.isSuccessful());
+                            while (!urlTask.isSuccessful()) ;
                             dismissProgressDialog();
                         }
                     })
@@ -269,20 +197,20 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                         public void onFailure(@NonNull Exception e) {
                             dismissProgressDialog();
                             imageSaved = false;
-                            toastMessage(getApplicationContext(),"Failed "+e.getMessage());
+                            toastMessage(getApplicationContext(), "Failed " + e.getMessage());
                         }
                     });
         }
     }
 
-    private void saveUser(){
-        User user =  new User(userID, userName, userPhoneNumber, email, userAddress, listDahiraID,
+    private void saveUser() {
+
+        User user = new User(userID, userName, firebaseUser.getPhoneNumber(), "", userAddress, listDahiraID,
                 listUpdatedDahiraID, listCommissions, listAdiya, listSass, listSocial, listRoles);
 
-        showProgressDialog(this,"Enregistrement de vos informations personnelles cours ...");
+        showProgressDialog(this, "Enregistrement de vos informations personnelles cours ...");
         //Save user in firestore database
-        db.collection("users").document(userID)
-                .set(user)
+        db.collection("users").document(userID).set(user)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -296,74 +224,13 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                     public void onFailure(@NonNull Exception e) {
                         dismissProgressDialog();
                         userSaved = false;
-                        toastMessage(getApplicationContext(),"Error adding user!");
+                        toastMessage(getApplicationContext(), "Error adding user!");
                         Log.d(TAG, e.toString());
                     }
                 });
     }
 
-    private boolean isRegistrationSuccessful(){
-        if(userSaved && imageSaved){
-            return true;
-        }
-        else{
-            deleteUser();
-            deleteProfileImage();
-            mAuth.getCurrentUser().delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    if(task.isSuccessful()){
-                        showAlertDialog(SignUpActivity.this,
-                                "Erreur inscription! Reessayez SVP.");
-                    }
-                    else {
-                        toastMessage(getApplicationContext(),
-                                "Erreur inscription! Contactez votre administrateur SVP.");
-                        startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
-                    }
-                }
-            });
-            return false;
-        }
-    }
-
-    private void deleteUser() {
-        showProgressDialog(this,"Chargement en cours ..");
-        db.collection("users").document(userID).delete()
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            dismissProgressDialog();
-                        }
-                        else {
-                            dismissProgressDialog();
-                            toastMessage(getApplicationContext(), task.getException().getMessage());
-                        }
-                    }
-                });
-    }
-
-    private void deleteProfileImage() {
-        showProgressDialog(this,"Chargement en cours ..");
-        //storageReference defined on the onCreate function
-        storageReference.child("images").child(userID).delete()
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            dismissProgressDialog();
-                            toastMessage(getApplicationContext(), "Image supprimee");
-                        }
-                        else {
-                            dismissProgressDialog();
-                            toastMessage(getApplicationContext(), task.getException().getMessage());
-                        }
-                    }
-                });
-    }
-
-    public void setAllNewCollection(){
+    public void setAllNewCollection() {
         if (onlineUser.getUserID() != null)
             userID = onlineUser.getUserID();
 
@@ -389,7 +256,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 });
     }
 
-    public void initAllCollections(){
+    public void initAllCollections() {
         Adiya adiya = new Adiya(new ArrayList<String>(), new ArrayList<String>(),
                 new ArrayList<String>(), new ArrayList<String>());
         Sass sass = new Sass(new ArrayList<String>(), new ArrayList<String>(),
@@ -397,66 +264,16 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         Social social = new Social(new ArrayList<String>(), new ArrayList<String>(),
                 new ArrayList<String>(), new ArrayList<String>());
 
-        createNewCollection(this,"adiya", userID, adiya);
-        createNewCollection(this,"sass", userID, sass);
-        createNewCollection(this,"social", userID, social);
+        createNewCollection(this, "adiya", userID, adiya);
+        createNewCollection(this, "sass", userID, sass);
+        createNewCollection(this, "social", userID, social);
     }
 
-    private boolean hasValidationErrors(String userName, String userPhoneNumber, String email,
-                                        String pwd, String confPwd, String userAddress) {
+    private boolean hasValidationErrors(String userName, String userAddress) {
 
         if (userName.isEmpty()) {
             editTextUserName.setError("Veuillez remplir votre nom");
             editTextUserName.requestFocus();
-            return true;
-        }
-
-        if (userPhoneNumber.isEmpty()) {
-            editTextUserPhoneNumber.setError("Veuillez entrer numero de telephone");
-            editTextUserPhoneNumber.requestFocus();
-            return true;
-        }
-
-        if(!userPhoneNumber.isEmpty() && (!userPhoneNumber.matches("[0-9]+") ||
-                userPhoneNumber.length() != 9 || !checkPrefix(userPhoneNumber))) {
-            editTextUserPhoneNumber.setError("Numero de telephone incorrect");
-            editTextUserPhoneNumber.requestFocus();
-            return true;
-        }
-
-        if (email.isEmpty()) {
-            editTextEmail.setError("Adresse email obligatoire");
-            editTextEmail.requestFocus();
-            return true;
-        }
-
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            editTextEmail.setError("Adresse email incorrect");
-            editTextEmail.requestFocus();
-            return true;
-        }
-
-        if (pwd.isEmpty()) {
-            editTextPassword.setError("Mot de passe obligatoire");
-            editTextPassword.requestFocus();
-            return true;
-        }
-
-        if (pwd.length() < 6) {
-            editTextPassword.setError("Longueur minimal 6");
-            editTextPassword.requestFocus();
-            return true;
-        }
-
-        if (confPwd.isEmpty()) {
-            editTextConfirmPassword.setError("Confirmer le mot de passe");
-            editTextConfirmPassword.requestFocus();
-            return true;
-        }
-
-        if (!pwd.equals(confPwd)) {
-            editTextConfirmPassword.setError("Mot de passe incorrect");
-            editTextConfirmPassword.requestFocus();
             return true;
         }
 
@@ -469,7 +286,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         return false;
     }
 
-    public void checkPermission(){
+    public void checkPermission() {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -482,7 +299,4 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    public void hideSoftKeyboard(){
-        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-    }
 }

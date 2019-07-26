@@ -1,12 +1,5 @@
 package com.fallntic.jotaayumouride;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -28,11 +21,17 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -42,18 +41,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.DataHolder.dahiraID;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.DataHolder.dahiraID;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrors;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
-import static com.fallntic.jotaayumouride.DataHolder.logout;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.createNewCollection;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
-import static com.fallntic.jotaayumouride.DataHolder.userID;
 
 public class CreateDahiraActivity extends AppCompatActivity implements View.OnClickListener  {
 
@@ -130,9 +126,9 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         editTextSiege = findViewById(R.id.editText_siege);
         editTextCommission = findViewById(R.id.editText_commission);
         editTextResponsible = findViewById(R.id.editText_responsible);
-        textViewLabelCommission = (TextView) findViewById(R.id.textView_labelCommission);
-        getTextViewLabelResponsible = (TextView) findViewById(R.id.textView_labelResponsible);
-        listViewCommission = (ListView) findViewById(R.id.listView_commission);
+        textViewLabelCommission = findViewById(R.id.textView_labelCommission);
+        getTextViewLabelResponsible = findViewById(R.id.textView_labelResponsible);
+        listViewCommission = findViewById(R.id.listView_commission);
         editTextResponsible = findViewById(R.id.editText_responsible);
         editTextAdiya = findViewById(R.id.editText_adiya);
         editTextSass = findViewById(R.id.editText_sass);
@@ -140,11 +136,7 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         textViewUpdateCommission = findViewById(R.id.textViewUpdateCommission);
         spinnerCountry = findViewById(R.id.spinner_country);
         spinnerRegion = findViewById(R.id.spinner_region);
-        imageView = (ImageView) findViewById(R.id.imageView);
-
-        editTextAdiya.setText("00,00");
-        editTextSass.setText("00,00");
-        editTextSocial.setText("00,00");
+        imageView = findViewById(R.id.imageView);
 
         //Display and modify ListView commissions
         arrayAdapter = new ArrayAdapter<String>(this, R.layout.list_commission, R.id.textView_commission, arrayList);
@@ -259,9 +251,21 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         totalSass = editTextSass.getText().toString().trim();
         totalSocial = editTextSocial.getText().toString().trim();
 
-        totalAdiya = totalAdiya.replace(",", ".");
-        totalSass = totalSass.replace(",", ".");
-        totalSocial = totalSocial.replace(",", ".");
+        if (totalAdiya == null || totalAdiya.equals("") || totalAdiya.isEmpty())
+            totalAdiya = "00";
+        else
+            totalAdiya = totalAdiya.replace(",", ".");
+
+        if (totalSass == null || totalSass.equals("") || totalSass.isEmpty())
+            totalSass = "00";
+        else
+            totalSass = totalSass.replace(",", ".");
+
+        if (totalSocial == null || totalSocial.equals("") || totalSocial.isEmpty())
+            totalSocial = "00";
+        else
+            totalSocial = totalSocial.replace(",", ".");
+
 
         if(!hasValidationErrors(dahiraName, editTextDahiraName, dieuwrine, editTextDieuwrine,
                 dahiraPhoneNumber, editTextDahiraPhoneNumber, siege, editTextSiege, totalAdiya, editTextAdiya,
@@ -404,11 +408,11 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         final View dialogView = inflater.inflate(R.layout.dialog_update_commission, null);
         dialogBuilder.setView(dialogView);
 
-        final EditText editTextCommissione = (EditText) dialogView.findViewById(R.id.editText_dialogCommission);
-        final EditText editTextResponsible = (EditText) dialogView.findViewById(R.id.editText_dialogResponsible);
+        final EditText editTextCommissione = dialogView.findViewById(R.id.editText_dialogCommission);
+        final EditText editTextResponsible = dialogView.findViewById(R.id.editText_dialogResponsible);
 
-        Button buttonUpdate = (Button) dialogView.findViewById(R.id.button_dialogUpdate);
-        Button buttonDelete = (Button) dialogView.findViewById(R.id.button_dialogDelete);
+        Button buttonUpdate = dialogView.findViewById(R.id.button_dialogUpdate);
+        Button buttonDelete = dialogView.findViewById(R.id.button_dialogDelete);
 
         editTextCommissione.setText(commission);
         editTextResponsible.setText(responsible);

@@ -1,34 +1,28 @@
 package com.fallntic.jotaayumouride;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -37,28 +31,24 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
 import static com.fallntic.jotaayumouride.DataHolder.adiya;
 import static com.fallntic.jotaayumouride.DataHolder.announcement;
+import static com.fallntic.jotaayumouride.DataHolder.call;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.event;
 import static com.fallntic.jotaayumouride.DataHolder.expense;
 import static com.fallntic.jotaayumouride.DataHolder.getCurrentDate;
-import static com.fallntic.jotaayumouride.DataHolder.getDate;
 import static com.fallntic.jotaayumouride.DataHolder.indexOnlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.indexSelectedUser;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
-import static com.fallntic.jotaayumouride.DataHolder.isDouble;
 import static com.fallntic.jotaayumouride.DataHolder.logout;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.sass;
-import static com.fallntic.jotaayumouride.DataHolder.saveContribution;
 import static com.fallntic.jotaayumouride.DataHolder.selectedUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.showProfileImage;
-import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.showImage;
 import static com.fallntic.jotaayumouride.DataHolder.social;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.DataHolder.typeOfContribution;
-import static com.fallntic.jotaayumouride.DataHolder.updateDocument;
 import static com.fallntic.jotaayumouride.DataHolder.userID;
 
 public class UserInfoActivity extends AppCompatActivity implements View.OnClickListener,
@@ -124,22 +114,22 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
 
-        textViewName = (TextView) findViewById(R.id.textView_userName);
-        textViewDahiraName = (TextView) findViewById(R.id.textView_dahiraName);
-        textViewPhoneNumber = (TextView) findViewById(R.id.textView_phoneNumber);
-        textViewAdress = (TextView) findViewById(R.id.textView_address);
-        textViewEmail = (TextView) findViewById(R.id.textView_email);
-        textViewCommission = (TextView) findViewById(R.id.textView_commission);
-        textViewRole = (TextView) findViewById(R.id.textView_role);
-        textViewAdiya = (TextView) findViewById(R.id.totalAdiya);
-        textViewSass = (TextView) findViewById(R.id.totalSass);
-        textViewSocial = (TextView) findViewById(R.id.totalSocial);
-        linearLayoutAdiya = (LinearLayout) findViewById(R.id.linearLayout_adiya);
-        linearLayoutSass = (LinearLayout) findViewById(R.id.linearLayout_sass);
-        linearLayoutSocial = (LinearLayout) findViewById(R.id.linearLayout_social);
-        imageView = (ImageView) findViewById(R.id.imageView);
+        textViewName = findViewById(R.id.textView_userName);
+        textViewDahiraName = findViewById(R.id.textView_dahiraName);
+        textViewPhoneNumber = findViewById(R.id.textView_phoneNumber);
+        textViewAdress = findViewById(R.id.textView_address);
+        textViewEmail = findViewById(R.id.textView_email);
+        textViewCommission = findViewById(R.id.textView_commission);
+        textViewRole = findViewById(R.id.textView_role);
+        textViewAdiya = findViewById(R.id.totalAdiya);
+        textViewSass = findViewById(R.id.totalSass);
+        textViewSocial = findViewById(R.id.totalSocial);
+        linearLayoutAdiya = findViewById(R.id.linearLayout_adiya);
+        linearLayoutSass = findViewById(R.id.linearLayout_sass);
+        linearLayoutSocial = findViewById(R.id.linearLayout_social);
+        imageView = findViewById(R.id.imageView);
 
-        showProfileImage(this, selectedUser.getUserID(), imageView);
+        showImage(this, "profileImage", selectedUser.getUserID(), imageView);
 
         getAdiya();
         getSass();
@@ -229,6 +219,10 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
 
         switch (item.getItemId()) {
 
+            case R.id.nav_home:
+                startActivity(new Intent(this, MainActivity.class));
+                break;
+
             case R.id.nav_profile:
                 startActivity(new Intent(this, ProfileActivity.class));
                 break;
@@ -311,6 +305,10 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
                 startActivity(new Intent(this, CreateExpenseActivity.class));
                 break;
 
+            case R.id.nav_callUser:
+                call(this, this, selectedUser.getUserPhoneNumber());
+                break;
+
             case R.id.nav_logout:
                 toastMessage(this, "Logged out");
                 logout(this);
@@ -333,13 +331,13 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         navigationView.setNavigationItemSelectedListener(this);
         navHeader = navigationView.getHeaderView(0);
         navImageView = navHeader.findViewById(R.id.nav_imageView);
-        textViewNavUserName = (TextView) navHeader.findViewById(R.id.textView_navUserName);
-        textViewNavEmail = (TextView) navHeader.findViewById(R.id.textView_navEmail);
+        textViewNavUserName = navHeader.findViewById(R.id.textView_navUserName);
+        textViewNavEmail = navHeader.findViewById(R.id.textView_navEmail);
         toggle = new ActionBarDrawerToggle(this, drawerLayout,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
-        showProfileImage(this, userID, navImageView);
+        showImage(this, "profileImage", userID, navImageView);
         textViewNavUserName.setText(onlineUser.getUserName());
         textViewNavEmail.setText(onlineUser.getEmail());
         navigationView.setCheckedItem(R.id.nav_displayMyDahira);

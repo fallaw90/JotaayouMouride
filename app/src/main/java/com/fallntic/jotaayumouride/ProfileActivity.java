@@ -1,13 +1,5 @@
 package com.fallntic.jotaayumouride;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -20,6 +12,14 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -34,8 +34,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.Objects;
-
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
@@ -45,7 +43,7 @@ import static com.fallntic.jotaayumouride.DataHolder.isConnected;
 import static com.fallntic.jotaayumouride.DataHolder.logout;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.showProfileImage;
+import static com.fallntic.jotaayumouride.DataHolder.showImage;
 import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.DataHolder.userID;
@@ -81,6 +79,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     private CircleImageView navImageView;
     private TextView textViewNavUserName;
     private TextView textViewNavEmail;
+    private LinearLayout linEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,26 +101,27 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
         mAuth = FirebaseAuth.getInstance();
         userID = mAuth.getCurrentUser().getUid();
-
         firebaseUser = mAuth.getCurrentUser();
+
         firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
 
-        textViewAdress = (TextView) findViewById(R.id.textView_userAddress);
-        textViewEmail = (TextView) findViewById(R.id.textView_email);
-        textViewName = (TextView) findViewById(R.id.textView_userName);
-        textViewPhoneNumber = (TextView) findViewById(R.id.textView_userPhoneNumber);
-        imageViewProfile = (ImageView) findViewById(R.id.imageView);
-        linearLayoutVerificationNeeded = (LinearLayout) findViewById(R.id.linearLayout_verificationNeeded);
-        linearLayoutVerified = (LinearLayout) findViewById(R.id.linearLayout_verified);
+        textViewAdress = findViewById(R.id.textView_userAddress);
+        textViewEmail = findViewById(R.id.textView_email);
+        textViewName = findViewById(R.id.textView_userName);
+        textViewPhoneNumber = findViewById(R.id.textView_userPhoneNumber);
+        imageViewProfile = findViewById(R.id.imageView);
+        linearLayoutVerificationNeeded = findViewById(R.id.linearLayout_verificationNeeded);
+        linearLayoutVerified = findViewById(R.id.linearLayout_verified);
+        linEmail = findViewById(R.id.lin_email);
+
+        //********************** Drawer Menu *************************
+        setDrawerMenu();
+        //************************************************************
 
         loadUserInformation();
 
-        //********************** Drawer Menu ***************************************
-        setDrawerMenu();
-        //*****************************************************************************
-
-        swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipeToRefresh);
+        swipeLayout = findViewById(R.id.swipeToRefresh);
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 
             @Override
@@ -176,16 +176,28 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void loadUserInformation() {
-        showProfileImage(this, userID, imageViewProfile);
-        if (firebaseUser != null && firebaseUser.isEmailVerified()) {
-            //Get the current user info
-            getUser();
-            linearLayoutVerificationNeeded.setVisibility(View.GONE);
-        } else {
-            linearLayoutVerified.setVisibility(View.GONE);
-            showAlertDialog(ProfileActivity.this, "Inscription reussi! Merci de verifier votre email.");
+
+        if (firebaseUser != null) {
+            if (firebaseUser.getEmail() != null && !firebaseUser.getEmail().equals("")) {
+                if (firebaseUser.isEmailVerified()) {
+                    //Get the current user info
+                    getUser();
+                    linearLayoutVerificationNeeded.setVisibility(View.GONE);
+                } else {
+                    linearLayoutVerified.setVisibility(View.GONE);
+                }
+            }
+            else if (firebaseUser.getPhoneNumber() != null && !firebaseUser.getPhoneNumber().equals("")){
+                toastMessage(this, firebaseUser.getPhoneNumber());
+                linearLayoutVerificationNeeded.setVisibility(View.GONE);
+                textViewNavEmail.setVisibility(View.GONE);
+                linEmail.setVisibility(View.GONE);
+                getUser();
+            }
+            showImage(this, "profileImage", userID, imageViewProfile);
         }
     }
+
 
     public void getUser() {
         if (onlineUser == null) {
@@ -274,9 +286,28 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main_menu, menu);
+
+        MenuItem iconBack;
+        iconBack = menu.findItem(R.id.icon_back);
+
+        iconBack.setVisible(true);
+
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (toggle.onOptionsItemSelected(item))
             return true;
+
+        switch (item.getItemId()){
+            case R.id.icon_back:
+                finish();
+                break;
+        }
 
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
@@ -285,6 +316,11 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
+
+            case R.id.nav_home:
+                startActivity(new Intent(this, MainActivity.class));
+                break;
+
             case R.id.nav_profile:
                 startActivity(new Intent(this, ProfileActivity.class));
                 break;
@@ -345,14 +381,14 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         navigationView.setNavigationItemSelectedListener(this);
         navHeader = navigationView.getHeaderView(0);
         navImageView = navHeader.findViewById(R.id.nav_imageView);
-        textViewNavUserName = (TextView) navHeader.findViewById(R.id.textView_navUserName);
-        textViewNavEmail = (TextView) navHeader.findViewById(R.id.textView_navEmail);
+        textViewNavUserName = navHeader.findViewById(R.id.textView_navUserName);
+        textViewNavEmail = navHeader.findViewById(R.id.textView_navEmail);
         toggle = new ActionBarDrawerToggle(this, drawerLayout,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        showProfileImage(this, userID, navImageView);
+        showImage(this, "profileImage", userID, navImageView);
 
         navigationView.setCheckedItem(R.id.nav_profile);
         hideMenuItem();

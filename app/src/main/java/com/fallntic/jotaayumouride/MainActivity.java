@@ -8,7 +8,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -31,8 +30,7 @@ import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
 import static com.fallntic.jotaayumouride.DataHolder.logout;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.showProfileImage;
+import static com.fallntic.jotaayumouride.DataHolder.showImage;
 import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.DataHolder.userID;
@@ -45,6 +43,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private CircleImageView navImageView;
     private TextView textViewNavUserName;
     private TextView textViewNavEmail;
+    private TextView textViewOnline;
+    private TextView textViewNotOnline;
 
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
@@ -65,16 +65,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //**********************************************************
 
         if (!isConnected(this)){
-            toastMessage(getApplicationContext(),"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP");
+            toastMessage(getApplicationContext(),"Oops! Pas de connexion, " +
+                    "verifier votre connexion internet puis reesayez SVP");
+            startActivity(new Intent(this, LoginPhoneActivity.class));
             return;
         }
+
+        textViewNotOnline = findViewById(R.id.textView_notOnline);
+        textViewOnline = findViewById(R.id.textView_online);
 
         if (mAuth.getCurrentUser() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             userID = mAuth.getCurrentUser().getUid();
             getOnlineUser(userID);
-            showProfileImage(this, userID, navImageView);
+            showImage(this, "profileImage", userID, navImageView);
+            textViewOnline.setVisibility(View.VISIBLE);
         } else {
+            textViewNotOnline.setVisibility(View.VISIBLE);
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         }
     }
@@ -149,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         switch (item.getItemId()) {
             case R.id.login:
-                startActivity(new Intent(this, LoginActivity.class));
+                startActivity(new Intent(this, LoginPhoneActivity .class));
                 break;
         }
 
@@ -198,12 +205,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
         navHeader = navigationView.getHeaderView(0);
         navImageView = navHeader.findViewById(R.id.nav_imageView);
-        textViewNavUserName = (TextView) navHeader.findViewById(R.id.textView_navUserName);
-        textViewNavEmail = (TextView) navHeader.findViewById(R.id.textView_navEmail);
+        textViewNavUserName = navHeader.findViewById(R.id.textView_navUserName);
+        textViewNavEmail = navHeader.findViewById(R.id.textView_navEmail);
         toggle = new ActionBarDrawerToggle(this, drawerLayout,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
+        navigationView.setCheckedItem(R.id.nav_home);
         hideMenuItem();
     }
 

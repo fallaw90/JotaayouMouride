@@ -16,7 +16,7 @@ import java.util.List;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.indexSelectedUser;
 import static com.fallntic.jotaayumouride.DataHolder.selectedUser;
-import static com.fallntic.jotaayumouride.DataHolder.showProfileImage;
+import static com.fallntic.jotaayumouride.DataHolder.showImage;
 import static com.fallntic.jotaayumouride.UserInfoActivity.getAdiya;
 import static com.fallntic.jotaayumouride.UserInfoActivity.getSass;
 import static com.fallntic.jotaayumouride.UserInfoActivity.getSocial;
@@ -42,20 +42,24 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
-        selectedUser = listUsers.get(position);
+        User user = listUsers.get(position);
 
-        int indexRole = selectedUser.getListDahiraID().indexOf(dahira.getDahiraID());
-        String role = selectedUser.getListRoles().get(indexRole);
+        int indexRole = user.getListDahiraID().indexOf(dahira.getDahiraID());
 
-        holder.textViewUserName.setText(selectedUser.getUserName());
-        holder.textViewAddress.setText(selectedUser.getAddress());
-        holder.textViewUserPhoneNumber.setText(selectedUser.getUserPhoneNumber());
-        if (role.equals("Administrateur"))
-            holder.textViewRole.setText(role);
-        else
-            holder.textViewRole.setVisibility(View.GONE);
 
-        showProfileImage(context, selectedUser.getUserID(), imageView);
+        holder.textViewUserName.setText(user.getUserName());
+        holder.textViewAddress.setText(user.getAddress());
+        holder.textViewUserPhoneNumber.setText(user.getUserPhoneNumber());
+
+        if (indexRole >= 0) {
+            String role = user.getListRoles().get(indexRole);
+            if (role.equals("Administrateur"))
+                holder.textViewRole.setText(role);
+            else
+                holder.textViewRole.setVisibility(View.GONE);
+        }
+
+        showImage(context, "profileImage", user.getUserID(), imageView);
 
     }
 

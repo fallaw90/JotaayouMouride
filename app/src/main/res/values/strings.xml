@@ -26,9 +26,9 @@
     <string name="infoDahira">Information du dahira</string>
     <string name="userPhoneNumber">Votre numero de telephone</string>
     <string name="dieuwrine">Nom dieuwrine</string>
-    <string name="adiya">Total adiya dans la caisse</string>
-    <string name="sass">Total sass dans la caisse</string>
-    <string name="social">Total social dans la caisse</string>
+    <string name="adiya">Total adiya present dans la caisse</string>
+    <string name="sass">Total sass present dans la caisse</string>
+    <string name="social">Total social present dans la caisse</string>
     <string name="personalInfo">Informations personnelles</string>
     <string name="dahiraInfo">Informations du dahira</string>
     <string name="AddCommissionInstruction">Lister les listCommissions de votre dahira en fournissant le nom de la commission et le responsable. Repetez autant de fois necessaire cette procedure.</string>
@@ -103,4 +103,5 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="login_with_email">Cliquez ici pour se connecter avec votre adresse email</string>
 </resources>

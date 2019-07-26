@@ -40,15 +40,16 @@ dependencies {
     implementation 'com.intuit.sdp:sdp-android:1.0.3'
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'com.google.firebase:firebase-invites:17.0.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
-    implementation 'com.google.firebase:firebase-auth:18.0.0'
-    implementation 'com.google.firebase:firebase-storage:18.0.0'
+    implementation 'com.google.firebase:firebase-auth:18.1.0'
+    implementation 'com.google.firebase:firebase-storage:18.1.0'
     implementation 'com.google.firebase:firebase-database:18.0.0'
     implementation 'com.google.firebase:firebase-firestore:20.1.0'
-    implementation 'com.google.firebase:firebase-core:17.0.0'
+    implementation 'com.google.firebase:firebase-core:17.0.1'
     implementation 'com.firebaseui:firebase-ui-storage:4.3.1'
 
     implementation 'com.squareup.picasso:picasso:2.71828'
@@ -62,5 +63,3 @@ dependencies {
 
     implementation 'com.mikhaellopez:circularimageview:3.0.2'
 }
-apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services'

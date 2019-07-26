@@ -2,6 +2,7 @@ package com.fallntic.jotaayumouride;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,14 +12,27 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
 import java.util.List;
 
+import static com.fallntic.jotaayumouride.DataHolder.announcement;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.event;
+import static com.fallntic.jotaayumouride.DataHolder.expense;
 import static com.fallntic.jotaayumouride.DataHolder.indexOnlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.DataHolder.showImage;
+import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.uploadImages;
 
 public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraViewHolder> {
-
+    protected final String TAG = "DahiraAdapter";
     private Context context;
     private List<Dahira> dahiraList;
 
@@ -39,19 +53,120 @@ public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraView
 
     @Override
     public void onBindViewHolder(@NonNull DahiraViewHolder holder, int position) {
-        dahira = dahiraList.get(position);
+        Dahira dahira = dahiraList.get(position);
 
         holder.textViewDahiraName.setText("Dahira " + dahira.getDahiraName());
         holder.textViewDieuwrine.setText("Dieuwrine: " + dahira.getDieuwrine());
         holder.textViewPhoneNumber.setText("Telephone: " + dahira.getDahiraPhoneNumber());
         holder.textViewSiege.setText("Siege: " + dahira.getSiege());
 
-        DataHolder.showLogoDahira(context, imageView);
+        showImage(context, "logoDahira", dahira.getDahiraID(), imageView);
     }
 
     @Override
     public int getItemCount() {
         return dahiraList.size();
+    }
+
+    public void getExistingEvents(Context context) {
+        showProgressDialog(context, "Chargement des evenements en cours ...");
+        FirebaseFirestore.getInstance().collection("events").
+                whereEqualTo("dahiraID", dahira.getDahiraID()).get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        dismissProgressDialog();
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                event = documentSnapshot.toObject(Event.class);
+                            }
+                            Log.d(TAG, "Even downloaded");
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        dismissProgressDialog();
+                        Log.d(TAG, "Error downloading event");
+                    }
+                });
+    }
+
+    public void getExistingAnnouncements(Context context) {
+        if (onlineUser.getListDahiraID().contains(dahira.getDahiraID())) {
+            showProgressDialog(context, "Chargement de vos annonces en cours ...");
+            FirebaseFirestore.getInstance().collection("announcements")
+                    .whereEqualTo("dahiraID", dahira.getDahiraID()).get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            dismissProgressDialog();
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                    announcement = documentSnapshot.toObject(Announcement.class);
+                                }
+                                Log.d(TAG, "Announcements downloaded");
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            dismissProgressDialog();
+                            Log.d(TAG, "Error downloading Announcements");
+                        }
+                    });
+        }
+    }
+
+    public void getExistingExpenses(Context context) {
+        if (onlineUser.getListDahiraID().contains(dahira.getDahiraID())) {
+            showProgressDialog(context, "Chargement de vos depenses en cours ...");
+            FirebaseFirestore.getInstance().collection("expenses").whereEqualTo("dahiraID", dahira.getDahiraID()).get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            dismissProgressDialog();
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                    expense = documentSnapshot.toObject(Expense.class);
+                                }
+                                Log.d(TAG, "Expenses downloaded");
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            dismissProgressDialog();
+                            Log.d(TAG, "Error downloading Expenses");
+                        }
+                    });
+        }
+    }
+
+    public void getUploadImages(Context context) {
+        showProgressDialog(context, "Chargement de vos depenses en cours ...");
+        FirebaseFirestore.getInstance().collection("uploadImages")
+                .whereEqualTo("dahiraID", dahira.getDahiraID()).get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                uploadImages = documentSnapshot.toObject(UploadImage.class);
+                            }
+                            Log.d(TAG, "Image name downloaded");
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "Error downloading image name");
+                    }
+                });
     }
 
     class DahiraViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
@@ -78,9 +193,20 @@ public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraView
         @Override
         public void onClick(View v) {
             dahira = dahiraList.get(getAdapterPosition());
-            if (onlineUser.getListDahiraID().contains(dahira.getDahiraID())){
+            if (onlineUser.getListDahiraID().contains(dahira.getDahiraID())) {
                 indexOnlineUser = onlineUser.getListDahiraID().indexOf(dahira.getDahiraID());
             }
+
+            expense = null;
+            announcement = null;
+            event = null;
+            uploadImages = null;
+
+            getExistingExpenses(context);
+            getExistingAnnouncements(context);
+            getExistingEvents(context);
+            getUploadImages(context);
+
             Intent intent = new Intent(context, DahiraInfoActivity.class);
             context.startActivity(intent);
             dahiraList.clear();
@@ -96,5 +222,6 @@ public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraView
             context.startActivity(intent);
             return false;
         }
+
     }
 }

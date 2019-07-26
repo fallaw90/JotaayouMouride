@@ -1,12 +1,17 @@
 package com.fallntic.jotaayumouride;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Build;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
@@ -21,13 +26,13 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -49,6 +54,8 @@ public class DataHolder {
     public static String userID;
     public static String actionSelected = "";
     public static String typeOfContribution = "";
+
+    public static UploadImage uploadImages = null;
 
     public static boolean boolAddToDahira;
 
@@ -86,60 +93,52 @@ public class DataHolder {
         return connected;
     }
 
-    public static void showLogoDahira(Context context, ImageView imageView) {
-        FirebaseUser firebaseUser;
+    public static void showImage(Context context, String child1, String child2,
+                                 ImageView imageView) {
+
         FirebaseStorage firebaseStorage;
-        ProgressDialog progressDialog;
-        // Reference to the image file in Cloud Storage
-        progressDialog = new ProgressDialog(context);
         firebaseStorage = FirebaseStorage.getInstance();
         StorageReference storageReference;
         storageReference = firebaseStorage.getReference();
-        StorageReference logoDahiraReference = storageReference.child("logoDahira").child(dahira.getDahiraID());
-        showProgressDialog(context, "Chargement de l'image ...");
+        StorageReference imageReference = storageReference.child(child1).child(child2);
         // Download directly from StorageReference using Glide
         GlideApp.with(context)
-                .load(logoDahiraReference)
+                .load(imageReference)
                 .placeholder(R.drawable.logo_dahira)
+                .centerCrop()
                 .into(imageView);
-
-        dismissProgressDialog();
     }
 
-    public static void showProfileImage(Context context, String child, ImageView imageView) {
-        FirebaseUser firebaseUser;
+    public static void showImage(Context context, String child1, String child2,
+                                 String child3, String child4, ImageView imageView) {
+
         FirebaseStorage firebaseStorage;
-        ProgressDialog progressDialog;
-        // Reference to the image file in Cloud Storage
         firebaseStorage = FirebaseStorage.getInstance();
         StorageReference storageReference;
         storageReference = firebaseStorage.getReference();
-        StorageReference imageReference = storageReference.child("profileImage").child(child);
-        showProgressDialog(context, "Chargement de l'image ...");
+        StorageReference imageReference = storageReference.child(child1).child(child2)
+                .child(child3).child(child4);
         // Download directly from StorageReference using Glide
         GlideApp.with(context)
                 .load(imageReference)
+                .placeholder(R.drawable.image_loading)
+                .centerCrop()
                 .into(imageView);
-
-        dismissProgressDialog();
     }
 
-    public static void showProfileImage(Context context, String child, CircleImageView imageView) {
-        FirebaseUser firebaseUser;
+    public static void showImage(Context context, String child1,
+                                        String  child2, CircleImageView imageView) {
+
         FirebaseStorage firebaseStorage;
-        ProgressDialog progressDialog;
-        // Reference to the image file in Cloud Storage
         firebaseStorage = FirebaseStorage.getInstance();
         StorageReference storageReference;
         storageReference = firebaseStorage.getReference();
-        StorageReference imageReference = storageReference.child("profileImage").child(child);
-        showProgressDialog(context, "Chargement de l'image ...");
+        StorageReference imageReference = storageReference.child(child1).child(child2);
         // Download directly from StorageReference using Glide
         GlideApp.with(context)
                 .load(imageReference)
+                .centerCrop()
                 .into(imageView);
-
-        dismissProgressDialog();
     }
 
     public static void toastMessage(Context context, String message) {
@@ -162,15 +161,6 @@ public class DataHolder {
     }
 
     public static void logout(Context context) {
-        onlineUser = null;
-        selectedUser = null;
-        dahira = null;
-        actionSelected = "";
-        FirebaseAuth.getInstance().signOut();
-        context.startActivity(new Intent(context, MainActivity.class));
-    }
-
-    public static void logout() {
         typeOfContribution = "";
         onlineUser = null;
         selectedUser = null;
@@ -182,6 +172,7 @@ public class DataHolder {
         indexSelectedUser = -1;
         actionSelected = "";
         FirebaseAuth.getInstance().signOut();
+        context.startActivity(new Intent(context, MainActivity.class));
     }
 
     public static void showAlertDialog(final Context context, String message) {
@@ -191,8 +182,8 @@ public class DataHolder {
         dialogBuilder.setView(dialogView);
         dialogBuilder.setCancelable(false);
 
-        final TextView textViewAlertDialog = (TextView) dialogView.findViewById(R.id.textView_alertDialog);
-        final Button buttonAlertDialog = (Button) dialogView.findViewById(R.id.button_dialog);
+        final TextView textViewAlertDialog = dialogView.findViewById(R.id.textView_alertDialog);
+        final Button buttonAlertDialog = dialogView.findViewById(R.id.button_dialog);
 
         textViewAlertDialog.setText(message);
         final AlertDialog alertDialog = dialogBuilder.create();
@@ -213,8 +204,8 @@ public class DataHolder {
         dialogBuilder.setView(dialogView);
         dialogBuilder.setCancelable(false);
 
-        final TextView textViewAlertDialog = (TextView) dialogView.findViewById(R.id.textView_alertDialog);
-        final Button buttonAlertDialog = (Button) dialogView.findViewById(R.id.button_dialog);
+        final TextView textViewAlertDialog = dialogView.findViewById(R.id.textView_alertDialog);
+        final Button buttonAlertDialog = dialogView.findViewById(R.id.button_dialog);
 
         textViewAlertDialog.setText(message);
         final AlertDialog alertDialog = dialogBuilder.create();
@@ -736,6 +727,31 @@ public class DataHolder {
         }
     }
 
+    public static void call(Context context, Activity activity, String phoneNumber) {
+        try {
+            if(Build.VERSION.SDK_INT > 22) {
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CALL_PHONE}, 101);
+                    return;
+                }
+
+                Intent callIntent = new Intent(Intent.ACTION_CALL);
+                callIntent.setData(Uri.parse("tel:" + phoneNumber));
+                context.startActivity(callIntent);
+
+            }
+            else {
+                Intent callIntent = new Intent(Intent.ACTION_CALL);
+                callIntent.setData(Uri.parse("tel:" + phoneNumber));
+                context.startActivity(callIntent);
+            }
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+        }
+    }
+
 
     public static boolean isOnline(String email) {
         final boolean[] connected = new boolean[1];
@@ -743,11 +759,7 @@ public class DataHolder {
                 .addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
                     @Override
                     public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
-                        if (task.isSuccessful()) {
-                            connected[0] = true;
-                        } else {
-                            connected[0] = false;
-                        }
+                        connected[0] = task.isSuccessful();
                     }
                 });
 

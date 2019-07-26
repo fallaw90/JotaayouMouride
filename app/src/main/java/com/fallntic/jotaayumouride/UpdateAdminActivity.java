@@ -1,13 +1,13 @@
 package com.fallntic.jotaayumouride;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -18,12 +18,24 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.DataHolder.*;
+import static com.fallntic.jotaayumouride.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.getCurrentDate;
+import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrors;
+import static com.fallntic.jotaayumouride.DataHolder.isConnected;
+import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.DataHolder.saveContribution;
+import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
+import static com.fallntic.jotaayumouride.DataHolder.showImage;
+import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 
 public class UpdateAdminActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "CreateDahiraActivity";
@@ -48,6 +60,7 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_update_admin);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
@@ -76,10 +89,11 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
 
         textViewDahiraName.setText("Dahira " + dahira.getDahiraName());
         editTextUserName.setText(onlineUser.getUserName());
-        editTextPhoneNumber.setText(onlineUser.getUserPhoneNumber());
+        String phoneNumber = onlineUser.getUserPhoneNumber().substring(4);
+        editTextPhoneNumber.setText(phoneNumber);
         editTextAddress.setText(onlineUser.getAddress());
 
-        showProfileImage(this, onlineUser.getUserID(), imageViewProfile);
+        showImage(this, "profileImage", onlineUser.getUserID(), imageViewProfile);
         //getData();
         handler.postDelayed(new Runnable() {
             @Override
@@ -89,6 +103,8 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
         }, 5000);
 
         findViewById(R.id.button_save).setOnClickListener(this);
+
+        hideSoftKeyboard();
     }
 
     @Override
@@ -108,6 +124,29 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public void onBackPressed() {}
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main_menu, menu);
+
+        MenuItem iconBack;
+        iconBack = menu.findItem(R.id.icon_back);
+
+        iconBack.setVisible(true);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.icon_back:
+                finish();
+                break;
+        }
+        return true;
+    }
 
     public void setSpinner(){
         spinnerCommission = findViewById(R.id.spinner_commission);
@@ -148,6 +187,9 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
         if(!hasValidationErrors(name, editTextUserName, phoneNumber, editTextPhoneNumber,
                 address, editTextAddress, adiya, editTextAdiya, sass, editTextSass, social, editTextSocial)){
 
+            phoneNumber = "+221"+phoneNumber;
+
+            onlineUser.setUserPhoneNumber(phoneNumber);
             onlineUser.getListUpdatedDahiraID().add(dahira.getDahiraID());
             onlineUser.getListCommissions().add(commission);
             onlineUser.getListRoles().add(role);
@@ -224,5 +266,9 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
                         toastMessage(getApplicationContext(),"Dahira updated.");
                     }
                 });
+    }
+
+    public void hideSoftKeyboard(){
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 }
