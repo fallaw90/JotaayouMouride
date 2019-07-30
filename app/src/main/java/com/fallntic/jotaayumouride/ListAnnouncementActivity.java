@@ -16,10 +16,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
 import static com.fallntic.jotaayumouride.DataHolder.announcement;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
+import static com.fallntic.jotaayumouride.DataHolder.notificationBody;
+import static com.fallntic.jotaayumouride.DataHolder.notificationTitle;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 
 public class ListAnnouncementActivity extends AppCompatActivity {
@@ -39,7 +42,7 @@ public class ListAnnouncementActivity extends AppCompatActivity {
         toolbar.setSubtitle("Liste des annonces");
         setSupportActionBar(toolbar);
 
-        if (getSupportActionBar() != null){
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
@@ -61,6 +64,7 @@ public class ListAnnouncementActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 finish();
+                startActivity(new Intent(ListAnnouncementActivity.this, DahiraInfoActivity.class));
             }
         });
     }
@@ -75,7 +79,7 @@ public class ListAnnouncementActivity extends AppCompatActivity {
 
         //Attach adapter to recyclerView
         Intent intent = new Intent(ListAnnouncementActivity.this, DahiraInfoActivity.class);
-        if (announcement.getDahiraID() != null) {
+        if (announcement != null) {
             if (announcement.getDahiraID().equals(dahira.getDahiraID())) {
                 recyclerViewAnnoucement.setHasFixedSize(true);
                 recyclerViewAnnoucement.setLayoutManager(new LinearLayoutManager(this));
@@ -90,9 +94,14 @@ public class ListAnnouncementActivity extends AppCompatActivity {
                         " n'a aucun evenement enregistre pour le moment", intent);
             }
         } else {
+            if (notificationBody != null && notificationTitle != null)
+                intent = new Intent(ListAnnouncementActivity.this, MainActivity.class);
+
             showAlertDialog(ListAnnouncementActivity.this, "Dahira " + dahira.getDahiraName() +
                     " n'a aucun evenement enregistre pour le moment", intent);
         }
+        notificationTitle = null;
+        notificationBody = null;
     }
 
     @Override
@@ -111,7 +120,8 @@ public class ListAnnouncementActivity extends AppCompatActivity {
 
         switch (item.getItemId()) {
             case R.id.icon_add:
-                startActivity(new Intent(this, CreateDahiraActivity.class));
+                actionSelected = "addNewAnnouncement";
+                startActivity(new Intent(this, CreateAnnouncementActivity.class));
                 break;
         }
         return true;

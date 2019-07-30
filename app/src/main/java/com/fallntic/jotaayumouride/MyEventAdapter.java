@@ -9,9 +9,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import static com.fallntic.jotaayumouride.DataHolder.*;
+import static com.fallntic.jotaayumouride.DataHolder.event;
 
-public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHolder> {
+public class MyEventAdapter extends RecyclerView.Adapter<MyEventAdapter.EventViewHolder> {
 
     private Context context;
 
@@ -23,7 +23,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     private String startTime;
     private String endTime;
 
-    public EventAdapter(Context context) {
+    public MyEventAdapter(Context context) {
         this.context = context;
     }
 
@@ -61,28 +61,6 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         return event.getListDate().size();
     }
 
-    class EventViewHolder extends RecyclerView.ViewHolder {
-        TextView textViewTitle;
-        TextView textViewtDate;
-        TextView textViewLocation;
-        TextView textViewNote;
-        TextView textViewStartTime;
-        TextView textViewEndTime;
-        TextView textViewUserName;
-
-        public EventViewHolder(View itemView) {
-            super(itemView);
-
-            textViewUserName = itemView.findViewById(R.id.textView_userName);
-            textViewTitle = itemView.findViewById(R.id.textView_title);
-            textViewtDate = itemView.findViewById(R.id.textView_date);
-            textViewLocation = itemView.findViewById(R.id.textView_location);
-            textViewNote = itemView.findViewById(R.id.textView_note);
-            textViewStartTime = itemView.findViewById(R.id.textView_startTime);
-            textViewEndTime = itemView.findViewById(R.id.textView_endTime);
-        }
-    }
-
     public void removeItem(int position) {
 
         event.getListUserName().remove(position);
@@ -110,5 +88,27 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         event.getListUserID().add(position, userID);
 
         notifyItemInserted(position);
+    }
+
+    class EventViewHolder extends RecyclerView.ViewHolder {
+        TextView textViewTitle;
+        TextView textViewtDate;
+        TextView textViewLocation;
+        TextView textViewNote;
+        TextView textViewStartTime;
+        TextView textViewEndTime;
+        TextView textViewUserName;
+
+        public EventViewHolder(View itemView) {
+            super(itemView);
+
+            textViewUserName = itemView.findViewById(R.id.textView_userName);
+            textViewTitle = itemView.findViewById(R.id.textView_title);
+            textViewtDate = itemView.findViewById(R.id.textView_date);
+            textViewLocation = itemView.findViewById(R.id.textView_location);
+            textViewNote = itemView.findViewById(R.id.textView_note);
+            textViewStartTime = itemView.findViewById(R.id.textView_startTime);
+            textViewEndTime = itemView.findViewById(R.id.textView_endTime);
+        }
     }
 }

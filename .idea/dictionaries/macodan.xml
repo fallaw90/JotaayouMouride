@@ -11,8 +11,10 @@
       <w>ajoutee</w>
       <w>ajouter</w>
       <w>annonce</w>
+      <w>annoncement</w>
       <w>annonces</w>
       <w>annuler</w>
+      <w>anouncement</w>
       <w>appeler</w>
       <w>assurez</w>
       <w>aucun</w>
@@ -46,6 +48,8 @@
       <w>depenses</w>
       <w>dieuwrine</w>
       <w>drawerlayout</w>
+      <w>dépense</w>
+      <w>dépensée</w>
       <w>détails</w>
       <w>enregistre</w>
       <w>enregistree</w>
@@ -54,10 +58,13 @@
       <w>enregistré</w>
       <w>entrer</w>
       <w>entrez</w>
+      <w>envoyee</w>
       <w>erreur</w>
       <w>evenement</w>
       <w>evenements</w>
+      <w>evénement</w>
       <w>fcfa</w>
+      <w>firebase</w>
       <w>galerie</w>
       <w>glissez</w>
       <w>heure</w>
@@ -78,6 +85,7 @@
       <w>mouride</w>
       <w>nombre</w>
       <w>nouveau</w>
+      <w>nouvelle</w>
       <w>numero</w>
       <w>obligatoir</w>
       <w>obligatoire</w>
@@ -89,6 +97,7 @@
       <w>prix</w>
       <w>profil</w>
       <w>propos</w>
+      <w>publier</w>
       <w>puis</w>
       <w>rechercher</w>
       <w>recyclerview</w>
@@ -110,15 +119,18 @@
       <w>trouver</w>
       <w>utilisateur</w>
       <w>valeur</w>
+      <w>venir</w>
       <w>vers</w>
       <w>versé</w>
       <w>veuillez</w>
       <w>vide</w>
       <w>vides</w>
+      <w>vient</w>
       <w>viewt</w>
       <w>voir</w>
       <w>votre</w>
       <w>vous</w>
+      <w>événement</w>
     </words>
   </dictionary>
 </component>

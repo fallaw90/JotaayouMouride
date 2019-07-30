@@ -99,9 +99,10 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         recyclerViewUser = findViewById(R.id.recyclerview_users);
 
         textViewDahiraname = findViewById(R.id.textView_dahiraName);
-        textViewDahiraname.setText("Dahira " + dahira.getDahiraName() + "\nLis de tous les membres");
+        textViewDahiraname.setText("Dahira " + dahira.getDahiraName() + "\nListe de tous les membres");
 
         showListUser();
+
 
         if (actionSelected.equals("addNewMember")) {
             addNewMember();
@@ -467,17 +468,18 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                 break;
 
             case R.id.nav_displayMyDahira:
-                actionSelected = "myDahira";
+                DataHolder.displayDahira = "myDahira";
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 
             case R.id.nav_displayAllDahira:
-                actionSelected = "allDahira";
+                DataHolder.displayDahira = "allDahira";
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 
             case R.id.nav_searchDahira:
                 actionSelected = "searchDahira";
+                DataHolder.displayDahira = "allDahira";
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 

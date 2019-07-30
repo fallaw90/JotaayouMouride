@@ -32,6 +32,7 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -44,7 +45,6 @@ import static com.fallntic.jotaayumouride.DataHolder.checkPrefix;
 import static com.fallntic.jotaayumouride.DataHolder.createNewCollection;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
-import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
@@ -276,7 +276,8 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void saveUser(){
-        User user =  new User(userID, userName, userPhoneNumber, email, userAddress, listDahiraID,
+        String token_id = FirebaseInstanceId.getInstance().getToken();
+        User user =  new User(userID, userName, userPhoneNumber, email, userAddress, "token_id", listDahiraID,
                 listUpdatedDahiraID, listCommissions, listAdiya, listSass, listSocial, listRoles);
 
         showProgressDialog(this,"Enregistrement de vos informations personnelles cours ...");
@@ -364,9 +365,6 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     public void setAllNewCollection(){
-        if (onlineUser.getUserID() != null)
-            userID = onlineUser.getUserID();
-
         db.collection("listAdiya").document(userID).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override

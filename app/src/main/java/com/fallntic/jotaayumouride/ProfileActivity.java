@@ -31,8 +31,14 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -132,6 +138,8 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         });
 
         actionSelected = "";
+
+        saveTokenID();
 
         findViewById(R.id.button_verifyEmail).setOnClickListener(this);
     }
@@ -326,7 +334,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 break;
 
             case R.id.nav_displayMyDahira:
-                actionSelected = "myDahira";
+                DataHolder.displayDahira = "myDahira";
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 
@@ -335,12 +343,13 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 break;
 
             case R.id.nav_displayAllDahira:
-                actionSelected = "allDahira";
+                DataHolder.displayDahira = "allDahira";
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 
             case R.id.nav_searchDahira:
                 actionSelected = "searchDahira";
+                DataHolder.displayDahira = "allDahira";
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 
@@ -392,5 +401,39 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
         navigationView.setCheckedItem(R.id.nav_profile);
         hideMenuItem();
+    }
+
+    public void saveTokenID() {
+
+        FirebaseMessaging.getInstance().subscribeToTopic("JotaayouMouride");
+
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "getInstanceId failed", task.getException());
+                            return;
+                        }
+                        // Get new Instance ID token
+                        String token_id = task.getResult().getToken();
+
+                        Map<String, Object> tokenMap = new HashMap<>();
+                        tokenMap.put("tokenID", token_id);
+                        //toastMessage(ProfileActivity.this, token_id);
+
+                        FirebaseFirestore.getInstance().collection("users")
+                                .document(onlineUser.getUserID()).update(tokenMap)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        dismissProgressDialog();
+                                    }
+                                });
+
+                        // Log and toast
+                        Log.d(TAG, token_id);
+                    }
+                });
     }
 }

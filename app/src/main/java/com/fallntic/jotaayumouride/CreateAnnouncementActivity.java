@@ -1,9 +1,5 @@
 package com.fallntic.jotaayumouride;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -11,16 +7,19 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,20 +29,19 @@ import static com.fallntic.jotaayumouride.DataHolder.announcement;
 import static com.fallntic.jotaayumouride.DataHolder.createNewCollection;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.DataHolder.event;
 import static com.fallntic.jotaayumouride.DataHolder.getCurrentDate;
 import static com.fallntic.jotaayumouride.DataHolder.getDate;
-import static com.fallntic.jotaayumouride.DataHolder.getTime;
 import static com.fallntic.jotaayumouride.DataHolder.indexAnnouncementSelected;
-import static com.fallntic.jotaayumouride.DataHolder.indexEventSelected;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
 import static com.fallntic.jotaayumouride.DataHolder.logout;
+import static com.fallntic.jotaayumouride.DataHolder.objNotification;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.NotificationHelper.sendNotificationToSpecificUsers;
 
-public class CreateAnnouncementActivity extends AppCompatActivity implements View.OnClickListener  {
+public class CreateAnnouncementActivity extends AppCompatActivity implements View.OnClickListener {
     public static final String TAG = "CreateAnnouncementActivity";
 
     private TextView textViewTitle;
@@ -51,9 +49,26 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
     private EditText editTextNote;
 
     private String mDate;
-    private String note;
+    private String title;
+    private String message;
 
     private Button buttonDelete;
+
+    public static boolean hasValidationErrors(String mDate, EditText editTextDate,
+                                              String note, EditText editTextNote) {
+        if (mDate.isEmpty()) {
+            editTextDate.setError("Entrez une date");
+            editTextDate.requestFocus();
+            return true;
+        }
+        if (note.isEmpty()) {
+            editTextNote.setError("Tapez votre annonce ici");
+            editTextNote.requestFocus();
+            return true;
+        }
+
+        return false;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,11 +80,11 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
         toolbar.setSubtitle("Ajouter une annonce");
         setSupportActionBar(toolbar);
 
-        if (!isConnected(this)){
+        if (!isConnected(this)) {
             logout(this);
             finish();
-            Intent intent = new Intent(this, LoginActivity.class);
-            showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
+            Intent intent = new Intent(this, MainActivity.class);
+            showAlertDialog(this, "Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
 
         textViewTitle = findViewById(R.id.textView_title);
@@ -80,7 +95,7 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
         textViewTitle.setText("Creer une annonce pour le dahira " + dahira.getDahiraName());
         editTextDate.setText(getCurrentDate());
 
-        if (actionSelected.equals("updateAnnouncement")){
+        if (actionSelected.equals("updateAnnouncement")) {
             toolbar.setSubtitle("Modifier mon annonce");
             textViewTitle.setText("Modifier cette annonce pour le dahira " + dahira.getDahiraName());
             editTextDate.setText(announcement.getListDate().get(indexAnnouncementSelected));
@@ -93,11 +108,24 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
         findViewById(R.id.button_cancel).setOnClickListener(this);
         findViewById(R.id.button_delete).setOnClickListener(this);
 
+        hideSoftKeyboard();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(this, DahiraInfoActivity.class));
+    }
+
+    @Override
+    protected void onDestroy() {
+        dismissProgressDialog();
+        super.onDestroy();
     }
 
     @Override
     public void onClick(View view) {
-        switch(view.getId()){
+        switch (view.getId()) {
             case R.id.editText_date:
                 getDate(this, editTextDate);
                 break;
@@ -122,18 +150,29 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
     }
 
     @Override
-    protected void onDestroy() {
+    protected void onPause() {
+        super.onPause();
         dismissProgressDialog();
-        super.onDestroy();
     }
 
-    public void saveAnnouncement(final Context context){
+    @Override
+    protected void onStop() {
+        super.onStop();
+        dismissProgressDialog();
+    }
+
+    public void saveAnnouncement(final Context context) {
+        if (announcement == null)
+            announcement = new Announcement();
+
         mDate = editTextDate.getText().toString().trim();
-        note = editTextNote.getText().toString().trim();
+        message = editTextNote.getText().toString().trim();
 
-        if (!hasValidationErrors(mDate, editTextDate, note, editTextNote)){
+        objNotification = new ObjNotification();
 
-            showProgressDialog(context,"Enregistrement de votre evenement en cours ...");
+        if (!hasValidationErrors(mDate, editTextDate, message, editTextNote)) {
+
+            //showProgressDialog(context,"Enregistrement de votre evenement en cours ...");
             FirebaseFirestore.getInstance().collection("announcements").document(dahira.getDahiraID()).get()
                     .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @SuppressLint("LongLogTag")
@@ -144,12 +183,17 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
                                 announcement = documentSnapshot.toObject(Announcement.class);
                                 updateAnnouncement(CreateAnnouncementActivity.this);
                                 Log.d(TAG, "Collection evenement updated");
-                            }
-                            else {
-                                announcement = createNewAnnouncementObject(mDate, note);
+                            } else {
+                                announcement = createNewAnnouncementObject(mDate, message);
                                 createNewCollection(context, "announcements", dahira.getDahiraID(), announcement);
+                                Log.d(TAG, "Announcement deleted");
                             }
-                            Log.d(TAG, "Collection evenement created");
+
+                            title = "Nouvelle Annoncement";
+                            sendNotificationToSpecificUsers(context, title, message);
+                            //Intent intent = new Intent(context, ListAnnouncementActivity.class);
+                            //showAlertDialog(context, "Annonce enregistre avec succe", intent);
+
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -163,7 +207,7 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
         }
     }
 
-    public Announcement createNewAnnouncementObject(String mDate, String note){
+    public Announcement createNewAnnouncementObject(String mDate, String note) {
 
         List<String> listUserID = new ArrayList<String>();
         listUserID.add(onlineUser.getUserID());
@@ -182,27 +226,25 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
         return announcement;
     }
 
-    public void updateAnnouncement(final Context context){
+    public void updateAnnouncement(final Context context) {
         mDate = editTextDate.getText().toString().trim();
-        note = editTextNote.getText().toString().trim();
+        message = editTextNote.getText().toString().trim();
 
-        if (actionSelected.equals("addNewAnnouncement")){
+        if (actionSelected.equals("addNewAnnouncement")) {
             announcement.getListUserID().add(onlineUser.getUserID());
             announcement.getListUserName().add(onlineUser.getUserName());
             announcement.getListDate().add(mDate);
-            announcement.getListNote().add(note);
-        }
-        else if (actionSelected.equals("updateAnnouncement")){
+            announcement.getListNote().add(message);
+        } else if (actionSelected.equals("updateAnnouncement")) {
             announcement.getListDate().set(indexAnnouncementSelected, mDate);
-            announcement.getListNote().set(indexAnnouncementSelected, note);
-        }
-        else if (actionSelected.equals("deleteAnnouncement")){
+            announcement.getListNote().set(indexAnnouncementSelected, message);
+        } else if (actionSelected.equals("deleteAnnouncement")) {
             announcement.getListUserID().remove(indexAnnouncementSelected);
             announcement.getListUserName().remove(indexAnnouncementSelected);
             announcement.getListDate().remove(indexAnnouncementSelected);
             announcement.getListNote().remove(indexAnnouncementSelected);
         }
-        showProgressDialog(context,"Enregistrement de votre annonce en cours ...");
+        showProgressDialog(context, "Enregistrement de votre annonce en cours ...");
         FirebaseFirestore.getInstance().collection("announcements")
                 .document(dahira.getDahiraID())
                 .update("listUserID", announcement.getListUserID(),
@@ -215,17 +257,16 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
                     public void onSuccess(Void aVoid) {
                         dismissProgressDialog();
                         Intent intent = new Intent(context, ListAnnouncementActivity.class);
-                        if (actionSelected.equals("updateAnnouncement")){
+                        if (actionSelected.equals("updateAnnouncement")) {
                             showAlertDialog(CreateAnnouncementActivity.this,
                                     "Annonce modifiee avec succe", intent);
                             Log.d(TAG, "Announcement updated");
-                        }
-                        else if (actionSelected.equals("deleteAnnouncement")){
+                        } else if (actionSelected.equals("deleteAnnouncement")) {
                             showAlertDialog(context, "Annonce supprimee avec succe", intent);
                             Log.d(TAG, "Announcement deleted");
-                        }
-                        else if (actionSelected.equals("addNewAnnouncement")){
-                            showAlertDialog(context, "Annonce ajoutee avec succe", intent);
+                        } else if (actionSelected.equals("addNewAnnouncement")) {
+                            toastMessage(context, "Annonce ajoutee avec succe");
+                            startActivity(intent);
                             Log.d(TAG, "New announcement added");
                         }
                         actionSelected = "";
@@ -245,20 +286,7 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
                 });
     }
 
-    public static boolean hasValidationErrors(String mDate, EditText editTextDate,
-                                              String note, EditText editTextNote) {
-        if(mDate.isEmpty()) {
-            editTextDate.setError("Entrez une date");
-            editTextDate.requestFocus();
-            return true;
-        }
-        if (note.isEmpty()) {
-            editTextNote.setError("Tapez votre annonce ici");
-            editTextNote.requestFocus();
-            return true;
-        }
-
-        return false;
+    public void hideSoftKeyboard() {
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
-
 }

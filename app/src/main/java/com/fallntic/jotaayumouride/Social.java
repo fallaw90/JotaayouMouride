@@ -1,9 +1,10 @@
 package com.fallntic.jotaayumouride;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Social {
+public class Social implements Serializable {
 
     private List<String> listDahiraID = new ArrayList<String>();
     private List<String> listDate = new ArrayList<String>();

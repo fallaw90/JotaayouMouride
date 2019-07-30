@@ -67,7 +67,10 @@ public class ShowImagesActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(ShowImagesActivity.this, DahiraInfoActivity.class));
+                if (dahira.getDahiraID() != null)
+                    startActivity(new Intent(ShowImagesActivity.this, DahiraInfoActivity.class));
+                else
+                    startActivity(new Intent(ShowImagesActivity.this, MainActivity.class));
             }
         });
 

@@ -271,6 +271,7 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
                 dahiraPhoneNumber, editTextDahiraPhoneNumber, siege, editTextSiege, totalAdiya, editTextAdiya,
                 totalSass, editTextSass, totalSocial, editTextSocial)) {
 
+            dahiraPhoneNumber = "+221"+dahiraPhoneNumber;
             dahiraID = db.collection("dahiras").document().getId();
             dahira = new Dahira(dahiraID, dahiraName, dieuwrine, dahiraPhoneNumber, siege, totalAdiya,
                     totalSass, totalSocial,"1", listCommissionDahira, listResponsibles);

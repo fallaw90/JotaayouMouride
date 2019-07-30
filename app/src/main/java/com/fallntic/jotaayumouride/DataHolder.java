@@ -53,7 +53,16 @@ public class DataHolder {
     public static String dahiraID;
     public static String userID;
     public static String actionSelected = "";
+    public static String displayDahira = "";
     public static String typeOfContribution = "";
+    public static String loadEvent = "";
+
+    /*Set to null one more time in class:
+     *      ListAnnouncementActivity line 103
+     *      ListExpenseActivity line 139
+     */
+    public static String notificationTitle = null;
+    public static String notificationBody = null;
 
     public static UploadImage uploadImages = null;
 
@@ -66,6 +75,7 @@ public class DataHolder {
     public static Adiya adiya = null;
     public static Sass sass = null;
     public static Social social = null;
+    public static ObjNotification objNotification = null;
     public static Announcement announcement = null;
     public static Expense expense = null;
 
@@ -155,7 +165,7 @@ public class DataHolder {
     }
 
     public static void dismissProgressDialog() {
-        if (progressDialog != null && progressDialog.isShowing()) {
+        if (progressDialog != null) {
             progressDialog.dismiss();
         }
     }
@@ -198,6 +208,7 @@ public class DataHolder {
     }
 
     public static void showAlertDialog(final Context context, String message, final Intent intent) {
+
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View dialogView = inflater.inflate(R.layout.alert_dialog, null);
@@ -208,14 +219,14 @@ public class DataHolder {
         final Button buttonAlertDialog = dialogView.findViewById(R.id.button_dialog);
 
         textViewAlertDialog.setText(message);
-        final AlertDialog alertDialog = dialogBuilder.create();
-        alertDialog.show();
+        final AlertDialog alertDialogMessage = dialogBuilder.create();
+        alertDialogMessage.show();
 
         buttonAlertDialog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 context.startActivity(intent);
-                alertDialog.dismiss();
+                alertDialogMessage.dismiss();
             }
         });
     }
@@ -529,17 +540,16 @@ public class DataHolder {
                 });
     }
 
+
     public static void deleteDocument(final Context context, String collectionName, String documentID) {
-        showProgressDialog(context, "Suppression de votre evenement en cours ..");
         FirebaseFirestore.getInstance().collection(collectionName).document(documentID).delete()
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            dismissProgressDialog();
+                            //toastMessage(context, task.getException().getMessage());
                         } else {
-                            dismissProgressDialog();
-                            toastMessage(context, task.getException().getMessage());
+                            //toastMessage(context, task.getException().getMessage());
                         }
                     }
                 });

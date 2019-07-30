@@ -237,12 +237,12 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
                 break;
 
             case R.id.nav_displayMyDahira:
-                actionSelected = "myDahira";
+                DataHolder.displayDahira = "myDahira";
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 
             case R.id.nav_displayAllDahira:
-                actionSelected = "allDahira";
+                DataHolder.displayDahira = "allDahira";
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 

@@ -1,31 +1,30 @@
 package com.fallntic.jotaayumouride;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
-import android.content.Context;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
-import java.util.ArrayList;
-import java.util.List;
+import static com.fallntic.jotaayumouride.DataHolder.boolAddToDahira;
+import static com.fallntic.jotaayumouride.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.DataHolder.getCurrentDate;
+import static com.fallntic.jotaayumouride.DataHolder.getDate;
+import static com.fallntic.jotaayumouride.DataHolder.indexSelectedUser;
+import static com.fallntic.jotaayumouride.DataHolder.isDouble;
+import static com.fallntic.jotaayumouride.DataHolder.saveContribution;
+import static com.fallntic.jotaayumouride.DataHolder.selectedUser;
+import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.DataHolder.updateDocument;
 
-import static androidx.constraintlayout.widget.Constraints.TAG;
-import static com.fallntic.jotaayumouride.DataHolder.*;
 public class AddContributionActivity extends AppCompatActivity implements View.OnClickListener{
+    private final String TAG = "AddContributionActivity";
 
     private TextView textViewTitle;
     private EditText editTextDate;
@@ -35,6 +34,8 @@ public class AddContributionActivity extends AppCompatActivity implements View.O
     private String mDate = getCurrentDate();
     private String amount;
     private String typeOfContribution;
+    private String token;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,10 +51,10 @@ public class AddContributionActivity extends AppCompatActivity implements View.O
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        textViewTitle = (TextView) findViewById(R.id.textView_title);
-        editTextDate = (EditText) findViewById(R.id.editText_date);
-        editTextAmount = (EditText) findViewById(R.id.editText_amount);
-        radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
+        textViewTitle = findViewById(R.id.textView_title);
+        editTextDate = findViewById(R.id.editText_date);
+        editTextAmount = findViewById(R.id.editText_amount);
+        radioGroup = findViewById(R.id.radioGroup);
 
         textViewTitle.setText(selectedUser.getUserName() + " membre du dahira " + dahira.getDahiraName());
         editTextDate.setText(mDate);
@@ -106,7 +107,7 @@ public class AddContributionActivity extends AppCompatActivity implements View.O
         // get selected radio button from radioGroup
         int selectedId = radioGroup.getCheckedRadioButtonId();
         // find the radiobutton by returned id
-        radioButton = (RadioButton) findViewById(selectedId);
+        radioButton = findViewById(selectedId);
         typeOfContribution = (String) radioButton.getText();
         toastMessage(this, typeOfContribution);
         if (!hasValidationErrors(amount, editTextAmount)){
@@ -149,6 +150,9 @@ public class AddContributionActivity extends AppCompatActivity implements View.O
                 updateDocument(this, "users", selectedUser.getUserID(),
                         "listSocial", selectedUser.getListSocial());
             }
+
+            
+
         }
     }
 

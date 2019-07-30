@@ -11,6 +11,7 @@ public class User implements Serializable {
     private String userPhoneNumber;
     private String email;
     private String address;
+    private String tokenID;
     private List<String> listDahiraID = new ArrayList<String>();
     private List<String> listUpdatedDahiraID = new ArrayList<String>();
     private List<String> listCommissions = new ArrayList<String>();
@@ -19,7 +20,7 @@ public class User implements Serializable {
     private List<String> listSocial = new ArrayList<String>();
     private List<String> listRoles = new ArrayList<String>();
 
-    public User(String userID, String userName, String userPhoneNumber, String email, String address,
+    public User(String userID, String userName, String userPhoneNumber, String email, String address, String tokenID,
                 List<String> listDahiraID, List<String> listUpdatedDahiraID, List<String> listCommissions,
                 List<String> listAdiya, List<String> listSass, List<String> listSocial, List<String> listRoles) {
         this.userID = userID;
@@ -27,6 +28,7 @@ public class User implements Serializable {
         this.userPhoneNumber = userPhoneNumber;
         this.email = email;
         this.address = address;
+        this.tokenID = tokenID;
         this.listDahiraID = listDahiraID;
         this.listUpdatedDahiraID = listUpdatedDahiraID;
         this.listCommissions = listCommissions;
@@ -85,6 +87,14 @@ public class User implements Serializable {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getTokenID() {
+        return tokenID;
+    }
+
+    public void setTokenID(String tokenID) {
+        this.tokenID = tokenID;
     }
 
     public List<String> getListDahiraID() {

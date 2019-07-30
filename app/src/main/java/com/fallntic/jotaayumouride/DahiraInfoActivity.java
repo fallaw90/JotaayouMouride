@@ -1,12 +1,14 @@
 package com.fallntic.jotaayumouride;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -22,8 +24,12 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -35,10 +41,12 @@ import static com.fallntic.jotaayumouride.DataHolder.event;
 import static com.fallntic.jotaayumouride.DataHolder.expense;
 import static com.fallntic.jotaayumouride.DataHolder.indexOnlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
+import static com.fallntic.jotaayumouride.DataHolder.loadEvent;
 import static com.fallntic.jotaayumouride.DataHolder.logout;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showImage;
+import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.userID;
 
 public class DahiraInfoActivity extends AppCompatActivity implements View.OnClickListener,
@@ -49,10 +57,6 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
             textViewTotalAdiya, textViewTotalSass, textViewTotalSocial, textViewPhoneNumber;
 
     private ImageView imageView;
-
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private User newMember = new User();
-    private boolean imageSaved = true, dahiraSaved = true, dahiraUpdated = true, userSaved = true;
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle toggle;
@@ -215,11 +219,13 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 break;
 
             case R.id.nav_displayUsers:
+                actionSelected = "";
                 startActivity(new Intent(this, ListUserActivity.class));
                 break;
 
             case R.id.nav_searchUser:
                 actionSelected = "searchUser";
+                DataHolder.displayDahira = "allDahira";
                 startActivity(new Intent(this, ListUserActivity.class));
                 break;
 
@@ -229,12 +235,12 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 break;
 
             case R.id.nav_displayMyDahira:
-                actionSelected = "myDahira";
+                DataHolder.displayDahira = "myDahira";
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 
             case R.id.nav_displayAllDahira:
-                actionSelected = "allDahira";
+                DataHolder.displayDahira = "allDahira";
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 
@@ -269,6 +275,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 if (event == null || event.getListUserID().isEmpty())
                     showAlertDialog(this, "La liste des evenements est vide!");
                 else
+                    loadEvent = "myEvents";
                     startActivity(new Intent(this, ListEventActivity.class));
                 break;
 
@@ -356,5 +363,30 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         nav_Menu.findItem(R.id.nav_displayAdiya).setVisible(false);
         nav_Menu.findItem(R.id.nav_displaySass).setVisible(false);
         nav_Menu.findItem(R.id.nav_displaySocial).setVisible(false);
+    }
+
+    public void getDahira(Context context) {
+        showProgressDialog(context, "Chargement de vos depenses en cours ...");
+        FirebaseFirestore.getInstance().collection("expenses")
+                .whereEqualTo("dahiraID", dahira.getDahiraID()).get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        dismissProgressDialog();
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                expense = documentSnapshot.toObject(Expense.class);
+                            }
+                            Log.d(TAG, "Expenses downloaded");
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        dismissProgressDialog();
+                        Log.d(TAG, "Error downloading Expenses");
+                    }
+                });
     }
 }

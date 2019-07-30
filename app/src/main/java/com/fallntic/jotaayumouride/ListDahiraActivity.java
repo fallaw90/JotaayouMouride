@@ -36,7 +36,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrors;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
 import static com.fallntic.jotaayumouride.DataHolder.logout;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
@@ -86,15 +85,15 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
 
         if (actionSelected.equals("searchDahira")) {
             dialogSearchDahira();
-            actionSelected = "allDahira";
+            actionSelected = "";
         }
 
-        if (actionSelected.equals("myDahira")) {
+        if (DataHolder.displayDahira.equals("myDahira")) {
             toolbar.setSubtitle("Mes dahiras");
             getMyDahiras();
         }
 
-        if (actionSelected.equals("allDahira")) {
+        if (DataHolder.displayDahira.equals("allDahira")) {
             toolbar.setSubtitle("Liste des dahiras a Dakar");
             getAllDahiras();
         }
@@ -102,6 +101,7 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
 
     @Override
     protected void onDestroy() {
+        actionSelected = "";
         dismissProgressDialog();
         super.onDestroy();
     }
@@ -109,7 +109,6 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        actionSelected = "";
         finish();
         startActivity(new Intent(this, ProfileActivity.class));
     }
@@ -192,7 +191,7 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
                 });
     }
 
-    private void searchDahira(final String name, final String phoneNumber) {
+    private void searchDahira(final String name) {
 
         //Attach adapter to recyclerView
         recyclerViewDahira.setHasFixedSize(true);
@@ -226,11 +225,6 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
                                                 dahiraList.add(dahira);
                                             }
                                         }
-                                    }
-                                }
-                                if (phoneNumber != null && !phoneNumber.equals("")) {
-                                    if (phoneNumber.equals(dahira.getDahiraPhoneNumber())) {
-                                        dahiraList.add(dahira);
                                     }
                                 }
                             }
@@ -268,11 +262,13 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
 
         final EditText editTextDialogName = dialogView.findViewById(R.id.editText_dialogName);
         final EditText editTextDialogPhoneNumber = dialogView.findViewById(R.id.editText_dialogPhoneNumber);
+        final TextView textView = dialogView.findViewById(R.id.textView_dialogOr);
         Button buttonSearch = dialogView.findViewById(R.id.button_dialogSearch);
         Button buttonCancel = dialogView.findViewById(R.id.button_cancel);
 
         editTextDialogName.setHint("Nom du dahira");
-        editTextDialogPhoneNumber.setHint("Numero telephone du dahira");
+        editTextDialogPhoneNumber.setVisibility(View.GONE);
+        textView.setVisibility(View.GONE);
 
         final AlertDialog alertDialog = dialogBuilder.create();
         alertDialog.setTitle("Rechercher un dahira");
@@ -281,11 +277,15 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
         buttonSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String userName = editTextDialogName.getText().toString().trim();
-                String phoneNumber = editTextDialogPhoneNumber.getText().toString().trim();
+                String dahiraName = editTextDialogName.getText().toString().trim();
 
-                if (!hasValidationErrors(userName, editTextDialogName, phoneNumber, editTextDialogPhoneNumber)) {
-                    searchDahira(userName, phoneNumber);
+                if (dahiraName.isEmpty()) {
+                    editTextDialogName.setError("Donner le nom du dahira!");
+                    editTextDialogName.requestFocus();
+                    return;
+                }
+                else {
+                    searchDahira(dahiraName);
                     alertDialog.dismiss();
                 }
             }
@@ -312,7 +312,7 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
                 break;
 
             case R.id.nav_displayMyDahira:
-                actionSelected = "myDahira";
+                DataHolder.displayDahira = "myDahira";
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 
@@ -321,12 +321,13 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
                 break;
 
             case R.id.nav_displayAllDahira:
-                actionSelected = "allDahira";
+                DataHolder.displayDahira = "allDahira";
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 
             case R.id.nav_searchDahira:
                 actionSelected = "searchDahira";
+                DataHolder.displayDahira = "allDahira";
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 

@@ -1,13 +1,5 @@
 package com.fallntic.jotaayumouride;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -21,13 +13,22 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import static com.fallntic.jotaayumouride.CreateExpenseActivity.updateDahira;
-import static com.fallntic.jotaayumouride.DataHolder.*;
+import static com.fallntic.jotaayumouride.DataHolder.notificationBody;
+import static com.fallntic.jotaayumouride.DataHolder.notificationTitle;
+
 
 public class ListExpenseActivity extends AppCompatActivity {
     private final String TAG = "ListExpenseActivity";
@@ -55,17 +56,17 @@ public class ListExpenseActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        if (!isConnected(this)) {
+        if (!DataHolder.isConnected(this)) {
             finish();
             Intent intent = new Intent(this, LoginActivity.class);
-            showAlertDialog(this, "Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
+            DataHolder.showAlertDialog(this, "Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
 
         recyclerViewExpense = findViewById(R.id.recyclerview_expense);
         textViewTitle = findViewById(R.id.textView_title);
         coordinatorLayout = findViewById(R.id.coordinatorLayout);
 
-        textViewTitle.setText("Liste des depense du dahira " + dahira.getDahiraName());
+        textViewTitle.setText("Liste des depense du dahira " + DataHolder.dahira.getDahiraName());
 
         showListExpenses();
 
@@ -103,7 +104,7 @@ public class ListExpenseActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        dismissProgressDialog();
+        DataHolder.dismissProgressDialog();
         super.onDestroy();
     }
 
@@ -117,8 +118,8 @@ public class ListExpenseActivity extends AppCompatActivity {
 
         //Attach adapter to recyclerView
         Intent intent = new Intent(ListExpenseActivity.this, DahiraInfoActivity.class);
-        if (expense != null) {
-            if (expense.getDahiraID().equals(dahira.getDahiraID())) {
+        if (DataHolder.expense != null) {
+            if (DataHolder.expense.getDahiraID().equals(DataHolder.dahira.getDahiraID())) {
                 recyclerViewExpense.setHasFixedSize(true);
                 recyclerViewExpense.setLayoutManager(new LinearLayoutManager(this));
                 recyclerViewExpense.setVisibility(View.VISIBLE);
@@ -127,13 +128,16 @@ public class ListExpenseActivity extends AppCompatActivity {
                 recyclerViewExpense.setAdapter(expenseAdapter);
                 expenseAdapter.notifyDataSetChanged();
             } else {
-                showAlertDialog(ListExpenseActivity.this, "Dahira " + dahira.getDahiraName() +
+                DataHolder.showAlertDialog(ListExpenseActivity.this, "Dahira " + DataHolder.dahira.getDahiraName() +
                         " n'a aucune depense enregistree pour le moment", intent);
             }
         } else {
-            showAlertDialog(ListExpenseActivity.this, "Dahira " + dahira.getDahiraName() +
+            DataHolder.showAlertDialog(ListExpenseActivity.this, "Dahira " + DataHolder.dahira.getDahiraName() +
                     " n'a aucun depense enregistre pour le moment", intent);
         }
+
+        notificationTitle = null;
+        notificationBody = null;
     }
 
     private void enableSwipeToDeleteAndUndo() {
@@ -142,17 +146,17 @@ public class ListExpenseActivity extends AppCompatActivity {
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
 
                 final int position = viewHolder.getAdapterPosition();
-                final String typeOfExpense = expense.getListTypeOfExpense().get(position);
-                final String price = expense.getListPrice().get(position);
-                final String userID = expense.getListUserID().get(position);
-                final String mDate = expense.getListDate().get(position);
-                final String note = expense.getListNote().get(position);
-                final String userName = expense.getListUserName().get(position);
+                final String typeOfExpense = DataHolder.expense.getListTypeOfExpense().get(position);
+                final String price = DataHolder.expense.getListPrice().get(position);
+                final String userID = DataHolder.expense.getListUserID().get(position);
+                final String mDate = DataHolder.expense.getListDate().get(position);
+                final String note = DataHolder.expense.getListNote().get(position);
+                final String userName = DataHolder.expense.getListUserName().get(position);
 
                 //Update totalAdiya dahira
                 expenseAdapter.removeItem(position);
                 updateExpenseCollection(ListExpenseActivity.this);
-                updateDahira(ListExpenseActivity.this, price, typeOfExpense, false);
+                CreateExpenseActivity.updateDahira(ListExpenseActivity.this, price, typeOfExpense, false);
 
                 Snackbar snackbar = null;
                 snackbar = Snackbar.make(coordinatorLayout,
@@ -168,7 +172,7 @@ public class ListExpenseActivity extends AppCompatActivity {
                                     userName, position);
 
                             updateExpenseCollection(ListExpenseActivity.this);
-                            updateDahira(ListExpenseActivity.this, price, typeOfExpense, true);
+                            CreateExpenseActivity.updateDahira(ListExpenseActivity.this, price, typeOfExpense, true);
 
                             recyclerViewExpense.scrollToPosition(position);
                         }
@@ -185,20 +189,20 @@ public class ListExpenseActivity extends AppCompatActivity {
     }
 
     public void updateExpenseCollection(final Context context) {
-        showProgressDialog(context, "Mis a jour de votre depense en cours ...");
+        DataHolder.showProgressDialog(context, "Mis a jour de votre depense en cours ...");
         FirebaseFirestore.getInstance().collection("expenses")
-                .document(dahira.getDahiraID())
-                .update("listUserID", expense.getListUserID(),
-                        "listUserName", expense.getListUserName(),
-                        "listDate", expense.getListDate(),
-                        "listNote", expense.getListNote(),
-                        "listPrice", expense.getListPrice(),
-                        "listTypeOfExpense", expense.getListTypeOfExpense())
+                .document(DataHolder.dahira.getDahiraID())
+                .update("listUserID", DataHolder.expense.getListUserID(),
+                        "listUserName", DataHolder.expense.getListUserName(),
+                        "listDate", DataHolder.expense.getListDate(),
+                        "listNote", DataHolder.expense.getListNote(),
+                        "listPrice", DataHolder.expense.getListPrice(),
+                        "listTypeOfExpense", DataHolder.expense.getListTypeOfExpense())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @SuppressLint("LongLogTag")
                     @Override
                     public void onSuccess(Void aVoid) {
-                        dismissProgressDialog();
+                        DataHolder.dismissProgressDialog();
                         Log.d(TAG, "Expense updated");
                     }
                 })
@@ -206,10 +210,10 @@ public class ListExpenseActivity extends AppCompatActivity {
                     @SuppressLint("LongLogTag")
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        dismissProgressDialog();
-                        actionSelected = "";
+                        DataHolder.dismissProgressDialog();
+                        DataHolder.actionSelected = "";
                         Intent intent = new Intent(context, DahiraInfoActivity.class);
-                        showAlertDialog(context, "Erreur lors de l'enregistrement." +
+                        DataHolder.showAlertDialog(context, "Erreur lors de l'enregistrement." +
                                 "\nReessayez plutard SVP", intent);
                         Log.d(TAG, "Error updated expense");
                     }

@@ -18,24 +18,38 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.fallntic.jotaayumouride.CreateEventActivity.updateEvent;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.event;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
+import static com.fallntic.jotaayumouride.DataHolder.loadEvent;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
+import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 
 public class ListEventActivity extends AppCompatActivity {
     private final String TAG = "ListEventActivity";
 
     private TextView textViewDahiraName;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private RecyclerView recyclerViewEvent;
-    private final EventAdapter eventAdapter = new EventAdapter(ListEventActivity.this);
+    public static final String NODE_EVENTS = "events";
+    private RecyclerView recyclerViewMyEvent;
     private CoordinatorLayout coordinatorLayout;
+    private RecyclerView recyclerViewAllEvent;
+    private FirebaseAuth mAuth;
+    private List<Event> eventList;
+    private AllEventAdapter allEventAdapter;
+    private MyEventAdapter myEventAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +60,7 @@ public class ListEventActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setSubtitle("Liste des evenements");
         setSupportActionBar(toolbar);
+
 
         // add back arrow to toolbar
         if (getSupportActionBar() != null) {
@@ -60,20 +75,41 @@ public class ListEventActivity extends AppCompatActivity {
                     "verifier votre connexion internet puis reesayez SVP", intent);
         }
 
-        recyclerViewEvent = findViewById(R.id.recyclerview_event);
-        textViewDahiraName = findViewById(R.id.textView_dahiraName);
-        coordinatorLayout = findViewById(R.id.coordinatorLayout);
-        textViewDahiraName.setText("Liste des evenements du dahira " + dahira.getDahiraName());
-
-        showListEvents();
-        enableSwipeToDeleteAndUndo();
+        if (DataHolder.loadEvent.equals("myEvents")){
+            loadMyEvents();
+            enableSwipeToDeleteAndUndo();
+        }
+        else if (DataHolder.loadEvent.equals("allEvents")) {
+            loadAllEvents();
+        }
 
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
+                if (DataHolder.notificationTitle != null && DataHolder.notificationBody != null) {
+                    DataHolder.notificationTitle = null;
+                    DataHolder.notificationBody = null;
+                    startActivity(new Intent(ListEventActivity.this, MainActivity.class));
+                }
+                else
+                    finish();
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if (DataHolder.notificationTitle != null || DataHolder.notificationBody != null) {
+            DataHolder.notificationTitle = null;
+            DataHolder.notificationBody = null;
+            startActivity(new Intent(ListEventActivity.this, MainActivity.class));
+        }
+        else if (loadEvent.equals("allEvents")){
+            startActivity(new Intent(ListEventActivity.this, MainActivity.class));
+        }
+        else
+            finish();
     }
 
     @Override
@@ -82,15 +118,46 @@ public class ListEventActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    private void showListEvents() {
+    private void loadMyEvents() {
+
+        recyclerViewMyEvent = findViewById(R.id.recyclerview_event);
+        textViewDahiraName = findViewById(R.id.textView_dahiraName);
+        textViewDahiraName.setText("Liste des evenements du dahira " + dahira.getDahiraName());
 
         //Attach adapter to recyclerView
-        recyclerViewEvent.setHasFixedSize(true);
-        recyclerViewEvent.setLayoutManager(new LinearLayoutManager(this));
-        recyclerViewEvent.setVisibility(View.VISIBLE);
+        recyclerViewMyEvent.setHasFixedSize(true);
+        recyclerViewMyEvent.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewMyEvent.setVisibility(View.VISIBLE);
 
-        recyclerViewEvent.setAdapter(eventAdapter);
-        eventAdapter.notifyDataSetChanged();
+        myEventAdapter = new MyEventAdapter(this);
+        recyclerViewMyEvent.setAdapter(myEventAdapter);
+        myEventAdapter.notifyDataSetChanged();
+    }
+
+    private void loadAllEvents() {
+        eventList = new ArrayList<>();
+        recyclerViewAllEvent = findViewById(R.id.recyclerview_event);
+        recyclerViewAllEvent.setLayoutManager(new LinearLayoutManager(this));
+
+        showProgressDialog(this, "Chargement des evenements en cours ...");
+        db.collection("events").get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        dismissProgressDialog();
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                            for (DocumentSnapshot documentSnapshot : list) {
+                                Event event = documentSnapshot.toObject(Event.class);
+                                eventList.add(event);
+                            }
+
+                            allEventAdapter = new AllEventAdapter(ListEventActivity.this, eventList);
+                            recyclerViewAllEvent.setAdapter(allEventAdapter);
+                        }
+                        allEventAdapter.notifyDataSetChanged();
+                    }
+                });
     }
 
     @Override
@@ -100,7 +167,8 @@ public class ListEventActivity extends AppCompatActivity {
 
         MenuItem iconAdd;
         iconAdd = menu.findItem(R.id.icon_add);
-        iconAdd.setVisible(true);
+        if (loadEvent.equals("myEvents"))
+            iconAdd.setVisible(true);
         return true;
     }
 
@@ -129,9 +197,10 @@ public class ListEventActivity extends AppCompatActivity {
                 final String startTime = event.getListStartTime().get(position);
                 final String endTime = event.getListEndTime().get(position);
                 final String userID = event.getListUserID().get(position);
+                coordinatorLayout = findViewById(R.id.coordinatorLayout);
 
                 //Update totalAdiya dahira
-                eventAdapter.removeItem(position);
+                myEventAdapter.removeItem(position);
                 updateEvent(ListEventActivity.this);
 
                 Snackbar snackbar = null;
@@ -143,12 +212,12 @@ public class ListEventActivity extends AppCompatActivity {
                         @Override
                         public void onClick(View view) {
 
-                            eventAdapter.restoreItem(userName, mDate, title, note, location,
+                            myEventAdapter.restoreItem(userName, mDate, title, note, location,
                                     startTime, endTime, userID, position);
 
                             updateEvent(ListEventActivity.this);
 
-                            recyclerViewEvent.scrollToPosition(position);
+                            recyclerViewMyEvent.scrollToPosition(position);
                         }
                     });
 
@@ -159,6 +228,6 @@ public class ListEventActivity extends AppCompatActivity {
         };
 
         ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeToDeleteCallback);
-        itemTouchhelper.attachToRecyclerView(recyclerViewEvent);
+        itemTouchhelper.attachToRecyclerView(recyclerViewMyEvent);
     }
 }

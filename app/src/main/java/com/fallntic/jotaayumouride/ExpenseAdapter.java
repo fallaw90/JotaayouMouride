@@ -1,7 +1,6 @@
 package com.fallntic.jotaayumouride;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,18 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
-import static com.fallntic.jotaayumouride.DataHolder.announcement;
 import static com.fallntic.jotaayumouride.DataHolder.expense;
-import static com.fallntic.jotaayumouride.DataHolder.indexAnnouncementSelected;
-import static com.fallntic.jotaayumouride.DataHolder.indexExpenseSelected;
-import static com.fallntic.jotaayumouride.DataHolder.indexOnlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
-import static com.fallntic.jotaayumouride.DataHolder.typeOfContribution;
 
 public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseViewHolder> {
 

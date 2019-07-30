@@ -1,9 +1,5 @@
 package com.fallntic.jotaayumouride;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -11,18 +7,19 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,19 +28,16 @@ import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
 import static com.fallntic.jotaayumouride.DataHolder.createNewCollection;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.DataHolder.event;
 import static com.fallntic.jotaayumouride.DataHolder.expense;
 import static com.fallntic.jotaayumouride.DataHolder.getCurrentDate;
 import static com.fallntic.jotaayumouride.DataHolder.getDate;
-import static com.fallntic.jotaayumouride.DataHolder.indexExpenseSelected;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
 import static com.fallntic.jotaayumouride.DataHolder.isDouble;
-import static com.fallntic.jotaayumouride.DataHolder.logout;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
-import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.DataHolder.updateDocument;
+import static com.fallntic.jotaayumouride.NotificationHelper.sendNotificationToSpecificUsers;
 
 public class CreateExpenseActivity extends AppCompatActivity implements View.OnClickListener {
     public static final String TAG = "CreateExpenseActivity";
@@ -58,6 +52,7 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
     private String mDate;
     private String note;
     private String typeOfExpense;
+    private String title;
 
     private RadioGroup radioRoleGroup;
     private RadioButton radioRoleButton;
@@ -85,7 +80,7 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
         editTextDate = findViewById(R.id.editText_date);
         editTextNote = findViewById(R.id.editText_note);
         editTextPrice = findViewById(R.id.editText_price);
-        radioRoleGroup = (RadioGroup) findViewById(R.id.radioGroup);
+        radioRoleGroup = findViewById(R.id.radioGroup);
 
         textViewTitle.setText("Ajouter une depense pour le dahira " + dahira.getDahiraName());
         editTextDate.setText(getCurrentDate());
@@ -133,10 +128,13 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
         // get selected radio button from radioGroup
         int selectedId = radioRoleGroup.getCheckedRadioButtonId();
         // find the radiobutton by returned id
-        radioRoleButton = (RadioButton) findViewById(selectedId);
+        radioRoleButton = findViewById(selectedId);
         typeOfExpense = (String) radioRoleButton.getText();
 
         if (!hasValidationErrors(mDate, editTextDate, note, editTextNote, price, editTextPrice)) {
+
+            if (expense == null)
+                expense = new Expense();
 
             expense.setDahiraID(dahira.getDahiraID());
             expense.getListUserID().add(onlineUser.getUserID());
@@ -165,6 +163,14 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
                                 showAlertDialog(context, "Depense ajoutee avec succe", intent);
                                 Log.d(TAG, "New Expense added");
                             }
+
+                            title = "Nouvelle Dépense";
+                            String message = "Une some de " + price + " FCFA" + " a été dépensée dans le compte " +
+                                    typeOfExpense + " de votre dahira " + dahira.getDahiraName() + " par " +
+                                    onlineUser.getUserName();
+
+                            sendNotificationToSpecificUsers(context, title, message);
+
                             Log.d(TAG, "Collection evenement created");
                         }
                     })
@@ -196,8 +202,9 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
                     public void onSuccess(Void aVoid) {
                         dismissProgressDialog();
                         Intent intent = new Intent(context, ListExpenseActivity.class);
-                        showAlertDialog(context, "Depense modifiee avec succe", intent);
+                        showAlertDialog(context, "Depense enregistre avec succe", intent);
                         Log.d(TAG, "Expense updated");
+                        dismissProgressDialog();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {

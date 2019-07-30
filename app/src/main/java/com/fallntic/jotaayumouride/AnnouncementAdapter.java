@@ -16,7 +16,6 @@ import java.util.List;
 import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
 import static com.fallntic.jotaayumouride.DataHolder.announcement;
 import static com.fallntic.jotaayumouride.DataHolder.indexAnnouncementSelected;
-import static com.fallntic.jotaayumouride.DataHolder.indexEventSelected;
 import static com.fallntic.jotaayumouride.DataHolder.indexOnlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 
@@ -82,9 +81,10 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapte
 
         @Override
         public void onClick(View v) {
+            indexAnnouncementSelected = getAdapterPosition();
             if (announcement.getListUserID().get(indexAnnouncementSelected).equals(onlineUser.getUserID()) ||
                     onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")){
-                indexAnnouncementSelected = getAdapterPosition();
+
                 actionSelected = "updateAnnouncement";
                 Intent intent = new Intent(context, CreateAnnouncementActivity.class);
                 context.startActivity(intent);

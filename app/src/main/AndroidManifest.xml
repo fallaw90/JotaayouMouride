@@ -20,7 +20,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:appComponentFactory">
-        <activity android:name=".SignUpPhoneActivity"></activity>
+        <activity android:name=".SendNotificationActivity" />
+        <activity android:name=".NotificationActivity" />
+        <activity android:name=".SignUpPhoneActivity" />
         <activity android:name=".VerifyPhoneActivity" />
         <activity android:name=".LoginPhoneActivity" />
         <activity android:name=".ShowImagesActivity" />
@@ -52,6 +54,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service android:name=".MyFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+
     </application>
 
 </manifest>

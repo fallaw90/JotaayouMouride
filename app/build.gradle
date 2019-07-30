@@ -46,13 +46,15 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
     implementation 'com.google.firebase:firebase-auth:18.1.0'
-    implementation 'com.google.firebase:firebase-storage:18.1.0'
-    implementation 'com.google.firebase:firebase-database:18.0.0'
-    implementation 'com.google.firebase:firebase-firestore:20.1.0'
+    implementation 'com.google.firebase:firebase-storage:18.1.1'
+    implementation 'com.google.firebase:firebase-database:18.0.1'
+    implementation 'com.google.firebase:firebase-firestore:20.2.0'
     implementation 'com.google.firebase:firebase-core:17.0.1'
+    implementation 'com.google.firebase:firebase-messaging:19.0.1'
     implementation 'com.firebaseui:firebase-ui-storage:4.3.1'
 
     implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation 'androidx.media:media:1.0.1'
 
     implementation 'com.github.bumptech.glide:glide:4.8.0'
     annotationProcessor 'androidx.annotation:annotation:1.1.0'
@@ -62,4 +64,9 @@ dependencies {
     implementation 'com.google.android.material:material:1.0.0'
 
     implementation 'com.mikhaellopez:circularimageview:3.0.2'
+
+    implementation 'com.github.iammannan:EasyNotifyLibProject:1.2'
+
+    implementation 'com.squareup.retrofit2:retrofit:2.5.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.6.0'
 }
