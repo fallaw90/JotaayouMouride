@@ -1,14 +1,12 @@
 package com.fallntic.jotaayumouride;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -24,12 +22,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -46,7 +39,6 @@ import static com.fallntic.jotaayumouride.DataHolder.logout;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showImage;
-import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.userID;
 
 public class DahiraInfoActivity extends AppCompatActivity implements View.OnClickListener,
@@ -256,8 +248,9 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 break;
 
             case R.id.nav_addAnnouncement:
-                actionSelected = "addNewAnnouncement";
-                startActivity(new Intent(this, CreateAnnouncementActivity.class));
+                startActivity(new Intent(this, GalleryAudioActivity.class));
+                //actionSelected = "addNewAnnouncement";
+                //startActivity(new Intent(this, CreateAnnouncementActivity.class));
                 break;
 
             case R.id.nav_displayAnnouncement:
@@ -284,8 +277,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 break;
 
             case R.id.nav_audio:
-                showAlertDialog(this, "Cette page est en cours de contruction." +
-                        "Revenez plutard SVP.");
+                startActivity(new Intent(this, ShowSongsActivity .class));
                 break;
 
             case R.id.nav_video:
@@ -353,6 +345,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
             nav_Menu.findItem(R.id.nav_addExpense).setVisible(false);
         }
 
+        nav_Menu.findItem(R.id.nav_home).setVisible(false);
         nav_Menu.findItem(R.id.nav_displayMyDahira).setVisible(false);
         nav_Menu.findItem(R.id.nav_displayAllDahira).setVisible(false);
         nav_Menu.findItem(R.id.nav_addDahira).setVisible(false);
@@ -363,30 +356,5 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         nav_Menu.findItem(R.id.nav_displayAdiya).setVisible(false);
         nav_Menu.findItem(R.id.nav_displaySass).setVisible(false);
         nav_Menu.findItem(R.id.nav_displaySocial).setVisible(false);
-    }
-
-    public void getDahira(Context context) {
-        showProgressDialog(context, "Chargement de vos depenses en cours ...");
-        FirebaseFirestore.getInstance().collection("expenses")
-                .whereEqualTo("dahiraID", dahira.getDahiraID()).get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        dismissProgressDialog();
-                        if (!queryDocumentSnapshots.isEmpty()) {
-                            for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                                expense = documentSnapshot.toObject(Expense.class);
-                            }
-                            Log.d(TAG, "Expenses downloaded");
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        dismissProgressDialog();
-                        Log.d(TAG, "Error downloading Expenses");
-                    }
-                });
     }
 }

@@ -1,5 +1,12 @@
 package com.fallntic.jotaayumouride;
 
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -8,21 +15,29 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.graphics.Color;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.TextView;
-
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.ContributionAdapter.*;
-import static com.fallntic.jotaayumouride.DataHolder.*;
-import static com.fallntic.jotaayumouride.UserInfoActivity.*;
+import static com.fallntic.jotaayumouride.ContributionAdapter.getListAmount;
+import static com.fallntic.jotaayumouride.ContributionAdapter.getListDate;
+import static com.fallntic.jotaayumouride.ContributionAdapter.getListUserName;
+import static com.fallntic.jotaayumouride.DataHolder.adiya;
+import static com.fallntic.jotaayumouride.DataHolder.boolAddToDahira;
+import static com.fallntic.jotaayumouride.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.DataHolder.isConnected;
+import static com.fallntic.jotaayumouride.DataHolder.notificationBody;
+import static com.fallntic.jotaayumouride.DataHolder.notificationTitle;
+import static com.fallntic.jotaayumouride.DataHolder.sass;
+import static com.fallntic.jotaayumouride.DataHolder.selectedUser;
+import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
+import static com.fallntic.jotaayumouride.DataHolder.social;
+import static com.fallntic.jotaayumouride.DataHolder.typeOfContribution;
+import static com.fallntic.jotaayumouride.DataHolder.updateContribution;
+import static com.fallntic.jotaayumouride.UserInfoActivity.getAdiya;
+import static com.fallntic.jotaayumouride.UserInfoActivity.getSass;
+import static com.fallntic.jotaayumouride.UserInfoActivity.getSocial;
 
 public class ListContributionActivity extends AppCompatActivity {
 
@@ -79,12 +94,9 @@ public class ListContributionActivity extends AppCompatActivity {
                 startActivity(new Intent(getApplicationContext(), UserInfoActivity.class));
             }
         });
-    }
 
-    @Override
-    protected void onDestroy() {
-        dismissProgressDialog();
-        super.onDestroy();
+        notificationTitle = null;
+        notificationBody = null;
     }
 
     @Override

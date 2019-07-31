@@ -37,8 +37,9 @@ import static com.fallntic.jotaayumouride.DataHolder.logout;
 import static com.fallntic.jotaayumouride.DataHolder.objNotification;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.MainActivity.progressBar;
+import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
 import static com.fallntic.jotaayumouride.NotificationHelper.sendNotificationToSpecificUsers;
 
 public class CreateAnnouncementActivity extends AppCompatActivity implements View.OnClickListener {
@@ -86,6 +87,14 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
             Intent intent = new Intent(this, MainActivity.class);
             showAlertDialog(this, "Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
+
+
+        ListUserActivity.scrollView = findViewById(R.id.scrollView);
+        //ProgressBar from static variable MainActivity
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+        relativeLayoutProgressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
 
         textViewTitle = findViewById(R.id.textView_title);
         editTextDate = findViewById(R.id.editText_date);
@@ -152,13 +161,11 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
     @Override
     protected void onPause() {
         super.onPause();
-        dismissProgressDialog();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        dismissProgressDialog();
     }
 
     public void saveAnnouncement(final Context context) {
@@ -172,13 +179,13 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
 
         if (!hasValidationErrors(mDate, editTextDate, message, editTextNote)) {
 
-            //showProgressDialog(context,"Enregistrement de votre evenement en cours ...");
+            ListUserActivity.showProgressBar();
             FirebaseFirestore.getInstance().collection("announcements").document(dahira.getDahiraID()).get()
                     .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @SuppressLint("LongLogTag")
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            dismissProgressDialog();
+                            ListUserActivity.hideProgressBar();
                             if (documentSnapshot.exists()) {
                                 announcement = documentSnapshot.toObject(Announcement.class);
                                 updateAnnouncement(CreateAnnouncementActivity.this);
@@ -200,7 +207,7 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
                         @SuppressLint("LongLogTag")
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            dismissProgressDialog();
+                            ListUserActivity.hideProgressBar();
                             Log.d(TAG, e.toString());
                         }
                     });
@@ -244,7 +251,8 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
             announcement.getListDate().remove(indexAnnouncementSelected);
             announcement.getListNote().remove(indexAnnouncementSelected);
         }
-        showProgressDialog(context, "Enregistrement de votre annonce en cours ...");
+
+        ListUserActivity.showProgressBar();
         FirebaseFirestore.getInstance().collection("announcements")
                 .document(dahira.getDahiraID())
                 .update("listUserID", announcement.getListUserID(),
@@ -255,7 +263,7 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
                     @SuppressLint("LongLogTag")
                     @Override
                     public void onSuccess(Void aVoid) {
-                        dismissProgressDialog();
+                        ListUserActivity.hideProgressBar();
                         Intent intent = new Intent(context, ListAnnouncementActivity.class);
                         if (actionSelected.equals("updateAnnouncement")) {
                             showAlertDialog(CreateAnnouncementActivity.this,
@@ -276,7 +284,7 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
                     @SuppressLint("LongLogTag")
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        dismissProgressDialog();
+                        ListUserActivity.hideProgressBar();
                         actionSelected = "";
                         Intent intent = new Intent(context, ListAnnouncementActivity.class);
                         showAlertDialog(context, "Erreur lors de l'enregistrement de votre annonce." +

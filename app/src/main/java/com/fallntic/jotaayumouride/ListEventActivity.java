@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -34,13 +35,17 @@ import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.event;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
 import static com.fallntic.jotaayumouride.DataHolder.loadEvent;
+import static com.fallntic.jotaayumouride.DataHolder.notificationBody;
+import static com.fallntic.jotaayumouride.DataHolder.notificationTitle;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
+import static com.fallntic.jotaayumouride.MainActivity.progressBar;
+import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
 
 public class ListEventActivity extends AppCompatActivity {
     private final String TAG = "ListEventActivity";
 
     private TextView textViewDahiraName;
+    private TextView textViewDelete;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     public static final String NODE_EVENTS = "events";
     private RecyclerView recyclerViewMyEvent;
@@ -75,12 +80,21 @@ public class ListEventActivity extends AppCompatActivity {
                     "verifier votre connexion internet puis reesayez SVP", intent);
         }
 
+        ListUserActivity.scrollView = findViewById(R.id.scrollView);
+        //ProgressBar from static variable MainActivity
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+        relativeLayoutProgressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
+
         if (DataHolder.loadEvent.equals("myEvents")){
             loadMyEvents();
             enableSwipeToDeleteAndUndo();
         }
         else if (DataHolder.loadEvent.equals("allEvents")) {
             loadAllEvents();
+            textViewDelete = findViewById(R.id.textView_deleteInstruction);
+            textViewDelete.setVisibility(View.GONE);
         }
 
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -95,6 +109,9 @@ public class ListEventActivity extends AppCompatActivity {
                     finish();
             }
         });
+
+        notificationTitle = null;
+        notificationBody = null;
     }
 
     @Override
@@ -139,12 +156,12 @@ public class ListEventActivity extends AppCompatActivity {
         recyclerViewAllEvent = findViewById(R.id.recyclerview_event);
         recyclerViewAllEvent.setLayoutManager(new LinearLayoutManager(this));
 
-        showProgressDialog(this, "Chargement des evenements en cours ...");
+        ListUserActivity.showProgressBar();
         db.collection("events").get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        dismissProgressDialog();
+                        ListUserActivity.hideProgressBar();
                         if (!queryDocumentSnapshots.isEmpty()) {
                             List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
                             for (DocumentSnapshot documentSnapshot : list) {
@@ -157,7 +174,12 @@ public class ListEventActivity extends AppCompatActivity {
                         }
                         allEventAdapter.notifyDataSetChanged();
                     }
-                });
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                ListUserActivity.hideProgressBar();
+            }
+        });
     }
 
     @Override

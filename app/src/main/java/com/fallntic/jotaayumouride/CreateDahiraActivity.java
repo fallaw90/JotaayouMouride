@@ -43,13 +43,13 @@ import java.util.List;
 
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dahiraID;
-import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrors;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.MainActivity.progressBar;
+import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
 
 public class CreateDahiraActivity extends AppCompatActivity implements View.OnClickListener  {
 
@@ -118,6 +118,13 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
             Intent intent = new Intent(this, LoginActivity.class);
             showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
+
+        ListUserActivity.scrollView = findViewById(R.id.scrollView);
+        //ProgressBar from static variable MainActivity
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+        relativeLayoutProgressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
 
         //Dahira info
         editTextDahiraName = findViewById(R.id.editText_dahiraName);
@@ -276,12 +283,12 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
             dahira = new Dahira(dahiraID, dahiraName, dieuwrine, dahiraPhoneNumber, siege, totalAdiya,
                     totalSass, totalSocial,"1", listCommissionDahira, listResponsibles);
 
-            showProgressDialog(this, "Enregistrement de votre dahira cours ...");
+            ListUserActivity.showProgressBar();
             db.collection("dahiras").document(dahiraID).set(dahira)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            dismissProgressDialog();
+                            ListUserActivity.hideProgressBar();
                             saveLogoDahira();
                             updateUserListDahiraID();
                         }
@@ -289,7 +296,7 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            dismissProgressDialog();
+                            ListUserActivity.hideProgressBar();
                             dahiraSaved = false;
                             toastMessage(getApplicationContext(), "Error adding dahira!");
                             Log.d(TAG, e.toString());
@@ -300,21 +307,21 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
 
     private void saveLogoDahira() {
         if(uri != null) {
-            DataHolder.showProgressDialog(this, "Enregistrement de votre image cours ...");
+            ListUserActivity.showProgressBar();
             final StorageReference ref = storageReference.child("logoDahira").child(dahira.getDahiraID());
             ref.putFile(uri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            ListUserActivity.hideProgressBar();
                             Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
                             while (!urlTask.isSuccessful());
-                            dismissProgressDialog();
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            dismissProgressDialog();
+                            ListUserActivity.hideProgressBar();
                             imageSaved = false;
                             DataHolder.toastMessage(getApplicationContext(),"Failed "+e.getMessage());
                         }
@@ -324,11 +331,13 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
 
     private void updateUserListDahiraID(){
         onlineUser.getListDahiraID().add(dahiraID);
+        ListUserActivity.showProgressBar();
         db.collection("users").document(DataHolder.onlineUser.getUserID())
                 .update("listDahiraID", onlineUser.getListDahiraID())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                        ListUserActivity.hideProgressBar();
                         final Intent intent = new Intent(CreateDahiraActivity.this, UpdateAdminActivity.class);
                         showAlertDialog(CreateDahiraActivity.this, "Dahira cree avec succes", intent);
                     }
@@ -336,6 +345,7 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        ListUserActivity.hideProgressBar();
                         dahiraUpdated = false;
                     }
                 });

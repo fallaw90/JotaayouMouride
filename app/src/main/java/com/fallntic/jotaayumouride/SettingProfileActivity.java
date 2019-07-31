@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -37,6 +36,8 @@ import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showImage;
 import static com.fallntic.jotaayumouride.DataHolder.userID;
+import static com.fallntic.jotaayumouride.MainActivity.progressBar;
+import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
 
 public class SettingProfileActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "UpdateUserActivity";
@@ -79,6 +80,13 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
             showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
 
+        //ProgressBar from static variable MainActivity
+        ListUserActivity.scrollView = findViewById(R.id.scrollView);
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+        relativeLayoutProgressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
+
         progressDialog = new ProgressDialog(this);
 
         editTextUserName = findViewById(R.id.editText_userName);
@@ -98,7 +106,6 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
 
     @Override
     protected void onDestroy() {
-        dismissProgressDialog();
         super.onDestroy();
     }
 
@@ -145,23 +152,23 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
 
     private void uploadImage() {
         if(uri != null && onlineUser.getUserID() != null) {
-            showProgressDialog("Enregistrement de votre image cours ...");
+            ListUserActivity.showProgressBar();
             final StorageReference ref = storageReference.child("profileImage").child(userID);
             ref.putFile(uri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            ListUserActivity.hideProgressBar();
                             Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
                             while (!urlTask.isSuccessful());
-                            dismissProgressDialog();
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            dismissProgressDialog();
+                            ListUserActivity.hideProgressBar();
                             imageSaved = false;
-                            toastMessage("Failed "+e.getMessage());
+                            System.out.println("Failed "+e.getMessage());
                         }
                     });
         }
@@ -189,15 +196,15 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
         if(!hasValidationErrors(name, address)){
             onlineUser.setUserName(name);
             onlineUser.setAddress(address);
-            showProgressDialog("Enregistrement de vos modification ...");
 
+            ListUserActivity.showProgressBar();
             db.collection("users").document(onlineUser.getUserID())
                     .update("userName", onlineUser.getUserName(),
                             "address", onlineUser.getAddress())
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            dismissProgressDialog();
+                            ListUserActivity.hideProgressBar();
                             uploadImage();
                             showAlertDialog(SettingProfileActivity.this, "Enregistrement reussi");
                         }
@@ -205,8 +212,8 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            toastMessage("Error update data");
-                            dismissProgressDialog();
+                            ListUserActivity.hideProgressBar();
+                            System.out.println("Error update data");
                         }
                     });
 
@@ -232,23 +239,6 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
         return false;
     }
 
-    public void toastMessage(String message){
-        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-    }
-
-    public void showProgressDialog(String str){
-        progressDialog.setMessage(str);
-        progressDialog.setCancelable(false);
-        progressDialog.setCanceledOnTouchOutside(false);
-        dismissProgressDialog();
-        progressDialog.show();
-    }
-
-    private void dismissProgressDialog() {
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
-    }
 
     public void hideSoftKeyboard(){
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);

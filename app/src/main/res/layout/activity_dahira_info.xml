@@ -5,7 +5,6 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
     android:orientation="vertical"
     tools:context=".ProfileActivity">
 
@@ -39,7 +38,7 @@
                     android:layout_height="150dp"
                     android:layout_centerHorizontal="true"
                     android:layout_gravity="center"
-                    android:layout_margin="10dp"
+                    android:layout_margin="@dimen/_15sdp"
                     android:scaleType="centerCrop"
                     app:srcCompat="@drawable/logo_dahira" />
 
@@ -59,7 +58,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10dp"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-                    android:textColor="@color/colorAccent"
+                    android:textColor="@color/black"
                     android:textStyle="bold" />
 
                 <TextView
@@ -68,8 +67,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10dp"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-                    android:textColor="@color/colorAccent"
-                    android:textStyle="bold" />
+                    android:textColor="@color/black"/>
 
                 <TextView
                     android:id="@+id/textView_dahiraPhoneNumber"
@@ -77,8 +75,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10dp"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-                    android:textColor="@color/colorAccent"
-                    android:textStyle="bold" />
+                    android:textColor="@color/black"/>
 
                 <TextView
                     android:id="@+id/textView_totalAdiya"
@@ -86,8 +83,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10dp"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-                    android:textColor="@color/colorAccent"
-                    android:textStyle="bold" />
+                    android:textColor="@color/black"/>
 
                 <TextView
                     android:id="@+id/textView_totalSass"
@@ -95,8 +91,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10dp"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-                    android:textColor="@color/colorAccent"
-                    android:textStyle="bold" />
+                    android:textColor="@color/black"/>
 
                 <TextView
                     android:id="@+id/textView_totalSocial"
@@ -104,8 +99,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10dp"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-                    android:textColor="@color/colorAccent"
-                    android:textStyle="bold" />
+                    android:textColor="@color/black"/>
 
                 <TextView
                     android:id="@+id/textView_totalMembers"
@@ -113,15 +107,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10dp"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-                    android:textColor="@color/colorAccent"
-                    android:textStyle="bold" />
+                    android:textColor="@color/black"/>
 
                 <Button
                     android:id="@+id/button_back"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
-                    android:background="#7fa208"
+                    android:background="@color/green"
                     android:text="@string/backButton"
                     android:textAllCaps="false"
                     android:textColor="@color/colorAccent" />

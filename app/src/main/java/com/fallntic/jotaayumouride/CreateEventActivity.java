@@ -22,7 +22,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
 import static com.fallntic.jotaayumouride.DataHolder.createNewCollection;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.event;
 import static com.fallntic.jotaayumouride.DataHolder.getCurrentDate;
 import static com.fallntic.jotaayumouride.DataHolder.getDate;
@@ -31,7 +30,8 @@ import static com.fallntic.jotaayumouride.DataHolder.indexEventSelected;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
+import static com.fallntic.jotaayumouride.MainActivity.progressBar;
+import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
 
 public class CreateEventActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -56,7 +56,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     private Button buttonDelete;
 
     public static void updateEvent(final Context context) {
-        showProgressDialog(context, "Enregistrement de votre evenement en cours ...");
+        ListUserActivity.showProgressBar();
         FirebaseFirestore.getInstance().collection("events")
                 .document(dahira.getDahiraID())
                 .update("listUserID", event.getListUserID(),
@@ -70,14 +70,14 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        dismissProgressDialog();
+                        ListUserActivity.hideProgressBar();
                         Log.d(TAG, "Event updated");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        dismissProgressDialog();
+                        ListUserActivity.hideProgressBar();
                         actionSelected = "";
                         Intent intent = new Intent(context, DataHolder.class);
                         showAlertDialog(context, "Erreur lors de l'enregistrement de votre evenement." +
@@ -151,6 +151,13 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                     "verifier votre connexion internet puis reesayez SVP", intent);
         }
 
+        ListUserActivity.scrollView = findViewById(R.id.scrollView);
+        //ProgressBar from static variable MainActivity
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+        relativeLayoutProgressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
+
         textViewTitle = findViewById(R.id.textView_title);
         editTextTitleEvent = findViewById(R.id.editText_titleEvent);
         editTextDate = findViewById(R.id.editText_date);
@@ -195,7 +202,6 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     protected void onDestroy() {
-        dismissProgressDialog();
         super.onDestroy();
     }
 
@@ -254,13 +260,13 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             event.getListNote().add(note);
             event.getListLocation().add(location);
 
-            showProgressDialog(context, "Enregistrement de votre evenement en cours ...");
+            ListUserActivity.showProgressBar();
             FirebaseFirestore.getInstance().collection("events").
                     document(dahira.getDahiraID()).get()
                     .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            dismissProgressDialog();
+                            ListUserActivity.hideProgressBar();
                             if (documentSnapshot.exists()) {
                                 updateEvent(CreateEventActivity.this);
                                 Intent intent = new Intent(context, ListEventActivity.class);
@@ -286,7 +292,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            dismissProgressDialog();
+                            ListUserActivity.hideProgressBar();
                             Log.d(TAG, e.toString());
                         }
                     });

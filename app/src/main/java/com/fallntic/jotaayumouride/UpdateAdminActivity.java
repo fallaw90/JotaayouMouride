@@ -9,7 +9,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -18,9 +17,11 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -36,6 +37,8 @@ import static com.fallntic.jotaayumouride.DataHolder.saveContribution;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showImage;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.MainActivity.progressBar;
+import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
 
 public class UpdateAdminActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "CreateDahiraActivity";
@@ -57,10 +60,7 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_update_admin);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
@@ -73,6 +73,13 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
             Intent intent = new Intent(this, LoginActivity.class);
             showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
+
+        //ProgressBar from static variable MainActivity
+        ListUserActivity.scrollView = findViewById(R.id.scrollView);
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+        relativeLayoutProgressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
 
         db = FirebaseFirestore.getInstance();
 
@@ -231,6 +238,7 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
 
     private void updateUserCollection(){
 
+        ListUserActivity.showProgressBar();
         db.collection("users").document(onlineUser.getUserID())
                 .update("listUpdatedDahiraID", onlineUser.getListUpdatedDahiraID(),
                         "userName", onlineUser.getUserName(),
@@ -244,9 +252,15 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        toastMessage(getApplicationContext(), "User updated.");
+                        ListUserActivity.hideProgressBar();
+                        toastMessage(getApplicationContext(), "Enregistrement reussi.");
                     }
-                });
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                ListUserActivity.hideProgressBar();
+            }
+        });
     }
 
     private void updateDahira(){
@@ -255,6 +269,7 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
 
        dahira.setTotalMember(Integer.toString(totalMember++));
 
+        ListUserActivity.showProgressBar();
         db.collection("dahiras").document(dahira.getDahiraID())
                 .update("totalAdiya", dahira.getTotalAdiya(),
                         "totalSass", dahira.getTotalSass(),
@@ -263,9 +278,15 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        toastMessage(getApplicationContext(),"Dahira updated.");
+                        ListUserActivity.hideProgressBar();
+                        toastMessage(getApplicationContext(),"Enregistrement reussi.");
                     }
-                });
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                ListUserActivity.hideProgressBar();
+            }
+        });
     }
 
     public void hideSoftKeyboard(){

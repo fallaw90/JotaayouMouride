@@ -25,13 +25,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
 import static com.fallntic.jotaayumouride.DataHolder.logout;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.MainActivity.progressBar;
+import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
 import static com.fallntic.jotaayumouride.R.id.textView_signUp;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
@@ -53,7 +53,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        //startActivity(new Intent(this, LoginPhoneActivity.class));
+        //ProgressBar from static variable MainActivity
+        ListUserActivity.scrollView = findViewById(R.id.scrollView);
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+        relativeLayoutProgressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
 
         mAuth = FirebaseAuth.getInstance();
         firebaseUser = mAuth.getCurrentUser();
@@ -110,15 +115,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         String password = editTextPassword.getText().toString().trim();
 
         if (!hasValidationErrorsLogin(email, editTextEmail, password, editTextPassword)) {
-            showProgressDialog(this, "Connection en cours ...");
+            ListUserActivity.showProgressBar();
             mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
-                        dismissProgressDialog();
+                        ListUserActivity.hideProgressBar();
                         getUser();
                     } else {
-                        dismissProgressDialog();
+                        ListUserActivity.hideProgressBar();
                         Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -127,12 +132,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     public void getUser() {
+        ListUserActivity.showProgressBar();
         FirebaseFirestore.getInstance().collection("users").
                 whereEqualTo("userID", mAuth.getCurrentUser().getUid()).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        dismissProgressDialog();
+                        ListUserActivity.hideProgressBar();
                         if (!queryDocumentSnapshots.isEmpty()) {
                             for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                                 onlineUser = documentSnapshot.toObject(User.class);
@@ -147,7 +153,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        dismissProgressDialog();
+                        ListUserActivity.hideProgressBar();
                         Log.d(TAG, "Error downloading Expenses");
                     }
                 });

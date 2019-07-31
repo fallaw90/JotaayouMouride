@@ -9,7 +9,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -53,6 +52,8 @@ import static com.fallntic.jotaayumouride.DataHolder.showImage;
 import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.DataHolder.userID;
+import static com.fallntic.jotaayumouride.MainActivity.progressBar;
+import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
 
 public class ProfileActivity extends AppCompatActivity implements View.OnClickListener,
         DrawerMenu, NavigationView.OnNavigationItemSelectedListener {
@@ -63,7 +64,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     private TextView textViewAdress;
     private TextView textViewPhoneNumber;
     private TextView textViewEmail;
-    private ImageView imageViewProfile;
+    private CircleImageView imageViewProfile;
     private LinearLayout linearLayoutVerificationNeeded;
     private LinearLayout linearLayoutVerified;
     private SwipeRefreshLayout swipeLayout;
@@ -121,13 +122,20 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         linearLayoutVerified = findViewById(R.id.linearLayout_verified);
         linEmail = findViewById(R.id.lin_email);
 
+        swipeLayout = findViewById(R.id.swipeToRefresh);
+
+        //ProgressBar from static variable MainActivity
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+        relativeLayoutProgressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
+
         //********************** Drawer Menu *************************
         setDrawerMenu();
         //************************************************************
 
         loadUserInformation();
 
-        swipeLayout = findViewById(R.id.swipeToRefresh);
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 
             @Override
@@ -150,20 +158,8 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         super.onStart();
         if (mAuth.getCurrentUser() == null) {
             finish();
-            startActivity(new Intent(this, MainActivity.class));
+            startActivity(new Intent(this, LoginPhoneActivity.class));
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        dismissProgressDialog();
-        super.onDestroy();
-    }
-
-    @Override
-    public void onBackPressed() {
-        startActivity(new Intent(this, MainActivity.class));
-        super.onBackPressed();
     }
 
     @Override
@@ -209,12 +205,12 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
     public void getUser() {
         if (onlineUser == null) {
-            showProgressDialog(this, "Chargement de vos informations ...");
+            setLayoutInvisible();
             db.collection("users").whereEqualTo("userID", userID).get()
                     .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                         @Override
                         public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            dismissProgressDialog();
+                            setLayoutVisible();
                             for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
 
                                 onlineUser = documentSnapshot.toObject(User.class);
@@ -239,7 +235,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             textViewNavEmail.setText(onlineUser.getEmail());
             getDahiraToUpdate();
         }
-        dismissProgressDialog();
     }
 
     public boolean isAdminUpdated() {
@@ -263,12 +258,12 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
     public void getDahiraToUpdate() {
         if (!isAdminUpdated()) {
-            showProgressDialog(this, "Chargement du dahira ...");
+            setLayoutInvisible();
             db.collection("dahiras").whereEqualTo("dahiraID", dahiraToUpdate).get()
                     .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                         @Override
                         public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            dismissProgressDialog();
+                            setLayoutVisible();
                             for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                                 dahira = documentSnapshot.toObject(Dahira.class);
                             }
@@ -277,7 +272,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            dismissProgressDialog();
+                            setLayoutVisible();
                             toastMessage(getApplicationContext(), "Error chargement dahiraToUpdate!");
                             Log.d(TAG, e.toString());
                         }
@@ -286,7 +281,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    dismissProgressDialog();
+                    setLayoutVisible();
                     startActivity(new Intent(ProfileActivity.this, UpdateAdminActivity.class));
                 }
             }, 3000);
@@ -301,7 +296,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         MenuItem iconBack;
         iconBack = menu.findItem(R.id.icon_back);
 
-        iconBack.setVisible(true);
+        //iconBack.setVisible(true);
 
         return true;
     }
@@ -310,13 +305,13 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     public boolean onOptionsItemSelected(MenuItem item) {
         if (toggle.onOptionsItemSelected(item))
             return true;
-
+        /*
         switch (item.getItemId()){
             case R.id.icon_back:
                 finish();
                 break;
         }
-
+        */
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -347,6 +342,11 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 
+            case R.id.nav_displayAllEvent:
+                DataHolder.loadEvent = "allEvents";
+                startActivity(new Intent(this, ListEventActivity.class));
+                break;
+
             case R.id.nav_searchDahira:
                 actionSelected = "searchDahira";
                 DataHolder.displayDahira = "allDahira";
@@ -374,14 +374,21 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         Menu nav_Menu = navigationView.getMenu();
         nav_Menu.findItem(R.id.nav_setting).setTitle("Modifier mon profil");
 
+        nav_Menu.findItem(R.id.nav_home).setVisible(false);
+
         nav_Menu.findItem(R.id.nav_displayUsers).setVisible(false);
         nav_Menu.findItem(R.id.nav_addUser).setVisible(false);
         nav_Menu.findItem(R.id.nav_searchUser).setVisible(false);
 
         nav_Menu.findItem(R.id.nav_finance).setVisible(false);
-        nav_Menu.findItem(R.id.nav_release).setVisible(false);
         nav_Menu.findItem(R.id.nav_gallery).setVisible(false);
         nav_Menu.findItem(R.id.nav_contact).setVisible(false);
+
+        nav_Menu.findItem(R.id.nav_addAnnouncement).setVisible(false);
+        nav_Menu.findItem(R.id.nav_displayAnnouncement).setVisible(false);
+        nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
+        nav_Menu.findItem(R.id.nav_displayEvent).setVisible(false);
+
     }
 
     public void setDrawerMenu() {
@@ -423,7 +430,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                         //toastMessage(ProfileActivity.this, token_id);
 
                         FirebaseFirestore.getInstance().collection("users")
-                                .document(onlineUser.getUserID()).update(tokenMap)
+                                .document(userID).update(tokenMap)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
@@ -435,5 +442,17 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                         Log.d(TAG, token_id);
                     }
                 });
+    }
+
+    public void setLayoutInvisible(){
+        swipeLayout.setVisibility(View.GONE);
+        relativeLayoutProgressBar.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    public void setLayoutVisible(){
+        swipeLayout.setVisibility(View.VISIBLE);
+        relativeLayoutProgressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
     }
 }

@@ -85,7 +85,7 @@ public class DataHolder {
     public static int indexAnnouncementSelected;
     public static int indexExpenseSelected;
 
-    private static ProgressDialog progressDialog;
+    public static ProgressDialog progressDialog;
 
     public static boolean isConnected(Context context) {
         boolean connected = false;
@@ -137,7 +137,7 @@ public class DataHolder {
     }
 
     public static void showImage(Context context, String child1,
-                                        String  child2, CircleImageView imageView) {
+                                 String child2, CircleImageView imageView) {
 
         FirebaseStorage firebaseStorage;
         firebaseStorage = FirebaseStorage.getInstance();
@@ -435,7 +435,7 @@ public class DataHolder {
 
     public static String getCurrentDate() {
         Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat mdformat = new SimpleDateFormat("dd / MM / yyyy ");
+        SimpleDateFormat mdformat = new SimpleDateFormat("dd/MM/yyyy");
         String strDate = mdformat.format(calendar.getTime());
         return strDate;
     }
@@ -739,7 +739,7 @@ public class DataHolder {
 
     public static void call(Context context, Activity activity, String phoneNumber) {
         try {
-            if(Build.VERSION.SDK_INT > 22) {
+            if (Build.VERSION.SDK_INT > 22) {
                 if (ActivityCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CALL_PHONE}, 101);
                     return;
@@ -749,15 +749,12 @@ public class DataHolder {
                 callIntent.setData(Uri.parse("tel:" + phoneNumber));
                 context.startActivity(callIntent);
 
-            }
-            else {
+            } else {
                 Intent callIntent = new Intent(Intent.ACTION_CALL);
                 callIntent.setData(Uri.parse("tel:" + phoneNumber));
                 context.startActivity(callIntent);
             }
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }

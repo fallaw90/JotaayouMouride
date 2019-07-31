@@ -49,6 +49,8 @@ import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.DataHolder.userID;
+import static com.fallntic.jotaayumouride.MainActivity.progressBar;
+import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
 
 public class SignUpActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -104,6 +106,13 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
             Intent intent = new Intent(this, LoginActivity.class);
             showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
+
+        //ProgressBar from static variable MainActivity
+        ListUserActivity.scrollView = findViewById(R.id.scrollView);
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+        relativeLayoutProgressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
 
         //Initialize Firestore object
         mAuth = FirebaseAuth.getInstance();
@@ -172,13 +181,14 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
 
         if(!hasValidationErrors(userName, userPhoneNumber, email, pwd, confPwd, userAddress)) {
             userPhoneNumber = "+221" + userPhoneNumber;
-            showProgressDialog(this,"Creation de votre compte ...");
+
+            ListUserActivity.showProgressBar();
             db.collection("users").whereEqualTo("userPhoneNumber", userPhoneNumber).get()
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            ListUserActivity.hideProgressBar();
                             if (task.isSuccessful()) {
-                                dismissProgressDialog();
                                 if (task.getResult().isEmpty()){
                                     saveAllData();
                                 }else{
@@ -188,7 +198,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                                 }
                             }
                             else {
-                                dismissProgressDialog();
+                                ListUserActivity.hideProgressBar();
                                 toastMessage(getApplicationContext(),"Error");
                             }
                         }
@@ -200,10 +210,10 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     public void saveAllData(){
+        ListUserActivity.hideProgressBar();
         mAuth.createUserWithEmailAndPassword(email, pwd).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-                dismissProgressDialog();
                 //while (!task.isSuccessful());
                 if (task.isSuccessful()) {
                     //Get ID of current user.
@@ -225,6 +235,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                         toastMessage(getApplicationContext(), task.getException().getMessage());
                     }
                 }
+                ListUserActivity.hideProgressBar();
             }
         });
     }
@@ -347,7 +358,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
 
     private void deleteProfileImage() {
         showProgressDialog(this,"Chargement en cours ..");
-        //storageReference defined on the onCreate function
+        //mStorage defined on the onCreate function
         storageReference.child("images").child(userID).delete()
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override

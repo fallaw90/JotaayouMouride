@@ -2,47 +2,46 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:background="@color/colorPrimary">
+    android:orientation="vertical">
 
     <Button
         android:id="@+id/button_dialogAddAdiya"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/rounded_button_transparent"
+        android:layout_margin="@dimen/_20sdp"
         android:text="@string/button_dialogAddAdiya"
-        android:layout_marginTop="15dp"
         android:textAllCaps="false"
-        android:textColor="@color/colorAccent"  />
+        android:background="@color/green"
+        android:textColor="@color/white"  />
 
     <Button
         android:id="@+id/button_dialogAddSass"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/rounded_button_transparent"
+        android:layout_margin="@dimen/_20sdp"
         android:text="@string/button_dialogAddSass"
-        android:layout_marginTop="15dp"
         android:textAllCaps="false"
-        android:textColor="@color/colorAccent"  />
+        android:background="@color/green"
+        android:textColor="@color/white"  />
 
     <Button
         android:id="@+id/button_dialogAddSocial"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/rounded_button_transparent"
+        android:layout_margin="@dimen/_20sdp"
         android:text="@string/button_dialogAddSocial"
-        android:layout_marginTop="15dp"
+        android:background="@color/green"
         android:textAllCaps="false"
-        android:textColor="@color/colorAccent"  />
+        android:textColor="@color/white"  />
 
     <Button
         android:id="@+id/button_dialogCancel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/rounded_button_transparent"
+        android:layout_margin="@dimen/_20sdp"
         android:text="@string/btn_cancel"
-        android:layout_marginTop="15dp"
         android:textAllCaps="false"
-        android:textColor="@color/colorAccent"  />
+        android:background="@color/gray"
+        android:textColor="@color/white"  />
 
 </LinearLayout>

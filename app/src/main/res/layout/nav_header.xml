@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/colorAccent"
+    android:background="@color/green"
     android:gravity="bottom"
     android:orientation="vertical"
     android:padding="16dp"
@@ -26,8 +26,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingTop="8dp"
-        android:text="Coding in Flow"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:layout_gravity="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
@@ -35,8 +34,7 @@
         android:id="@+id/textView_navEmail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/black"
         android:layout_gravity="center"
-        android:text="info@fallntic.com" />
+        android:textColor="@color/white"/>
 
 </LinearLayout>

@@ -28,6 +28,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import static com.fallntic.jotaayumouride.DataHolder.notificationBody;
 import static com.fallntic.jotaayumouride.DataHolder.notificationTitle;
+import static com.fallntic.jotaayumouride.MainActivity.progressBar;
+import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
 
 
 public class ListExpenseActivity extends AppCompatActivity {
@@ -61,6 +63,13 @@ public class ListExpenseActivity extends AppCompatActivity {
             Intent intent = new Intent(this, LoginActivity.class);
             DataHolder.showAlertDialog(this, "Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
+
+        ListUserActivity.scrollView = findViewById(R.id.scrollView);
+        //ProgressBar from static variable MainActivity
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+        relativeLayoutProgressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
 
         recyclerViewExpense = findViewById(R.id.recyclerview_expense);
         textViewTitle = findViewById(R.id.textView_title);
@@ -189,7 +198,7 @@ public class ListExpenseActivity extends AppCompatActivity {
     }
 
     public void updateExpenseCollection(final Context context) {
-        DataHolder.showProgressDialog(context, "Mis a jour de votre depense en cours ...");
+        ListUserActivity.showProgressBar();
         FirebaseFirestore.getInstance().collection("expenses")
                 .document(DataHolder.dahira.getDahiraID())
                 .update("listUserID", DataHolder.expense.getListUserID(),
@@ -202,7 +211,7 @@ public class ListExpenseActivity extends AppCompatActivity {
                     @SuppressLint("LongLogTag")
                     @Override
                     public void onSuccess(Void aVoid) {
-                        DataHolder.dismissProgressDialog();
+                        ListUserActivity.hideProgressBar();
                         Log.d(TAG, "Expense updated");
                     }
                 })
@@ -210,7 +219,7 @@ public class ListExpenseActivity extends AppCompatActivity {
                     @SuppressLint("LongLogTag")
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        DataHolder.dismissProgressDialog();
+                        ListUserActivity.hideProgressBar();
                         DataHolder.actionSelected = "";
                         Intent intent = new Intent(context, DahiraInfoActivity.class);
                         DataHolder.showAlertDialog(context, "Erreur lors de l'enregistrement." +

@@ -95,12 +95,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             getAdiya();
             getSass();
             getSocial();
-            /*
             Intent intent = new Intent(context, UserInfoActivity.class);
-            context.startActivity(intent);
-            */
-            Intent intent = new Intent(context, SendNotificationActivity.class);
-            intent.putExtra("user", selectedUser);
             context.startActivity(intent);
         }
 

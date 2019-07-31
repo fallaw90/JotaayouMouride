@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -35,15 +36,15 @@ import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
-import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
 import static com.fallntic.jotaayumouride.DataHolder.logout;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showImage;
-import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.DataHolder.userID;
+import static com.fallntic.jotaayumouride.MainActivity.progressBar;
+import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
 
 public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
         NavigationView.OnNavigationItemSelectedListener {
@@ -59,6 +60,8 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
     private CircleImageView navImageView;
     private TextView textViewNavUserName;
     private TextView textViewNavEmail;
+
+    private LinearLayout linearLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +81,14 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
         }
 
         recyclerViewDahira = findViewById(R.id.recyclerview_dahiras);
+        linearLayout = findViewById(R.id.linearLayout);
+
+        //ProgressBar from static variable MainActivity
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+        relativeLayoutProgressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
+
 
         //********************** Drawer Menu **************************
         setDrawerMenu();
@@ -102,7 +113,6 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
     @Override
     protected void onDestroy() {
         actionSelected = "";
-        dismissProgressDialog();
         super.onDestroy();
     }
 
@@ -122,12 +132,13 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
         final List<Dahira> dahiraList = new ArrayList<>();
         final DahiraAdapter dahiraAdapter = new DahiraAdapter(this, dahiraList);
         recyclerViewDahira.setAdapter(dahiraAdapter);
-        showProgressDialog(this, "Chargement de vos dahiras ...");
+
+        setLayoutInvisible();
         db.collection("dahiras").get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        dismissProgressDialog();
+                        setLayoutVisible();
                         if (!queryDocumentSnapshots.isEmpty()) {
                             List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
                             for (DocumentSnapshot documentSnapshot : list) {
@@ -146,7 +157,7 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        dismissProgressDialog();
+                        setLayoutVisible();
                         toastMessage(getApplicationContext(), "Error charging dahira!");
                     }
                 });
@@ -162,12 +173,12 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
         final DahiraAdapter dahiraAdapter = new DahiraAdapter(this, dahiraList);
         recyclerViewDahira.setAdapter(dahiraAdapter);
 
-        showProgressDialog(this, "Chargement de vos dahiras ...");
+        setLayoutInvisible();
         db.collection("dahiras").get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        dismissProgressDialog();
+                        setLayoutVisible();
                         if (!queryDocumentSnapshots.isEmpty()) {
                             List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
                             for (DocumentSnapshot documentSnapshot : list) {
@@ -185,7 +196,7 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        dismissProgressDialog();
+                        setLayoutVisible();
                         toastMessage(getApplicationContext(), "Error charging dahira!");
                     }
                 });
@@ -201,12 +212,12 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
         final DahiraAdapter dahiraAdapter = new DahiraAdapter(this, dahiraList);
         recyclerViewDahira.setAdapter(dahiraAdapter);
 
-        showProgressDialog(this, "Recherche du dahira en cours ...");
+        setLayoutInvisible();
         db.collection("dahiras").get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        dismissProgressDialog();
+                        setLayoutVisible();
                         if (!queryDocumentSnapshots.isEmpty()) {
                             List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
                             for (DocumentSnapshot documentSnapshot : list) {
@@ -235,9 +246,7 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
                             } else {
                                 dahiraAdapter.notifyDataSetChanged();
                             }
-                            dismissProgressDialog();
                         } else {
-                            dismissProgressDialog();
                             Intent intent = new Intent(ListDahiraActivity.this, ListDahiraActivity.class);
                             showAlertDialog(ListDahiraActivity.this, "Dahira non trouve.", intent);
                         }
@@ -246,7 +255,7 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        dismissProgressDialog();
+                        setLayoutVisible();
                         toastMessage(getApplicationContext(), "Error search dahira in ListDahiraActivity!");
                     }
                 });
@@ -392,9 +401,9 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
         textViewNavUserName.setText(onlineUser.getUserName());
         textViewNavEmail.setText(onlineUser.getEmail());
 
-        if (actionSelected.equals("myDahira"))
+        if (DataHolder.displayDahira.equals("myDahira"))
             navigationView.setCheckedItem(R.id.nav_displayMyDahira);
-        else if (actionSelected.equals("allDahira"))
+        else if (DataHolder.displayDahira.equals("allDahira"))
             navigationView.setCheckedItem(R.id.nav_displayAllDahira);
         else if (actionSelected.equals("searchDahira"))
             navigationView.setCheckedItem(R.id.nav_searchDahira);
@@ -409,6 +418,8 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
         Menu nav_Menu = navigationView.getMenu();
         nav_Menu.findItem(R.id.nav_setting).setTitle("Modifier mon profil");
 
+        nav_Menu.findItem(R.id.nav_home).setVisible(false);
+
         nav_Menu.findItem(R.id.nav_displayUsers).setVisible(false);
         nav_Menu.findItem(R.id.nav_addUser).setVisible(false);
         nav_Menu.findItem(R.id.nav_searchUser).setVisible(false);
@@ -417,5 +428,17 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
         nav_Menu.findItem(R.id.nav_gallery).setVisible(false);
         nav_Menu.findItem(R.id.nav_release).setVisible(false);
         nav_Menu.findItem(R.id.nav_contact).setVisible(false);
+    }
+
+    public void setLayoutInvisible(){
+        linearLayout.setVisibility(View.GONE);
+        relativeLayoutProgressBar.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    public void setLayoutVisible(){
+        linearLayout.setVisibility(View.VISIBLE);
+        relativeLayoutProgressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
     }
 }

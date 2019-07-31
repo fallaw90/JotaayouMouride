@@ -35,8 +35,9 @@ import static com.fallntic.jotaayumouride.DataHolder.isConnected;
 import static com.fallntic.jotaayumouride.DataHolder.isDouble;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.updateDocument;
+import static com.fallntic.jotaayumouride.MainActivity.progressBar;
+import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
 import static com.fallntic.jotaayumouride.NotificationHelper.sendNotificationToSpecificUsers;
 
 public class CreateExpenseActivity extends AppCompatActivity implements View.OnClickListener {
@@ -48,7 +49,6 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
     private EditText editTextPrice;
 
     private String price;
-    private String oldPrice = "";
     private String mDate;
     private String note;
     private String typeOfExpense;
@@ -75,6 +75,13 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
             Intent intent = new Intent(this, LoginActivity.class);
             showAlertDialog(this, "Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
+
+        ListUserActivity.scrollView = findViewById(R.id.scrollView);
+        //ProgressBar from static variable MainActivity
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+        relativeLayoutProgressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
 
         textViewTitle = findViewById(R.id.textView_title);
         editTextDate = findViewById(R.id.editText_date);
@@ -144,13 +151,13 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
             expense.getListPrice().add(price);
             expense.getListTypeOfExpense().add(typeOfExpense);
 
-            showProgressDialog(context, "Enregistrement de votre " + typeOfExpense + " en cours ...");
+            ListUserActivity.showProgressBar();
             FirebaseFirestore.getInstance().collection("expenses").document(dahira.getDahiraID()).get()
                     .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @SuppressLint("LongLogTag")
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            dismissProgressDialog();
+                            ListUserActivity.hideProgressBar();
                             if (documentSnapshot.exists()) {
                                 updateExpense(CreateExpenseActivity.this);
                                 updateDahira(CreateExpenseActivity.this, price, typeOfExpense, true);
@@ -178,7 +185,7 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
                         @SuppressLint("LongLogTag")
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            dismissProgressDialog();
+                            ListUserActivity.hideProgressBar();
                             Log.d(TAG, e.toString());
                         }
                     });
@@ -187,7 +194,7 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
 
     public void updateExpense(final Context context) {
 
-        showProgressDialog(context, "Enregistrement de votre " + typeOfExpense + " en cours ...");
+        ListUserActivity.showProgressBar();
         FirebaseFirestore.getInstance().collection("expenses")
                 .document(dahira.getDahiraID())
                 .update("listUserID", expense.getListUserID(),
@@ -200,18 +207,17 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
                     @SuppressLint("LongLogTag")
                     @Override
                     public void onSuccess(Void aVoid) {
-                        dismissProgressDialog();
+                        ListUserActivity.hideProgressBar();
                         Intent intent = new Intent(context, ListExpenseActivity.class);
                         showAlertDialog(context, "Depense enregistre avec succe", intent);
                         Log.d(TAG, "Expense updated");
-                        dismissProgressDialog();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @SuppressLint("LongLogTag")
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        dismissProgressDialog();
+                        ListUserActivity.hideProgressBar();
                         Intent intent = new Intent(context, ListExpenseActivity.class);
                         showAlertDialog(context, "Erreur lors de l'enregistrement de votre " + typeOfExpense + "." +
                                 "\nReessayez plutard SVP", intent);

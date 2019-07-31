@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/colorPrimary"
     tools:context=".CreateDahiraActivity">
 
     <include
@@ -30,6 +29,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/textView_labelLogo"
                 android:textAlignment="center"
+                android:layout_marginTop="@dimen/_15sdp"
                 android:id="@+id/textView_labelLogo"/>
 
             <ImageView
@@ -59,8 +59,7 @@
                     android:fontFamily="sans-serif"
                     android:hint="@string/dahiraName"
                     android:inputType="text"
-                    android:paddingBottom="15dp"
-                    android:textColorHint="@color/colorAccent" />
+                    android:paddingBottom="15dp"/>
 
                 <EditText
                     android:id="@+id/editText_dieuwrine"
@@ -69,8 +68,7 @@
                     android:fontFamily="sans-serif"
                     android:hint="@string/dieuwrine"
                     android:inputType="text"
-                    android:paddingBottom="15dp"
-                    android:textColorHint="@color/colorAccent" />
+                    android:paddingBottom="15dp"/>
 
                 <EditText
                     android:id="@+id/editText_dahiraPhoneNumber"
@@ -81,8 +79,7 @@
                     android:paddingBottom="15dp"
                     android:digits="0123456789"
                     android:inputType="phone"
-                    android:maxLength="9"
-                    android:textColorHint="@color/colorAccent" />
+                    android:maxLength="9"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -103,7 +100,6 @@
                             android:layout_marginTop="10dip"
                             android:text="@string/spinner_country"
                             android:layout_marginBottom="5dp"
-                            android:textColor="@color/colorAccent"
                             android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
 
                         <Spinner
@@ -112,7 +108,6 @@
                             android:layout_height="wrap_content"
                             android:entries="@array/country_array"
                             android:prompt="@string/country"
-                            android:textColor="@color/colorAccent"
                             android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
                     </LinearLayout>
 
@@ -129,7 +124,6 @@
                             android:layout_marginTop="10dip"
                             android:text="@string/spinner_region"
                             android:layout_marginBottom="5dp"
-                            android:textColor="@color/colorAccent"
                             android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
 
                         <Spinner
@@ -138,7 +132,6 @@
                             android:layout_height="wrap_content"
                             android:entries="@array/region_array"
                             android:prompt="@string/region"
-                            android:textColor="@color/colorAccent"
                             android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
                     </LinearLayout>
 
@@ -151,8 +144,7 @@
                     android:fontFamily="sans-serif"
                     android:hint="@string/siege"
                     android:inputType="text"
-                    android:paddingBottom="15dp"
-                    android:textColorHint="@color/colorAccent" />
+                    android:paddingBottom="15dp" />
 
                 <TextView
                     android:id="@+id/textView_addCommission"
@@ -175,8 +167,7 @@
                     android:hint="@string/commission"
                     android:inputType="text"
                     android:paddingBottom="15dp"
-                    android:layout_weight="0.5"
-                    android:textColorHint="@color/colorAccent" />
+                    android:layout_weight="0.5" />
 
                 <EditText
                     android:id="@+id/editText_responsible"
@@ -186,8 +177,7 @@
                     android:hint="@string/responsible"
                     android:inputType="text"
                     android:paddingBottom="15dp"
-                    android:layout_weight="0.5"
-                    android:textColorHint="@color/colorAccent" />
+                    android:layout_weight="0.5"/>
 
             </LinearLayout>
 
@@ -197,11 +187,11 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_margin="7dp"
-                    android:background="@drawable/rounded_button_transparent"
+                    android:background="@color/green"
                     android:text="@string/addCommission"
                     android:textAllCaps="false"
                     android:padding="@dimen/_10sdp"
-                    android:textColor="@color/colorAccent" />
+                    android:textColor="@color/white" />
 
                 <TextView
                     android:id="@+id/textViewUpdateCommission"
@@ -225,7 +215,6 @@
                         android:text="@string/textView_commissionsTitle"
                         android:gravity="center"
                         android:visibility="gone"
-                        android:textColor="@color/colorAccent"
                         android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
 
                     <TextView
@@ -236,7 +225,6 @@
                         android:text="@string/textView_responsiblesTitle"
                         android:gravity="center"
                         android:visibility="gone"
-                        android:textColor="@color/colorAccent"
                         android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
                 </LinearLayout>
 
@@ -252,8 +240,7 @@
                     android:fontFamily="sans-serif"
                     android:hint="@string/adiya"
                     android:inputType="text"
-                    android:paddingBottom="15dp"
-                    android:textColorHint="@color/colorAccent" />
+                    android:paddingBottom="15dp"/>
 
                 <EditText
                     android:id="@+id/editText_sass"
@@ -262,8 +249,7 @@
                     android:fontFamily="sans-serif"
                     android:hint="@string/sass"
                     android:inputType="text"
-                    android:paddingBottom="15dp"
-                    android:textColorHint="@color/colorAccent" />
+                    android:paddingBottom="15dp"/>
 
                 <EditText
                     android:id="@+id/editText_social"
@@ -272,8 +258,7 @@
                     android:fontFamily="sans-serif"
                     android:hint="@string/social"
                     android:inputType="text"
-                    android:paddingBottom="15dp"
-                    android:textColorHint="@color/colorAccent" />
+                    android:paddingBottom="15dp"/>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -286,20 +271,20 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="7dp"
-                        android:background="@drawable/rounded_button_transparent"
+                        android:background="@color/gray"
                         android:text="@string/backButton"
                         android:textAllCaps="false"
-                        android:textColor="@color/colorAccent" />
+                        android:textColor="@color/white"/>
 
                     <Button
                         android:id="@+id/button_save"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="7dp"
-                        android:background="@drawable/rounded_button_transparent"
+                        android:background="@color/green"
                         android:text="@string/button_save"
                         android:textAllCaps="false"
-                        android:textColor="@color/colorAccent" />
+                        android:textColor="@color/white" />
 
                 </LinearLayout>
 
@@ -308,5 +293,32 @@
         </RelativeLayout>
 
     </ScrollView>
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout_progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/progressBar"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:text="Patientez SVP ..."
+            android:textSize="@dimen/_20sdp"/>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:progressBarStyleLarge"
+            android:layout_width="@dimen/_100sdp"
+            android:layout_height="@dimen/_100sdp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/green"
+            android:indeterminateTintMode="src_atop"
+            android:progress="80"
+            android:progressDrawable="@drawable/circle"/>
+    </RelativeLayout>
 
 </LinearLayout>

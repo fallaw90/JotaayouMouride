@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -48,13 +49,16 @@ import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrorsSearch;
 import static com.fallntic.jotaayumouride.DataHolder.indexOnlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
 import static com.fallntic.jotaayumouride.DataHolder.logout;
+import static com.fallntic.jotaayumouride.DataHolder.notificationBody;
+import static com.fallntic.jotaayumouride.DataHolder.notificationTitle;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.selectedUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showImage;
-import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.DataHolder.userID;
+import static com.fallntic.jotaayumouride.MainActivity.progressBar;
+import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
 
 public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         NavigationView.OnNavigationItemSelectedListener {
@@ -74,42 +78,12 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
     private TextView textViewNavUserName;
     private TextView textViewNavEmail;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list_user);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    public static ScrollView scrollView;
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("");
-        toolbar.setSubtitle("Liste des membres");
-        setSupportActionBar(toolbar);
-
-        //********************** Drawer Menu **************************
-        setDrawerMenu();
-        //*************************************************************
-
-        if (!isConnected(this)){
-            finish();
-            Intent intent = new Intent(this, LoginActivity.class);
-            showAlertDialog(this,"Oops! Pas de connexion, verifier " +
-                    "votre connexion internet puis reesayez SVP", intent);
-        }
-
-        recyclerViewUser = findViewById(R.id.recyclerview_users);
-
-        textViewDahiraname = findViewById(R.id.textView_dahiraName);
-        textViewDahiraname.setText("Dahira " + dahira.getDahiraName() + "\nListe de tous les membres");
-
-        showListUser();
-
-
-        if (actionSelected.equals("addNewMember")) {
-            addNewMember();
-        }
-        else if (actionSelected.equals("searchUser")) {
-            dialogSearchUser();
-        }
+    public static void showProgressBar() {
+        scrollView.setVisibility(View.GONE);
+        relativeLayoutProgressBar.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -130,6 +104,59 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         }
     }
 
+    public static void hideProgressBar() {
+        scrollView.setVisibility(View.VISIBLE);
+        relativeLayoutProgressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_list_user);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("");
+        toolbar.setSubtitle("Liste des membres");
+        setSupportActionBar(toolbar);
+
+        //********************** Drawer Menu **************************
+        setDrawerMenu();
+        //*************************************************************
+
+        if (!isConnected(this)) {
+            finish();
+            Intent intent = new Intent(this, LoginActivity.class);
+            showAlertDialog(this, "Oops! Pas de connexion, verifier " +
+                    "votre connexion internet puis reesayez SVP", intent);
+        }
+
+        recyclerViewUser = findViewById(R.id.recyclerview_users);
+
+        //ProgressBar from static variable MainActivity
+        scrollView = findViewById(R.id.scrollView);
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+        relativeLayoutProgressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
+
+        textViewDahiraname = findViewById(R.id.textView_dahiraName);
+        textViewDahiraname.setText("Dahira " + dahira.getDahiraName() + "\nListe de tous les membres");
+
+        showListUser();
+
+
+        if (actionSelected.equals("addNewMember")) {
+            addNewMember();
+        } else if (actionSelected.equals("searchUser")) {
+            dialogSearchUser();
+        }
+
+        notificationTitle = null;
+        notificationBody = null;
+    }
+
     private void showListUser() {
 
         //Attach adapter to recyclerView
@@ -140,12 +167,12 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         userAdapter = new UserAdapter(this, listUser);
         recyclerViewUser.setAdapter(userAdapter);
 
-        showProgressDialog(this, "Chargement des membres en cours ...");
+        showProgressBar();
         db.collection("users").get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        dismissProgressDialog();
+                        hideProgressBar();
                         if (!queryDocumentSnapshots.isEmpty()) {
                             List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
                             for (DocumentSnapshot documentSnapshot : list) {
@@ -159,7 +186,12 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                             userAdapter.notifyDataSetChanged();
                         }
                     }
-                });
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                hideProgressBar();
+            }
+        });
     }
 
     private void addNewMember() {
@@ -180,19 +212,18 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         final AlertDialog alertDialog = dialogBuilder.create();
         alertDialog.show();
 
-        buttonAdd.setOnClickListener( new View.OnClickListener() {
+        buttonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String phoneNumber = editTextPhoneNumber.getText().toString().trim();
                 String email = editTextEmail.getText().toString().trim();
 
-                if(!hasValidationErrorsSearch(phoneNumber, editTextPhoneNumber, email, editTextEmail)){
+                if (!hasValidationErrorsSearch(phoneNumber, editTextPhoneNumber, email, editTextEmail)) {
 
                     if (!phoneNumber.isEmpty()) {
-                        phoneNumber = "221"+phoneNumber;
+                        phoneNumber = "221" + phoneNumber;
                         getNewMemberToUpdate("userPhoneNumber", phoneNumber);
-                    }
-                    else if (!email.isEmpty()) {
+                    } else if (!email.isEmpty()) {
                         getNewMemberToUpdate("email", email);
                     }
 
@@ -211,27 +242,25 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
     }
 
     public void getNewMemberToUpdate(String field, String value) {
-        showProgressDialog(this,"Chargement de vos informations ...");
+        showProgressBar();
         db.collection("users").whereEqualTo(field, value).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        dismissProgressDialog();
-                        if (queryDocumentSnapshots.isEmpty()){
+                        hideProgressBar();
+                        if (queryDocumentSnapshots.isEmpty()) {
                             showAlertDialog(ListUserActivity.this,
                                     "Utilisateur inconnu!\n Pour ajouter un membre, " +
                                             "assurez vous que la personne s'est inscrit d'abord.");
-                        }
-                        else{
+                        } else {
                             for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                                 User newMember = documentSnapshot.toObject(User.class);
-                                if (newMember.getListDahiraID().contains(dahira.getDahiraID())){
+                                if (newMember.getListDahiraID().contains(dahira.getDahiraID())) {
                                     showAlertDialog(ListUserActivity.this,
                                             "Cet utilisateur est deja membre du dahira " +
                                                     dahira.getDahiraName() + ".");
                                     return;
-                                }
-                                else {
+                                } else {
                                     updateNewMember(newMember);
                                     updateDahira();
                                     break;
@@ -243,15 +272,15 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        dismissProgressDialog();
-                        toastMessage(getApplicationContext(),"Error add new user!");
+                        hideProgressBar();
+                        toastMessage(getApplicationContext(), "Error add new user!");
                         return;
                     }
                 });
     }
 
-    private void updateNewMember(User user){
-        showProgressDialog(this,"Ajout du nouveau membre en cours ...");
+    private void updateNewMember(User user) {
+
         user.getListDahiraID().add(dahira.getDahiraID());
         user.getListUpdatedDahiraID().add(dahira.getDahiraID());
         user.getListRoles().add("N/A");
@@ -260,6 +289,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         user.getListSass().add("00");
         user.getListSocial().add("00");
 
+        showProgressBar();
         db.collection("users").document(user.getUserID())
                 .update("listDahiraID", user.getListDahiraID(),
                         "listUpdatedDahiraID", user.getListUpdatedDahiraID(),
@@ -271,28 +301,38 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                        hideProgressBar();
                         System.out.println("User updated");
                     }
-                });
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                hideProgressBar();
+            }
+        });
     }
 
-    private void updateDahira(){
-        showProgressDialog(this,"Mis a jour de votre dahira");
+    private void updateDahira() {
         int totalMember = Integer.parseInt(dahira.getTotalMember());
         totalMember++;
         dahira.setTotalMember(Integer.toString(totalMember));
 
+        showProgressBar();
         db.collection("dahiras").document(dahira.getDahiraID())
                 .update("totalMember", dahira.getTotalMember())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        dismissProgressDialog();
+                        hideProgressBar();
                         Intent intent = new Intent(ListUserActivity.this, ListUserActivity.class);
                         showAlertDialog(ListUserActivity.this, "Votre nouveau membre a ete ajoute avec succes. \n Selectionnez le sur la liste des membres pour mettre a jour son profil.", intent);
                     }
-                });
-        dismissProgressDialog();
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                hideProgressBar();
+            }
+        });
     }
 
     private void dialogSearchUser() {
@@ -315,14 +355,14 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         alertDialog.setTitle("Rechercher un membre");
         alertDialog.show();
 
-        buttonSearch.setOnClickListener( new View.OnClickListener() {
+        buttonSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String userName = editTextDialogName.getText().toString().trim();
                 String phoneNumber = editTextDialogPhoneNumber.getText().toString().trim();
 
-                if(!hasValidationErrors(userName, editTextDialogName, phoneNumber, editTextDialogPhoneNumber)){
-                    phoneNumber = "+221"+phoneNumber;
+                if (!hasValidationErrors(userName, editTextDialogName, phoneNumber, editTextDialogPhoneNumber)) {
+                    phoneNumber = "+221" + phoneNumber;
                     searchUser(userName, phoneNumber);
                     alertDialog.dismiss();
                 }
@@ -335,86 +375,6 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                 alertDialog.dismiss();
             }
         });
-    }
-
-    private void searchUser(final String name, final String phoneNumber) {
-
-        //Attach adapter to recyclerView
-        recyclerViewUser.setHasFixedSize(true);
-        recyclerViewUser.setLayoutManager(new LinearLayoutManager(this));
-        recyclerViewUser.setVisibility(View.VISIBLE);
-        final List<User> listUsers = new ArrayList<>();
-        final UserAdapter userAdapter = new UserAdapter(this, listUsers);
-        recyclerViewUser.setAdapter(userAdapter);
-
-        showProgressDialog(this, "Recherche du membre en cours ...");
-        db.collection("users").get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        dismissProgressDialog();
-                        if (!queryDocumentSnapshots.isEmpty()) {
-                            List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
-                            for (DocumentSnapshot documentSnapshot : list) {
-                                //documentSnapshot equals dahira in list
-                                User member = documentSnapshot.toObject(User.class);
-                                if (name != null && !name.equals("") && member.getUserID() != null){
-                                    if (name.equals(member.getUserName())){
-                                        listUsers.add(member);
-                                    }
-                                    else {
-                                        String[] splitSearchName = name.split(" ");
-                                        String userName = member.getUserName();
-                                        userName = userName.toLowerCase();
-                                        for (String name : splitSearchName){
-                                            name = name.toLowerCase();
-                                            if(userName.contains(name)){
-                                                listUsers.add(member);
-                                            }
-                                        }
-                                    }
-                                }
-                                if (phoneNumber != null && !phoneNumber.equals("")) {
-                                    if (phoneNumber.equals(member.getUserPhoneNumber())) {
-                                        listUsers.add(member);
-                                    }
-                                }
-                            }
-
-                            if (listUsers.isEmpty()){
-                                Intent intent = new Intent(ListUserActivity.this, ListUserActivity.class);
-                                showAlertDialog(ListUserActivity.this, "Membre non trouve!", intent);
-                            }
-                            else {
-                                userAdapter.notifyDataSetChanged();
-                            }
-                            dismissProgressDialog();
-                        }
-                        else {
-                            dismissProgressDialog();
-                            Intent intent = new Intent(ListUserActivity.this, ListUserActivity.class);
-                            showAlertDialog(ListUserActivity.this,"Membre non trouve!", intent);
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        dismissProgressDialog();
-                        toastMessage(getApplicationContext(),"Error search dahira in ListUserActivity!");
-                    }
-                });
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode == 101) {
-            if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                call(this, this, selectedUser.getUserPhoneNumber());
-            }
-        }
     }
 
     @Override
@@ -441,6 +401,81 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                 break;
         }
         return true;
+    }
+
+    private void searchUser(final String name, final String phoneNumber) {
+
+        //Attach adapter to recyclerView
+        recyclerViewUser.setHasFixedSize(true);
+        recyclerViewUser.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewUser.setVisibility(View.VISIBLE);
+        final List<User> listUsers = new ArrayList<>();
+        final UserAdapter userAdapter = new UserAdapter(this, listUsers);
+        recyclerViewUser.setAdapter(userAdapter);
+
+        showProgressBar();
+        db.collection("users").get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        hideProgressBar();
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                            for (DocumentSnapshot documentSnapshot : list) {
+                                //documentSnapshot equals dahira in list
+                                User member = documentSnapshot.toObject(User.class);
+                                if (name != null && !name.equals("") && member.getUserID() != null) {
+                                    if (name.equals(member.getUserName())) {
+                                        listUsers.add(member);
+                                    } else {
+                                        String[] splitSearchName = name.split(" ");
+                                        String userName = member.getUserName();
+                                        userName = userName.toLowerCase();
+                                        for (String name : splitSearchName) {
+                                            name = name.toLowerCase();
+                                            if (userName.contains(name)) {
+                                                listUsers.add(member);
+                                            }
+                                        }
+                                    }
+                                }
+                                if (phoneNumber != null && !phoneNumber.equals("")) {
+                                    if (phoneNumber.equals(member.getUserPhoneNumber())) {
+                                        listUsers.add(member);
+                                    }
+                                }
+                            }
+
+                            if (listUsers.isEmpty()) {
+                                Intent intent = new Intent(ListUserActivity.this, ListUserActivity.class);
+                                showAlertDialog(ListUserActivity.this, "Membre non trouve!", intent);
+                            } else {
+                                userAdapter.notifyDataSetChanged();
+                            }
+                        } else {
+                            Intent intent = new Intent(ListUserActivity.this, ListUserActivity.class);
+                            showAlertDialog(ListUserActivity.this, "Membre non trouve!", intent);
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        hideProgressBar();
+                        toastMessage(getApplicationContext(), "Error search dahira in ListUserActivity!");
+                    }
+                });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 101) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                call(this, this, selectedUser.getUserPhoneNumber());
+            }
+        }
     }
 
     @Override
@@ -491,8 +526,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
             case R.id.nav_displayExpenses:
                 if (expense == null) {
                     showAlertDialog(this, "La liste des depenses de votre dahira est vide!");
-                }
-                else
+                } else
                     startActivity(new Intent(this, ListExpenseActivity.class));
                 break;
 
@@ -504,8 +538,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
             case R.id.nav_displayAnnouncement:
                 if (announcement == null) {
                     showAlertDialog(this, "La liste de vos annonces est vide!");
-                }
-                else
+                } else
                     startActivity(new Intent(this, ListAnnouncementActivity.class));
                 break;
 
@@ -518,8 +551,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                 if (event == null) {
                     navigationView.setCheckedItem(R.id.nav_displayEvent);
                     showAlertDialog(this, "La liste de vos evenements est vide!");
-                }
-                else
+                } else
                     startActivity(new Intent(this, ListEventActivity.class));
                 break;
 
@@ -542,7 +574,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
     }
 
     @Override
-    public void setDrawerMenu(){
+    public void setDrawerMenu() {
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -567,13 +599,14 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         Menu nav_Menu = navigationView.getMenu();
         nav_Menu.findItem(R.id.nav_setting).setTitle("Modifier mon dahira");
 
-        if (!onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")){
+        if (!onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
             nav_Menu.findItem(R.id.nav_addUser).setVisible(false);
             nav_Menu.findItem(R.id.nav_addExpense).setVisible(false);
             nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
             nav_Menu.findItem(R.id.nav_setting).setVisible(false);
         }
 
+        nav_Menu.findItem(R.id.nav_home).setVisible(false);
         nav_Menu.findItem(R.id.nav_addContribution).setVisible(false);
         nav_Menu.findItem(R.id.nav_displayAdiya).setVisible(false);
         nav_Menu.findItem(R.id.nav_displaySass).setVisible(false);

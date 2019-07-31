@@ -8,33 +8,40 @@
         <item
             android:id="@+id/nav_home"
             android:icon="@drawable/ic_home"
+            android:iconTint="@color/green"
             android:title="Accueil" />
 
         <item
             android:id="@+id/nav_profile"
             android:icon="@drawable/ic_profile"
+            android:iconTint="@color/green"
             android:title="Mon profile" />
 
         <item
             android:id="@+id/nav_displayUsers"
             android:icon="@drawable/ic_users"
+            android:iconTint="@color/green"
             android:title="Voir les membres" />
         <item
             android:id="@+id/nav_searchUser"
             android:icon="@drawable/ic_search"
+            android:iconTint="@color/green"
             android:title="Rechercher un membre" />
         <item
             android:id="@+id/nav_addUser"
             android:icon="@drawable/ic_add_user"
+            android:iconTint="@color/green"
             android:title="Ajouter un nouveau membre" />
 
         <item
             android:id="@+id/nav_displayMyDahira"
             android:icon="@drawable/ic_display_dahira"
+            android:iconTint="@color/green"
             android:title="Mes dahira" />
         <item
             android:id="@+id/nav_displayAllDahira"
             android:icon="@drawable/ic_display_dahira"
+            android:iconTint="@color/green"
             android:title="Tous les dahira de Dakar" />
         <item
             android:id="@+id/nav_searchDahira"
@@ -43,6 +50,7 @@
         <item
             android:id="@+id/nav_addDahira"
             android:icon="@drawable/ic_add_dahira"
+            android:iconTint="@color/green"
             android:title="Creer un nouveau dahira" />
     </group>
 
@@ -53,26 +61,32 @@
             <item
                 android:id="@+id/nav_addContribution"
                 android:icon="@drawable/ic_account"
+                android:iconTint="@color/green"
                 android:title="Ajouter (Addiya, Sass, Social)" />
             <item
                 android:id="@+id/nav_addExpense"
                 android:icon="@drawable/ic_attach_money"
+                android:iconTint="@color/green"
                 android:title="Ajouter une depense" />
             <item
                 android:id="@+id/nav_displayExpenses"
                 android:icon="@drawable/ic_attach_money"
+                android:iconTint="@color/green"
                 android:title="Voir les depenses du dahira" />
             <item
                 android:id="@+id/nav_displayAdiya"
                 android:icon="@drawable/ic_account"
+                android:iconTint="@color/green"
                 android:title="Voir liste Adiya versé" />
             <item
                 android:id="@+id/nav_displaySass"
                 android:icon="@drawable/ic_account"
+                android:iconTint="@color/green"
                 android:title="Voir liste Sass versé" />
             <item
                 android:id="@+id/nav_displaySocial"
                 android:icon="@drawable/ic_account"
+                android:iconTint="@color/green"
                 android:title="Voir liste Social versé" />
         </menu>
     </item>
@@ -84,22 +98,27 @@
             <item
                 android:id="@+id/nav_addAnnouncement"
                 android:icon="@drawable/ic_add_announcement"
+                android:iconTint="@color/green"
                 android:title="Ajouter une annonce" />
             <item
                 android:id="@+id/nav_displayAnnouncement"
                 android:icon="@drawable/ic_announcement"
+                android:iconTint="@color/green"
                 android:title="Voir les annonces" />
             <item
                 android:id="@+id/nav_addEvent"
                 android:icon="@drawable/ic_add_event"
+                android:iconTint="@color/green"
                 android:title="Ajouter un evenement" />
             <item
                 android:id="@+id/nav_displayEvent"
                 android:icon="@drawable/ic_event"
+                android:iconTint="@color/green"
                 android:title="Voir mes evenements" />
             <item
                 android:id="@+id/nav_displayAllEvent"
                 android:icon="@drawable/ic_event"
+                android:iconTint="@color/green"
                 android:title="Voir tous les evenements de Dakar" />
         </menu>
     </item>
@@ -111,14 +130,17 @@
             <item
                 android:id="@+id/nav_photo"
                 android:icon="@drawable/ic_photo_library"
+                android:iconTint="@color/green"
                 android:title="Photos" />
             <item
                 android:id="@+id/nav_audio"
                 android:icon="@drawable/ic_audio"
+                android:iconTint="@color/green"
                 android:title="Audio" />
             <item
                 android:id="@+id/nav_video"
                 android:icon="@drawable/ic_video_library"
+                android:iconTint="@color/green"
                 android:title="Videos" />
         </menu>
     </item>
@@ -130,10 +152,12 @@
             <item
                 android:id="@+id/nav_callDahira"
                 android:icon="@drawable/ic_phone"
+                android:iconTint="@color/green"
                 android:title="Appeler ce dahira" />
             <item
                 android:id="@+id/nav_callUser"
                 android:icon="@drawable/ic_phone"
+                android:iconTint="@color/green"
                 android:title="Appeler ce membre" />
         </menu>
     </item>
@@ -145,6 +169,7 @@
             <item
                 android:id="@+id/nav_setting"
                 android:icon="@drawable/ic_setting"
+                android:iconTint="@color/green"
                 android:title="Paramettres" />
 
             <item

@@ -39,7 +39,7 @@ import static com.fallntic.jotaayumouride.DataHolder.notificationBody;
 import static com.fallntic.jotaayumouride.DataHolder.notificationTitle;
 import static com.fallntic.jotaayumouride.DataHolder.objNotification;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
-import static com.fallntic.jotaayumouride.NotificationActivity.CHANNEL_ID;
+import static com.fallntic.jotaayumouride.MainActivity.CHANNEL_ID;
 
 public class NotificationHelper extends IntentService {
     public static final String TAG = "NotificationHelper";

@@ -34,6 +34,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/textVview_updateAdmin"
                     android:textAlignment="center"
+                    android:textColor="@color/black"
                     android:textSize="20sp"/>
 
                 <ImageView
@@ -51,7 +52,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="5dp"
-                    android:textColor="@color/blue"
+                    android:textColor="@color/black"
                     android:textAlignment="center"
                     android:textSize="@dimen/_20sdp"/>
 
@@ -69,7 +70,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/userName"
                         android:layout_marginRight="5dp"
-                        android:textColor="@color/blue"
+                        android:textColor="@color/black"
                         android:textSize="@dimen/_15sdp"/>
 
                     <EditText
@@ -94,7 +95,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/updatePhoneNumber"
                         android:layout_marginRight="5dp"
-                        android:textColor="@color/blue"
+                        android:textColor="@color/black"
                         android:textSize="@dimen/_15sdp"/>
 
                     <EditText
@@ -123,7 +124,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/address"
                         android:layout_marginRight="5dp"
-                        android:textColor="@color/blue"
+                        android:textColor="@color/black"
                         android:textSize="@dimen/_15sdp"/>
 
                     <EditText
@@ -149,7 +150,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/adiyaVerse"
                         android:layout_marginRight="5dp"
-                        android:textColor="@color/blue"
+                        android:textColor="@color/black"
                         android:textSize="@dimen/_15sdp"/>
 
                     <EditText
@@ -175,7 +176,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/sassVerse"
                         android:layout_marginRight="5dp"
-                        android:textColor="@color/blue"
+                        android:textColor="@color/black"
                         android:textSize="@dimen/_15sdp"/>
 
                     <EditText
@@ -201,7 +202,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/socialVerse"
                         android:layout_marginRight="5dp"
-                        android:textColor="@color/blue"
+                        android:textColor="@color/black"
                         android:textSize="@dimen/_15sdp"/>
 
                     <EditText
@@ -227,7 +228,7 @@
                         android:layout_height="match_parent"
                         android:text="@string/labelCommission"
                         android:layout_marginRight="5dp"
-                        android:textColor="@color/blue"
+                        android:textColor="@color/black"
                         android:textSize="@dimen/_15sdp"/>
 
                     <Spinner
@@ -245,7 +246,7 @@
                     android:background="#7fa208"
                     android:text="@string/save"
                     android:textAllCaps="false"
-                    android:textColor="@color/colorAccent" />
+                    android:textColor="@color/white" />
 
 
             </LinearLayout>
@@ -253,5 +254,32 @@
         </RelativeLayout>
 
     </ScrollView>
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout_progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/progressBar"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:text="Patientez SVP ..."
+            android:textSize="@dimen/_20sdp"/>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:progressBarStyleLarge"
+            android:layout_width="@dimen/_100sdp"
+            android:layout_height="@dimen/_100sdp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/green"
+            android:indeterminateTintMode="src_atop"
+            android:progress="80"
+            android:progressDrawable="@drawable/circle"/>
+    </RelativeLayout>
 
 </RelativeLayout>

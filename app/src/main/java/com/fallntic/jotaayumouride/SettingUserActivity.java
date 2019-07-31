@@ -14,9 +14,11 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -29,6 +31,8 @@ import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.selectedUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showImage;
+import static com.fallntic.jotaayumouride.MainActivity.progressBar;
+import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
 
 public class SettingUserActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "CreateDahiraActivity";
@@ -132,6 +136,13 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
                     "verifier votre connexion internet puis reesayez SVP", intent);
         }
 
+        //ProgressBar from static variable MainActivity
+        ListUserActivity.scrollView = findViewById(R.id.scrollView);
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+        relativeLayoutProgressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
+
         db = FirebaseFirestore.getInstance();
 
         editTextUserName = findViewById(R.id.editText_userName);
@@ -221,6 +232,7 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
             selectedUser.getListCommissions().set(indexSelectedUser, commission);
             selectedUser.getListRoles().set(indexSelectedUser, role);
 
+            ListUserActivity.showProgressBar();
             db.collection("users").document(selectedUser.getUserID())
                     .update("userName", selectedUser.getUserName(),
                             "address", selectedUser.getAddress(),
@@ -232,11 +244,17 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            showAlertDialog(SettingUserActivity.this, "Enregistrement reussi.");
+                            ListUserActivity.hideProgressBar();
+                            Intent intent = new Intent(SettingUserActivity.this, UserInfoActivity.class);
+                            showAlertDialog(SettingUserActivity.this, "Enregistrement reussi.", intent);
                         }
-                    });
-
-            startActivity(new Intent(SettingUserActivity.this, UserInfoActivity.class));
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    ListUserActivity.hideProgressBar();
+                    startActivity(new Intent(SettingUserActivity.this, UserInfoActivity.class));
+                }
+            });
         }
     }
 

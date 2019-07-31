@@ -34,7 +34,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginRight="5dp"
                     android:textAlignment="center"
-                    android:textColor="@color/blue"
+                    android:textColor="@color/black"
                     android:textSize="@dimen/_20sdp" />
 
                 <ImageView
@@ -69,7 +69,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginRight="5dp"
                             android:text="@string/userName"
-                            android:textColor="@color/blue"
+                            android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
 
                         <TextView
@@ -77,7 +77,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginRight="5dp"
-                            android:textColor="@color/blue"
+                            android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
 
                     </LinearLayout>
@@ -95,7 +95,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginRight="5dp"
                             android:text="@string/updatePhoneNumber"
-                            android:textColor="@color/blue"
+                            android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
 
                         <TextView
@@ -103,7 +103,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginRight="5dp"
-                            android:textColor="@color/blue"
+                            android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
                     </LinearLayout>
 
@@ -121,7 +121,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginRight="5dp"
                             android:text="@string/email"
-                            android:textColor="@color/blue"
+                            android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
 
                         <TextView
@@ -129,7 +129,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginRight="5dp"
-                            android:textColor="@color/blue"
+                            android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
                     </LinearLayout>
 
@@ -147,7 +147,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginRight="5dp"
                             android:text="@string/address"
-                            android:textColor="@color/blue"
+                            android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
 
                         <TextView
@@ -155,7 +155,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginRight="5dp"
-                            android:textColor="@color/blue"
+                            android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
                     </LinearLayout>
 
@@ -174,7 +174,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginRight="5dp"
                             android:text="@string/adiyaVerse"
-                            android:textColor="@color/blue"
+                            android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
 
                         <TextView
@@ -182,7 +182,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginRight="5dp"
-                            android:textColor="@color/blue"
+                            android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
                     </LinearLayout>
 
@@ -201,7 +201,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginRight="5dp"
                             android:text="@string/sassVerse"
-                            android:textColor="@color/blue"
+                            android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
 
                         <TextView
@@ -209,7 +209,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginRight="5dp"
-                            android:textColor="@color/blue"
+                            android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
                     </LinearLayout>
 
@@ -228,7 +228,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginRight="5dp"
                             android:text="@string/socialVerse"
-                            android:textColor="@color/blue"
+                            android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
 
                         <TextView
@@ -236,7 +236,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginRight="5dp"
-                            android:textColor="@color/blue"
+                            android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
                     </LinearLayout>
 
@@ -254,7 +254,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginRight="5dp"
                             android:text="@string/commission"
-                            android:textColor="@color/blue"
+                            android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
 
                         <TextView
@@ -262,7 +262,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginRight="5dp"
-                            android:textColor="@color/blue"
+                            android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
                     </LinearLayout>
 
@@ -280,10 +280,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="20dp"
-                        android:background="#7fa208"
+                        android:background="@color/gray"
                         android:text="@string/backButton"
                         android:textAllCaps="false"
-                        android:textColor="@color/colorAccent" />
+                        android:textColor="@color/white" />
 
                 </LinearLayout>
 

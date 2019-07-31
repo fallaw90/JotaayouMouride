@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
     android:orientation="vertical"
     tools:context=".SignUpPhoneActivity">
 
@@ -29,8 +28,8 @@
                 android:layout_height="wrap_content"
                 android:text="Completer votre profil pour terminer"
                 android:textAlignment="center"
-                android:textColor="@color/white"
-                android:textSize="30sp"/>
+                android:textColor="@color/black"
+                android:textSize="@dimen/_20sdp"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -70,8 +69,7 @@
                         android:fontFamily="sans-serif"
                         android:hint="@string/name"
                         android:inputType="text"
-                        android:paddingBottom="15dp"
-                        android:textColorHint="@color/colorAccent" />
+                        android:paddingBottom="15dp"/>
 
                     <EditText
                         android:id="@+id/editText_address"
@@ -81,8 +79,7 @@
                         android:fontFamily="sans-serif"
                         android:hint="@string/address"
                         android:inputType="text"
-                        android:paddingBottom="15dp"
-                        android:textColorHint="@color/colorAccent" />
+                        android:paddingBottom="15dp"/>
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -96,20 +93,20 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_margin="7dp"
-                            android:background="@drawable/rounded_button_transparent"
+                            android:background="@color/gray"
                             android:text="@string/backButton"
                             android:textAllCaps="false"
-                            android:textColor="@color/colorAccent" />
+                            android:textColor="@color/white" />
 
                         <Button
                             android:id="@+id/button_signUp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_margin="7dp"
-                            android:background="@drawable/rounded_button_transparent"
+                            android:background="@color/green"
                             android:text="Terminer"
                             android:textAllCaps="false"
-                            android:textColor="@color/colorAccent" />
+                            android:textColor="@color/white" />
 
                     </LinearLayout>
 
@@ -121,7 +118,7 @@
                         android:text="@string/registeredAlready"
                         android:textAlignment="center"
                         android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-                        android:textColor="@color/colorAccent" />
+                        android:textColor="@color/black" />
 
 
                 </LinearLayout>

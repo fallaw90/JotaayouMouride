@@ -2,6 +2,7 @@ package com.fallntic.jotaayumouride;
 
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -30,8 +31,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.MainActivity.progressBar;
+import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
 
 public class VerifyPhoneActivity extends AppCompatActivity {
     private final String TAG = "VerifyPhoneActivity";
@@ -82,11 +85,19 @@ public class VerifyPhoneActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_verify_phone);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         //initializing objects
         mAuth = FirebaseAuth.getInstance();
         editTextCode = findViewById(R.id.editTextCode);
 
+
+        //ProgressBar from static variable MainActivity
+        ListUserActivity.scrollView = findViewById(R.id.scrollView);
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+        relativeLayoutProgressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
 
         //getting mobile number from the previous activity
         //and sending the verification code to the number
@@ -137,24 +148,20 @@ public class VerifyPhoneActivity extends AppCompatActivity {
     }
 
     private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
+        ListUserActivity.showProgressBar();
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(VerifyPhoneActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+                        ListUserActivity.hideProgressBar();
                         if (task.isSuccessful()) {
                             //verification successful we will start the profile activity
                             getUser();
-
                         } else {
-
-                            //verification unsuccessful.. display an error message
-
                             String message = "Somthing is wrong, we will fix it soon...";
-
                             if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
                                 message = "Invalid code entered...";
                             }
-
                             Snackbar snackbar = Snackbar.make(findViewById(R.id.parent), message, Snackbar.LENGTH_LONG);
                             snackbar.setAction("Dismiss", new View.OnClickListener() {
                                 @Override
@@ -165,16 +172,23 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                             snackbar.show();
                         }
                     }
-                });
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                toastMessage(VerifyPhoneActivity.this, e.getMessage());
+                ListUserActivity.hideProgressBar();
+            }
+        });
     }
 
     public void getUser() {
+        ListUserActivity.showProgressBar();
         FirebaseFirestore.getInstance().collection("users").
                 whereEqualTo("userPhoneNumber", mAuth.getCurrentUser().getPhoneNumber()).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        dismissProgressDialog();
+                        ListUserActivity.hideProgressBar();
                         if (!queryDocumentSnapshots.isEmpty()) {
                             for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                                 onlineUser = documentSnapshot.toObject(User.class);
@@ -195,7 +209,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        dismissProgressDialog();
+                        ListUserActivity.hideProgressBar();
                         Log.d(TAG, "Error downloading Expenses");
                     }
                 });

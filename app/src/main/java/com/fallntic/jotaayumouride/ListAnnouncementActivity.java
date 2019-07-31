@@ -58,6 +58,7 @@ public class ListAnnouncementActivity extends AppCompatActivity {
         textViewDahiraName = findViewById(R.id.textView_dahiraName);
         textViewDahiraName.setText("Liste des annonces du dahira " + dahira.getDahiraName());
 
+
         showListAnnouncements();
 
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -67,6 +68,9 @@ public class ListAnnouncementActivity extends AppCompatActivity {
                 startActivity(new Intent(ListAnnouncementActivity.this, DahiraInfoActivity.class));
             }
         });
+
+        notificationTitle = null;
+        notificationBody = null;
     }
 
     @Override

@@ -70,6 +70,90 @@ public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraView
         return dahiraList.size();
     }
 
+    public void getUploadImages(Context context) {
+        showProgressDialog(context, "Chargement de vos depenses en cours ...");
+        FirebaseFirestore.getInstance().collection("uploadImages")
+                .whereEqualTo("dahiraID", dahira.getDahiraID()).get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                uploadImages = documentSnapshot.toObject(UploadImage.class);
+                            }
+                            Log.d(TAG, "Image name downloaded");
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "Error downloading image name");
+                    }
+                });
+    }
+
+    class DahiraViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+
+        TextView textViewDahiraName;
+        TextView textViewDieuwrine;
+        TextView textViewPhoneNumber;
+        TextView textViewSiege;
+
+        public DahiraViewHolder(View itemView) {
+            super(itemView);
+
+            textViewDahiraName = itemView.findViewById(R.id.textview_dahiraName);
+            textViewDieuwrine = itemView.findViewById(R.id.textview_dieuwrine);
+            textViewPhoneNumber = itemView.findViewById(R.id.textview_phoneNumber);
+            textViewSiege = itemView.findViewById(R.id.textview_siege);
+            imageView = itemView.findViewById(R.id.imageView);
+
+            itemView.setOnLongClickListener(this);
+            itemView.setOnClickListener(this);
+
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (dahiraList.size() > getAdapterPosition()) {
+                dahira = dahiraList.get(getAdapterPosition());
+                if (onlineUser.getListDahiraID().contains(dahira.getDahiraID())) {
+                    indexOnlineUser = onlineUser.getListDahiraID().indexOf(dahira.getDahiraID());
+                }
+
+                expense = null;
+                announcement = null;
+                event = null;
+                uploadImages = null;
+
+                getExistingExpenses(context);
+                getExistingAnnouncements(context, dahira, null);
+                getExistingEvents(context);
+                getUploadImages(context);
+
+                Intent intent = new Intent(context, DahiraInfoActivity.class);
+                context.startActivity(intent);
+                dahiraList.clear();
+            }
+        }
+
+        @Override
+        public boolean onLongClick(View view) {
+            if (dahiraList.size() > getAdapterPosition()) {
+                dahira = dahiraList.get(getAdapterPosition());
+                if (onlineUser.getListDahiraID().contains(dahira.getDahiraID())) {
+                    indexOnlineUser = onlineUser.getListDahiraID().indexOf(dahira.getDahiraID());
+                }
+                Intent intent = new Intent(context, UpdateDahiraActivity.class);
+                context.startActivity(intent);
+            }
+            return false;
+        }
+
+    }
+
+
     public static void getExistingEvents(Context context) {
         showProgressDialog(context, "Chargement des evenements en cours ...");
         FirebaseFirestore.getInstance().collection("events").
@@ -164,84 +248,4 @@ public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraView
                     });
         }
     }
-
-    public void getUploadImages(Context context) {
-        showProgressDialog(context, "Chargement de vos depenses en cours ...");
-        FirebaseFirestore.getInstance().collection("uploadImages")
-                .whereEqualTo("dahiraID", dahira.getDahiraID()).get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        if (!queryDocumentSnapshots.isEmpty()) {
-                            for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                                uploadImages = documentSnapshot.toObject(UploadImage.class);
-                            }
-                            Log.d(TAG, "Image name downloaded");
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "Error downloading image name");
-                    }
-                });
-    }
-
-    class DahiraViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
-
-        TextView textViewDahiraName;
-        TextView textViewDieuwrine;
-        TextView textViewPhoneNumber;
-        TextView textViewSiege;
-
-        public DahiraViewHolder(View itemView) {
-            super(itemView);
-
-            textViewDahiraName = itemView.findViewById(R.id.textview_dahiraName);
-            textViewDieuwrine = itemView.findViewById(R.id.textview_dieuwrine);
-            textViewPhoneNumber = itemView.findViewById(R.id.textview_phoneNumber);
-            textViewSiege = itemView.findViewById(R.id.textview_siege);
-            imageView = itemView.findViewById(R.id.imageView);
-
-            itemView.setOnLongClickListener(this);
-            itemView.setOnClickListener(this);
-
-        }
-
-        @Override
-        public void onClick(View v) {
-            dahira = dahiraList.get(getAdapterPosition());
-            if (onlineUser.getListDahiraID().contains(dahira.getDahiraID())) {
-                indexOnlineUser = onlineUser.getListDahiraID().indexOf(dahira.getDahiraID());
-            }
-
-            expense = null;
-            announcement = null;
-            event = null;
-            uploadImages = null;
-
-            getExistingExpenses(context);
-            getExistingAnnouncements(context, dahira, null);
-            getExistingEvents(context);
-            getUploadImages(context);
-
-            Intent intent = new Intent(context, DahiraInfoActivity.class);
-            context.startActivity(intent);
-            dahiraList.clear();
-        }
-
-        @Override
-        public boolean onLongClick(View view) {
-            dahira = dahiraList.get(getAdapterPosition());
-            if (onlineUser.getListDahiraID().contains(dahira.getDahiraID())) {
-                indexOnlineUser = onlineUser.getListDahiraID().indexOf(dahira.getDahiraID());
-            }
-            Intent intent = new Intent(context, UpdateDahiraActivity.class);
-            context.startActivity(intent);
-            return false;
-        }
-
-    }
-
 }

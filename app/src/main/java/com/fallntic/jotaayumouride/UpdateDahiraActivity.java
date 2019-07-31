@@ -47,14 +47,14 @@ import java.util.List;
 
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dahiraID;
-import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrors;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showImage;
-import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.MainActivity.progressBar;
+import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
 
 public class UpdateDahiraActivity extends AppCompatActivity implements View.OnClickListener  {
 
@@ -116,6 +116,13 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
             Intent intent = new Intent(this, LoginActivity.class);
             showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
+
+        //ProgressBar from static variable MainActivity
+        ListUserActivity.scrollView = findViewById(R.id.scrollView);
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+        relativeLayoutProgressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
 
         firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
@@ -265,7 +272,7 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
 
     private void uploadImage() {
         if(uri != null) {
-            showProgressDialog(this, "Enregistrement de votre image cours ...");
+            ListUserActivity.showProgressBar();
             final StorageReference ref = storageReference.child("logoDahira").child(dahira.getDahiraID());
             ref.putFile(uri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -273,13 +280,14 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
                             while (!urlTask.isSuccessful());
-                            dismissProgressDialog();
+                            ListUserActivity.hideProgressBar();
+                            toastMessage(getApplicationContext(), "Image enregistree");
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            dismissProgressDialog();
+                            ListUserActivity.hideProgressBar();
                             imageSaved = false;
                             toastMessage(getApplicationContext(), "Failed "+e.getMessage());
                         }
@@ -326,7 +334,7 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
             listID.add(dahiraID);
             onlineUser.setListDahiraID(listID);
 
-            showProgressDialog(this,"Enregistrement de votre dahira cours ...");
+            ListUserActivity.showProgressBar();
             db.collection("dahiras").document(dahira.getDahiraID())
                     .update( "dahiraName", dahiraName,
                             "dieuwrine", dieuwrine,
@@ -341,11 +349,19 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            showAlertDialog(UpdateDahiraActivity.this, "Changements enregistre avec succe");
+                            ListUserActivity.hideProgressBar();
+                            Intent intent = new Intent(UpdateDahiraActivity.this,
+                                    DahiraInfoActivity.class);
+                            showAlertDialog(UpdateDahiraActivity.this,
+                                    "Changements enregistre avec succe", intent);
                         }
-                    });
-
-            startActivity(new Intent(UpdateDahiraActivity.this, DahiraInfoActivity.class));
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    toastMessage(UpdateDahiraActivity.this, "Erreur enregistrement");
+                    startActivity(new Intent(UpdateDahiraActivity.this, DahiraInfoActivity.class));
+                }
+            });
         }
     }
 
