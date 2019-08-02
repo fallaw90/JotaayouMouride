@@ -1,7 +1,9 @@
 package com.fallntic.jotaayumouride;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -9,28 +11,45 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.fallntic.jotaayumouride.Model.Announcement;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
-import static com.fallntic.jotaayumouride.DataHolder.announcement;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
 import static com.fallntic.jotaayumouride.DataHolder.notificationBody;
 import static com.fallntic.jotaayumouride.DataHolder.notificationTitle;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
+import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 
 public class ListAnnouncementActivity extends AppCompatActivity {
     private final String TAG = "ListAnnouncementActivity";
 
-    private TextView textViewDahiraName;
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private TextView textViewDahiraName, textViewDelete;
     private RecyclerView recyclerViewAnnoucement;
+    private Toolbar toolbar;
+    private TextAnnouncementAdapter textAnnouncementAdapter;
+    private List<Announcement> listAnnouncement;
+    private FirebaseFirestore db;
+    private CoordinatorLayout coordinatorLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,14 +57,7 @@ public class ListAnnouncementActivity extends AppCompatActivity {
         setContentView(R.layout.activity_list_announcement);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setSubtitle("Liste des annonces");
-        setSupportActionBar(toolbar);
-
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-        }
+        initialization();
 
         if (!isConnected(this)) {
             finish();
@@ -54,8 +66,7 @@ public class ListAnnouncementActivity extends AppCompatActivity {
                     "verifier votre connexion internet puis reesayez SVP", intent);
         }
 
-        recyclerViewAnnoucement = findViewById(R.id.recyclerview_announcement);
-        textViewDahiraName = findViewById(R.id.textView_dahiraName);
+
         textViewDahiraName.setText("Liste des annonces du dahira " + dahira.getDahiraName());
 
 
@@ -69,8 +80,31 @@ public class ListAnnouncementActivity extends AppCompatActivity {
             }
         });
 
+        enableSwipeToDelete();
+
         notificationTitle = null;
         notificationBody = null;
+    }
+
+    public void initialization() {
+
+        //**********Toolbar*******************************************
+        toolbar = findViewById(R.id.toolbar);
+        toolbar.setSubtitle("Liste des annonces");
+        setSupportActionBar(toolbar);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+        //*************************************************************
+
+        recyclerViewAnnoucement = findViewById(R.id.recyclerview_announcement);
+        textViewDahiraName = findViewById(R.id.textView_dahiraName);
+        textViewDelete = findViewById(R.id.textView_delete);
+        coordinatorLayout = findViewById(R.id.coordinatorLayout);
+
+        db = FirebaseFirestore.getInstance();
     }
 
     @Override
@@ -82,30 +116,101 @@ public class ListAnnouncementActivity extends AppCompatActivity {
     private void showListAnnouncements() {
 
         //Attach adapter to recyclerView
-        Intent intent = new Intent(ListAnnouncementActivity.this, DahiraInfoActivity.class);
-        if (announcement != null) {
-            if (announcement.getDahiraID().equals(dahira.getDahiraID())) {
-                recyclerViewAnnoucement.setHasFixedSize(true);
-                recyclerViewAnnoucement.setLayoutManager(new LinearLayoutManager(this));
-                recyclerViewAnnoucement.setVisibility(View.VISIBLE);
-                final AnnouncementAdapter announcementAdapter = new AnnouncementAdapter(ListAnnouncementActivity.this,
-                        announcement.getListUserName(), announcement.getListDate(), announcement.getListNote());
 
-                recyclerViewAnnoucement.setAdapter(announcementAdapter);
-                announcementAdapter.notifyDataSetChanged();
-            } else {
-                showAlertDialog(ListAnnouncementActivity.this, "Dahira " + dahira.getDahiraName() +
-                        " n'a aucun evenement enregistre pour le moment", intent);
+        //Attach adapter to recyclerView
+        recyclerViewAnnoucement.setHasFixedSize(true);
+        recyclerViewAnnoucement.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewAnnoucement.setVisibility(View.VISIBLE);
+        listAnnouncement = new ArrayList<>();
+        textAnnouncementAdapter = new TextAnnouncementAdapter(this, listAnnouncement);
+        recyclerViewAnnoucement.setAdapter(textAnnouncementAdapter);
+
+        db.collection("announcements").document(dahira.getDahiraID())
+                .collection("text").get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                            for (DocumentSnapshot documentSnapshot : list) {
+                                Announcement announcement = documentSnapshot.toObject(Announcement.class);
+                                listAnnouncement.add(announcement);
+                            }
+                            textAnnouncementAdapter.notifyDataSetChanged();
+                        } else {
+                            textViewDahiraName.setText("La liste de vos annonces est vides. " +
+                                    "Cliquez sur l'icone (+) pour ajouter une annonce.");
+                            textViewDelete.setVisibility(View.GONE);
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                toastMessage(ListAnnouncementActivity.this, "Error : " + e.getMessage());
             }
-        } else {
-            if (notificationBody != null && notificationTitle != null)
-                intent = new Intent(ListAnnouncementActivity.this, MainActivity.class);
-
-            showAlertDialog(ListAnnouncementActivity.this, "Dahira " + dahira.getDahiraName() +
-                    " n'a aucun evenement enregistre pour le moment", intent);
-        }
+        });
         notificationTitle = null;
         notificationBody = null;
+    }
+
+    private void enableSwipeToDelete() {
+        SwipeToDeleteCallback swipeToDeleteCallback = new SwipeToDeleteCallback(this) {
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
+
+                final int position = viewHolder.getAdapterPosition();
+                final Announcement announcement = listAnnouncement.get(position);
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(ListAnnouncementActivity.this, R.style.alertDialog);
+                builder.setTitle("Supprimer annonce!");
+                builder.setMessage("Etes vous sure de vouloir supprimer cette annonce?");
+                builder.setCancelable(false);
+                builder.setPositiveButton("OUI", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        textAnnouncementAdapter.removeItem(position);
+                        //Remove item in FirebaseFireStore
+                        db.collection("announcements").document(dahira.getDahiraID())
+                                .collection("text").document(announcement.getAnnouncementID())
+                                .delete()
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+
+                                        Snackbar snackbar = Snackbar.make(coordinatorLayout,
+                                                "Annonce supprimee.", Snackbar.LENGTH_LONG);
+                                        snackbar.setActionTextColor(Color.GREEN);
+                                        snackbar.show();
+
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Snackbar snackbar = Snackbar.make(coordinatorLayout,
+                                        "Erreur de la suppression de l'annonce. " + e.getMessage(), Snackbar.LENGTH_LONG);
+                                snackbar.setActionTextColor(Color.GREEN);
+                                snackbar.show();
+                                startActivity(new Intent(ListAnnouncementActivity.this, ListAnnouncementActivity.class));
+                            }
+                        });
+
+                    }
+                });
+
+                builder.setNegativeButton("NON", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startActivity(new Intent(ListAnnouncementActivity.this,
+                                ListAnnouncementActivity.class));
+                    }
+                });
+                builder.show();
+            }
+
+        };
+
+        ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeToDeleteCallback);
+        itemTouchhelper.attachToRecyclerView(recyclerViewAnnoucement);
     }
 
     @Override
@@ -125,7 +230,7 @@ public class ListAnnouncementActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.icon_add:
                 actionSelected = "addNewAnnouncement";
-                startActivity(new Intent(this, CreateAnnouncementActivity.class));
+                startActivity(new Intent(this, AnnouncementActivity.class));
                 break;
         }
         return true;

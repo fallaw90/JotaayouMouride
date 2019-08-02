@@ -1,6 +1,5 @@
 package com.fallntic.jotaayumouride;
 
-import android.annotation.SuppressLint;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -12,11 +11,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import com.google.android.gms.tasks.OnFailureListener;
+import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -35,10 +33,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.DataHolder.notificationBody;
-import static com.fallntic.jotaayumouride.DataHolder.notificationTitle;
-import static com.fallntic.jotaayumouride.DataHolder.objNotification;
-import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.MainActivity.CHANNEL_ID;
 
 public class NotificationHelper extends IntentService {
@@ -53,9 +47,7 @@ public class NotificationHelper extends IntentService {
         super(name);
     }
 
-
-    public static void sendNotification(final Context context, final User user,
-                                        final String title, final String message) {
+    public static void sendNotification(final Context context, final User user, final ObjNotification objNotification) {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://jotaayumourid.firebaseapp.com/api/")
@@ -63,21 +55,14 @@ public class NotificationHelper extends IntentService {
                 .build();
 
         Api api = retrofit.create(Api.class);
-
-        retrofit2.Call<ResponseBody> call = api.sendNotification(user.getTokenID(), title, message);
-
+        retrofit2.Call<ResponseBody> call = api.sendNotification(user.getTokenID(), objNotification.getTitle(), objNotification.getMessage());
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-
                 try {
-
-                    saveNotificationToFirestore(context, user, title, message);
-
                     Log.d(TAG, response.body().string());
                     //toastMessage(context, "Notification envoyee");
                     //Toast.makeText(context, response.body().string(), Toast.LENGTH_LONG).show();
-
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -88,52 +73,15 @@ public class NotificationHelper extends IntentService {
 
             }
         });
-
-    }
-
-    //Used in sendNotification function
-    //Class NotificationHelper line 75
-    public static void saveNotificationToFirestore(final Context context, User user,
-                                                   String title, String message) {
-
-        String notificationID = FirebaseFirestore.getInstance()
-                .collection("notifications").document().getId();
-
-        objNotification = new ObjNotification(notificationID, user.getUserID(),
-                dahira.getDahiraID(), title, message);
-
-        FirebaseFirestore.getInstance().collection("notifications")
-                .document(notificationID).set(objNotification)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        dismissProgressDialog();
-                        //toastMessage("Utilisateur enregistre avec succes");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @SuppressLint("LongLogTag")
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        dismissProgressDialog();
-                        toastMessage(context, "Error adding user!");
-                        Log.d(TAG, e.toString());
-                    }
-                });
     }
 
     //Used in class MyFirebaseMessagingService
     //Function onMessageReceived line 23
-    public static void displayNotification(Context context, String title, String message) {
+    public static void displayNotification(Context context, ObjNotification objNotification) {
 
-        //getOnlineUser(context, userID);
-
-        notificationTitle = title;
-        notificationBody = message;
 
         Intent intent = new Intent(context, MainActivity.class);
-        intent.putExtra("title", title);
-        intent.putExtra("message", message);
+        intent.putExtra("objNotification", objNotification);
 
         int uniqueInt = (int) (System.currentTimeMillis() & 0xfffffff);
         PendingIntent pendingIntent = PendingIntent.getActivity(
@@ -144,9 +92,9 @@ public class NotificationHelper extends IntentService {
 
         Bitmap largeIcon = BitmapFactory.decodeResource(Resources.getSystem(), R.drawable.logo_dahira);
         Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_one)
-                .setContentTitle(title)
-                .setContentText(message)
+                .setSmallIcon(R.drawable.ic_announcement)
+                .setContentTitle(objNotification.getTitle())
+                .setContentText(objNotification.getMessage())
                 .setLargeIcon(largeIcon)
                 .setStyle(new NotificationCompat.BigTextStyle()
                         .setSummaryText("Summary Text"))
@@ -162,10 +110,10 @@ public class NotificationHelper extends IntentService {
 
     /*
      * Used on:
-     *      CreateAnnouncementActivity line 177
+     *      AnnouncementActivity line 177
      *      CreateExpenseActivity line 169
      */
-    public static void sendNotificationToSpecificUsers(final Context context, final String title, final String message) {
+    public static void sendNotificationToSpecificUsers(final Context context, final ObjNotification objNotification) {
 
         FirebaseFirestore.getInstance().collection("users").get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -179,7 +127,7 @@ public class NotificationHelper extends IntentService {
                                 User user = documentSnapshot.toObject(User.class);
 
                                 if (user.getListDahiraID().contains(dahira.getDahiraID())) {
-                                    sendNotification(context, user, title, message);
+                                    sendNotification(context, user, objNotification);
                                 }
 
                             }
@@ -188,7 +136,7 @@ public class NotificationHelper extends IntentService {
                 });
     }
 
-    public static void sendNotificationToAllUsers(final Context context, final String title, final String message) {
+    public static void sendNotificationToAllUsers(final Context context, final ObjNotification objNotification) {
 
         FirebaseFirestore.getInstance().collection("users").get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -199,7 +147,7 @@ public class NotificationHelper extends IntentService {
                             List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
                             for (DocumentSnapshot documentSnapshot : list) {
                                 User user = documentSnapshot.toObject(User.class);
-                                sendNotification(context, user, title, message);
+                                sendNotification(context, user, objNotification);
                             }
                         }
                     }
@@ -209,6 +157,9 @@ public class NotificationHelper extends IntentService {
     @Override
     public void onHandleIntent(Intent intent) {
         Log.i(TAG, "ENTERED onHandleIntent");
-        displayNotification(this, notificationTitle, notificationBody);
+
+        displayNotification(this, MyStaticVariables.objNotification);
     }
+
+
 }

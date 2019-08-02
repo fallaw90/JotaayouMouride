@@ -21,9 +21,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:appComponentFactory">
-        <activity android:name=".ShowSongsActivity"></activity>
+        <activity android:name=".RecordingListActivity"></activity>
+        <activity android:name=".RecordAudioActivity" />
+        <activity android:name=".RecordingListActivity" />
         <activity android:name=".GalleryAudioActivity" />
-        <activity android:name=".RecordAudio" />
         <activity android:name=".SignUpPhoneActivity" />
         <activity android:name=".VerifyPhoneActivity" />
         <activity android:name=".LoginPhoneActivity" />
@@ -35,7 +36,7 @@
         <activity android:name=".ListAnnouncementActivity" />
         <activity android:name=".ListEventActivity" />
         <activity android:name=".CreateEventActivity" />
-        <activity android:name=".CreateAnnouncementActivity" />
+        <activity android:name=".AnnouncementActivity" />
         <activity android:name=".ListContributionActivity" />
         <activity android:name=".SettingUserActivity" />
         <activity android:name=".UserInfoActivity" />

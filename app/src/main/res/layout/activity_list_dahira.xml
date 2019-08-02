@@ -21,19 +21,20 @@
             layout="@layout/toolbar"/>
 
         <TextView
-            android:id="@+id/textView_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="Choisissez un dahira pour continuer."
-            android:textColor="@color/red"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginBottom="@dimen/_10sdp"
+            android:text="Liste des dahiras dont vous etes membre. Cliquez sur un dahira pour continuer."
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_15sdp"
+            android:textStyle="bold" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerview_dahiras"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/toolbar" />
+            android:layout_height="wrap_content" />
 
     </LinearLayout>
 

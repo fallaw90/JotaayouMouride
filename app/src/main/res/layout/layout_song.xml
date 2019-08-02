@@ -1,49 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/_80sdp"
-    android:layout_margin="@dimen/_8sdp"
-    android:orientation="vertical"
-    app:cardElevation="@dimen/_8sdp">
+    android:layout_height="wrap_content"
+    android:background="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:padding="5dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <ImageView
+        android:id="@+id/iv_artwork"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:src="@drawable/music_placeholder" />
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:orientation="horizontal"
-        android:weightSum="10">
+        android:layout_toEndOf="@id/iv_artwork"
+        android:layout_toRightOf="@id/iv_artwork"
+        android:paddingEnd="50dp"
+        android:paddingRight="50dp"
+        android:text="Titre de la chanson"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/_8sdp"
-            android:orientation="vertical">
+    <TextView
+        android:id="@+id/tv_duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:text="3:05" />
 
-            <TextView
-                android:id="@+id/textView_titleSong"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Titre song "
-                android:textColor="@color/green"
-                android:textSize="20sp"
-                android:textStyle="bold"/>
+    <ImageView
+        android:id="@+id/iv_play_active"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_below="@id/tv_duration"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/ic_play_circle_outline_white"
+        android:visibility="invisible" />
 
-            <TextView
-                android:id="@+id/textView_songDuration"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/_5sdp"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:text="3:00"
-                android:textColor="@color/green"
-                android:textColorHint="@color/green"
-                android:textSize="18sp"
-                android:textStyle="bold"/>
-
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-</androidx.cardview.widget.CardView>
+</RelativeLayout>

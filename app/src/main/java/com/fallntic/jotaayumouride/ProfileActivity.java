@@ -106,6 +106,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             showAlertDialog(this, "Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
 
+
         mAuth = FirebaseAuth.getInstance();
         userID = mAuth.getCurrentUser().getUid();
         firebaseUser = mAuth.getCurrentUser();
@@ -150,12 +151,14 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         saveTokenID();
 
         findViewById(R.id.button_verifyEmail).setOnClickListener(this);
+
     }
 
 
     @Override
     protected void onStart() {
         super.onStart();
+        mAuth = FirebaseAuth.getInstance();
         if (mAuth.getCurrentUser() == null) {
             finish();
             startActivity(new Intent(this, LoginPhoneActivity.class));
@@ -190,8 +193,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 } else {
                     linearLayoutVerified.setVisibility(View.GONE);
                 }
-            }
-            else if (firebaseUser.getPhoneNumber() != null && !firebaseUser.getPhoneNumber().equals("")){
+            } else if (firebaseUser.getPhoneNumber() != null && !firebaseUser.getPhoneNumber().equals("")) {
                 toastMessage(this, firebaseUser.getPhoneNumber());
                 linearLayoutVerificationNeeded.setVisibility(View.GONE);
                 textViewNavEmail.setVisibility(View.GONE);
@@ -394,6 +396,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     public void setDrawerMenu() {
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
+        navigationView.setItemIconTintList(null);
         navigationView.setNavigationItemSelectedListener(this);
         navHeader = navigationView.getHeaderView(0);
         navImageView = navHeader.findViewById(R.id.nav_imageView);
@@ -444,13 +447,13 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 });
     }
 
-    public void setLayoutInvisible(){
+    public void setLayoutInvisible() {
         swipeLayout.setVisibility(View.GONE);
         relativeLayoutProgressBar.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.VISIBLE);
     }
 
-    public void setLayoutVisible(){
+    public void setLayoutVisible() {
         swipeLayout.setVisibility(View.VISIBLE);
         relativeLayoutProgressBar.setVisibility(View.GONE);
         progressBar.setVisibility(View.GONE);

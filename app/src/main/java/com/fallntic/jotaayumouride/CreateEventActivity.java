@@ -284,7 +284,8 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                             String message = "Dahira " + dahira.getDahiraName() + " vient de " +
                                     "publier un nouveau événement. \nCliquez pour plus de détails.";
 
-                            NotificationHelper.sendNotificationToAllUsers(context, title, message);
+                            ObjNotification objNotification = new ObjNotification();
+                            NotificationHelper.sendNotificationToAllUsers(context, objNotification);
 
                             Log.d(TAG, "Collection evenement created");
                         }

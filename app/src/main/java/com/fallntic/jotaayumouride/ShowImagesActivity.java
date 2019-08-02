@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.DataHolder.indexOnlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.uploadImages;
 
@@ -33,7 +34,7 @@ public class ShowImagesActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("");
+        toolbar.setTitle("Jotaayou Mouride");
         toolbar.setSubtitle("Repertoire Photo");
         setSupportActionBar(toolbar);
 
@@ -97,8 +98,10 @@ public class ShowImagesActivity extends AppCompatActivity {
         MenuItem iconAdd;
         iconAdd = menu.findItem(R.id.icon_add);
 
-        if (onlineUser.getListDahiraID().contains(dahira.getDahiraID()))
-            iconAdd.setVisible(true);
+        if (onlineUser.getListDahiraID().contains(dahira.getDahiraID()) && indexOnlineUser > 0) {
+            if (onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur"))
+                iconAdd.setVisible(true);
+        }
 
         return true;
     }

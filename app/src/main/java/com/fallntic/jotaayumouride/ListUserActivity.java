@@ -38,7 +38,6 @@ import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
-import static com.fallntic.jotaayumouride.DataHolder.announcement;
 import static com.fallntic.jotaayumouride.DataHolder.call;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
@@ -532,14 +531,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
 
             case R.id.nav_addAnnouncement:
                 actionSelected = "addNewAnnouncement";
-                startActivity(new Intent(this, CreateAnnouncementActivity.class));
-                break;
-
-            case R.id.nav_displayAnnouncement:
-                if (announcement == null) {
-                    showAlertDialog(this, "La liste de vos annonces est vide!");
-                } else
-                    startActivity(new Intent(this, ListAnnouncementActivity.class));
+                startActivity(new Intent(this, AnnouncementActivity.class));
                 break;
 
             case R.id.nav_addEvent:
@@ -553,6 +545,14 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                     showAlertDialog(this, "La liste de vos evenements est vide!");
                 } else
                     startActivity(new Intent(this, ListEventActivity.class));
+                break;
+
+            case R.id.nav_photo:
+                startActivity(new Intent(this, ShowImagesActivity.class));
+                break;
+
+            case R.id.nav_audio:
+                startActivity(new Intent(this, RecordingListActivity.class));
                 break;
 
             case R.id.nav_callDahira:
@@ -577,6 +577,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
     public void setDrawerMenu() {
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
+        navigationView.setItemIconTintList(null);
         navigationView.setNavigationItemSelectedListener(this);
         navHeader = navigationView.getHeaderView(0);
         navImageView = navHeader.findViewById(R.id.nav_imageView);
@@ -613,5 +614,6 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         nav_Menu.findItem(R.id.nav_displaySocial).setVisible(false);
         nav_Menu.findItem(R.id.nav_callUser).setVisible(false);
         nav_Menu.findItem(R.id.nav_searchDahira).setVisible(false);
+        nav_Menu.findItem(R.id.nav_video).setVisible(false);
     }
 }

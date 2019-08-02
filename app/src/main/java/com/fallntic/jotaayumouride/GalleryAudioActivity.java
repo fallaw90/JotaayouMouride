@@ -1,7 +1,9 @@
 package com.fallntic.jotaayumouride;
 
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
@@ -13,13 +15,17 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
-import com.fallntic.jotaayumouride.Model.UploadSong;
+import com.fallntic.jotaayumouride.Model.Audio;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -35,41 +41,67 @@ import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
 
 public class GalleryAudioActivity extends AppCompatActivity {
 
-    EditText editTextTitle;
-    TextView textViewSelectedFile;
+    private EditText editTextTitle;
+    private TextView textViewSelectedFile;
 
-    Uri audioUri;
+    private Uri audioUri;
 
-    StorageReference mStorage;
-    DatabaseReference databaseReference;
+    private FirebaseFirestore firestore;
+    private CollectionReference collectionReference;
 
-    StorageTask uploadTask;
+    private StorageReference mStorage;
 
-    ProgressBar progressBar;
+    private StorageTask uploadTask;
+
+    private ProgressBar progressBar;
+
+    private String uploadID;
+    private TextView textView_titleLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery_audio);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        editTextTitle = findViewById(R.id.editText_titleSong);
-        textViewSelectedFile = findViewById(R.id.textView_selectedFile);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Jotaayou Mouride");
+        setSupportActionBar(toolbar);
 
-        //ProgressBar
-        progressBar = findViewById(R.id.progressBar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        initView();
+
+        textView_titleLayout.setText("Enregistrer un audio dans le repertoire du dahira " +
+                dahira.getDahiraName());
+
+        firestore = FirebaseFirestore.getInstance();
+        collectionReference = firestore.collection("dahiras")
+                .document(dahira.getDahiraID()).collection("audios");
 
         mStorage = FirebaseStorage.getInstance().getReference()
                 .child("gallery")
-                .child("audio")
-                .child(dahira.getDahiraID());
-
-        databaseReference = FirebaseDatabase.getInstance().getReference()
-                .child("gallery")
-                .child("audio")
+                .child("audios")
                 .child(dahira.getDahiraID());
     }
 
-    public void openAudioFile(View v){
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        startActivity(new Intent(this, DahiraInfoActivity.class));
+        return true;
+    }
+
+    public void initView() {
+        editTextTitle = findViewById(R.id.editText_titleSong);
+        textViewSelectedFile = findViewById(R.id.textView_selectedFile);
+        textView_titleLayout = findViewById(R.id.textView_titleLayoutUploadSong);
+        //ProgressBar
+        progressBar = findViewById(R.id.progressBar);
+    }
+
+    public void openAudioFile(View v) {
 
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("audio/*");
@@ -80,7 +112,7 @@ public class GalleryAudioActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 101 && resultCode == RESULT_OK && data.getData() != null){
+        if (requestCode == 101 && resultCode == RESULT_OK && data.getData() != null) {
 
             audioUri = data.getData();
             String fileName = getFileName(audioUri);
@@ -88,25 +120,26 @@ public class GalleryAudioActivity extends AppCompatActivity {
         }
     }
 
-    public String getFileName(Uri uri){
+    public String getFileName(Uri uri) {
 
         String result = null;
-        if(audioUri.getScheme().equals("content")){
-            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+        if (audioUri.getScheme().equals("content")) {
+            Cursor cursor = getContentResolver().query(uri, null, null,
+                    null, null);
 
             try {
-                if (cursor != null && cursor.moveToFirst()){
+                if (cursor != null && cursor.moveToFirst()) {
                     result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
                 }
-            }finally {
+            } finally {
                 cursor.close();
             }
 
-            if (result == null){
+            if (result == null) {
                 result = uri.getPath();
                 int cut = result.lastIndexOf('/');
 
-                if (cut != -1){
+                if (cut != -1) {
                     result = result.substring(cut + 1);
                 }
             }
@@ -117,36 +150,32 @@ public class GalleryAudioActivity extends AppCompatActivity {
     }
 
 
-    public void uploadAudioToFirebase(View v){
+    public void uploadAudioToFirebase(View v) {
 
-        if (textViewSelectedFile.getText().toString().equals("Pas de fichier selectionné")){
+        if (textViewSelectedFile.getText().toString().equals("Pas de fichier selectionné")) {
             toastMessage(GalleryAudioActivity.this, "Sélectionnez un fichier SVP!");
-        }
-        else {
+        } else {
 
-            if (uploadTask != null && uploadTask.isInProgress()){
+            if (uploadTask != null && uploadTask.isInProgress()) {
                 toastMessage(GalleryAudioActivity.this, "Un telechargement est deja en cours");
-            }
-            else {
+            } else {
                 uploadFile();
             }
         }
     }
 
-    public void uploadFile(){
+    public void uploadFile() {
 
-        if (audioUri != null){
+        if (audioUri != null) {
             String durationTxt;
             toastMessage(GalleryAudioActivity.this, "Chargement de votre fichier ...");
 
-            progressBar.setVisibility(View.VISIBLE);
-
-            final StorageReference storageReference = mStorage
-                    .child(System.currentTimeMillis() + "." + getFileExtension(audioUri));
+            uploadID = System.currentTimeMillis() + "." + getFileExtension(audioUri);
+            final StorageReference storageReference = mStorage.child(uploadID);
 
             int durationInMillis = findSongDuration(audioUri);
 
-            if (durationInMillis == 0){
+            if (durationInMillis == 0) {
                 durationTxt = "NA";
             }
 
@@ -163,11 +192,43 @@ public class GalleryAudioActivity extends AppCompatActivity {
                                 @Override
                                 public void onSuccess(Uri uri) {
 
-                                    UploadSong uploadSong = new UploadSong(editTextTitle.getText().toString(),
+                                    Audio audio = new Audio(uploadID, editTextTitle.getText().toString(),
                                             finalDurationTxt, uri.toString());
 
-                                    String uploadID = databaseReference.push().getKey();
-                                    databaseReference.child(uploadID).setValue(uploadSong);
+                                    collectionReference.document(uploadID).set(audio)
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    progressBar.setVisibility(View.GONE);
+                                                    textViewSelectedFile.setText("Aucun fichier selectionne");
+                                                    AlertDialog.Builder builder =
+                                                            new AlertDialog.Builder(GalleryAudioActivity.this, R.style.alertDialog);
+                                                    builder.setTitle("Fichier enregistre");
+                                                    builder.setMessage("Voulez-vous ajouter un autre fichier audio?");
+                                                    builder.setCancelable(false);
+                                                    builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialog, int which) {
+                                                        }
+                                                    });
+
+                                                    builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialog, int which) {
+                                                            startActivity(new Intent(
+                                                                    GalleryAudioActivity.this, DahiraInfoActivity.class));
+                                                        }
+                                                    });
+                                                    builder.show();
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    toastMessage(GalleryAudioActivity.this,
+                                                            e.getMessage());
+                                                }
+                                            });
 
                                 }
                             });
@@ -177,14 +238,13 @@ public class GalleryAudioActivity extends AppCompatActivity {
                     .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-
-                            double progress = (100.0 * taskSnapshot.getBytesTransferred()/taskSnapshot.getTotalByteCount());
-                            progressBar.setProgress((int)progress);
+                            progressBar.setVisibility(View.VISIBLE);
+                            double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
+                            progressBar.setProgress((int) progress);
 
                         }
                     });
-        }
-        else {
+        } else {
             toastMessage(GalleryAudioActivity.this, "Aucun fichier n'a ete selectione.");
         }
     }
@@ -213,7 +273,7 @@ public class GalleryAudioActivity extends AppCompatActivity {
 
             return timeInMilliSec;
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return 0;
         }

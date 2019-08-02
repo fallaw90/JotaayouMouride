@@ -30,7 +30,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
 import static com.fallntic.jotaayumouride.DataHolder.adiya;
-import static com.fallntic.jotaayumouride.DataHolder.announcement;
 import static com.fallntic.jotaayumouride.DataHolder.call;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
@@ -269,16 +268,9 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
                 startActivity(new Intent(this, ListContributionActivity.class));
                 break;
 
-            case R.id.nav_displayAnnouncement:
-                if (announcement == null) {
-                    showAlertDialog(this, "La liste de vos annonces est vide!");
-                } else
-                    startActivity(new Intent(this, ListAnnouncementActivity.class));
-                break;
-
             case R.id.nav_addAnnouncement:
                 actionSelected = "addNewAnnouncement";
-                startActivity(new Intent(this, CreateAnnouncementActivity.class));
+                startActivity(new Intent(this, AnnouncementActivity.class));
                 break;
 
             case R.id.nav_displayEvent:
@@ -328,6 +320,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
     private void setDrawerMenu() {
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
+        navigationView.setItemIconTintList(null);
         navigationView.setNavigationItemSelectedListener(this);
         navHeader = navigationView.getHeaderView(0);
         navImageView = navHeader.findViewById(R.id.nav_imageView);

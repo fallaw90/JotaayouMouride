@@ -176,7 +176,8 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
                                     typeOfExpense + " de votre dahira " + dahira.getDahiraName() + " par " +
                                     onlineUser.getUserName();
 
-                            sendNotificationToSpecificUsers(context, title, message);
+                            ObjNotification objNotification = new ObjNotification();
+                            sendNotificationToSpecificUsers(context, objNotification);
 
                             Log.d(TAG, "Collection evenement created");
                         }

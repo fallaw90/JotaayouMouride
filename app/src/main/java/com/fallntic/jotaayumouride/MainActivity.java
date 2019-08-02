@@ -24,6 +24,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
@@ -42,7 +43,6 @@ import static com.fallntic.jotaayumouride.DataHolder.loadEvent;
 import static com.fallntic.jotaayumouride.DataHolder.logout;
 import static com.fallntic.jotaayumouride.DataHolder.notificationBody;
 import static com.fallntic.jotaayumouride.DataHolder.notificationTitle;
-import static com.fallntic.jotaayumouride.DataHolder.objNotification;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.showImage;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
@@ -68,11 +68,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static final String CHANNEL_Name = "Jotaayou Mouride";
     public static final String CHANNEL_DESC = "Jotaayou Mouride Notifications";
 
-    public static void getDahira(final Context context, final String dahiraID) {
+    private ObjNotification objNotification;
+
+    public static void getDahira(final Context context, final ObjNotification objNotification) {
         relativeLayoutProgressBar.setVisibility(View.GONE);
         progressBar.setVisibility(View.GONE);
         FirebaseFirestore.getInstance().collection("dahiras")
-                .whereEqualTo("dahiraID", dahiraID).get()
+                .whereEqualTo("dahiraID", objNotification.getDahiraID()).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @SuppressLint("LongLogTag")
                     @Override
@@ -82,98 +84,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         if (!queryDocumentSnapshots.isEmpty()) {
                             for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                                 dahira = documentSnapshot.toObject(Dahira.class);
-
-                                if (notificationTitle != null && notificationBody != null) {
-
-                                    if (notificationTitle.equals("Nouvelle Annoncement")) {
-                                        //Define in DahiraAdapter
-                                        DahiraAdapter.getExistingAnnouncements(context, dahira, null);
-                                    } else if (notificationTitle.equals("Nouvelle Dépense")) {
-                                        //Define in DahiraAdapter
-                                        DahiraAdapter.getExistingExpenses(context);
-                                    }
-                                }
                                 break;
                             }
-                            Log.d(TAG, "Dahira downloaded");
+
+                            if (objNotification.getTitle().equals(MyStaticVariables.TITLE_ANNOUNCEMENT_NOTIFICATION)) {
+                                context.startActivity(new Intent(context, ListAnnouncementActivity.class));
+
+                            } else if (objNotification.getTitle().equals(MyStaticVariables.TITLE_EXPENSE_NOTIFICATION)) {
+                                context.startActivity(new Intent(context, ListAnnouncementActivity.class));
+                            }
                         }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @SuppressLint("LongLogTag")
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        relativeLayoutProgressBar.setVisibility(View.GONE);
-                        progressBar.setVisibility(View.GONE);
-                        Log.d(TAG, "Error downloading Dahira");
+                        Log.d(TAG, "Dahira downloaded");
                     }
                 });
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("");
-        toolbar.setSubtitle("Jotaayou Mouride");
-        setSupportActionBar(toolbar);
-
-        //********************** Drawer Menu ***********************
-        setDrawerMenu();
-        //**********************************************************
-
-        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
-        progressBar = findViewById(R.id.progressBar);
-        relativeLayoutProgressBar.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
-
-        if (!isConnected(this)) {
-            toastMessage(getApplicationContext(), "Oops! Pas de connexion, " +
-                    "verifier votre connexion internet puis reesayez SVP");
-            startActivity(new Intent(this, LoginPhoneActivity.class));
-            return;
-        }
-
-        //*********************************Notification************************************
-        createChannel();
-
-        // get the 'extra' from the intent
-        notificationTitle = getIntent().getStringExtra("title");
-        notificationBody = getIntent().getStringExtra("message");
-
-        //******************************************************************
-
-        textViewOffline = findViewById(R.id.textView_notOnline);
-        textViewOnline = findViewById(R.id.textView_online);
-
-        if (mAuth.getCurrentUser() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            userID = mAuth.getCurrentUser().getUid();
-            getOnlineUser(this, userID);
-            showImage(this, "profileImage", userID, navImageView);
-
-            //Go to ListEvent when we hit the notification
-            if (notificationTitle != null && notificationBody != null &&
-                    notificationTitle.equals("Evénement à venir")) {
-                loadEvent = "allEvents";
-                finish();
-                startActivity(new Intent(this, ListEventActivity.class));
-            }
-            else if (notificationTitle == null && notificationBody == null){
-                finish();
-                startActivity(new Intent(this, ProfileActivity.class));
-            }
-
-            //textViewOnline.setVisibility(View.VISIBLE);
-        } else {
-            textViewOffline.setVisibility(View.VISIBLE);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-
-            startActivity(new Intent(this, LoginPhoneActivity.class));
-        }
     }
 
     @Override
@@ -269,20 +192,64 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void setDrawerMenu() {
-        drawerLayout = findViewById(R.id.drawer_layout);
-        navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-        navHeader = navigationView.getHeaderView(0);
-        navImageView = navHeader.findViewById(R.id.nav_imageView);
-        textViewNavUserName = navHeader.findViewById(R.id.textView_navUserName);
-        textViewNavEmail = navHeader.findViewById(R.id.textView_navEmail);
-        toggle = new ActionBarDrawerToggle(this, drawerLayout,
-                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
-        navigationView.setCheckedItem(R.id.nav_home);
-        hideMenuItem();
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("");
+        toolbar.setSubtitle("Jotaayou Mouride");
+        setSupportActionBar(toolbar);
+
+        //********************** Drawer Menu ***********************
+        setDrawerMenu();
+        //**********************************************************
+
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+        relativeLayoutProgressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
+
+        if (!isConnected(this)) {
+            toastMessage(getApplicationContext(), "Oops! Pas de connexion, " +
+                    "verifier votre connexion internet puis reesayez SVP");
+            startActivity(new Intent(this, LoginPhoneActivity.class));
+            return;
+        }
+
+        //*********************************Notification************************************
+        createChannel();
+        objNotification = (ObjNotification) getIntent().getSerializableExtra("objNotification");
+        //******************************************************************
+
+        textViewOffline = findViewById(R.id.textView_notOnline);
+        textViewOnline = findViewById(R.id.textView_online);
+
+        if (mAuth.getCurrentUser() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            userID = mAuth.getCurrentUser().getUid();
+            getOnlineUser(this, userID, objNotification);
+            showImage(this, "profileImage", userID, navImageView);
+
+            //Go to ListEvent when we hit the notification
+            if (notificationTitle != null && notificationBody != null &&
+                    notificationTitle.equals("Evénement à venir")) {
+                loadEvent = "allEvents";
+                finish();
+                startActivity(new Intent(this, ListEventActivity.class));
+            } else if (notificationTitle == null && notificationBody == null) {
+                finish();
+                startActivity(new Intent(this, ProfileActivity.class));
+            }
+
+            //textViewOnline.setVisibility(View.VISIBLE);
+        } else {
+            textViewOffline.setVisibility(View.VISIBLE);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
+            startActivity(new Intent(this, LoginPhoneActivity.class));
+        }
     }
 
     @Override
@@ -313,10 +280,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public void getOnlineUser(final Context context, String userID) {
+    @Override
+    public void setDrawerMenu() {
+        drawerLayout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
+        navigationView.setItemIconTintList(null);
+        navigationView.setNavigationItemSelectedListener(this);
+        navHeader = navigationView.getHeaderView(0);
+        navImageView = navHeader.findViewById(R.id.nav_imageView);
+        textViewNavUserName = navHeader.findViewById(R.id.textView_navUserName);
+        textViewNavEmail = navHeader.findViewById(R.id.textView_navEmail);
+        toggle = new ActionBarDrawerToggle(this, drawerLayout,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+        navigationView.setCheckedItem(R.id.nav_home);
+        hideMenuItem();
+    }
+
+    public void getOnlineUser(final Context context, String userID, final ObjNotification objNotification) {
         relativeLayoutProgressBar.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.VISIBLE);
-        FirebaseFirestore.getInstance().collection("users").whereEqualTo("userID", userID).get()
+
+        if (objNotification != null) {
+            userID = objNotification.getUserID();
+        }
+
+        FirebaseFirestore.getInstance().collection("users")
+                .whereEqualTo("userID", userID).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
@@ -325,14 +316,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                             onlineUser = documentSnapshot.toObject(User.class);
 
-                            if (notificationTitle != null && notificationBody != null) {
-                                getNotification(context, onlineUser);
-                            }
-
-                            textViewNavUserName.setText(onlineUser.getUserName());
-                            textViewNavEmail.setText(onlineUser.getEmail());
-                            break;
+                            if (objNotification != null) {
+                                getDahira(context, objNotification);
+                                break;
+                            } else
+                                break;
                         }
+                        textViewNavUserName.setText(onlineUser.getUserName());
+                        textViewNavEmail.setText(onlineUser.getEmail());
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -346,39 +337,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         dismissProgressDialog();
     }
 
-    public void getNotification(final Context context, final User user) {
-        relativeLayoutProgressBar.setVisibility(View.VISIBLE);
-        progressBar.setVisibility(View.VISIBLE);
-        FirebaseFirestore.getInstance().collection("notifications")
-                .whereEqualTo("userID", user.getUserID())
-                .whereEqualTo("title", notificationTitle)
-                .whereEqualTo("message", notificationBody)
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @SuppressLint("LongLogTag")
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        relativeLayoutProgressBar.setVisibility(View.GONE);
-                        progressBar.setVisibility(View.GONE);
-                        if (!queryDocumentSnapshots.isEmpty()) {
-                            for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                                objNotification = documentSnapshot.toObject(ObjNotification.class);
-                                getDahira(context, objNotification.getDahiraID());
-                                break;
-                            }
-                            Log.d(TAG, "Dahira downloaded");
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @SuppressLint("LongLogTag")
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        relativeLayoutProgressBar.setVisibility(View.GONE);
-                        progressBar.setVisibility(View.GONE);
-                        Log.d(TAG, "Error downloading Dahira");
-                    }
-                });
-    }
 
 }

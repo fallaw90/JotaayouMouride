@@ -4,24 +4,36 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fallntic.jotaayumouride.Model.UploadSong;
+import com.fallntic.jotaayumouride.Model.Audio;
 
-import java.io.IOException;
 import java.util.List;
 
 public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongsAdapterViewHolder> {
 
-    Context context;
-    List<UploadSong> arrayListSongs;
+    private Context context;
+    private List<Audio> arrayListAudios;
+    private int selectedPosition;
+    private RecyclerItemClickListener listener;
 
-    public SongsAdapter(Context context, List<UploadSong> arrayListSongs){
+    private String songTitle;
+    private String getSongDuration;
+    private String getSongLink;
+    private String mKey;
+
+    public SongsAdapter(Context context, List<Audio> arrayListAudios, RecyclerItemClickListener listener) {
         this.context = context;
-        this.arrayListSongs = arrayListSongs;
+        this.arrayListAudios = arrayListAudios;
+        this.listener = listener;
+    }
+
+    public SongsAdapter() {
     }
 
     @NonNull
@@ -33,38 +45,77 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongsAdapter
 
     @Override
     public void onBindViewHolder(@NonNull SongsAdapterViewHolder holder, int position) {
-        UploadSong uploadSong = arrayListSongs.get(position);
-        holder.textViewTitleSong.setText(uploadSong.getSongTitle());
-        holder.textViewDuration.setText(uploadSong.getSongDuration);
+        Audio audio = arrayListAudios.get(position);
+        if (audio != null) {
+
+            songTitle = audio.audioTitle;
+            getSongDuration = audio.audioDuration;
+            getSongLink = audio.audioUri;
+            mKey = audio.audioID;
+
+            if (selectedPosition == position) {
+                holder.itemView.setBackgroundColor(ContextCompat.getColor(context, R.color.green));
+                holder.imageViewPlayActive.setVisibility(View.VISIBLE);
+            } else {
+                holder.itemView.setBackgroundColor(ContextCompat.getColor(context, android.R.color.transparent));
+                holder.imageViewPlayActive.setVisibility(View.INVISIBLE);
+            }
+
+            holder.textViewTitleSong.setText(songTitle);
+            holder.textViewDuration.setText(getSongDuration);
+
+            holder.bind(audio, listener);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return arrayListSongs.size();
+        return arrayListAudios.size();
     }
 
-    public class SongsAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public int getSelectedPosition() {
+        return selectedPosition;
+    }
+
+    public void setSelectedPosition(int selectedPosition) {
+        this.selectedPosition = selectedPosition;
+    }
+
+    public void removeItem(int position) {
+
+        if (position < arrayListAudios.size()) {
+            arrayListAudios.remove(position);
+            notifyItemRemoved(position);
+        }
+    }
+
+    public interface RecyclerItemClickListener {
+        void onClickListener(Audio audio, int position);
+    }
+
+    public class SongsAdapterViewHolder extends RecyclerView.ViewHolder {
 
         TextView textViewTitleSong;
         TextView textViewDuration;
+        ImageView imageViewArtWork;
+        ImageView imageViewPlayActive;
 
         public SongsAdapterViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            textViewTitleSong = itemView.findViewById(R.id.textView_titleSong);
-            textViewDuration = itemView.findViewById(R.id.textView_songDuration);
-
-            itemView.setOnClickListener(this);
+            textViewTitleSong = itemView.findViewById(R.id.tv_title);
+            textViewDuration = itemView.findViewById(R.id.tv_duration);
+            imageViewArtWork = itemView.findViewById(R.id.iv_artwork);
+            imageViewPlayActive = itemView.findViewById(R.id.iv_play_active);
         }
 
-        @Override
-        public void onClick(View view) {
-
-            try {
-                ((ShowSongsActivity)context).playSong(arrayListSongs, getAdapterPosition());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        public void bind(final Audio audio, final RecyclerItemClickListener listener) {
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    listener.onClickListener(audio, getLayoutPosition());
+                }
+            });
         }
     }
 }

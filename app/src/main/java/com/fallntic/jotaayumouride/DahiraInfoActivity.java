@@ -7,15 +7,18 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -27,7 +30,6 @@ import com.google.android.material.navigation.NavigationView;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
-import static com.fallntic.jotaayumouride.DataHolder.announcement;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.event;
@@ -248,16 +250,12 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 break;
 
             case R.id.nav_addAnnouncement:
-                startActivity(new Intent(this, GalleryAudioActivity.class));
-                //actionSelected = "addNewAnnouncement";
-                //startActivity(new Intent(this, CreateAnnouncementActivity.class));
+                chooseMethodAnnouncement();
                 break;
 
             case R.id.nav_displayAnnouncement:
-                if (announcement != null && !announcement.getListUserID().isEmpty())
-                    startActivity(new Intent(this, ListAnnouncementActivity.class));
-                else
-                    showAlertDialog(this, "La liste de vos annonces est vide!");
+                startActivity(new Intent(this, RecordingListActivity.class));
+                //startActivity(new Intent(this, ListAnnouncementActivity.class));
                 break;
 
             case R.id.nav_addEvent:
@@ -269,7 +267,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                     showAlertDialog(this, "La liste des evenements est vide!");
                 else
                     loadEvent = "myEvents";
-                    startActivity(new Intent(this, ListEventActivity.class));
+                startActivity(new Intent(this, ListEventActivity.class));
                 break;
 
             case R.id.nav_photo:
@@ -277,7 +275,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 break;
 
             case R.id.nav_audio:
-                startActivity(new Intent(this, ShowSongsActivity .class));
+                startActivity(new Intent(this, RecordingListActivity.class));
                 break;
 
             case R.id.nav_video:
@@ -306,6 +304,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
     public void setDrawerMenu() {
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
+        navigationView.setItemIconTintList(null);
         navigationView.setNavigationItemSelectedListener(this);
         navHeader = navigationView.getHeaderView(0);
         navImageView = navHeader.findViewById(R.id.nav_imageView);
@@ -338,8 +337,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
             nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
             nav_Menu.findItem(R.id.nav_setting).setVisible(false);
             nav_Menu.findItem(R.id.nav_searchUser).setVisible(false);
-        }
-        else if (!onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
+        } else if (!onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
             nav_Menu.findItem(R.id.nav_setting).setVisible(false);
             nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
             nav_Menu.findItem(R.id.nav_addExpense).setVisible(false);
@@ -356,5 +354,47 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         nav_Menu.findItem(R.id.nav_displayAdiya).setVisible(false);
         nav_Menu.findItem(R.id.nav_displaySass).setVisible(false);
         nav_Menu.findItem(R.id.nav_displaySocial).setVisible(false);
+        nav_Menu.findItem(R.id.nav_video).setVisible(false);
+    }
+
+    private void chooseMethodAnnouncement() {
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.dialog_record_audio, null);
+        dialogBuilder.setView(dialogView);
+        dialogBuilder.setCancelable(false);
+
+        final ImageView imageViewRecord = dialogView.findViewById(R.id.imageView_record);
+        final ImageView imageViewWrite = dialogView.findViewById(R.id.imageView_write);
+        final Button buttonCancel = dialogView.findViewById(R.id.button_cancel);
+
+        dialogBuilder.setTitle("Enregistrer une annonce");
+        final AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.show();
+
+        imageViewRecord.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(DahiraInfoActivity.this, RecordAudioActivity.class));
+                alertDialog.dismiss();
+            }
+        });
+
+        imageViewWrite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                actionSelected = "addNewAnnouncement";
+                startActivity(new Intent(DahiraInfoActivity.this, AnnouncementActivity.class));
+                alertDialog.dismiss();
+            }
+        });
+
+        buttonCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                alertDialog.dismiss();
+            }
+        });
     }
 }

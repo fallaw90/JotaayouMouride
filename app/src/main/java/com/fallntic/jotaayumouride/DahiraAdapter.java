@@ -20,7 +20,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.DataHolder.announcement;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.event;
@@ -123,12 +122,10 @@ public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraView
                 }
 
                 expense = null;
-                announcement = null;
                 event = null;
                 uploadImages = null;
 
                 getExistingExpenses(context);
-                getExistingAnnouncements(context, dahira, null);
                 getExistingEvents(context);
                 getUploadImages(context);
 
@@ -177,43 +174,6 @@ public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraView
                         Log.d(TAG, "Error downloading event");
                     }
                 });
-    }
-
-    public static void getExistingAnnouncements(final Context context, Dahira dahira, final Intent intent) {
-        if (onlineUser.getListDahiraID().contains(dahira.getDahiraID())) {
-            showProgressDialog(context, "Chargement de vos annonces en cours ...");
-            FirebaseFirestore.getInstance().collection("announcements")
-                    .whereEqualTo("dahiraID", dahira.getDahiraID()).get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            dismissProgressDialog();
-                            if (!queryDocumentSnapshots.isEmpty()) {
-                                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                                    announcement = documentSnapshot.toObject(Announcement.class);
-
-                                    //Go to ListAnnouncementActivity when we hit the notification
-                                    if (notificationTitle != null && notificationBody != null &&
-                                            notificationTitle.equals("Annoncement")) {
-                                        context.startActivity(new Intent(context, ListAnnouncementActivity.class));
-                                        break;
-                                    }
-
-                                    if (intent != null)
-                                        context.startActivity(intent);
-                                }
-                                Log.d(TAG, "Announcements downloaded");
-                            }
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            dismissProgressDialog();
-                            Log.d(TAG, "Error downloading Announcements");
-                        }
-                    });
-        }
     }
 
     public static void getExistingExpenses(final Context context) {

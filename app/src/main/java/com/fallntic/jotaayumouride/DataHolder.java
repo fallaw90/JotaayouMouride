@@ -75,8 +75,7 @@ public class DataHolder {
     public static Adiya adiya = null;
     public static Sass sass = null;
     public static Social social = null;
-    public static ObjNotification objNotification = null;
-    public static Announcement announcement = null;
+    //public static ObjNotification objNotification = null;
     public static Expense expense = null;
 
     public static int indexOnlineUser = -1;
@@ -176,7 +175,6 @@ public class DataHolder {
         selectedUser = null;
         dahira = null;
         event = null;
-        announcement = null;
         expense = null;
         indexOnlineUser = -1;
         indexSelectedUser = -1;

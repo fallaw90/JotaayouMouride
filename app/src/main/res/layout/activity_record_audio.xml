@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".RecordAudio">
+    android:background="@android:color/white"
+    tools:context=".RecordAudioActivity">
 
     <include
         android:id="@+id/toolbar"
@@ -13,72 +12,132 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <RelativeLayout
-        android:id="@+id/relativeLayout"
+    <LinearLayout
+        android:id="@+id/linearLayoutRecorder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/toolbar">
+        android:layout_below="@+id/toolbar"
+        android:layout_marginTop="20dp"
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/title"
+        <Chronometer
+            android:id="@+id/chronometerTimer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="60sp" />
+
+        <LinearLayout
+            android:id="@+id/linearLayoutPlay"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Audio Recorder"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:orientation="horizontal"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:visibility="gone">
 
-        <ToggleButton
-            android:id="@+id/recordBtn"
-            android:layout_width="match_parent"
+            <ImageView
+                android:id="@+id/imageViewPlay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@drawable/ic_play" />
+
+            <SeekBar
+                android:id="@+id/seekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:progressTint="@color/green"
+                android:thumbTint="@color/dark_green" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/title"
-            android:layout_marginTop="@dimen/_20sdp"
-            android:onClick="startRecording"
-            android:text="Start recording"
-            android:textOff="Start recording"
-            android:textOn="Stop recording"/>
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/playBtn"
-            android:layout_width="match_parent"
+
+            <ImageView
+                android:id="@+id/imageViewRecord"
+                android:layout_width="@dimen/_50sdp"
+                android:layout_height="@dimen/_50sdp"
+                android:layout_marginEnd="10dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@mipmap/icon_mic" />
+
+            <ImageView
+                android:id="@+id/imageViewStop"
+                android:layout_width="@dimen/_50sdp"
+                android:layout_height="@dimen/_50sdp"
+                android:layout_gravity="center_vertical"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@mipmap/icon_stop"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/recordBtn"
-            android:layout_marginTop="@dimen/_20sdp"
-            android:onClick="startPlaying"
-            android:text="Play"/>
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
 
-    </RelativeLayout>
+            <Button
+                android:id="@+id/button_send"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/_5sdp"
+                android:background="@drawable/rounded_button_save"
+                android:padding="@dimen/_7sdp"
+                android:text="Envoyer Votre Annonce"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:visibility="gone" />
 
-    <RelativeLayout
-        android:id="@+id/relativeLayout_progressBar"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/toolbar">
+            <Button
+                android:id="@+id/button_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/_5sdp"
+                android:background="@drawable/rounded_button_cancel"
+                android:padding="@dimen/_7sdp"
+                android:text="Annuler Votre Annonce"
+                android:textColor="@color/white"
+                android:textStyle="bold" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/progressBar"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:text="Envoie de votre message en cours ..."
-            android:textAlignment="center"
-            android:textColor="@color/black"
-            android:textSize="@dimen/_20sdp" />
+        </LinearLayout>
 
         <ProgressBar
             android:id="@+id/progressBar"
-            style="?android:progressBarStyleLarge"
-            android:layout_width="@dimen/_100sdp"
-            android:layout_height="@dimen/_100sdp"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_25sdp"
+            android:layout_below="@+id/editText_titleSong"
+            android:layout_marginTop="@dimen/_20sdp"
             android:indeterminate="true"
             android:indeterminateTint="@color/green"
             android:indeterminateTintMode="src_atop"
-            android:progress="80"
-            android:progressDrawable="@drawable/circle" />
-    </RelativeLayout>
+            android:visibility="gone" />
+
+
+    </LinearLayout>
+
 
 </RelativeLayout>

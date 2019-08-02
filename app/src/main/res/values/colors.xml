@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#33b0ed</color>
+    <color name="colorPrimary">#4B6105</color>
+    <color name="colorPrimary1">#A1C2EC</color>
     <color name="colorPrimaryDark">#138dc8</color>
     <color name="colorAccent">#dff2fa</color>
     <color name="transparent">#00000000</color>
@@ -10,8 +11,10 @@
     <color name="red">#ff0006</color>
     <color name="yellow">#fdee00</color>
     <color name="brown">#9d3c15</color>
-    <color name="green1">#7fa208</color>
-    <color name="green">#3B9F14</color>
+    <color name="green1">#07A00F</color>
+    <color name="green">#07A00F</color>
     <color name="gray">#696969</color>
-    <color name="dark_green">#4B6105</color>
+    <color name="dark_green">#025E05</color>
+    <color name="background_toolbar">#e3333333</color>
+    <color name="ic_drawer">#07A00F</color>
 </resources>

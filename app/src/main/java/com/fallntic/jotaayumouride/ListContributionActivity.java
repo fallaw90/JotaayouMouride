@@ -43,7 +43,7 @@ public class ListContributionActivity extends AppCompatActivity {
 
     private TextView textViewTitle;
 
-    CoordinatorLayout coordinatorLayout;
+    private CoordinatorLayout coordinatorLayout;
     private RecyclerView recyclerViewContribution;
     private ContributionAdapter contributionAdapter;
     private List<String> listAmountAdiya;
