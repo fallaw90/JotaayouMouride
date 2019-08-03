@@ -116,7 +116,6 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("");
         toolbar.setSubtitle("Liste des membres");
         setSupportActionBar(toolbar);
 

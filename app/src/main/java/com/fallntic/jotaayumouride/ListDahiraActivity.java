@@ -42,7 +42,6 @@ import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.DataHolder.showImage;
 import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
-import static com.fallntic.jotaayumouride.DataHolder.userID;
 import static com.fallntic.jotaayumouride.MainActivity.progressBar;
 import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
 
@@ -70,7 +69,6 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("");
         setSupportActionBar(toolbar);
 
         if (!isConnected(this)) {
@@ -398,7 +396,7 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        showImage(this, "profileImage", userID, navImageView);
+        showImage(this, "profileImage", onlineUser.getUserID(), navImageView);
         textViewNavUserName.setText(onlineUser.getUserName());
         textViewNavEmail.setText(onlineUser.getEmail());
 

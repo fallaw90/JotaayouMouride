@@ -58,7 +58,7 @@ public class ListContributionActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setSubtitle("Liste " + typeOfContribution + " verse");
+        toolbar.setSubtitle("Adiya " + typeOfContribution + " verses");
         setSupportActionBar(toolbar);
 
         // add back arrow to toolbar

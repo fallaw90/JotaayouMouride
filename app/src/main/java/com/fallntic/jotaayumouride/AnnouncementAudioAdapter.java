@@ -23,7 +23,7 @@ import java.util.ArrayList;
  * Created by Manish on 10/8/2017.
  */
 
-public class RecordingAdapter extends RecyclerView.Adapter<RecordingAdapter.ViewHolder> {
+public class AnnouncementAudioAdapter extends RecyclerView.Adapter<AnnouncementAudioAdapter.ViewHolder> {
 
     private ArrayList<Audio> recordingArrayList;
     private Context context;
@@ -31,7 +31,7 @@ public class RecordingAdapter extends RecyclerView.Adapter<RecordingAdapter.View
     private boolean isPlaying = false;
     private int last_index = -1;
 
-    public RecordingAdapter(Context context, ArrayList<Audio> recordingArrayList) {
+    public AnnouncementAudioAdapter(Context context, ArrayList<Audio> recordingArrayList) {
         this.context = context;
         this.recordingArrayList = recordingArrayList;
     }
@@ -82,10 +82,10 @@ public class RecordingAdapter extends RecyclerView.Adapter<RecordingAdapter.View
         ImageView imageViewPlay;
         SeekBar seekBar;
         TextView textViewName;
-        ViewHolder holder;
         private String recordingUri;
         private int lastProgress = 0;
         private Handler mHandler = new Handler();
+        ViewHolder holder;
         Runnable runnable = new Runnable() {
             @Override
             public void run() {

@@ -21,7 +21,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:appComponentFactory">
-        <activity android:name=".RecordingListActivity"></activity>
+        <activity android:name=".ShowAnnouncementActivity"></activity>
+        <activity android:name=".RecordingListActivity" />
         <activity android:name=".RecordAudioActivity" />
         <activity android:name=".RecordingListActivity" />
         <activity android:name=".GalleryAudioActivity" />
@@ -33,7 +34,6 @@
         <activity android:name=".AddContributionActivity" />
         <activity android:name=".ListExpenseActivity" />
         <activity android:name=".CreateExpenseActivity" />
-        <activity android:name=".ListAnnouncementActivity" />
         <activity android:name=".ListEventActivity" />
         <activity android:name=".CreateEventActivity" />
         <activity android:name=".AnnouncementActivity" />

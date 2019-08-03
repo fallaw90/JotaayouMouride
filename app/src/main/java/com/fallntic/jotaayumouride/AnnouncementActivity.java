@@ -143,7 +143,7 @@ public class AnnouncementActivity extends AppCompatActivity implements View.OnCl
         if (!note.isEmpty()) {
             ListUserActivity.showProgressBar();
 
-            final Intent intent = new Intent(context, ListAnnouncementActivity.class);
+            final Intent intent = new Intent(context, ShowAnnouncementActivity.class);
 
             final String announcementID = onlineUser.getUserName() + System.currentTimeMillis();
             Announcement announcement = new Announcement(announcementID, onlineUser.getUserName(), note);

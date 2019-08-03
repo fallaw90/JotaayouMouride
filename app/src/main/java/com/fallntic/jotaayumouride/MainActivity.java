@@ -88,10 +88,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             }
 
                             if (objNotification.getTitle().equals(MyStaticVariables.TITLE_ANNOUNCEMENT_NOTIFICATION)) {
-                                context.startActivity(new Intent(context, ListAnnouncementActivity.class));
+                                context.startActivity(new Intent(context, ShowAnnouncementActivity.class));
 
                             } else if (objNotification.getTitle().equals(MyStaticVariables.TITLE_EXPENSE_NOTIFICATION)) {
-                                context.startActivity(new Intent(context, ListAnnouncementActivity.class));
+                                context.startActivity(new Intent(context, ListExpenseActivity.class));
                             }
                         }
                         Log.d(TAG, "Dahira downloaded");

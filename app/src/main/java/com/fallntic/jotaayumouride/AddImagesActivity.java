@@ -56,8 +56,7 @@ public class AddImagesActivity extends AppCompatActivity implements View.OnClick
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("");
-        toolbar.setSubtitle("Galerie photo");
+        toolbar.setSubtitle("Repertoire photo");
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

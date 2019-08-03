@@ -188,7 +188,6 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         findViewById(R.id.editText_date).setOnClickListener(this);
         findViewById(R.id.button_save).setOnClickListener(this);
         findViewById(R.id.button_cancel).setOnClickListener(this);
-        findViewById(R.id.button_delete).setOnClickListener(this);
 
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override

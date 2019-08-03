@@ -92,7 +92,6 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("");
         toolbar.setSubtitle("Info du membre");
         setSupportActionBar(toolbar);
 

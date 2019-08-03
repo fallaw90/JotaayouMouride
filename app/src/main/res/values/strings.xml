@@ -1,5 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name">Jotaayu Mouride</string>
+    <string name="app_name">Jotaayou Mouride</string>
     <string name="name">Nom complet</string>
     <string name="email">Email</string>
     <string name="phoneNumber">Telephone (9 chiffres)</string>

@@ -95,7 +95,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("");
         toolbar.setSubtitle("Mon profil");
         setSupportActionBar(toolbar);
 

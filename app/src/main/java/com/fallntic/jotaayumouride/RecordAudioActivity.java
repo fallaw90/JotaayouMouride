@@ -443,7 +443,7 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
                                                         @Override
                                                         public void onClick(DialogInterface dialog, int which) {
                                                             startActivity(new Intent(RecordAudioActivity.this,
-                                                                    ListAnnouncementActivity.class));
+                                                                    ShowAnnouncementActivity.class));
                                                         }
                                                     });
                                                     builder.show();

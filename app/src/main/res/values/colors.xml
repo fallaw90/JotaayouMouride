@@ -14,6 +14,7 @@
     <color name="green1">#07A00F</color>
     <color name="green">#07A00F</color>
     <color name="gray">#696969</color>
+    <color name="light_gray">#C5C4C4</color>
     <color name="dark_green">#025E05</color>
     <color name="background_toolbar">#e3333333</color>
     <color name="ic_drawer">#07A00F</color>

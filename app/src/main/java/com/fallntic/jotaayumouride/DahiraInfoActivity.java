@@ -1,6 +1,7 @@
 package com.fallntic.jotaayumouride;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -67,7 +68,6 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("");
         toolbar.setSubtitle("Mon Dahira");
         setSupportActionBar(toolbar);
 
@@ -199,106 +199,45 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         return true;
     }
 
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+    public static void chooseMethodAnnouncement(final Context context) {
 
-        switch (item.getItemId()) {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        final View dialogView = inflater.inflate(R.layout.dialog_record_audio, null);
+        dialogBuilder.setView(dialogView);
+        dialogBuilder.setCancelable(false);
 
-            case R.id.nav_home:
-                startActivity(new Intent(this, MainActivity.class));
-                break;
+        final ImageView imageViewRecord = dialogView.findViewById(R.id.imageView_record);
+        final ImageView imageViewWrite = dialogView.findViewById(R.id.imageView_write);
+        final Button buttonCancel = dialogView.findViewById(R.id.button_cancel);
 
-            case R.id.nav_profile:
-                startActivity(new Intent(this, ProfileActivity.class));
-                break;
+        dialogBuilder.setTitle("Enregistrer une annonce");
+        final AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.show();
 
-            case R.id.nav_displayUsers:
-                actionSelected = "";
-                startActivity(new Intent(this, ListUserActivity.class));
-                break;
+        imageViewRecord.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                context.startActivity(new Intent(context, RecordAudioActivity.class));
+                alertDialog.dismiss();
+            }
+        });
 
-            case R.id.nav_searchUser:
-                actionSelected = "searchUser";
-                DataHolder.displayDahira = "allDahira";
-                startActivity(new Intent(this, ListUserActivity.class));
-                break;
+        imageViewWrite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                actionSelected = "addNewAnnouncement";
+                context.startActivity(new Intent(context, AnnouncementActivity.class));
+                alertDialog.dismiss();
+            }
+        });
 
-            case R.id.nav_addUser:
-                actionSelected = "addNewMember";
-                startActivity(new Intent(this, ListUserActivity.class));
-                break;
-
-            case R.id.nav_displayMyDahira:
-                DataHolder.displayDahira = "myDahira";
-                startActivity(new Intent(this, ListDahiraActivity.class));
-                break;
-
-            case R.id.nav_displayAllDahira:
-                DataHolder.displayDahira = "allDahira";
-                startActivity(new Intent(this, ListDahiraActivity.class));
-                break;
-
-            case R.id.nav_addExpense:
-                startActivity(new Intent(this, CreateExpenseActivity.class));
-                break;
-
-            case R.id.nav_displayExpenses:
-                if (expense != null && !expense.getListPrice().isEmpty())
-                    startActivity(new Intent(this, ListExpenseActivity.class));
-                else
-                    showAlertDialog(this, "La liste des depenses de votre dahira est vide!");
-                break;
-
-            case R.id.nav_addAnnouncement:
-                chooseMethodAnnouncement();
-                break;
-
-            case R.id.nav_displayAnnouncement:
-                startActivity(new Intent(this, RecordingListActivity.class));
-                //startActivity(new Intent(this, ListAnnouncementActivity.class));
-                break;
-
-            case R.id.nav_addEvent:
-                startActivity(new Intent(this, CreateEventActivity.class));
-                break;
-
-            case R.id.nav_displayEvent:
-                if (event == null || event.getListUserID().isEmpty())
-                    showAlertDialog(this, "La liste des evenements est vide!");
-                else
-                    loadEvent = "myEvents";
-                startActivity(new Intent(this, ListEventActivity.class));
-                break;
-
-            case R.id.nav_photo:
-                startActivity(new Intent(this, ShowImagesActivity.class));
-                break;
-
-            case R.id.nav_audio:
-                startActivity(new Intent(this, RecordingListActivity.class));
-                break;
-
-            case R.id.nav_video:
-                showAlertDialog(this, "Cette page est en cours de contruction." +
-                        "Revenez plutard SVP.");
-                break;
-
-            case R.id.nav_callDahira:
-                navigationView.setCheckedItem(R.id.nav_callDahira);
-                callDahira();
-                break;
-
-            case R.id.nav_setting:
-                startActivity(new Intent(this, UpdateDahiraActivity.class));
-                break;
-
-            case R.id.nav_logout:
-                logout(this);
-                break;
-        }
-
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
+        buttonCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                alertDialog.dismiss();
+            }
+        });
     }
 
     public void setDrawerMenu() {
@@ -357,44 +296,105 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         nav_Menu.findItem(R.id.nav_video).setVisible(false);
     }
 
-    private void chooseMethodAnnouncement() {
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        final View dialogView = inflater.inflate(R.layout.dialog_record_audio, null);
-        dialogBuilder.setView(dialogView);
-        dialogBuilder.setCancelable(false);
+        switch (item.getItemId()) {
 
-        final ImageView imageViewRecord = dialogView.findViewById(R.id.imageView_record);
-        final ImageView imageViewWrite = dialogView.findViewById(R.id.imageView_write);
-        final Button buttonCancel = dialogView.findViewById(R.id.button_cancel);
+            case R.id.nav_home:
+                startActivity(new Intent(this, MainActivity.class));
+                break;
 
-        dialogBuilder.setTitle("Enregistrer une annonce");
-        final AlertDialog alertDialog = dialogBuilder.create();
-        alertDialog.show();
+            case R.id.nav_profile:
+                startActivity(new Intent(this, ProfileActivity.class));
+                break;
 
-        imageViewRecord.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(DahiraInfoActivity.this, RecordAudioActivity.class));
-                alertDialog.dismiss();
-            }
-        });
+            case R.id.nav_displayUsers:
+                actionSelected = "";
+                startActivity(new Intent(this, ListUserActivity.class));
+                break;
 
-        imageViewWrite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                actionSelected = "addNewAnnouncement";
-                startActivity(new Intent(DahiraInfoActivity.this, AnnouncementActivity.class));
-                alertDialog.dismiss();
-            }
-        });
+            case R.id.nav_searchUser:
+                actionSelected = "searchUser";
+                DataHolder.displayDahira = "allDahira";
+                startActivity(new Intent(this, ListUserActivity.class));
+                break;
 
-        buttonCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                alertDialog.dismiss();
-            }
-        });
+            case R.id.nav_addUser:
+                actionSelected = "addNewMember";
+                startActivity(new Intent(this, ListUserActivity.class));
+                break;
+
+            case R.id.nav_displayMyDahira:
+                DataHolder.displayDahira = "myDahira";
+                startActivity(new Intent(this, ListDahiraActivity.class));
+                break;
+
+            case R.id.nav_displayAllDahira:
+                DataHolder.displayDahira = "allDahira";
+                startActivity(new Intent(this, ListDahiraActivity.class));
+                break;
+
+            case R.id.nav_addExpense:
+                startActivity(new Intent(this, CreateExpenseActivity.class));
+                break;
+
+            case R.id.nav_displayExpenses:
+                if (expense != null && !expense.getListPrice().isEmpty())
+                    startActivity(new Intent(this, ListExpenseActivity.class));
+                else
+                    showAlertDialog(this, "La liste des depenses de votre dahira est vide!");
+                break;
+
+            case R.id.nav_addAnnouncement:
+                chooseMethodAnnouncement(DahiraInfoActivity.this);
+                break;
+
+            case R.id.nav_displayAnnouncement:
+                startActivity(new Intent(this, ShowAnnouncementActivity.class));
+                //startActivity(new Intent(this, ListAnnouncementActivity.class));
+                break;
+
+            case R.id.nav_addEvent:
+                startActivity(new Intent(this, CreateEventActivity.class));
+                break;
+
+            case R.id.nav_displayEvent:
+                if (event == null || event.getListUserID().isEmpty())
+                    showAlertDialog(this, "La liste des evenements est vide!");
+                else
+                    loadEvent = "myEvents";
+                startActivity(new Intent(this, ListEventActivity.class));
+                break;
+
+            case R.id.nav_photo:
+                startActivity(new Intent(this, ShowImagesActivity.class));
+                break;
+
+            case R.id.nav_audio:
+                startActivity(new Intent(this, RecordingListActivity.class));
+                break;
+
+            case R.id.nav_video:
+                showAlertDialog(this, "Cette page est en cours de contruction." +
+                        "Revenez plutard SVP.");
+                break;
+
+            case R.id.nav_callDahira:
+                navigationView.setCheckedItem(R.id.nav_callDahira);
+                callDahira();
+                break;
+
+            case R.id.nav_setting:
+                startActivity(new Intent(this, UpdateDahiraActivity.class));
+                break;
+
+            case R.id.nav_logout:
+                logout(this);
+                break;
+        }
+
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
     }
 }

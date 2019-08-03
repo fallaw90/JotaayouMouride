@@ -13,12 +13,15 @@ import com.fallntic.jotaayumouride.Model.Announcement;
 
 import java.util.List;
 
-public class TextAnnouncementAdapter extends RecyclerView.Adapter<TextAnnouncementAdapter.TextAnnouncementViewHolder> {
+public class AnnouncementTextAdapter extends RecyclerView.Adapter<AnnouncementTextAdapter.AnnouncementTextViewHolder> {
 
     private Context context;
     private List<Announcement> listAnnouncement;
+    private String userName;
+    private String mDate;
+    private String note;
 
-    public TextAnnouncementAdapter(Context context, List<Announcement> listAnnouncement) {
+    public AnnouncementTextAdapter(Context context, List<Announcement> listAnnouncement) {
 
         this.context = context;
         this.listAnnouncement = listAnnouncement;
@@ -26,14 +29,14 @@ public class TextAnnouncementAdapter extends RecyclerView.Adapter<TextAnnounceme
 
     @NonNull
     @Override
-    public TextAnnouncementViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new TextAnnouncementViewHolder(
+    public AnnouncementTextViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new AnnouncementTextViewHolder(
                 LayoutInflater.from(context).inflate(R.layout.layout_announcement, parent, false)
         );
     }
 
     @Override
-    public void onBindViewHolder(@NonNull TextAnnouncementViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull AnnouncementTextViewHolder holder, int position) {
 
         Announcement announcement = listAnnouncement.get(position);
 
@@ -56,12 +59,12 @@ public class TextAnnouncementAdapter extends RecyclerView.Adapter<TextAnnounceme
         }
     }
 
-    class TextAnnouncementViewHolder extends RecyclerView.ViewHolder {
+    class AnnouncementTextViewHolder extends RecyclerView.ViewHolder {
         TextView textViewUserName;
         TextView textViewtDate;
         TextView textViewNote;
 
-        public TextAnnouncementViewHolder(View itemView) {
+        public AnnouncementTextViewHolder(View itemView) {
             super(itemView);
             textViewUserName = itemView.findViewById(R.id.textView_userName);
             textViewtDate = itemView.findViewById(R.id.textView_date);

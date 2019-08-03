@@ -31,7 +31,7 @@ public class RecordingListActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private RecyclerView recyclerViewRecordings;
     private ArrayList<Audio> recordingArraylist;
-    private RecordingAdapter recordingAdapter;
+    private AnnouncementAudioAdapter announcementAudioAdapter;
     private TextView textViewNoRecordings;
     private FirebaseFirestore firestore;
 
@@ -110,8 +110,8 @@ public class RecordingListActivity extends AppCompatActivity {
 
 
     private void setAdapterToRecyclerView() {
-        recordingAdapter = new RecordingAdapter(this, recordingArraylist);
-        recyclerViewRecordings.setAdapter(recordingAdapter);
+        announcementAudioAdapter = new AnnouncementAudioAdapter(this, recordingArraylist);
+        recyclerViewRecordings.setAdapter(announcementAudioAdapter);
     }
 
     @Override

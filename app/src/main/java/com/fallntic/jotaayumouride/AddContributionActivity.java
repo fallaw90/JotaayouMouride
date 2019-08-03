@@ -44,7 +44,6 @@ public class AddContributionActivity extends AppCompatActivity implements View.O
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("");
         toolbar.setSubtitle("Ajouter une cotisation");
         setSupportActionBar(toolbar);
 
