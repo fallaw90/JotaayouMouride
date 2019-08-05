@@ -23,8 +23,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.DataHolder.getCurrentDate;
-import static com.fallntic.jotaayumouride.DataHolder.getDate;
 import static com.fallntic.jotaayumouride.DataHolder.isConnected;
 import static com.fallntic.jotaayumouride.DataHolder.logout;
 import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
@@ -37,7 +35,6 @@ public class AnnouncementActivity extends AppCompatActivity implements View.OnCl
     public static final String TAG = "AnnouncementActivity";
 
     private TextView textViewTitle;
-    private EditText editTextDate;
     private EditText editTextNote;
 
     public static boolean hasValidationErrors(String mDate, EditText editTextDate,
@@ -82,16 +79,13 @@ public class AnnouncementActivity extends AppCompatActivity implements View.OnCl
         progressBar.setVisibility(View.GONE);
 
         textViewTitle = findViewById(R.id.textView_title);
-        editTextDate = findViewById(R.id.editText_date);
         editTextNote = findViewById(R.id.editText_note);
 
         textViewTitle.setText("Creer une annonce pour le dahira " + dahira.getDahiraName());
-        editTextDate.setText(getCurrentDate());
 
         findViewById(R.id.editText_date).setOnClickListener(this);
         findViewById(R.id.button_save).setOnClickListener(this);
         findViewById(R.id.button_cancel).setOnClickListener(this);
-        findViewById(R.id.button_delete).setOnClickListener(this);
 
         hideSoftKeyboard();
     }
@@ -111,10 +105,6 @@ public class AnnouncementActivity extends AppCompatActivity implements View.OnCl
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.editText_date:
-                getDate(this, editTextDate);
-                break;
-
             case R.id.button_save:
                     saveAnnouncement(this);
                 break;

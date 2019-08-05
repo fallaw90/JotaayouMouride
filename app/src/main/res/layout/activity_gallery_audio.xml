@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/textView_titleLayoutUploadSong"
         android:layout_marginTop="@dimen/_20sdp"
-        android:hint="Titre du audio"
+        android:hint="Titre du song"
         android:textColor="@color/black"
         android:textColorHighlight="@color/green" />
 
@@ -65,7 +65,7 @@
                 android:layout_margin="@dimen/_5sdp"
                 android:background="@drawable/rounded_button_save"
                 android:padding="@dimen/_7sdp"
-                android:text="Selectioner un audio"
+                android:text="Selectioner un song"
                 android:textColor="@color/white"
                 android:textStyle="bold" />
 

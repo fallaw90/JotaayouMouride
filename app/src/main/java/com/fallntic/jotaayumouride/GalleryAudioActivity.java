@@ -21,7 +21,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.fallntic.jotaayumouride.Model.Audio;
+import com.fallntic.jotaayumouride.Model.Song;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
@@ -65,7 +65,7 @@ public class GalleryAudioActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setSubtitle("Repertoire Audio");
+        toolbar.setSubtitle("Repertoire Song");
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -192,10 +192,10 @@ public class GalleryAudioActivity extends AppCompatActivity {
                                 @Override
                                 public void onSuccess(Uri uri) {
 
-                                    Audio audio = new Audio(uploadID, editTextTitle.getText().toString(),
+                                    Song song = new Song(uploadID, editTextTitle.getText().toString(),
                                             finalDurationTxt, uri.toString());
 
-                                    collectionReference.document(uploadID).set(audio)
+                                    collectionReference.document(uploadID).set(song)
                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void aVoid) {
@@ -204,7 +204,7 @@ public class GalleryAudioActivity extends AppCompatActivity {
                                                     AlertDialog.Builder builder =
                                                             new AlertDialog.Builder(GalleryAudioActivity.this, R.style.alertDialog);
                                                     builder.setTitle("Fichier enregistre");
-                                                    builder.setMessage("Voulez-vous ajouter un autre fichier audio?");
+                                                    builder.setMessage("Voulez-vous ajouter un autre fichier song?");
                                                     builder.setCancelable(false);
                                                     builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                                         @Override

@@ -26,13 +26,14 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.fallntic.jotaayumouride.Utility.MyStaticFunctions;
+import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.google.android.material.navigation.NavigationView;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.DataHolder.event;
 import static com.fallntic.jotaayumouride.DataHolder.expense;
 import static com.fallntic.jotaayumouride.DataHolder.indexOnlineUser;
@@ -77,6 +78,19 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
             showAlertDialog(this, "Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
 
+        init();
+
+
+        //********************** Drawer Menu ***************************************
+        setDrawerMenu();
+        //**************************************************************************
+
+
+        //**********************Get list song ***************************
+        MyStaticFunctions.getSongList(this);
+    }
+
+    private void init() {
         textViewDahiraName = findViewById(R.id.textView_dahiraName);
         textViewDieuwrine = findViewById(R.id.textView_dieuwrine);
         textViewSiege = findViewById(R.id.textView_siege);
@@ -86,6 +100,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         textViewTotalSocial = findViewById(R.id.textView_totalSocial);
         textViewtotalMembers = findViewById(R.id.textView_totalMembers);
         imageView = findViewById(R.id.imageView);
+        showImage(this, "logoDahira", dahira.getDahiraID(), imageView);
 
         textViewDahiraName.setText("Dahira " + dahira.getDahiraName());
         textViewDieuwrine.setText("Dieuwrine: " + dahira.getDieuwrine());
@@ -103,35 +118,21 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
             textViewTotalSocial.setVisibility(View.GONE);
         }
 
-        showImage(this, "logoDahira", dahira.getDahiraID(), imageView);
-
-        //********************** Drawer Menu ***************************************
-        setDrawerMenu();
-        //**************************************************************************
-
         findViewById(R.id.button_back).setOnClickListener(this);
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        indexOnlineUser = -1;
-        finish();
-        startActivity(new Intent(DahiraInfoActivity.this, ListDahiraActivity.class));
-    }
-
-    @Override
-    protected void onDestroy() {
-        dismissProgressDialog();
-        super.onDestroy();
+        MyStaticVariables.displayDahira = "myDahira";
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button_back:
-                indexOnlineUser = -1;
-                startActivity(new Intent(this, ListDahiraActivity.class));
+                finish();
+                //startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
         }
     }
@@ -189,8 +190,6 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
 
         switch (item.getItemId()) {
             case R.id.icon_back:
-                indexOnlineUser = -1;
-                finish();
                 startActivity(new Intent(DahiraInfoActivity.this, ListDahiraActivity.class));
                 break;
         }
@@ -316,7 +315,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
 
             case R.id.nav_searchUser:
                 actionSelected = "searchUser";
-                DataHolder.displayDahira = "allDahira";
+                MyStaticVariables.displayDahira = "allDahira";
                 startActivity(new Intent(this, ListUserActivity.class));
                 break;
 
@@ -326,12 +325,12 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 break;
 
             case R.id.nav_displayMyDahira:
-                DataHolder.displayDahira = "myDahira";
+                MyStaticVariables.displayDahira = "myDahira";
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 
             case R.id.nav_displayAllDahira:
-                DataHolder.displayDahira = "allDahira";
+                MyStaticVariables.displayDahira = "allDahira";
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 
@@ -372,7 +371,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 break;
 
             case R.id.nav_audio:
-                startActivity(new Intent(this, RecordingListActivity.class));
+                startActivity(new Intent(this, ShowSongsActivity.class));
                 break;
 
             case R.id.nav_video:

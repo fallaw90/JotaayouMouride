@@ -53,7 +53,6 @@ public class DataHolder {
     public static String dahiraID;
     public static String userID;
     public static String actionSelected = "";
-    public static String displayDahira = "";
     public static String typeOfContribution = "";
     public static String loadEvent = "";
 

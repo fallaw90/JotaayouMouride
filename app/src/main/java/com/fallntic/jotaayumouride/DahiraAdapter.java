@@ -131,7 +131,6 @@ public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraView
 
                 Intent intent = new Intent(context, DahiraInfoActivity.class);
                 context.startActivity(intent);
-                dahiraList.clear();
             }
         }
 
@@ -147,7 +146,6 @@ public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraView
             }
             return false;
         }
-
     }
 
 

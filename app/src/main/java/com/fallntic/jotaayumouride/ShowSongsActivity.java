@@ -2,120 +2,83 @@ package com.fallntic.jotaayumouride;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fallntic.jotaayumouride.Model.Audio;
+import com.fallntic.jotaayumouride.Model.Song;
+import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.fallntic.jotaayumouride.Utility.Utility;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.StorageTask;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.fallntic.jotaayumouride.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.DataHolder.indexOnlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
+
 
 public class ShowSongsActivity extends AppCompatActivity {
-    private final String TAG = "ShowSongsActivity";
-    StorageTask uploadTask;
-    private List<Audio> listAudio;
+
+    private static final String TAG = "ShowSongsActivity";
+    int lastProgress = 0;
+    private RecyclerView recycler;
+    private SongAdapter mAdapter;
+    private int currentIndex = 0;
+    private CoordinatorLayout coordinatorLayout;
+    private TextView tb_title, tb_duration, tv_time, tv_duration;
+    private ImageView iv_play, iv_next, iv_previous;
     private MediaPlayer mediaPlayer;
-    private RecyclerView recyclerView;
-    private SongsAdapter songsAdapter;
-    private FirebaseFirestore firestore;
-    private FirebaseStorage firebaseStorage;
-    private StorageReference storageReference;
-    private CollectionReference collectionReference;
-    private int currentIndex;
-    private TextView textView_titleToolbar, textView_durationToolbar;
-    private ImageView imageViewPlay, imageViewNext, imageViewPrevious;
-    private ProgressBar progressBar_loader, progressBar_mainLoader;
+    private ProgressBar pb_loader, pb_main_loader;
     private SeekBar seekBar;
     private boolean firstLaunch = true;
     private long currentSongLength;
-    private Toolbar toolbarUp, toolbarBottom;
-    private CoordinatorLayout coordinatorLayout;
-    private RelativeLayout relativeLayout_song;
-    private RelativeLayout relativeLayout_progressBar;
-    private TextView textView_titleLayoutSong;
+    private FloatingActionButton fab_search;
+    private boolean isPlaying = false;
+    private double startTime = 0;
+    private Handler myHandler = new Handler();
+    private Runnable UpdateSongTime = new Runnable() {
+        public void run() {
+            //seekBar.setMax(mediaPlayer.getDuration());
+            startTime = mediaPlayer.getCurrentPosition();
+            tv_time.setText(Utility.convertDuration(mediaPlayer.getCurrentPosition()));
+            seekBar.setProgress((int) startTime);
+            myHandler.postDelayed(this, 500);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_songs);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-        toolbarUp = findViewById(R.id.toolbar);
-        toolbarUp.setTitle("Jotaayou Mouride");
-        toolbarUp.setSubtitle("Repertoire Audio");
-        setSupportActionBar(toolbarUp);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         //Initialisation des vues
-        initialization();
+        initializeViews();
 
-        textView_titleLayoutSong.setText("Repertoire audio du dahira " + dahira.getDahiraName());
-
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        //Retrieve all songs from FirebaseFirestore
-        firebaseStorage = FirebaseStorage.getInstance();
-        firestore = FirebaseFirestore.getInstance();
-        collectionReference = firestore.collection("dahiras")
-                .document(dahira.getDahiraID()).collection("audios");
-
-        getListSong();
-
-        songsAdapter = new SongsAdapter(this, listAudio, new SongsAdapter.RecyclerItemClickListener() {
-            @Override
-            public void onClickListener(Audio audi, int position) {
-                firstLaunch = false;
-                changeSelectedSong(position);
-                prepareSong(audi);
-            }
-        });
-
-        recyclerView.setAdapter(songsAdapter);
+        setMyAdapter(MyStaticVariables.listSong);
 
         //Initialisation du media player
         mediaPlayer = new MediaPlayer();
@@ -130,17 +93,18 @@ public class ShowSongsActivity extends AppCompatActivity {
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                if (currentIndex + 1 < listAudio.size()) {
-                    Audio next = listAudio.get(currentIndex + 1);
+                if (currentIndex + 1 < MyStaticVariables.listSong.size()) {
+                    Song next = MyStaticVariables.listSong.get(currentIndex + 1);
                     changeSelectedSong(currentIndex + 1);
                     prepareSong(next);
                 } else {
-                    Audio next = listAudio.get(0);
+                    Song next = MyStaticVariables.listSong.get(0);
                     changeSelectedSong(0);
                     prepareSong(next);
                 }
             }
         });
+
 
         //Gestion de la seekbar
         handleSeekbar();
@@ -150,200 +114,47 @@ public class ShowSongsActivity extends AppCompatActivity {
         pushPrevious();
         pushNext();
 
-        toolbarUp.setNavigationOnClickListener(new View.OnClickListener() {
+        //Gestion du click sur le bouton rechercher
+        fab_search.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                if (dahira != null)
-                    startActivity(new Intent(ShowSongsActivity.this, DahiraInfoActivity.class));
-                else
-                    startActivity(new Intent(ShowSongsActivity.this, MainActivity.class));
+            public void onClick(View v) {
+                createDialog();
             }
         });
+
 
         enableSwipeToDelete();
     }
 
     @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        if (dahira != null)
-            startActivity(new Intent(ShowSongsActivity.this, DahiraInfoActivity.class));
-        else
-            startActivity(new Intent(ShowSongsActivity.this, MainActivity.class));
-        return true;
-    }
+    public void onBackPressed() {
+        super.onBackPressed();
+        if (mediaPlayer != null) {
+            if (mediaPlayer.isPlaying())
+                mediaPlayer.stop();
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main_menu, menu);
-
-        MenuItem iconAdd;
-        iconAdd = menu.findItem(R.id.icon_add);
-
-        if (onlineUser.getListDahiraID().contains(dahira.getDahiraID()) && indexOnlineUser >= 0) {
-            if (onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur"))
-                iconAdd.setVisible(true);
+            mediaPlayer.release();
         }
 
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch (item.getItemId()) {
-            case R.id.icon_add:
-                startActivity(new Intent(this, GalleryAudioActivity.class));
-                break;
+        if (myHandler != null) {
+            myHandler.removeCallbacks(UpdateSongTime);
+            myHandler = null;
         }
-        return true;
+
     }
 
-    public void getListSong() {
-        //progressBar_mainLoader.setVisibility(View.VISIBLE);
-        showProgressBar();
-
-        collectionReference.get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        hideProgressBar();
-                        //progressBar_mainLoader.setVisibility(View.GONE);
-                        if (!queryDocumentSnapshots.isEmpty()) {
-                            List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
-                            for (DocumentSnapshot documentSnapshot : list) {
-                                Audio audio = documentSnapshot.toObject(Audio.class);
-                                if (audio.getAudioID() != null)
-                                    listAudio.add(audio);
-                                else {
-                                    String uploadID = documentSnapshot.getId();
-                                    collectionReference.document(uploadID).delete();
-                                }
-                            }
-
-                        } else if (onlineUser.getListDahiraID().contains(dahira.getDahiraID()) &&
-                                onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
-                            showAlertDialog(ShowSongsActivity.this,
-                                    "Repertoir Audio vide. Cliquez sur l'icone (+) " +
-                                            "pour ajouter ou enregistrer un audio.");
-                        } else {
-                            Intent intent = new Intent(ShowSongsActivity.this, DahiraInfoActivity.class);
-                            showAlertDialog(ShowSongsActivity.this,
-                                    "Repertoir Audio vide. Seuls les administrateurs " +
-                                            "de ce dahira peuvent ajouter des audios.", intent);
-                        }
-
-                        currentIndex = 0;
-                        songsAdapter.notifyDataSetChanged();
-                        songsAdapter.setSelectedPosition(0);
-                    }
-
-                }).addOnFailureListener(new OnFailureListener() {
+    private void setMyAdapter(List<Song> songList) {
+        //Requête récupérant les chansons
+        recycler.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        mAdapter = new SongAdapter(getApplicationContext(), MyStaticVariables.listSong, new SongAdapter.RecyclerItemClickListener() {
             @Override
-            public void onFailure(@NonNull Exception e) {
-                hideProgressBar();
-                //progressBar_mainLoader.setVisibility(View.GONE);
+            public void onClickListener(Song song, int position) {
+                firstLaunch = false;
+                changeSelectedSong(position);
+                prepareSong(song);
             }
         });
-    }
-
-    private void prepareSong(Audio audio) {
-
-        if (audio.audioDuration == null) {
-            toastMessage(ShowSongsActivity.this, "Fichier invalide");
-            return;
-        }
-        String str_duration = audio.audioDuration.replace(":", "");
-        currentSongLength = Integer.parseInt(str_duration);
-        progressBar_loader.setVisibility(View.VISIBLE);
-        textView_titleToolbar.setVisibility(View.GONE);
-        imageViewPlay.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.selector_play));
-        textView_titleToolbar.setText(audio.getAudioTitle());
-        textView_durationToolbar.setText(Utility.convertDuration(Integer.parseInt(str_duration)));
-        mediaPlayer.reset();
-
-
-        try {
-            mediaPlayer.setDataSource(audio.getAudioUri());
-            mediaPlayer.prepareAsync();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-    }
-
-    public void removeInFirebaseStorage(Audio audio) {
-        if (audio.audioUri != null) {
-
-            StorageReference storageRef = firebaseStorage
-                    .getReferenceFromUrl(audio.audioUri);
-
-            storageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    // File deleted successfully
-                    Log.d(TAG, "onSuccess: deleted file");
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    // Uh-oh, an error occurred!
-                    Log.d(TAG, "onFailure: did not delete file");
-                }
-            });
-        }
-    }
-
-    private void togglePlay(MediaPlayer mp) {
-
-        if (mp.isPlaying()) {
-            mp.stop();
-            mp.reset();
-        } else {
-            progressBar_loader.setVisibility(View.GONE);
-            textView_titleToolbar.setVisibility(View.VISIBLE);
-            mp.start();
-            imageViewPlay.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.selector_pause));
-            final Handler mHandler = new Handler();
-            this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    seekBar.setMax(mediaPlayer.getDuration());
-                    //int mCurrentPosition = mediaPlayer.getCurrentPosition() / 1000;
-                    seekBar.setProgress(mediaPlayer.getCurrentPosition());
-                    textView_durationToolbar.setText(Utility.convertDuration(mediaPlayer.getCurrentPosition()));
-                    mHandler.postDelayed(this, 1000);
-
-                }
-            });
-        }
-    }
-
-    private void initialization() {
-        listAudio = new ArrayList<>();
-        textView_titleToolbar = findViewById(R.id.tb_title);
-        textView_durationToolbar = findViewById(R.id.tv_time);
-        imageViewPlay = findViewById(R.id.iv_play);
-        imageViewNext = findViewById(R.id.iv_next);
-        imageViewPrevious = findViewById(R.id.iv_previous);
-        progressBar_loader = findViewById(R.id.pb_loader);
-        progressBar_mainLoader = findViewById(R.id.pb_main_loader);
-        recyclerView = findViewById(R.id.recyclerView);
-        seekBar = findViewById(R.id.seekbar);
-        coordinatorLayout = findViewById(R.id.coordinatorLayout);
-        relativeLayout_song = findViewById(R.id.relativeLayout_song);
-        relativeLayout_progressBar = findViewById(R.id.relativeLayout_progressBar);
-        toolbarBottom = findViewById(R.id.bottom_toolbar);
-        textView_titleLayoutSong = findViewById(R.id.textView_titleLayoutSong);
-    }
-
-    private void changeSelectedSong(int index) {
-        songsAdapter.notifyItemChanged(songsAdapter.getSelectedPosition());
-        currentIndex = index;
-        songsAdapter.setSelectedPosition(currentIndex);
-        songsAdapter.notifyItemChanged(currentIndex);
+        recycler.setAdapter(mAdapter);
     }
 
     private void handleSeekbar() {
@@ -357,33 +168,92 @@ public class ShowSongsActivity extends AppCompatActivity {
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
             }
         });
     }
 
+    private void prepareSong(Song song) {
+
+        currentSongLength = song.getAudioDuration();
+        pb_loader.setVisibility(View.VISIBLE);
+        tb_title.setVisibility(View.GONE);
+        iv_play.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.selector_play));
+        tb_title.setText(song.getAudioTitle());
+        tv_time.setText(Utility.convertDuration(song.getAudioDuration()));
+        mediaPlayer.reset();
+
+        try {
+            mediaPlayer.setDataSource(song.getAudioUri());
+            mediaPlayer.prepareAsync();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    private void togglePlay(MediaPlayer mp) {
+        seekBar.setMax(mediaPlayer.getDuration());
+        if (mp.isPlaying()) {
+            mp.stop();
+            mp.reset();
+        } else {
+            pb_loader.setVisibility(View.GONE);
+            tb_title.setVisibility(View.VISIBLE);
+            mp.start();
+            iv_play.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.selector_pause));
+
+            seekBar.setProgress(mediaPlayer.getCurrentPosition());
+            myHandler.postDelayed(UpdateSongTime, 100);
+        }
+    }
+
+    private void initializeViews() {
+
+        tb_title = findViewById(R.id.tb_title);
+        tv_duration = findViewById(R.id.tv_duration);
+        iv_play = findViewById(R.id.iv_play);
+        iv_next = findViewById(R.id.iv_next);
+        iv_previous = findViewById(R.id.iv_previous);
+        pb_loader = findViewById(R.id.pb_loader);
+        pb_main_loader = findViewById(R.id.pb_main_loader);
+        recycler = findViewById(R.id.recyclerView_song);
+        seekBar = findViewById(R.id.seekbar);
+        tv_time = findViewById(R.id.tv_time);
+        fab_search = findViewById(R.id.fab_search);
+        coordinatorLayout = findViewById(R.id.coordinatorLayout);
+
+    }
+
+    private void changeSelectedSong(int index) {
+        mAdapter.notifyItemChanged(mAdapter.getSelectedPosition());
+        currentIndex = index;
+        mAdapter.setSelectedPosition(currentIndex);
+        mAdapter.notifyItemChanged(currentIndex);
+    }
+
     private void pushPlay() {
-        imageViewPlay.setOnClickListener(new View.OnClickListener() {
+        iv_play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 if (mediaPlayer.isPlaying() && mediaPlayer != null) {
-                    imageViewPlay.setImageDrawable(ContextCompat.getDrawable(ShowSongsActivity.this, R.drawable.selector_play));
+                    iv_play.setImageDrawable(ContextCompat.getDrawable(ShowSongsActivity.this, R.drawable.selector_play));
                     mediaPlayer.pause();
                 } else {
                     if (firstLaunch) {
-                        Audio audio = listAudio.get(0);
+                        Song song = MyStaticVariables.listSong.get(0);
                         changeSelectedSong(0);
-                        prepareSong(audio);
+                        prepareSong(song);
                     } else {
                         mediaPlayer.start();
                         firstLaunch = false;
                     }
-                    imageViewPlay.setImageDrawable(ContextCompat.getDrawable(ShowSongsActivity.this, R.drawable.selector_pause));
+                    iv_play.setImageDrawable(ContextCompat.getDrawable(ShowSongsActivity.this, R.drawable.selector_pause));
                 }
 
             }
@@ -392,19 +262,19 @@ public class ShowSongsActivity extends AppCompatActivity {
 
     private void pushPrevious() {
 
-        imageViewPrevious.setOnClickListener(new View.OnClickListener() {
+        iv_previous.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 firstLaunch = false;
                 if (mediaPlayer != null) {
 
                     if (currentIndex - 1 >= 0) {
-                        Audio previous = listAudio.get(currentIndex - 1);
+                        Song previous = MyStaticVariables.listSong.get(currentIndex - 1);
                         changeSelectedSong(currentIndex - 1);
                         prepareSong(previous);
                     } else {
-                        changeSelectedSong(listAudio.size() - 1);
-                        prepareSong(listAudio.get(listAudio.size() - 1));
+                        changeSelectedSong(MyStaticVariables.listSong.size() - 1);
+                        prepareSong(MyStaticVariables.listSong.get(MyStaticVariables.listSong.size() - 1));
                     }
 
                 }
@@ -415,19 +285,19 @@ public class ShowSongsActivity extends AppCompatActivity {
 
     private void pushNext() {
 
-        imageViewNext.setOnClickListener(new View.OnClickListener() {
+        iv_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 firstLaunch = false;
                 if (mediaPlayer != null) {
 
-                    if (currentIndex + 1 < listAudio.size()) {
-                        Audio next = listAudio.get(currentIndex + 1);
+                    if (currentIndex + 1 < MyStaticVariables.listSong.size()) {
+                        Song next = MyStaticVariables.listSong.get(currentIndex + 1);
                         changeSelectedSong(currentIndex + 1);
                         prepareSong(next);
                     } else {
                         changeSelectedSong(0);
-                        prepareSong(listAudio.get(0));
+                        prepareSong(MyStaticVariables.listSong.get(0));
                     }
 
                 }
@@ -436,10 +306,52 @@ public class ShowSongsActivity extends AppCompatActivity {
 
     }
 
+    public void createDialog() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(ShowSongsActivity.this);
+        final View view = getLayoutInflater().inflate(R.layout.dialog_search_song, null);
+        builder.setTitle(R.string.rechercher);
+        builder.setView(view);
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                EditText et_search = view.findViewById(R.id.et_search);
+                String search = et_search.getText().toString().trim();
+
+                List<Song> listSongFound = new ArrayList<>();
+
+                if (search.length() > 0) {
+                    for (Song song : MyStaticVariables.listSong) {
+                        if (song.getAudioTitle().contains(search)) {
+                            listSongFound.add(song);
+                        }
+                    }
+                    if (listSongFound.size() > 0) {
+                        setMyAdapter(listSongFound);
+                    } else {
+                        Toast.makeText(ShowSongsActivity.this, "Song non trouve", Toast.LENGTH_SHORT).show();
+                    }
+
+                } else {
+                    Toast.makeText(ShowSongsActivity.this, "Veuillez remplir le champ", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        builder.create().show();
+
+
+    }
+
     @Override
     protected void onDestroy() {
+        if (myHandler != null) {
+            myHandler.removeCallbacks(UpdateSongTime);
+            myHandler = null;
+        }
+
         if (mediaPlayer != null) {
-            mediaPlayer.release();
+            mediaPlayer = null;
         }
         super.onDestroy();
     }
@@ -450,7 +362,10 @@ public class ShowSongsActivity extends AppCompatActivity {
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
 
                 final int position = viewHolder.getAdapterPosition();
-                final Audio audio = listAudio.get(position);
+                final Song song = MyStaticVariables.listSong.get(position);
+
+                MyStaticVariables.collectionReference = MyStaticVariables.firestore.collection("dahiras")
+                        .document(dahira.getDahiraID()).collection("audios");
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(ShowSongsActivity.this, R.style.alertDialog);
                 builder.setTitle("Supprimer audio!");
@@ -460,13 +375,13 @@ public class ShowSongsActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //Update totalAdiya dahira
-                        songsAdapter.removeItem(position);
-                        if (audio.getAudioID() != null) {
+                        mAdapter.removeItem(position);
+                        if (song.getAudioID() != null) {
                             //Remove item in FirebaseFireStore
-                            collectionReference.document(audio.getAudioID()).delete();
+                            MyStaticVariables.collectionReference.document(song.getAudioID()).delete();
                         }
                         //Remove item in FirebaseStorage
-                        removeInFirebaseStorage(audio);
+                        removeInFirebaseStorage(song);
 
                         Snackbar snackbar = Snackbar.make(coordinatorLayout, "Fichier audio supprime.", Snackbar.LENGTH_LONG);
                         snackbar.setActionTextColor(Color.GREEN);
@@ -486,16 +401,29 @@ public class ShowSongsActivity extends AppCompatActivity {
         };
 
         ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeToDeleteCallback);
-        itemTouchhelper.attachToRecyclerView(recyclerView);
+        itemTouchhelper.attachToRecyclerView(recycler);
     }
 
-    public void hideProgressBar() {
-        relativeLayout_song.setVisibility(View.VISIBLE);
-        relativeLayout_progressBar.setVisibility(View.GONE);
+    public void removeInFirebaseStorage(Song song) {
+        if (song.audioUri != null) {
+
+            StorageReference storageRef = MyStaticVariables.firebaseStorage
+                    .getReferenceFromUrl(song.audioUri);
+
+            storageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    // File deleted successfully
+                    Log.d(TAG, "onSuccess: deleted file");
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    // Uh-oh, an error occurred!
+                    Log.d(TAG, "onFailure: did not delete file");
+                }
+            });
+        }
     }
 
-    public void showProgressBar() {
-        relativeLayout_song.setVisibility(View.GONE);
-        relativeLayout_progressBar.setVisibility(View.VISIBLE);
-    }
 }

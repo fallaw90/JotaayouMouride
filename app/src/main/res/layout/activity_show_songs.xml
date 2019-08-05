@@ -1,92 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/coordinatorLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".RecordingListActivity">
+    tools:context=".ShowSongsActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <include
             android:id="@+id/toolbar"
-            layout="@layout/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            layout="@layout/toolbar" />
 
+        <ProgressBar
+            android:id="@+id/pb_main_loader"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
 
-        <TextView
-            android:id="@+id/textView_titleLayoutSong"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView_song"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/toolbar"
-            android:layout_marginTop="@dimen/_10sdp"
-            android:textAlignment="center"
-            android:textColor="@color/black"
-            android:textSize="@dimen/_15sdp"
-            android:textStyle="bold" />
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingBottom="130dp">
 
-        <RelativeLayout
-            android:id="@+id/relativeLayout_song"
-            android:layout_width="match_parent"
+        </androidx.recyclerview.widget.RecyclerView>
+
+        <include
+            android:id="@+id/bottom_toolbar"
+            layout="@layout/bottom_toolbar" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_search"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/textView_titleLayoutSong"
-            android:layout_marginTop="@dimen/_10sdp">
-
-            <ProgressBar
-                android:id="@+id/pb_main_loader"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_centerInParent="true"
-                android:visibility="gone" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingTop="@dimen/activity_vertical_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
-                android:paddingBottom="@dimen/_130sdp">
-
-            </androidx.recyclerview.widget.RecyclerView>
-
-            <include
-                android:id="@+id/bottom_toolbar"
-                layout="@layout/bottom_toolbar" />
-
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/relativeLayout_progressBar"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/_200sdp"
-            android:layout_marginTop="@dimen/_150sdp"
-            android:visibility="gone">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_above="@+id/progressBar"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:text="Patientez SVP ..."
-                android:textSize="@dimen/_20sdp" />
-
-            <ProgressBar
-                android:id="@+id/progressBar"
-                style="?android:progressBarStyleLarge"
-                android:layout_width="@dimen/_100sdp"
-                android:layout_height="@dimen/_100sdp"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:indeterminate="true"
-                android:indeterminateTint="@color/green"
-                android:indeterminateTintMode="src_atop"
-                android:progress="80"
-                android:progressDrawable="@drawable/circle" />
-        </RelativeLayout>
+            android:layout_above="@id/bottom_toolbar"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_margin="16dp"
+            android:backgroundTint="@color/dark_green"
+            android:src="@android:drawable/ic_menu_search"
+            app:fabSize="normal"
+            app:layout_anchor="@id/recyclerView_song" />
     </RelativeLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

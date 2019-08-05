@@ -20,6 +20,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -27,6 +28,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -36,7 +38,9 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -105,30 +109,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             showAlertDialog(this, "Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
         }
 
-
-        mAuth = FirebaseAuth.getInstance();
-        userID = mAuth.getCurrentUser().getUid();
-        firebaseUser = mAuth.getCurrentUser();
-
-        firebaseStorage = FirebaseStorage.getInstance();
-        storageReference = firebaseStorage.getReference();
-
-        textViewAdress = findViewById(R.id.textView_userAddress);
-        textViewEmail = findViewById(R.id.textView_email);
-        textViewName = findViewById(R.id.textView_userName);
-        textViewPhoneNumber = findViewById(R.id.textView_userPhoneNumber);
-        imageViewProfile = findViewById(R.id.imageView);
-        linearLayoutVerificationNeeded = findViewById(R.id.linearLayout_verificationNeeded);
-        linearLayoutVerified = findViewById(R.id.linearLayout_verified);
-        linEmail = findViewById(R.id.lin_email);
-
-        swipeLayout = findViewById(R.id.swipeToRefresh);
-
-        //ProgressBar from static variable MainActivity
-        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
-        progressBar = findViewById(R.id.progressBar);
-        relativeLayoutProgressBar.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
+        init();
 
         //********************** Drawer Menu *************************
         setDrawerMenu();
@@ -145,14 +126,42 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             }
         });
 
-        actionSelected = "";
 
         saveTokenID();
 
-        findViewById(R.id.button_verifyEmail).setOnClickListener(this);
-
+        getMyDahiras();
+        getAllDahiras();
     }
 
+    private void init() {
+
+        mAuth = FirebaseAuth.getInstance();
+        userID = mAuth.getCurrentUser().getUid();
+        firebaseUser = mAuth.getCurrentUser();
+
+        firebaseStorage = FirebaseStorage.getInstance();
+        storageReference = firebaseStorage.getReference();
+
+
+        textViewAdress = findViewById(R.id.textView_userAddress);
+        textViewEmail = findViewById(R.id.textView_email);
+        textViewName = findViewById(R.id.textView_userName);
+        textViewPhoneNumber = findViewById(R.id.textView_userPhoneNumber);
+        imageViewProfile = findViewById(R.id.imageView);
+        linearLayoutVerificationNeeded = findViewById(R.id.linearLayout_verificationNeeded);
+        linearLayoutVerified = findViewById(R.id.linearLayout_verified);
+        linEmail = findViewById(R.id.lin_email);
+        swipeLayout = findViewById(R.id.swipeToRefresh);
+
+        //ProgressBar from static variable MainActivity
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+        relativeLayoutProgressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
+
+
+        findViewById(R.id.button_verifyEmail).setOnClickListener(this);
+    }
 
     @Override
     protected void onStart() {
@@ -306,13 +315,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     public boolean onOptionsItemSelected(MenuItem item) {
         if (toggle.onOptionsItemSelected(item))
             return true;
-        /*
-        switch (item.getItemId()){
-            case R.id.icon_back:
-                finish();
-                break;
-        }
-        */
+
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -330,7 +333,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 break;
 
             case R.id.nav_displayMyDahira:
-                DataHolder.displayDahira = "myDahira";
+                MyStaticVariables.displayDahira = "myDahira";
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 
@@ -339,7 +342,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 break;
 
             case R.id.nav_displayAllDahira:
-                DataHolder.displayDahira = "allDahira";
+                MyStaticVariables.displayDahira = "allDahira";
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 
@@ -350,7 +353,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
             case R.id.nav_searchDahira:
                 actionSelected = "searchDahira";
-                DataHolder.displayDahira = "allDahira";
+                MyStaticVariables.displayDahira = "allDahira";
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 
@@ -456,5 +459,69 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         swipeLayout.setVisibility(View.VISIBLE);
         relativeLayoutProgressBar.setVisibility(View.GONE);
         progressBar.setVisibility(View.GONE);
+    }
+
+    private void getMyDahiras() {
+
+        if (MyStaticVariables.myListDahira == null) {
+
+            MyStaticVariables.myListDahira = new ArrayList<>();
+
+            db.collection("dahiras").get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            setLayoutVisible();
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                                for (DocumentSnapshot documentSnapshot : list) {
+                                    //documentSnapshot = dahira in list
+                                    Dahira dahira = documentSnapshot.toObject(Dahira.class);
+                                    if (onlineUser.getListDahiraID().contains(dahira.getDahiraID())) {
+                                        MyStaticVariables.myListDahira.add(dahira);
+                                    }
+                                }
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            setLayoutVisible();
+                            toastMessage(getApplicationContext(), "Error charging dahira!");
+                        }
+                    });
+        }
+    }
+
+    private void getAllDahiras() {
+
+        if (MyStaticVariables.allListDahira == null) {
+
+            MyStaticVariables.allListDahira = new ArrayList<>();
+
+            db.collection("dahiras").get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            setLayoutVisible();
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                                for (DocumentSnapshot documentSnapshot : list) {
+                                    Dahira dahira = documentSnapshot.toObject(Dahira.class);
+                                    dahira.setDahiraID(documentSnapshot.getId());
+                                    MyStaticVariables.allListDahira.add(dahira);
+                                }
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            setLayoutVisible();
+                            toastMessage(getApplicationContext(), "Error charging dahira!");
+                        }
+                    });
+        }
     }
 }

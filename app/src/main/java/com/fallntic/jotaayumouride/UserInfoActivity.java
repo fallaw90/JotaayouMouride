@@ -18,6 +18,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.DocumentReference;
@@ -235,12 +236,12 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
                 break;
 
             case R.id.nav_displayMyDahira:
-                DataHolder.displayDahira = "myDahira";
+                MyStaticVariables.displayDahira = "myDahira";
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 
             case R.id.nav_displayAllDahira:
-                DataHolder.displayDahira = "allDahira";
+                MyStaticVariables.displayDahira = "allDahira";
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 

@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fallntic.jotaayumouride.Model.Audio;
+import com.fallntic.jotaayumouride.Model.Song;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,15 +23,15 @@ import java.util.ArrayList;
  * Created by Manish on 10/8/2017.
  */
 
-public class AnnouncementAudioAdapter extends RecyclerView.Adapter<AnnouncementAudioAdapter.ViewHolder> {
+public class RecordingAdapter extends RecyclerView.Adapter<RecordingAdapter.ViewHolder> {
 
-    private ArrayList<Audio> recordingArrayList;
+    private ArrayList<Song> recordingArrayList;
     private Context context;
     private MediaPlayer mPlayer;
     private boolean isPlaying = false;
     private int last_index = -1;
 
-    public AnnouncementAudioAdapter(Context context, ArrayList<Audio> recordingArrayList) {
+    public RecordingAdapter(Context context, ArrayList<Song> recordingArrayList) {
         this.context = context;
         this.recordingArrayList = recordingArrayList;
     }
@@ -58,7 +58,7 @@ public class AnnouncementAudioAdapter extends RecyclerView.Adapter<AnnouncementA
 
     private void setUpData(ViewHolder holder, int position) {
 
-        Audio recording = recordingArrayList.get(position);
+        Song recording = recordingArrayList.get(position);
         holder.textViewName.setText(recording.getAudioTitle());
 
         if (recording.isPlaying()) {
@@ -104,7 +104,7 @@ public class AnnouncementAudioAdapter extends RecyclerView.Adapter<AnnouncementA
                 @Override
                 public void onClick(View view) {
                     int position = getAdapterPosition();
-                    Audio recording = recordingArrayList.get(position);
+                    Song recording = recordingArrayList.get(position);
 
                     recordingUri = recording.getAudioUri();
 
@@ -186,7 +186,7 @@ public class AnnouncementAudioAdapter extends RecyclerView.Adapter<AnnouncementA
             isPlaying = false;
         }
 
-        private void startPlaying(final Audio audio, final int position) {
+        private void startPlaying(final Song song, final int position) {
             mPlayer = new MediaPlayer();
             try {
                 mPlayer.setDataSource(recordingUri);
@@ -202,7 +202,7 @@ public class AnnouncementAudioAdapter extends RecyclerView.Adapter<AnnouncementA
             mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
-                    audio.setPlaying(false);
+                    song.setPlaying(false);
                     notifyItemChanged(position);
                 }
             });

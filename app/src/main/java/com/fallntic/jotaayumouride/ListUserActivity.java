@@ -24,6 +24,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
@@ -501,18 +502,18 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                 break;
 
             case R.id.nav_displayMyDahira:
-                DataHolder.displayDahira = "myDahira";
+                MyStaticVariables.displayDahira = "myDahira";
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 
             case R.id.nav_displayAllDahira:
-                DataHolder.displayDahira = "allDahira";
+                MyStaticVariables.displayDahira = "allDahira";
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 
             case R.id.nav_searchDahira:
                 actionSelected = "searchDahira";
-                DataHolder.displayDahira = "allDahira";
+                MyStaticVariables.displayDahira = "allDahira";
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 
@@ -551,7 +552,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                 break;
 
             case R.id.nav_audio:
-                startActivity(new Intent(this, RecordingListActivity.class));
+                startActivity(new Intent(this, ShowSongsActivity.class));
                 break;
 
             case R.id.nav_callDahira:

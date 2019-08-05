@@ -14,7 +14,7 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fallntic.jotaayumouride.Model.Announcement;
-import com.fallntic.jotaayumouride.Model.Audio;
+import com.fallntic.jotaayumouride.Model.Song;
 
 import java.io.IOException;
 import java.util.List;
@@ -47,7 +47,7 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     @Override
     public int getItemViewType(int position) {
-        if (listAnnouncement.get(position) instanceof Audio) {
+        if (listAnnouncement.get(position) instanceof Song) {
             return AUDIO_ANNOUNCEMENT;
         } else if (listAnnouncement.get(position) instanceof Announcement) {
             return TEXT_ANNOUNCEMENT;
@@ -89,8 +89,8 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     private void setUpData(RecyclerView.ViewHolder holder, int position) {
 
-        if (listAnnouncement.get(position) instanceof Audio) {
-            Audio recording = (Audio) listAnnouncement.get(position);
+        if (listAnnouncement.get(position) instanceof Song) {
+            Song recording = (Song) listAnnouncement.get(position);
             if (recording.getAudioUri() != null && !recording.getAudioUri().equals("")) {
 
                 ((AnnouncementAudioViewHolder) holder).textViewName.setText(recording.getAudioTitle());
@@ -164,9 +164,9 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
                     int position = getAdapterPosition();
 
-                    if (listAnnouncement.get(position) instanceof Audio) {
+                    if (listAnnouncement.get(position) instanceof Song) {
 
-                        Audio recording = (Audio) listAnnouncement.get(position);
+                        Song recording = (Song) listAnnouncement.get(position);
 
                         recordingUri = recording.getAudioUri();
 
@@ -220,10 +220,10 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         private void markAllPaused() {
             for (int i = 0; i < listAnnouncement.size(); i++) {
-                if (listAnnouncement.get(i) instanceof Audio) {
-                    Audio audio = (Audio) listAnnouncement.get(i);
-                    audio.setPlaying(false);
-                    listAnnouncement.set(i, audio);
+                if (listAnnouncement.get(i) instanceof Song) {
+                    Song song = (Song) listAnnouncement.get(i);
+                    song.setPlaying(false);
+                    listAnnouncement.set(i, song);
                 }
             }
             notifyDataSetChanged();
@@ -250,7 +250,7 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             isPlaying = false;
         }
 
-        private void startPlaying(final Audio audio, final int position) {
+        private void startPlaying(final Song song, final int position) {
             mPlayer = new MediaPlayer();
             try {
                 mPlayer.setDataSource(recordingUri);
@@ -266,7 +266,7 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
-                    audio.setPlaying(false);
+                    song.setPlaying(false);
                     notifyItemChanged(position);
                 }
             });

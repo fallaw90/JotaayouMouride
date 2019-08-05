@@ -2,14 +2,14 @@ package com.fallntic.jotaayumouride.Model;
 
 import com.google.firebase.database.Exclude;
 
-public class Audio {
+public class Song {
     public String audioTitle;
     public String audioDuration;
     public String audioUri;
     public String audioID;
     public boolean isPlaying;
 
-    public Audio(String audioID, String audioTitle, String audioDuration, String audioUri) {
+    public Song(String audioID, String audioTitle, String audioDuration, String audioUri) {
 
         if (audioTitle.trim().equals("")) {
             audioTitle = "No title";
@@ -20,7 +20,7 @@ public class Audio {
         this.audioID = audioID;
     }
 
-    public Audio() {
+    public Song() {
     }
 
     public String getAudioTitle() {
@@ -31,8 +31,9 @@ public class Audio {
         this.audioTitle = songTitle;
     }
 
-    public String getAudioDuration() {
-        return audioDuration;
+    public long getAudioDuration() {
+        String str_duration = audioDuration.replace(":", "");
+        return Long.parseLong(str_duration);
     }
 
     public void setAudioDuration(String songDuration) {

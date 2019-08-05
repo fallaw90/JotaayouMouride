@@ -34,7 +34,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
-import com.fallntic.jotaayumouride.Model.Audio;
+import com.fallntic.jotaayumouride.Model.Song;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
@@ -373,7 +373,7 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
 
         switch (item.getItemId()) {
             case R.id.item_list:
-                Intent intent = new Intent(this, RecordingListActivity.class);
+                Intent intent = new Intent(this, ShowSongsActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
                 return true;
@@ -425,10 +425,10 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
                                 @Override
                                 public void onSuccess(Uri uri) {
 
-                                    Audio audio = new Audio(songID, DataHolder.onlineUser.getUserName(),
+                                    Song song = new Song(songID, DataHolder.onlineUser.getUserName(),
                                             finalDurationTxt, uri.toString());
 
-                                    collectionReference.document(songID).set(audio)
+                                    collectionReference.document(songID).set(song)
                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void aVoid) {

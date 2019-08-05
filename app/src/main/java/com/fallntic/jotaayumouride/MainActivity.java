@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
 
             case R.id.nav_displayMyDahira:
-                DataHolder.displayDahira = "myDahira";
+                MyStaticVariables.displayDahira = "myDahira";
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 
@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
 
             case R.id.nav_displayAllDahira:
-                DataHolder.displayDahira = "allDahira";
+                MyStaticVariables.displayDahira = "allDahira";
                 startActivity(new Intent(this, ListDahiraActivity.class));
                 break;
 

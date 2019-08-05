@@ -23,7 +23,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fallntic.jotaayumouride.Model.Announcement;
-import com.fallntic.jotaayumouride.Model.Audio;
+import com.fallntic.jotaayumouride.Model.Song;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
@@ -159,8 +159,8 @@ public class ShowAnnouncementActivity extends AppCompatActivity {
                         if (!queryDocumentSnapshots.isEmpty()) {
                             List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
                             for (DocumentSnapshot documentSnapshot : list) {
-                                Audio audio = documentSnapshot.toObject(Audio.class);
-                                listAnnouncement.add(audio);
+                                Song song = documentSnapshot.toObject(Song.class);
+                                listAnnouncement.add(song);
                             }
                             isAnnouncementExist = true;
                         }
@@ -226,9 +226,9 @@ public class ShowAnnouncementActivity extends AppCompatActivity {
                         if (object instanceof Announcement) {
                             Announcement announcement = (Announcement) object;
                             removeTextAnnouncement(announcement);
-                        } else if (object instanceof Audio) {
-                            Audio audio = (Audio) object;
-                            removeAudioAnnouncement(audio);
+                        } else if (object instanceof Song) {
+                            Song song = (Song) object;
+                            removeAudioAnnouncement(song);
                         }
                     }
                 });
@@ -275,15 +275,15 @@ public class ShowAnnouncementActivity extends AppCompatActivity {
         });
     }
 
-    public void removeAudioAnnouncement(final Audio audio) {
+    public void removeAudioAnnouncement(final Song song) {
         db.collection("announcements").document(dahira.getDahiraID())
-                .collection("audios").document(audio.getAudioID())
+                .collection("audios").document(song.getAudioID())
                 .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
 
-                        removeInFirebaseStorage(audio);
+                        removeInFirebaseStorage(song);
 
                         Snackbar snackbar = Snackbar.make(coordinatorLayout,
                                 "Annonce supprimee.", Snackbar.LENGTH_LONG);
@@ -303,11 +303,11 @@ public class ShowAnnouncementActivity extends AppCompatActivity {
         });
     }
 
-    public void removeInFirebaseStorage(Audio audio) {
-        if (audio.audioUri != null) {
+    public void removeInFirebaseStorage(Song song) {
+        if (song.audioUri != null) {
 
             StorageReference storageRef = firebaseStorage
-                    .getReferenceFromUrl(audio.audioUri);
+                    .getReferenceFromUrl(song.audioUri);
 
             storageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                 @SuppressLint("LongLogTag")
