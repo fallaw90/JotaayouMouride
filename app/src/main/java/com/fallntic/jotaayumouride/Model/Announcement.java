@@ -1,6 +1,6 @@
 package com.fallntic.jotaayumouride.Model;
 
-import com.fallntic.jotaayumouride.DataHolder;
+import com.fallntic.jotaayumouride.Utility.DataHolder;
 
 import java.io.Serializable;
 

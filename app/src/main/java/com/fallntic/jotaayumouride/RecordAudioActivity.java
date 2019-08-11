@@ -35,6 +35,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
 import com.fallntic.jotaayumouride.Model.Song;
+import com.fallntic.jotaayumouride.Utility.DataHolder;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
@@ -51,8 +52,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import static com.fallntic.jotaayumouride.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 
 public class RecordAudioActivity extends AppCompatActivity implements View.OnClickListener {
     private final String TAG = "RecordAudioActivity";
@@ -89,13 +91,19 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
         setContentView(R.layout.activity_record_audio);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+        //initializingViews
+        initViews();
+        //***************** Set logo **********************
+        getSupportActionBar().setLogo(R.mipmap.logo);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
+
+        checkInternetConnection(this);
+
         storageReference = FirebaseStorage.getInstance().getReference();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             getPermissionToRecordAudio();
         }
-        //initializingViews
-        initViews();
     }
 
     private void initViews() {
@@ -145,7 +153,7 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
         if (dahira != null)
             startActivity(new Intent(RecordAudioActivity.this, DahiraInfoActivity.class));
         else
-            startActivity(new Intent(RecordAudioActivity.this, MainActivity.class));
+            startActivity(new Intent(RecordAudioActivity.this, HomeActivity.class));
         return true;
     }
 
@@ -443,7 +451,7 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
                                                         @Override
                                                         public void onClick(DialogInterface dialog, int which) {
                                                             startActivity(new Intent(RecordAudioActivity.this,
-                                                                    ShowAnnouncementActivity.class));
+                                                                    SendAnnouncementActivity.class));
                                                         }
                                                     });
                                                     builder.show();

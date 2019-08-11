@@ -32,6 +32,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.fallntic.jotaayumouride.Adapter.CommissionListAdapter;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -45,16 +46,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.DataHolder.dahiraID;
-import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrors;
-import static com.fallntic.jotaayumouride.DataHolder.isConnected;
-import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.showImage;
-import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
-import static com.fallntic.jotaayumouride.MainActivity.progressBar;
-import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.dahiraID;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.hasValidationErrors;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.showImage;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
 
 public class UpdateDahiraActivity extends AppCompatActivity implements View.OnClickListener  {
 
@@ -110,53 +114,19 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setSubtitle("Modifier votre dahira");
         setSupportActionBar(toolbar);
+        //***************** Set logo **********************
+        getSupportActionBar().setLogo(R.mipmap.logo);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
 
-        if (!isConnected(this)){
-            finish();
-            Intent intent = new Intent(this, LoginActivity.class);
-            showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
-        }
-
-        //ProgressBar from static variable MainActivity
-        ListUserActivity.scrollView = findViewById(R.id.scrollView);
-        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
-        progressBar = findViewById(R.id.progressBar);
-        relativeLayoutProgressBar.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
+        checkInternetConnection(this);
 
         firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
 
-        //Dahira info
-        editTextDahiraName = findViewById(R.id.editText_dahiraName);
-        editTextDieuwrine = findViewById(R.id.editText_dieuwrine);
-        editTextDahiraPhoneNumber = findViewById(R.id.editText_dahiraPhoneNumber);
-        editTextSiege = findViewById(R.id.editText_siege);
-        editTextCommission = findViewById(R.id.editText_commission);
-        editTextResponsible = findViewById(R.id.editText_responsible);
-        textViewLabelCommission = findViewById(R.id.textView_labelCommission);
-        getTextViewLabelResponsible = findViewById(R.id.textView_labelResponsible);
-        listViewCommission = findViewById(R.id.listView_commission);
-        editTextResponsible = findViewById(R.id.editText_responsible);
-        editTextAdiya = findViewById(R.id.editText_adiya);
-        editTextSass = findViewById(R.id.editText_sass);
-        editTextSocial = findViewById(R.id.editText_social);
-        textViewUpdateCommission = findViewById(R.id.textViewUpdateCommission);
-        spinnerCountry = findViewById(R.id.spinner_country);
-        spinnerRegion = findViewById(R.id.spinner_region);
-        imageView = findViewById(R.id.imageView);
+        initViews();
 
-        editTextDahiraName.setText(dahira.getDahiraName());
-        editTextDieuwrine.setText(dahira.getDieuwrine());
-        String[] arraySiege = dahira.getSiege().split(",");
-        String phoneNumber = dahira.getDahiraPhoneNumber().substring(4);
-        editTextDahiraPhoneNumber.setText(phoneNumber);
-        editTextSiege.setText(arraySiege[0]);
-        editTextAdiya.setText(dahira.getTotalAdiya());
-        editTextSass.setText(dahira.getTotalSass());
-        editTextSocial.setText(dahira.getTotalSocial());
+        displayViews();
 
-        showImage(this, "logoDahira", dahira.getDahiraID(), imageView);
         loadListCommissions();
 
         //Display and modify ListView commissions
@@ -196,11 +166,56 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
         });
 
         hideSoftKeyboard();
+    }
+
+    public  void initViewsProgressBar() {
+        relativeLayoutData = findViewById(R.id.relativeLayout_data);
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+    }
+    private void initViews(){
+
+        //ProgressBar from static variable MainActivity
+        ListUserActivity.scrollView = findViewById(R.id.scrollView);
+        initViewsProgressBar();
+        //Dahira info
+        editTextDahiraName = findViewById(R.id.editText_dahiraName);
+        editTextDieuwrine = findViewById(R.id.editText_dieuwrine);
+        editTextDahiraPhoneNumber = findViewById(R.id.editText_dahiraPhoneNumber);
+        editTextSiege = findViewById(R.id.editText_siege);
+        editTextCommission = findViewById(R.id.editText_commission);
+        editTextResponsible = findViewById(R.id.editText_responsible);
+        textViewLabelCommission = findViewById(R.id.textView_labelCommission);
+        getTextViewLabelResponsible = findViewById(R.id.textView_labelResponsible);
+        listViewCommission = findViewById(R.id.listView_commission);
+        editTextResponsible = findViewById(R.id.editText_responsible);
+        editTextAdiya = findViewById(R.id.editText_adiya);
+        editTextSass = findViewById(R.id.editText_sass);
+        editTextSocial = findViewById(R.id.editText_social);
+        textViewUpdateCommission = findViewById(R.id.textViewUpdateCommission);
+        spinnerCountry = findViewById(R.id.spinner_country);
+        spinnerRegion = findViewById(R.id.spinner_region);
+        imageView = findViewById(R.id.imageView);
 
         findViewById(R.id.button_addCommission).setOnClickListener(this);
         findViewById(R.id.button_save).setOnClickListener(this);
         findViewById(R.id.button_back).setOnClickListener(this);
         findViewById(R.id.imageView).setOnClickListener(this);
+    }
+
+    private void displayViews(){
+
+        editTextDahiraName.setText(dahira.getDahiraName());
+        editTextDieuwrine.setText(dahira.getDieuwrine());
+        String[] arraySiege = dahira.getSiege().split(",");
+        String phoneNumber = dahira.getDahiraPhoneNumber().substring(4);
+        editTextDahiraPhoneNumber.setText(phoneNumber);
+        editTextSiege.setText(arraySiege[0]);
+        editTextAdiya.setText(dahira.getTotalAdiya());
+        editTextSass.setText(dahira.getTotalSass());
+        editTextSocial.setText(dahira.getTotalSocial());
+
+        showImage(this, "logoDahira", dahira.getDahiraID(), imageView);
     }
 
     @Override
@@ -272,7 +287,7 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
 
     private void uploadImage() {
         if(uri != null) {
-            ListUserActivity.showProgressBar();
+            showProgressBar();
             final StorageReference ref = storageReference.child("logoDahira").child(dahira.getDahiraID());
             ref.putFile(uri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -280,14 +295,14 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
                             while (!urlTask.isSuccessful());
-                            ListUserActivity.hideProgressBar();
+                            hideProgressBar();
                             toastMessage(getApplicationContext(), "Image enregistree");
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            ListUserActivity.hideProgressBar();
+                            hideProgressBar();
                             imageSaved = false;
                             toastMessage(getApplicationContext(), "Failed "+e.getMessage());
                         }
@@ -334,7 +349,7 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
             listID.add(dahiraID);
             onlineUser.setListDahiraID(listID);
 
-            ListUserActivity.showProgressBar();
+            showProgressBar();
             db.collection("dahiras").document(dahira.getDahiraID())
                     .update( "dahiraName", dahiraName,
                             "dieuwrine", dieuwrine,
@@ -349,7 +364,7 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            ListUserActivity.hideProgressBar();
+                            hideProgressBar();
                             Intent intent = new Intent(UpdateDahiraActivity.this,
                                     DahiraInfoActivity.class);
                             showAlertDialog(UpdateDahiraActivity.this,

@@ -5,7 +5,11 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -14,78 +18,42 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.fallntic.jotaayumouride.Model.Event;
+import com.fallntic.jotaayumouride.Model.ObjNotification;
+import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
-import static com.fallntic.jotaayumouride.DataHolder.createNewCollection;
-import static com.fallntic.jotaayumouride.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.DataHolder.event;
-import static com.fallntic.jotaayumouride.DataHolder.getCurrentDate;
-import static com.fallntic.jotaayumouride.DataHolder.getDate;
-import static com.fallntic.jotaayumouride.DataHolder.getTime;
-import static com.fallntic.jotaayumouride.DataHolder.indexEventSelected;
-import static com.fallntic.jotaayumouride.DataHolder.isConnected;
-import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.MainActivity.progressBar;
-import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.getCurrentDate;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.getDate;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.getTime;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListEvents;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.Utility.NotificationHelper.sendNotificationToAllUsers;
 
 public class CreateEventActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "CreateNewEventActivity";
 
-    private TextView textViewTitle;
-    private EditText editTextTitleEvent;
-    private EditText editTextDate;
-    private EditText editTextLocation;
-    private EditText editTextNote;
-    private EditText editTextStartTime;
-    private EditText editTextEndTime;
 
+    private EditText ed_titleEvent, ed_date, ed_location, ed_note, ed_startTime, ed_endTime;
+    private String mDate, title, note, location, startTime, endTime;
+    private TextView tv_title;
+    private Button btn_delete;
+    private Toolbar toolbar;
 
-    private String mDate;
-    private String title;
-    private String note;
-    private String location;
-    private String startTime;
-    private String endTime;
-
-    private Button buttonDelete;
-
-    public static void updateEvent(final Context context) {
-        ListUserActivity.showProgressBar();
-        FirebaseFirestore.getInstance().collection("events")
-                .document(dahira.getDahiraID())
-                .update("listUserID", event.getListUserID(),
-                        "listUserName", event.getListUserName(),
-                        "listDate", event.getListDate(),
-                        "listTitle", event.getListTitle(),
-                        "listNote", event.getListNote(),
-                        "listLocation", event.getListLocation(),
-                        "listStartTime", event.getListStartTime(),
-                        "listEndTime", event.getListEndTime())
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        ListUserActivity.hideProgressBar();
-                        Log.d(TAG, "Event updated");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        ListUserActivity.hideProgressBar();
-                        actionSelected = "";
-                        Intent intent = new Intent(context, DataHolder.class);
-                        showAlertDialog(context, "Erreur lors de l'enregistrement de votre evenement." +
-                                "\nReessayez plutard SVP", intent);
-                        Log.d(TAG, "Error updated event");
-                    }
-                });
-    }
 
     public static boolean hasValidationErrors(String title, EditText editTextTitleEvent,
                                               String mDate, EditText editTextDate,
@@ -134,54 +102,53 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         setContentView(R.layout.activity_create_event);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setSubtitle("Ajouter un evenement");
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        toolbar.setLogo(R.mipmap.logo);
 
-        // add back arrow to toolbar
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        checkInternetConnection(this);
+
+        initViews();
+        tv_title.setText("Creation d'un nouveau evenement pour le dahira " + dahira.getDahiraName());
+        ed_date.setText(getCurrentDate());
+
+        hideSoftKeyboard();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main_menu, menu);
+
+        MenuItem iconBack;
+        iconBack = menu.findItem(R.id.icon_back);
+
+        iconBack.setVisible(true);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.icon_back:
+                finish();
+                startActivity(new Intent(this, DahiraInfoActivity.class));
+                break;
         }
+        return true;
+    }
 
-        if (!isConnected(this)) {
-            finish();
-            Intent intent = new Intent(this, MainActivity.class);
-            showAlertDialog(this, "Oops! Pas de connexion, " +
-                    "verifier votre connexion internet puis reesayez SVP", intent);
-        }
-
-        ListUserActivity.scrollView = findViewById(R.id.scrollView);
-        //ProgressBar from static variable MainActivity
-        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
-        progressBar = findViewById(R.id.progressBar);
-        relativeLayoutProgressBar.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
-
-        textViewTitle = findViewById(R.id.textView_title);
-        editTextTitleEvent = findViewById(R.id.editText_titleEvent);
-        editTextDate = findViewById(R.id.editText_date);
-        editTextLocation = findViewById(R.id.editText_location);
-        editTextStartTime = findViewById(R.id.editText_startTime);
-        editTextEndTime = findViewById(R.id.editText_endTime);
-        editTextNote = findViewById(R.id.editText_note);
-        buttonDelete = findViewById(R.id.button_delete);
-
-        textViewTitle.setText("Creation d'un nouveau evenement pour le dahira " + dahira.getDahiraName());
-        editTextDate.setText(getCurrentDate());
-
-        if (actionSelected.equals("updateEvent")) {
-            toolbar.setSubtitle("Mettre a jour mon evenement");
-            textViewTitle.setText("Modifier cet evenement pour le dahira " + dahira.getDahiraName());
-            editTextDate.setText(event.getListDate().get(indexEventSelected));
-            editTextTitleEvent.setText(event.getListTitle().get(indexEventSelected));
-            editTextDate.setText(event.getListDate().get(indexEventSelected));
-            editTextLocation.setText(event.getListLocation().get(indexEventSelected));
-            editTextStartTime.setText(event.getListStartTime().get(indexEventSelected));
-            editTextEndTime.setText(event.getListEndTime().get(indexEventSelected));
-            editTextNote.setText(event.getListNote().get(indexEventSelected));
-            buttonDelete.setVisibility(View.VISIBLE);
-        }
+    private void initViews(){
+        tv_title = findViewById(R.id.textView_title);
+        ed_titleEvent = findViewById(R.id.editText_titleEvent);
+        ed_date = findViewById(R.id.editText_date);
+        ed_location = findViewById(R.id.editText_location);
+        ed_startTime = findViewById(R.id.editText_startTime);
+        ed_endTime = findViewById(R.id.editText_endTime);
+        ed_note = findViewById(R.id.editText_note);
+        btn_delete = findViewById(R.id.button_delete);
 
         findViewById(R.id.editText_startTime).setOnClickListener(this);
         findViewById(R.id.editText_endTime).setOnClickListener(this);
@@ -189,14 +156,13 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         findViewById(R.id.button_save).setOnClickListener(this);
         findViewById(R.id.button_cancel).setOnClickListener(this);
 
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-                startActivity(new Intent(CreateEventActivity.this, ListEventActivity.class));
-            }
-        });
+        initViewsProgressBar();
+    }
 
+    public  void initViewsProgressBar() {
+        relativeLayoutData = findViewById(R.id.relativeLayout_data);
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
     }
 
     @Override
@@ -214,17 +180,14 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             case R.id.button_cancel:
                 finish();
                 break;
-            case R.id.button_delete:
-                updateEvent(this);
-                break;
             case R.id.editText_date:
-                getDate(this, editTextDate);
+                getDate(this, ed_date);
                 break;
             case R.id.editText_startTime:
-                getTime(this, editTextStartTime, "Heure du debut de votre evenement");
+                getTime(this, ed_startTime, "Heure du debut de votre evenement");
                 break;
             case R.id.editText_endTime:
-                getTime(this, editTextEndTime, "Heure de la fin de votre evenement");
+                getTime(this, ed_endTime, "Heure de la fin de votre evenement");
                 break;
         }
     }
@@ -236,66 +199,82 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     }
 
     public void saveEvent(final Context context) {
-        mDate = editTextDate.getText().toString().trim();
-        title = editTextTitleEvent.getText().toString().trim();
-        note = editTextNote.getText().toString().trim();
-        location = editTextLocation.getText().toString().trim();
-        startTime = editTextStartTime.getText().toString().trim();
-        endTime = editTextEndTime.getText().toString().trim();
+        mDate = ed_date.getText().toString().trim();
+        title = ed_titleEvent.getText().toString().trim();
+        note = ed_note.getText().toString().trim();
+        location = ed_location.getText().toString().trim();
+        startTime = ed_startTime.getText().toString().trim();
+        endTime = ed_endTime.getText().toString().trim();
 
-        if (!hasValidationErrors(title, editTextTitleEvent, mDate, editTextDate, location, editTextLocation,
-                startTime, editTextStartTime, endTime, editTextEndTime, note, editTextNote)) {
+        if (!hasValidationErrors(title, ed_titleEvent, mDate, ed_date, location, ed_location,
+                startTime, ed_startTime, endTime, ed_endTime, note, ed_note)) {
 
-            if (event == null)
-                event = new Event();
+            final String eventID = onlineUser.getUserName() + System.currentTimeMillis();
+            Event event = new Event(eventID, onlineUser.getUserName(), mDate, title, note,
+                                location, startTime, endTime);
 
-            event.setDahiraID(dahira.getDahiraID());
-            event.getListUserID().add(onlineUser.getUserID());
-            event.getListUserName().add(onlineUser.getUserName());
-            event.getListDate().add(mDate);
-            event.getListTitle().add(title);
-            event.getListStartTime().add(startTime);
-            event.getListEndTime().add(endTime);
-            event.getListNote().add(note);
-            event.getListLocation().add(location);
-
-            ListUserActivity.showProgressBar();
-            FirebaseFirestore.getInstance().collection("events").
-                    document(dahira.getDahiraID()).get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            ListUserActivity.hideProgressBar();
-                            if (documentSnapshot.exists()) {
-                                updateEvent(CreateEventActivity.this);
-                                Intent intent = new Intent(context, ListEventActivity.class);
-                                showAlertDialog(context, "Evenement enregistre avec succe.", intent);
-                                Log.d(TAG, "Collection evenement updated");
-                            } else {
-                                createNewCollection(context, "events",
-                                        dahira.getDahiraID(), event);
-                                Intent intent = new Intent(context, ListEventActivity.class);
-                                showAlertDialog(CreateEventActivity.this,
-                                        "Evenement enregistre avec succe.", intent);
-                            }
-
-                            title = "Evénement à venir";
-                            String message = "Dahira " + dahira.getDahiraName() + " vient de " +
-                                    "publier un nouveau événement. \nCliquez pour plus de détails.";
-
-                            ObjNotification objNotification = new ObjNotification();
-                            NotificationHelper.sendNotificationToAllUsers(context, objNotification);
-
-                            Log.d(TAG, "Collection evenement created");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            ListUserActivity.hideProgressBar();
-                            Log.d(TAG, e.toString());
-                        }
-                    });
+            saveToDahiraDocument(context, event);
         }
+    }
+
+    public void saveToDahiraDocument(final Context context, final Event event){
+        showProgressBar();
+        FirebaseFirestore.getInstance().collection("dahiras").
+                document(dahira.getDahiraID())
+                .collection("myEvents")
+                .document(event.getEventID())
+                .set(event)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        //send notification.
+                       saveToEventCollection(context, event);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        hideProgressBar();
+                        toastMessage(context, "Erreur d'enregistrement de votre evenement.");
+                        startActivity(new Intent(context, DahiraInfoActivity.class));
+                    }
+                });
+    }
+
+    public void saveToEventCollection(final Context context, final Event event){
+        showProgressBar();
+        firestore.collection("events")
+                .document(event.getEventID())
+                .set(event)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        hideProgressBar();
+                        //send notification.
+                        MyStaticVariables.objNotification = new ObjNotification(event.getEventID(),
+                                onlineUser.getUserID(), dahira.getDahiraID(),
+                                MyStaticVariables.TITLE_EVENT_NOTIFICATION, note);
+
+                        sendNotificationToAllUsers(context, MyStaticVariables.objNotification);
+
+                        myListEvents.add(event);
+                        displayEvent = "myEvents";
+                        final Intent intent = new Intent(context, ListEventActivity.class);
+                        showAlertDialog(context, "Evenement enregistre.", intent);
+                        Log.d(TAG, "Event saved.");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        hideProgressBar();
+                        toastMessage(context, "Erreur d'enregistrement de votre evenement.");
+                        startActivity(new Intent(context, DahiraInfoActivity.class));
+                    }
+                });
+    }
+
+    public void hideSoftKeyboard(){
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 }

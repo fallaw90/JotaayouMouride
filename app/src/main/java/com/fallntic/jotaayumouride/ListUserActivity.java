@@ -24,6 +24,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.fallntic.jotaayumouride.Adapter.UserAdapter;
+import com.fallntic.jotaayumouride.Model.User;
 import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -38,30 +40,26 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
-import static com.fallntic.jotaayumouride.DataHolder.call;
-import static com.fallntic.jotaayumouride.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.DataHolder.event;
-import static com.fallntic.jotaayumouride.DataHolder.expense;
-import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrors;
-import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrorsSearch;
-import static com.fallntic.jotaayumouride.DataHolder.indexOnlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.isConnected;
-import static com.fallntic.jotaayumouride.DataHolder.logout;
-import static com.fallntic.jotaayumouride.DataHolder.notificationBody;
-import static com.fallntic.jotaayumouride.DataHolder.notificationTitle;
-import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.selectedUser;
-import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.showImage;
-import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
-import static com.fallntic.jotaayumouride.DataHolder.userID;
-import static com.fallntic.jotaayumouride.MainActivity.progressBar;
-import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.actionSelected;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.call;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.hasValidationErrors;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.hasValidationErrorsSearch;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.logout;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.selectedUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.showImage;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.userID;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listExpenses;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListEvents;
 
 public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
-        NavigationView.OnNavigationItemSelectedListener {
+        NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     private TextView textViewDahiraname;
     private List<User> listUser;
@@ -79,12 +77,6 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
     private TextView textViewNavEmail;
 
     public static ScrollView scrollView;
-
-    public static void showProgressBar() {
-        scrollView.setVisibility(View.GONE);
-        relativeLayoutProgressBar.setVisibility(View.VISIBLE);
-        progressBar.setVisibility(View.VISIBLE);
-    }
 
     @Override
     protected void onDestroy() {
@@ -104,12 +96,6 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         }
     }
 
-    public static void hideProgressBar() {
-        scrollView.setVisibility(View.VISIBLE);
-        relativeLayoutProgressBar.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,43 +103,43 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setSubtitle("Liste des membres");
         setSupportActionBar(toolbar);
+
+        initViews();
 
         //********************** Drawer Menu **************************
         setDrawerMenu();
         //*************************************************************
 
-        if (!isConnected(this)) {
-            finish();
-            Intent intent = new Intent(this, LoginActivity.class);
-            showAlertDialog(this, "Oops! Pas de connexion, verifier " +
-                    "votre connexion internet puis reesayez SVP", intent);
-        }
+        checkInternetConnection(this);
 
-        recyclerViewUser = findViewById(R.id.recyclerview_users);
-
-        //ProgressBar from static variable MainActivity
-        scrollView = findViewById(R.id.scrollView);
-        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
-        progressBar = findViewById(R.id.progressBar);
-        relativeLayoutProgressBar.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
-
-        textViewDahiraname = findViewById(R.id.textView_dahiraName);
         textViewDahiraname.setText("Dahira " + dahira.getDahiraName() + "\nListe de tous les membres");
 
         showListUser();
-
 
         if (actionSelected.equals("addNewMember")) {
             addNewMember();
         } else if (actionSelected.equals("searchUser")) {
             dialogSearchUser();
         }
+    }
 
-        notificationTitle = null;
-        notificationBody = null;
+    private void initViews(){
+        recyclerViewUser = findViewById(R.id.recyclerview_users);
+        scrollView = findViewById(R.id.scrollView);
+        textViewDahiraname = findViewById(R.id.textView_dahiraName);
+
+        findViewById(R.id.button_back).setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.button_back:
+                finish();
+                startActivity(new Intent(this, HomeActivity.class));
+                break;
+        }
     }
 
     private void showListUser() {
@@ -166,12 +152,12 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         userAdapter = new UserAdapter(this, listUser);
         recyclerViewUser.setAdapter(userAdapter);
 
-        showProgressBar();
+        //showProgressBar();
         db.collection("users").get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        hideProgressBar();
+                        //hideProgressBar();
                         if (!queryDocumentSnapshots.isEmpty()) {
                             List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
                             for (DocumentSnapshot documentSnapshot : list) {
@@ -188,7 +174,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                hideProgressBar();
+                //hideProgressBar();
             }
         });
     }
@@ -214,6 +200,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         buttonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                actionSelected = "";
                 String phoneNumber = editTextPhoneNumber.getText().toString().trim();
                 String email = editTextEmail.getText().toString().trim();
 
@@ -234,6 +221,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         buttonCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                actionSelected = "";
                 startActivity(new Intent(ListUserActivity.this, DahiraInfoActivity.class));
                 alertDialog.dismiss();
             }
@@ -241,12 +229,12 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
     }
 
     public void getNewMemberToUpdate(String field, String value) {
-        showProgressBar();
+        //showProgressBar();
         db.collection("users").whereEqualTo(field, value).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        hideProgressBar();
+                        //hideProgressBar();
                         if (queryDocumentSnapshots.isEmpty()) {
                             showAlertDialog(ListUserActivity.this,
                                     "Utilisateur inconnu!\n Pour ajouter un membre, " +
@@ -271,7 +259,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        hideProgressBar();
+                        //hideProgressBar();
                         toastMessage(getApplicationContext(), "Error add new user!");
                         return;
                     }
@@ -288,7 +276,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         user.getListSass().add("00");
         user.getListSocial().add("00");
 
-        showProgressBar();
+        //showProgressBar();
         db.collection("users").document(user.getUserID())
                 .update("listDahiraID", user.getListDahiraID(),
                         "listUpdatedDahiraID", user.getListUpdatedDahiraID(),
@@ -300,13 +288,13 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        hideProgressBar();
+                       // hideProgressBar();
                         System.out.println("User updated");
                     }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                hideProgressBar();
+               // hideProgressBar();
             }
         });
     }
@@ -316,20 +304,20 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         totalMember++;
         dahira.setTotalMember(Integer.toString(totalMember));
 
-        showProgressBar();
+        //showProgressBar();
         db.collection("dahiras").document(dahira.getDahiraID())
                 .update("totalMember", dahira.getTotalMember())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        hideProgressBar();
+                        //hideProgressBar();
                         Intent intent = new Intent(ListUserActivity.this, ListUserActivity.class);
                         showAlertDialog(ListUserActivity.this, "Votre nouveau membre a ete ajoute avec succes. \n Selectionnez le sur la liste des membres pour mettre a jour son profil.", intent);
                     }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                hideProgressBar();
+               // hideProgressBar();
             }
         });
     }
@@ -381,9 +369,9 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main_menu, menu);
 
-        MenuItem iconBack;
-        iconBack = menu.findItem(R.id.icon_back);
-        iconBack.setVisible(true);
+        MenuItem iconLogo;
+        iconLogo = menu.findItem(R.id.logo);
+        iconLogo.setVisible(true);
         return true;
     }
 
@@ -391,13 +379,6 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
     public boolean onOptionsItemSelected(MenuItem item) {
         if (toggle.onOptionsItemSelected(item)) {
             return true;
-        }
-
-        switch (item.getItemId()) {
-            case R.id.icon_back:
-                actionSelected = "";
-                startActivity(new Intent(ListUserActivity.this, DahiraInfoActivity.class));
-                break;
         }
         return true;
     }
@@ -412,12 +393,12 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         final UserAdapter userAdapter = new UserAdapter(this, listUsers);
         recyclerViewUser.setAdapter(userAdapter);
 
-        showProgressBar();
+        //showProgressBar();
         db.collection("users").get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        hideProgressBar();
+                        //hideProgressBar();
                         if (!queryDocumentSnapshots.isEmpty()) {
                             List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
                             for (DocumentSnapshot documentSnapshot : list) {
@@ -460,7 +441,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        hideProgressBar();
+                       // hideProgressBar();
                         toastMessage(getApplicationContext(), "Error search dahira in ListUserActivity!");
                     }
                 });
@@ -482,11 +463,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         switch (item.getItemId()) {
 
             case R.id.nav_home:
-                startActivity(new Intent(this, MainActivity.class));
-                break;
-
-            case R.id.nav_profile:
-                startActivity(new Intent(this, ProfileActivity.class));
+                startActivity(new Intent(this, HomeActivity.class));
                 break;
 
             case R.id.nav_displayUsers:
@@ -523,7 +500,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                 break;
 
             case R.id.nav_displayExpenses:
-                if (expense == null) {
+                if (listExpenses == null) {
                     showAlertDialog(this, "La liste des depenses de votre dahira est vide!");
                 } else
                     startActivity(new Intent(this, ListExpenseActivity.class));
@@ -531,7 +508,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
 
             case R.id.nav_addAnnouncement:
                 actionSelected = "addNewAnnouncement";
-                startActivity(new Intent(this, AnnouncementActivity.class));
+                startActivity(new Intent(this, CreateAnnouncementActivity.class));
                 break;
 
             case R.id.nav_addEvent:
@@ -540,7 +517,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                 break;
 
             case R.id.nav_displayEvent:
-                if (event == null) {
+                if (myListEvents == null) {
                     navigationView.setCheckedItem(R.id.nav_displayEvent);
                     showAlertDialog(this, "La liste de vos evenements est vide!");
                 } else
@@ -588,7 +565,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        showImage(this, "profileImage", userID, navImageView);
+        showImage(this, "profileImage", onlineUser.getUserID(), navImageView);
         textViewNavUserName.setText(onlineUser.getUserName());
         textViewNavEmail.setText(onlineUser.getEmail());
         navigationView.setCheckedItem(R.id.nav_displayUsers);
@@ -607,7 +584,6 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
             nav_Menu.findItem(R.id.nav_setting).setVisible(false);
         }
 
-        nav_Menu.findItem(R.id.nav_home).setVisible(false);
         nav_Menu.findItem(R.id.nav_addContribution).setVisible(false);
         nav_Menu.findItem(R.id.nav_displayAdiya).setVisible(false);
         nav_Menu.findItem(R.id.nav_displaySass).setVisible(false);

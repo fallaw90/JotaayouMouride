@@ -31,13 +31,13 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
 
-import static com.fallntic.jotaayumouride.DataHolder.isConnected;
-import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.showImage;
-import static com.fallntic.jotaayumouride.DataHolder.userID;
-import static com.fallntic.jotaayumouride.MainActivity.progressBar;
-import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.*;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
 
 public class SettingProfileActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "UpdateUserActivity";
@@ -74,34 +74,39 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        if (!isConnected(this)){
-            finish();
-            Intent intent = new Intent(this, LoginActivity.class);
-            showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
-        }
-
-        //ProgressBar from static variable MainActivity
-        ListUserActivity.scrollView = findViewById(R.id.scrollView);
-        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
-        progressBar = findViewById(R.id.progressBar);
-        relativeLayoutProgressBar.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
+        checkInternetConnection(this);
 
         progressDialog = new ProgressDialog(this);
+
+        initViews();
+        displayViews();
+
+        hideSoftKeyboard();
+    }
+
+    private void initViews(){
 
         editTextUserName = findViewById(R.id.editText_userName);
         editTextAddress = findViewById(R.id.editText_address);
         imageView = findViewById(R.id.imageView);
 
+        findViewById(R.id.button_update).setOnClickListener(this);
+        findViewById(R.id.imageView).setOnClickListener(this);
+
+        initViewsProgressBar();
+    }
+
+    public  void initViewsProgressBar() {
+        relativeLayoutData = findViewById(R.id.relativeLayout_data);
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+    }
+
+    private void displayViews(){
         editTextUserName.setText(onlineUser.getUserName());
         editTextAddress.setText(onlineUser.getAddress());
 
         showImage(this, "profileImage", onlineUser.getUserID(), imageView);
-
-        hideSoftKeyboard();
-
-        findViewById(R.id.button_update).setOnClickListener(this);
-        findViewById(R.id.imageView).setOnClickListener(this);
     }
 
     @Override
@@ -152,13 +157,13 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
 
     private void uploadImage() {
         if(uri != null && onlineUser.getUserID() != null) {
-            ListUserActivity.showProgressBar();
+            showProgressBar();
             final StorageReference ref = storageReference.child("profileImage").child(userID);
             ref.putFile(uri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            ListUserActivity.hideProgressBar();
+                            hideProgressBar();
                             Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
                             while (!urlTask.isSuccessful());
                         }
@@ -166,7 +171,7 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            ListUserActivity.hideProgressBar();
+                            hideProgressBar();
                             imageSaved = false;
                             System.out.println("Failed "+e.getMessage());
                         }
@@ -197,14 +202,14 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
             onlineUser.setUserName(name);
             onlineUser.setAddress(address);
 
-            ListUserActivity.showProgressBar();
+            showProgressBar();
             db.collection("users").document(onlineUser.getUserID())
                     .update("userName", onlineUser.getUserName(),
                             "address", onlineUser.getAddress())
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            ListUserActivity.hideProgressBar();
+                            hideProgressBar();
                             uploadImage();
                             showAlertDialog(SettingProfileActivity.this, "Enregistrement reussi");
                         }
@@ -212,12 +217,12 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            ListUserActivity.hideProgressBar();
+                            hideProgressBar();
                             System.out.println("Error update data");
                         }
                     });
 
-            startActivity(new Intent(SettingProfileActivity.this, ProfileActivity.class));
+            startActivity(new Intent(SettingProfileActivity.this, HomeActivity.class));
         }
     }
 

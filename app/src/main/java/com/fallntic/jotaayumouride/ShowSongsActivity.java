@@ -1,13 +1,18 @@
 package com.fallntic.jotaayumouride;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -19,14 +24,17 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.fallntic.jotaayumouride.Adapter.SongAdapter;
 import com.fallntic.jotaayumouride.Model.Song;
 import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
+import com.fallntic.jotaayumouride.Utility.SwipeToDeleteCallback;
 import com.fallntic.jotaayumouride.Utility.Utility;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -38,18 +46,23 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listSong;
 
 
-public class ShowSongsActivity extends AppCompatActivity {
+public class ShowSongsActivity extends AppCompatActivity implements View.OnClickListener{
 
     private static final String TAG = "ShowSongsActivity";
     int lastProgress = 0;
     private RecyclerView recycler;
     private SongAdapter mAdapter;
     private int currentIndex = 0;
+    private Toolbar toolbar, toolbar_bottom;
     private CoordinatorLayout coordinatorLayout;
-    private TextView tb_title, tb_duration, tv_time, tv_duration;
+    private TextView tb_title, tv_empty, tv_time, tv_duration, textViewTitle, textViewDeleteInstruction;
     private ImageView iv_play, iv_next, iv_previous;
     private MediaPlayer mediaPlayer;
     private ProgressBar pb_loader, pb_main_loader;
@@ -70,15 +83,40 @@ public class ShowSongsActivity extends AppCompatActivity {
         }
     };
 
+    @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_songs);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        toolbar = findViewById(R.id.toolbar);
+        toolbar.setLogo(R.mipmap.logo);
+        setSupportActionBar(toolbar);
 
         //Initialisation des vues
         initializeViews();
 
-        setMyAdapter(MyStaticVariables.listSong);
+        checkInternetConnection(this);
+
+        if (listSong == null || listSong.size() <= 0) {
+            if (onlineUser.getListDahiraID().contains(dahira.getDahiraID()) &&
+                    onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
+                tv_empty.setText("Votre repertoire audio est vide. Cliquez sur l'icone pour " +
+                        "enregistrer ou ajouter un audio dans votre repertoire.");
+            } else {
+                tv_empty.setText("Le repertoire audio du dahira " + dahira.getDahiraName() + " est vide.");
+            }
+
+            tv_empty.setVisibility(View.VISIBLE);
+            fab_search.setVisibility(View.GONE);
+            toolbar_bottom.setVisibility(View.GONE);
+        }
+        textViewTitle.setText("Bienvenu dans le repertoire audio du dahira " + dahira.getDahiraName());
+        if (!onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur"))
+            textViewDeleteInstruction.setVisibility(View.GONE);
+
+        setMyAdapter(listSong);
 
         //Initialisation du media player
         mediaPlayer = new MediaPlayer();
@@ -93,12 +131,12 @@ public class ShowSongsActivity extends AppCompatActivity {
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                if (currentIndex + 1 < MyStaticVariables.listSong.size()) {
-                    Song next = MyStaticVariables.listSong.get(currentIndex + 1);
+                if (currentIndex + 1 < listSong.size()) {
+                    Song next = listSong.get(currentIndex + 1);
                     changeSelectedSong(currentIndex + 1);
                     prepareSong(next);
                 } else {
-                    Song next = MyStaticVariables.listSong.get(0);
+                    Song next = listSong.get(0);
                     changeSelectedSong(0);
                     prepareSong(next);
                 }
@@ -122,8 +160,17 @@ public class ShowSongsActivity extends AppCompatActivity {
             }
         });
 
-
         enableSwipeToDelete();
+
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.button_back:
+                startActivity(new Intent(ShowSongsActivity.this, DahiraInfoActivity.class));
+                break;
+        }
     }
 
     @Override
@@ -146,7 +193,7 @@ public class ShowSongsActivity extends AppCompatActivity {
     private void setMyAdapter(List<Song> songList) {
         //Requête récupérant les chansons
         recycler.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-        mAdapter = new SongAdapter(getApplicationContext(), MyStaticVariables.listSong, new SongAdapter.RecyclerItemClickListener() {
+        mAdapter = new SongAdapter(getApplicationContext(), listSong, new SongAdapter.RecyclerItemClickListener() {
             @Override
             public void onClickListener(Song song, int position) {
                 firstLaunch = false;
@@ -177,13 +224,13 @@ public class ShowSongsActivity extends AppCompatActivity {
     }
 
     private void prepareSong(Song song) {
-
-        currentSongLength = song.getAudioDuration();
+        String str_duration = song.getAudioDuration().replace(":", "");
+        currentSongLength = Integer.parseInt(str_duration);
         pb_loader.setVisibility(View.VISIBLE);
         tb_title.setVisibility(View.GONE);
         iv_play.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.selector_play));
         tb_title.setText(song.getAudioTitle());
-        tv_time.setText(Utility.convertDuration(song.getAudioDuration()));
+        tv_time.setText(song.getAudioDuration());
         mediaPlayer.reset();
 
         try {
@@ -214,8 +261,10 @@ public class ShowSongsActivity extends AppCompatActivity {
 
     private void initializeViews() {
 
+        toolbar_bottom = findViewById(R.id.bottom_toolbar);
         tb_title = findViewById(R.id.tb_title);
         tv_duration = findViewById(R.id.tv_duration);
+        tv_empty = findViewById(R.id.tv_empty);
         iv_play = findViewById(R.id.iv_play);
         iv_next = findViewById(R.id.iv_next);
         iv_previous = findViewById(R.id.iv_previous);
@@ -226,6 +275,10 @@ public class ShowSongsActivity extends AppCompatActivity {
         tv_time = findViewById(R.id.tv_time);
         fab_search = findViewById(R.id.fab_search);
         coordinatorLayout = findViewById(R.id.coordinatorLayout);
+        textViewTitle = findViewById(R.id.tv_title);
+        textViewDeleteInstruction = findViewById(R.id.tv_deleteInstruction);
+
+        findViewById(R.id.button_back).setOnClickListener(this);
 
     }
 
@@ -246,7 +299,7 @@ public class ShowSongsActivity extends AppCompatActivity {
                     mediaPlayer.pause();
                 } else {
                     if (firstLaunch) {
-                        Song song = MyStaticVariables.listSong.get(0);
+                        Song song = listSong.get(0);
                         changeSelectedSong(0);
                         prepareSong(song);
                     } else {
@@ -269,12 +322,12 @@ public class ShowSongsActivity extends AppCompatActivity {
                 if (mediaPlayer != null) {
 
                     if (currentIndex - 1 >= 0) {
-                        Song previous = MyStaticVariables.listSong.get(currentIndex - 1);
+                        Song previous = listSong.get(currentIndex - 1);
                         changeSelectedSong(currentIndex - 1);
                         prepareSong(previous);
                     } else {
-                        changeSelectedSong(MyStaticVariables.listSong.size() - 1);
-                        prepareSong(MyStaticVariables.listSong.get(MyStaticVariables.listSong.size() - 1));
+                        changeSelectedSong(listSong.size() - 1);
+                        prepareSong(listSong.get(listSong.size() - 1));
                     }
 
                 }
@@ -291,13 +344,13 @@ public class ShowSongsActivity extends AppCompatActivity {
                 firstLaunch = false;
                 if (mediaPlayer != null) {
 
-                    if (currentIndex + 1 < MyStaticVariables.listSong.size()) {
-                        Song next = MyStaticVariables.listSong.get(currentIndex + 1);
+                    if (currentIndex + 1 < listSong.size()) {
+                        Song next = listSong.get(currentIndex + 1);
                         changeSelectedSong(currentIndex + 1);
                         prepareSong(next);
                     } else {
                         changeSelectedSong(0);
-                        prepareSong(MyStaticVariables.listSong.get(0));
+                        prepareSong(listSong.get(0));
                     }
 
                 }
@@ -321,7 +374,7 @@ public class ShowSongsActivity extends AppCompatActivity {
                 List<Song> listSongFound = new ArrayList<>();
 
                 if (search.length() > 0) {
-                    for (Song song : MyStaticVariables.listSong) {
+                    for (Song song : listSong) {
                         if (song.getAudioTitle().contains(search)) {
                             listSongFound.add(song);
                         }
@@ -345,15 +398,27 @@ public class ShowSongsActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        if (myHandler != null) {
-            myHandler.removeCallbacks(UpdateSongTime);
-            myHandler = null;
-        }
+        releaseMediaPlayer();
 
-        if (mediaPlayer != null) {
-            mediaPlayer = null;
-        }
         super.onDestroy();
+    }
+
+    public void releaseMediaPlayer(){
+        try {
+            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+                mediaPlayer.release();
+            }
+
+            if (mediaPlayer == null)
+                mediaPlayer = new MediaPlayer();
+            if (myHandler == null)
+                myHandler = new Handler();
+            if (myHandler != null)
+                myHandler.removeCallbacks(UpdateSongTime);
+
+        } catch (Exception e) {
+        }
     }
 
     private void enableSwipeToDelete() {
@@ -362,7 +427,7 @@ public class ShowSongsActivity extends AppCompatActivity {
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
 
                 final int position = viewHolder.getAdapterPosition();
-                final Song song = MyStaticVariables.listSong.get(position);
+                final Song song = listSong.get(position);
 
                 MyStaticVariables.collectionReference = MyStaticVariables.firestore.collection("dahiras")
                         .document(dahira.getDahiraID()).collection("audios");
@@ -424,6 +489,33 @@ public class ShowSongsActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main_menu, menu);
+
+        MenuItem iconAdd;
+        iconAdd = menu.findItem(R.id.icon_add);
+
+        if (onlineUser.getListDahiraID().contains(dahira.getDahiraID()) && indexOnlineUser >= 0) {
+            if (onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur"))
+                iconAdd.setVisible(true);
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.icon_add:
+                startActivity(new Intent(this, AddAudioActivity.class));
+                break;
+        }
+        return true;
     }
 
 }

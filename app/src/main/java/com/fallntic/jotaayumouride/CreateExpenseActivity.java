@@ -1,11 +1,13 @@
 package com.fallntic.jotaayumouride;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.RadioButton;
@@ -16,29 +18,33 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.fallntic.jotaayumouride.Model.Expense;
+import com.fallntic.jotaayumouride.Model.ObjNotification;
+import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
-import static com.fallntic.jotaayumouride.DataHolder.createNewCollection;
-import static com.fallntic.jotaayumouride.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.DataHolder.expense;
-import static com.fallntic.jotaayumouride.DataHolder.getCurrentDate;
-import static com.fallntic.jotaayumouride.DataHolder.getDate;
-import static com.fallntic.jotaayumouride.DataHolder.isConnected;
-import static com.fallntic.jotaayumouride.DataHolder.isDouble;
-import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.updateDocument;
-import static com.fallntic.jotaayumouride.MainActivity.progressBar;
-import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
-import static com.fallntic.jotaayumouride.NotificationHelper.sendNotificationToSpecificUsers;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.actionSelected;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.getCurrentDate;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.getDate;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.isDouble;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.updateDocument;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listExpenses;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.Utility.NotificationHelper.sendNotificationToSpecificUsers;
 
 public class CreateExpenseActivity extends AppCompatActivity implements View.OnClickListener {
     public static final String TAG = "CreateExpenseActivity";
@@ -56,6 +62,7 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
 
     private RadioGroup radioRoleGroup;
     private RadioButton radioRoleButton;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,38 +70,67 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
         setContentView(R.layout.activity_create_expense);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setSubtitle("Ajouter une depense");
+        toolbar = findViewById(R.id.toolbar);
+        toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        initViews();
 
-        if (!isConnected(this)) {
-            finish();
-            Intent intent = new Intent(this, LoginActivity.class);
-            showAlertDialog(this, "Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
+        displayViews();
+
+        checkInternetConnection(this);
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main_menu, menu);
+
+        MenuItem iconBack;
+        iconBack = menu.findItem(R.id.icon_back);
+
+        iconBack.setVisible(true);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.icon_back:
+                finish();
+                startActivity(new Intent(this, DahiraInfoActivity.class));
+                break;
         }
+        return true;
+    }
 
-        ListUserActivity.scrollView = findViewById(R.id.scrollView);
-        //ProgressBar from static variable MainActivity
-        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
-        progressBar = findViewById(R.id.progressBar);
-        relativeLayoutProgressBar.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
-
+    private void initViews() {
         textViewTitle = findViewById(R.id.textView_title);
         editTextDate = findViewById(R.id.editText_date);
         editTextNote = findViewById(R.id.editText_note);
         editTextPrice = findViewById(R.id.editText_price);
         radioRoleGroup = findViewById(R.id.radioGroup);
 
-        textViewTitle.setText("Ajouter une depense pour le dahira " + dahira.getDahiraName());
-        editTextDate.setText(getCurrentDate());
-
         findViewById(R.id.editText_date).setOnClickListener(this);
         findViewById(R.id.button_save).setOnClickListener(this);
         findViewById(R.id.button_cancel).setOnClickListener(this);
+
+        initViewsProgressBar();
+    }
+
+    public  void initViewsProgressBar() {
+        relativeLayoutData = findViewById(R.id.relativeLayout_data);
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+    }
+
+
+    private void displayViews() {
+        textViewTitle.setText("Ajouter une depense pour le dahira " + dahira.getDahiraName());
+        editTextDate.setText(getCurrentDate());
     }
 
     @Override
@@ -121,12 +157,6 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
         super.onDestroy();
     }
 
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
-    }
-
     public void saveExpense(final Context context) {
         mDate = editTextDate.getText().toString().trim();
         note = editTextNote.getText().toString().trim();
@@ -140,120 +170,50 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
 
         if (!hasValidationErrors(mDate, editTextDate, note, editTextNote, price, editTextPrice)) {
 
-            if (expense == null)
-                expense = new Expense();
+            final String expenseID = onlineUser.getUserName() + System.currentTimeMillis();
+            final Expense expense = new Expense(expenseID, onlineUser.getUserName(),
+                    mDate, note, price, typeOfExpense);
 
-            expense.setDahiraID(dahira.getDahiraID());
-            expense.getListUserID().add(onlineUser.getUserID());
-            expense.getListUserName().add(onlineUser.getUserName());
-            expense.getListDate().add(mDate);
-            expense.getListNote().add(note);
-            expense.getListPrice().add(price);
-            expense.getListTypeOfExpense().add(typeOfExpense);
-
-            ListUserActivity.showProgressBar();
-            FirebaseFirestore.getInstance().collection("expenses").document(dahira.getDahiraID()).get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @SuppressLint("LongLogTag")
+            showProgressBar();
+            FirebaseFirestore.getInstance().collection("dahiras").
+                    document(dahira.getDahiraID())
+                    .collection("expenses")
+                    .document(expenseID)
+                    .set(expense)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            ListUserActivity.hideProgressBar();
-                            if (documentSnapshot.exists()) {
-                                updateExpense(CreateExpenseActivity.this);
-                                updateDahira(CreateExpenseActivity.this, price, typeOfExpense, true);
-                                Log.d(TAG, "Collection evenement updated");
-                            } else {
-                                expense = createNewExpenseObject(mDate, note, price, typeOfExpense);
-                                createNewCollection(context, "expenses", dahira.getDahiraID(), expense);
-                                updateDahira(CreateExpenseActivity.this, price, typeOfExpense, true);
-                                Intent intent = new Intent(context, ListExpenseActivity.class);
-                                showAlertDialog(context, "Depense ajoutee avec succe", intent);
-                                Log.d(TAG, "New Expense added");
-                            }
+                        public void onSuccess(Void aVoid) {
+                            hideProgressBar();
+                            updateDahira(context, price, typeOfExpense, false);
 
-                            title = "Nouvelle Dépense";
-                            String message = "Une some de " + price + " FCFA" + " a été dépensée dans le compte " +
-                                    typeOfExpense + " de votre dahira " + dahira.getDahiraName() + " par " +
-                                    onlineUser.getUserName();
+                            MyStaticVariables.objNotification = new ObjNotification(expenseID,
+                                    onlineUser.getUserID(), dahira.getDahiraID(),
+                                    MyStaticVariables.TITLE_EXPENSE_NOTIFICATION, note);
 
-                            ObjNotification objNotification = new ObjNotification();
-                            sendNotificationToSpecificUsers(context, objNotification);
+                            sendNotificationToSpecificUsers(context, MyStaticVariables.objNotification);
 
-                            Log.d(TAG, "Collection evenement created");
+                            if (listExpenses == null)
+                                listExpenses = new ArrayList<>();
+
+                            listExpenses.add(expense);
+
+                            final Intent intent = new Intent(context, ListExpenseActivity.class);
+                            showAlertDialog(context, "Depense enregistree.", intent);
+                            Log.d(TAG, "Expense saved.");
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
-                        @SuppressLint("LongLogTag")
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            ListUserActivity.hideProgressBar();
-                            Log.d(TAG, e.toString());
+                            hideProgressBar();
+                            toastMessage(context, "Erreur d'enregistrement de votre depense.");
+                            startActivity(new Intent(context, DahiraInfoActivity.class));
                         }
                     });
         }
     }
 
-    public void updateExpense(final Context context) {
-
-        ListUserActivity.showProgressBar();
-        FirebaseFirestore.getInstance().collection("expenses")
-                .document(dahira.getDahiraID())
-                .update("listUserID", expense.getListUserID(),
-                        "listUserName", expense.getListUserName(),
-                        "listDate", expense.getListDate(),
-                        "listNote", expense.getListNote(),
-                        "listPrice", expense.getListPrice(),
-                        "listTypeOfExpense", expense.getListTypeOfExpense())
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @SuppressLint("LongLogTag")
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        ListUserActivity.hideProgressBar();
-                        Intent intent = new Intent(context, ListExpenseActivity.class);
-                        showAlertDialog(context, "Depense enregistre avec succe", intent);
-                        Log.d(TAG, "Expense updated");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @SuppressLint("LongLogTag")
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        ListUserActivity.hideProgressBar();
-                        Intent intent = new Intent(context, ListExpenseActivity.class);
-                        showAlertDialog(context, "Erreur lors de l'enregistrement de votre " + typeOfExpense + "." +
-                                "\nReessayez plutard SVP", intent);
-                        Log.d(TAG, "Error updated expense");
-                    }
-                });
-    }
-
-    public Expense createNewExpenseObject(String mDate, String note, String price, String typeOfExpense) {
-
-        List<String> listUserID = new ArrayList<String>();
-        listUserID.add(onlineUser.getUserID());
-
-        List<String> listUserName = new ArrayList<String>();
-        listUserName.add(onlineUser.getUserName());
-
-        List<String> listDate = new ArrayList<String>();
-        listDate.add(mDate);
-
-        List<String> listNote = new ArrayList<String>();
-        listNote.add(note);
-
-        List<String> listPrice = new ArrayList<String>();
-        listPrice.add(price);
-
-        List<String> listTypeOfExpense = new ArrayList<String>();
-        listTypeOfExpense.add(typeOfExpense);
-
-        Expense expense = new Expense(dahira.getDahiraID(), listUserID, listUserName,
-                listDate, listNote, listPrice, listTypeOfExpense);
-
-        return expense;
-    }
-
-    public static void updateDahira(Context context, String price, String typeOfExpense, boolean isItemRestored) {
+    public static void updateDahira(Context context, String price, String typeOfExpense, boolean isExpenseDeleted) {
         double total;
         final double value = Double.parseDouble(price);
         typeOfExpense = typeOfExpense.toLowerCase();
@@ -263,10 +223,10 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
             if (!isDouble(dahira.getTotalAdiya()))
                 dahira.setTotalAdiya("0");
 
-            if (isItemRestored)
-                total = Double.parseDouble(dahira.getTotalAdiya()) - value;
-            else
+            if (isExpenseDeleted)
                 total = Double.parseDouble(dahira.getTotalAdiya()) + value;
+            else
+                total = Double.parseDouble(dahira.getTotalAdiya()) - value;
 
             dahira.setTotalAdiya(Double.toString(total));
             updateDocument(context, "dahiras", dahira.getDahiraID(),
@@ -276,10 +236,10 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
             if (!isDouble(dahira.getTotalSass()))
                 dahira.setTotalSass("0");
 
-            if (isItemRestored)
-                total = Double.parseDouble(dahira.getTotalSass()) - value;
-            else
+            if (isExpenseDeleted)
                 total = Double.parseDouble(dahira.getTotalSass()) + value;
+            else
+                total = Double.parseDouble(dahira.getTotalSass()) - value;
 
             dahira.setTotalSass(Double.toString(total));
             updateDocument(context, "dahiras", dahira.getDahiraID(),
@@ -289,10 +249,10 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
             if (!isDouble(dahira.getTotalSocial()))
                 dahira.setTotalSocial("0");
 
-            if (isItemRestored)
-                total = Double.parseDouble(dahira.getTotalSocial()) - value;
-            else
+            if (isExpenseDeleted)
                 total = Double.parseDouble(dahira.getTotalSocial()) + value;
+            else
+                total = Double.parseDouble(dahira.getTotalSocial()) - value;
 
             dahira.setTotalSocial(Double.toString(total));
             updateDocument(context, "dahiras", dahira.getDahiraID(),

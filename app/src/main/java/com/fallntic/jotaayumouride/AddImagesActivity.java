@@ -18,8 +18,13 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.fallntic.jotaayumouride.Adapter.AddImagesAdapter;
+import com.fallntic.jotaayumouride.Model.Image;
+import com.fallntic.jotaayumouride.Model.UploadImage;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
@@ -27,16 +32,19 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import static com.fallntic.jotaayumouride.DataHolder.createNewCollection;
-import static com.fallntic.jotaayumouride.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.updateDocument;
-import static com.fallntic.jotaayumouride.DataHolder.uploadImages;
 import static com.fallntic.jotaayumouride.R.id.button_finish;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.uploadImages;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listImage;
 
-public class AddImagesActivity extends AppCompatActivity implements View.OnClickListener{
+public class AddImagesActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "AddImagesActivity";
 
     private static final int RESULT_LOAD_IMAGE = 1;
@@ -48,6 +56,8 @@ public class AddImagesActivity extends AppCompatActivity implements View.OnClick
     private AddImagesAdapter addImagesAdapter;
 
     private StorageReference mStorage;
+    private Toolbar toolbar;
+    private UploadTask uploadTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,27 +65,12 @@ public class AddImagesActivity extends AppCompatActivity implements View.OnClick
         setContentView(R.layout.activity_add_image);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setSubtitle("Repertoire photo");
-        setSupportActionBar(toolbar);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        checkInternetConnection(this);
 
         mStorage = FirebaseStorage.getInstance().getReference();
 
-        recyclerViewImage = findViewById(R.id.recyclerview_image);
-
-        fileNameList = new ArrayList<>();
-        fileDoneList = new ArrayList<>();
-
-        addImagesAdapter = new AddImagesAdapter(fileNameList, fileDoneList);
-
         //RecyclerView
-
-        recyclerViewImage.setLayoutManager(new LinearLayoutManager(this));
-        recyclerViewImage.setHasFixedSize(true);
-        recyclerViewImage.setAdapter(addImagesAdapter);
+        initViews();
 
         uploadMultipleImages();
 
@@ -86,6 +81,18 @@ public class AddImagesActivity extends AppCompatActivity implements View.OnClick
             }
         });
 
+
+    }
+
+    private void initViews(){
+        toolbar = findViewById(R.id.toolbar);
+        toolbar.setSubtitle("Repertoire photo");
+        setSupportActionBar(toolbar);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        recyclerViewImage = findViewById(R.id.recyclerview_image);
         findViewById(button_finish).setOnClickListener(this);
     }
 
@@ -125,6 +132,14 @@ public class AddImagesActivity extends AppCompatActivity implements View.OnClick
     }
 
     protected void uploadMultipleImages() {
+        fileNameList = new ArrayList<>();
+        fileDoneList = new ArrayList<>();
+        addImagesAdapter = new AddImagesAdapter(fileNameList, fileDoneList);
+
+        recyclerViewImage.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewImage.setHasFixedSize(true);
+        recyclerViewImage.setAdapter(addImagesAdapter);
+
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
@@ -143,58 +158,55 @@ public class AddImagesActivity extends AppCompatActivity implements View.OnClick
                 int totalItemsSelected = data.getClipData().getItemCount();
 
                 for (int i = 0; i < totalItemsSelected; i++) {
-
                     Uri fileUri = data.getClipData().getItemAt(i).getUri();
 
-                    String fileName = getFileName(fileUri);
-
-                    fileNameList.add(fileName);
-                    fileDoneList.add("uploading");
-                    addImagesAdapter.notifyDataSetChanged();
-
-                    StorageReference fileToUpload = mStorage.child("gallery")
-                            .child("picture").child(dahira.getDahiraID()).child(fileName);
-
-                    final int finalI = i;
-                    fileToUpload.putFile(fileUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                            fileDoneList.remove(finalI);
-                            fileDoneList.add(finalI, "done");
-
-                            addImagesAdapter.notifyDataSetChanged();
-                        }
-                    });
+                    uploadImageToFirebase(i, fileUri);
                 }
-            } else if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK
+            }else if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK
                     && data != null && data.getData() != null) {
                 Uri fileUri = data.getData();
 
-                String fileName = getFileName(fileUri);
+                uploadImageToFirebase(0, fileUri);
+            }
+        }
 
-                fileNameList.add(fileName);
-                fileDoneList.add("uploading");
-                addImagesAdapter.notifyDataSetChanged();
+    }
 
-                StorageReference fileToUpload = mStorage.child("gallery")
-                        .child("picture").child(dahira.getDahiraID()).child(fileName);
+    public void uploadImageToFirebase(int i, Uri fileUri){
 
-                final int finalI = 0;
-                fileToUpload.putFile(fileUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+        final String fileName = getFileName(fileUri);
+
+        fileNameList.add(fileName);
+        fileDoneList.add("uploading");
+        addImagesAdapter.notifyDataSetChanged();
+
+        final StorageReference fileToUpload = mStorage.child("gallery")
+                .child("picture").child(dahira.getDahiraID()).child(fileName);
+        final int finalI = i;
+
+        uploadTask = (UploadTask) fileToUpload.putFile(fileUri)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                        fileDoneList.remove(finalI);
-                        fileDoneList.add(finalI, "done");
-
-                        addImagesAdapter.notifyDataSetChanged();
+                        fileToUpload.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                String imageID = dahira.getDahiraName() + System.currentTimeMillis();
+                                Image image = new Image(imageID, dahira.getDahiraID(), uri.toString(), fileName);
+                                listImage.add(image);
+                                fileDoneList.remove(finalI);
+                                fileDoneList.add(finalI, "done");
+                                addImagesAdapter.notifyDataSetChanged();
+                            }
+                        });
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                        saveUploadImages();
                     }
                 });
-            }
-            saveUploadImages();
-        }
-
     }
 
     public String getFileName(Uri uri) {
@@ -221,23 +233,25 @@ public class AddImagesActivity extends AppCompatActivity implements View.OnClick
     }
 
     public void saveUploadImages() {
-        FirebaseFirestore.getInstance().collection("uploadImages")
+        if (listImage == null)
+            listImage = new ArrayList<>();
+
+        final Map<String, Object> imageMap = new HashMap<>();
+        imageMap.put("dahiraID", dahira.getDahiraID());
+        imageMap.put("listImage", listImage);
+
+        firestore.collection("images")
                 .whereEqualTo("dahiraID", dahira.getDahiraID()).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         if (!queryDocumentSnapshots.isEmpty()) {
-                            uploadImages.getListNameImages().addAll(fileNameList);
-                            updateDocument(AddImagesActivity.this,
-                                    "uploadImages", dahira.getDahiraID(),
-                                    "listNameImages", uploadImages.getListNameImages());
+                            updateDocument("images", dahira.getDahiraID(), imageMap);
 
                             Log.d(TAG, "Image name saved");
-                        }
-                        else {
+                        } else {
                             uploadImages = new UploadImage(dahira.getDahiraID(), fileNameList);
-                            createNewCollection(AddImagesActivity.this,
-                                    "uploadImages", dahira.getDahiraID(), uploadImages);
+                            createNewCollection("images", dahira.getDahiraID(), imageMap);
                         }
                     }
                 })
@@ -249,15 +263,38 @@ public class AddImagesActivity extends AppCompatActivity implements View.OnClick
                 });
     }
 
+    public static void updateDocument(final String collectionName, String documentID, Map<String, Object> imageMap) {
+        FirebaseFirestore.getInstance().collection(collectionName).document(documentID)
+                .update(imageMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, collectionName + " updated");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "Error updated " + collectionName);
+                    }
+                });
+    }
+
+    public static void createNewCollection(final String collectionName, String documentName, Map<String, Object> imageMap) {
+        FirebaseFirestore.getInstance().collection(collectionName).document(documentName)
+                .set(imageMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "New collection " + collectionName + " set successfully");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "Error initContributions function line 351");
+                    }
+                });
+    }
+
 }
-
-
-
-
-
-
-
-
-
-
-

@@ -20,6 +20,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.fallntic.jotaayumouride.Model.Adiya;
+import com.fallntic.jotaayumouride.Model.Sass;
+import com.fallntic.jotaayumouride.Model.Social;
+import com.fallntic.jotaayumouride.Model.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -36,14 +40,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.DataHolder.createNewCollection;
-import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.DataHolder.isConnected;
-import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
-import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
-import static com.fallntic.jotaayumouride.DataHolder.userID;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.createNewCollection;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.showProgressDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.userID;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 
 public class SignUpPhoneActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -82,16 +85,14 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        //***************** Set logo **********************
+        getSupportActionBar().setLogo(R.mipmap.logo);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        if (!isConnected(this)) {
-            finish();
-            Intent intent = new Intent(this, LoginActivity.class);
-            showAlertDialog(this, "Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
-        }
-
+        checkInternetConnection(this);
         //Initialize Firestore object
         mAuth = FirebaseAuth.getInstance();
         userID = mAuth.getCurrentUser().getUid();
@@ -153,7 +154,7 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
         if (!hasValidationErrors(userName, userAddress)) {
             saveUser();
             uploadImage(userID);
-            Intent intent = new Intent(SignUpPhoneActivity.this, ProfileActivity.class);
+            Intent intent = new Intent(SignUpPhoneActivity.this, HomeActivity.class);
             startActivity(intent);
         }
     }

@@ -9,187 +9,56 @@ import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 
-import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
+import com.fallntic.jotaayumouride.Model.Dahira;
+import com.fallntic.jotaayumouride.Model.Event;
+import com.fallntic.jotaayumouride.Model.ObjNotification;
+import com.fallntic.jotaayumouride.Model.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import de.hdodenhof.circleimageview.CircleImageView;
+import java.util.ArrayList;
+import java.util.List;
 
-import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
-import static com.fallntic.jotaayumouride.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.DataHolder.isConnected;
-import static com.fallntic.jotaayumouride.DataHolder.loadEvent;
-import static com.fallntic.jotaayumouride.DataHolder.logout;
-import static com.fallntic.jotaayumouride.DataHolder.notificationBody;
-import static com.fallntic.jotaayumouride.DataHolder.notificationTitle;
-import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.showImage;
-import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
-import static com.fallntic.jotaayumouride.DataHolder.userID;
+import static com.fallntic.jotaayumouride.Adapter.DahiraAdapter.getExistingExpenses;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.showProgressDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.userID;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.TITLE_ANNOUNCEMENT_NOTIFICATION;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.TITLE_CONTRIBUTION_NOTIFICATION;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.TITLE_EVENT_NOTIFICATION;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.TITLE_EXPENSE_NOTIFICATION;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firebaseAuth;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firebaseUser;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllEvent;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListEvents;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.objNotification;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, DrawerMenu {
+public class MainActivity extends AppCompatActivity {
     public static final String TAG = "MainActivity";
-    private DrawerLayout drawerLayout;
-    private ActionBarDrawerToggle toggle;
-    private NavigationView navigationView;
-    private View navHeader;
-    private CircleImageView navImageView;
-    private TextView textViewNavUserName;
-    private TextView textViewNavEmail;
-    private TextView textViewOnline;
-    public static RelativeLayout relativeLayoutProgressBar;
-    public static ProgressBar progressBar;
-    private TextView textViewOffline;
-
-    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
     public static final String CHANNEL_ID = "jotaayou_mouride";
     public static final String CHANNEL_Name = "Jotaayou Mouride";
     public static final String CHANNEL_DESC = "Jotaayou Mouride Notifications";
-
-    private ObjNotification objNotification;
-
-    public static void getDahira(final Context context, final ObjNotification objNotification) {
-        relativeLayoutProgressBar.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
-        FirebaseFirestore.getInstance().collection("dahiras")
-                .whereEqualTo("dahiraID", objNotification.getDahiraID()).get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @SuppressLint("LongLogTag")
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        relativeLayoutProgressBar.setVisibility(View.GONE);
-                        progressBar.setVisibility(View.GONE);
-                        if (!queryDocumentSnapshots.isEmpty()) {
-                            for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                                dahira = documentSnapshot.toObject(Dahira.class);
-                                break;
-                            }
-
-                            if (objNotification.getTitle().equals(MyStaticVariables.TITLE_ANNOUNCEMENT_NOTIFICATION)) {
-                                context.startActivity(new Intent(context, ShowAnnouncementActivity.class));
-
-                            } else if (objNotification.getTitle().equals(MyStaticVariables.TITLE_EXPENSE_NOTIFICATION)) {
-                                context.startActivity(new Intent(context, ListExpenseActivity.class));
-                            }
-                        }
-                        Log.d(TAG, "Dahira downloaded");
-                    }
-                });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main_menu, menu);
-
-        MenuItem itemLogin;
-        itemLogin = menu.findItem(R.id.login);
-
-        if (mAuth.getCurrentUser() == null) {
-            itemLogin.setVisible(true);
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.nav_profile:
-                startActivity(new Intent(this, ProfileActivity.class));
-                break;
-
-            case R.id.nav_displayMyDahira:
-                MyStaticVariables.displayDahira = "myDahira";
-                startActivity(new Intent(this, ListDahiraActivity.class));
-                break;
-
-            case R.id.nav_addDahira:
-                startActivity(new Intent(this, CreateDahiraActivity.class));
-                break;
-
-            case R.id.nav_displayAllDahira:
-                MyStaticVariables.displayDahira = "allDahira";
-                startActivity(new Intent(this, ListDahiraActivity.class));
-                break;
-
-            case R.id.nav_displayAllEvent:
-                DataHolder.loadEvent = "allEvents";
-                startActivity(new Intent(this, ListEventActivity.class));
-                break;
-
-            case R.id.nav_searchDahira:
-                actionSelected = "searchDahira";
-                startActivity(new Intent(this, ListDahiraActivity.class));
-                break;
-
-            case R.id.nav_setting:
-                startActivity(new Intent(this, SettingProfileActivity.class));
-                break;
-
-            case R.id.nav_logout:
-                toastMessage(this, "Logged out");
-                logout(this);
-                finish();
-                startActivity(new Intent(this, MainActivity.class));
-                break;
-        }
-
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (toggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-
-        switch (item.getItemId()) {
-            case R.id.login:
-                startActivity(new Intent(this, LoginPhoneActivity.class));
-                break;
-        }
-
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -198,76 +67,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("");
-        toolbar.setSubtitle("Jotaayou Mouride");
         setSupportActionBar(toolbar);
 
-        //********************** Drawer Menu ***********************
-        setDrawerMenu();
-        //**********************************************************
+        initViewsProgressBar();
 
-        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
-        progressBar = findViewById(R.id.progressBar);
-        relativeLayoutProgressBar.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
+        checkInternetConnection(this);
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseUser = firebaseAuth.getCurrentUser();
+        userID = firebaseAuth.getUid();
 
-        if (!isConnected(this)) {
-            toastMessage(getApplicationContext(), "Oops! Pas de connexion, " +
-                    "verifier votre connexion internet puis reesayez SVP");
-            startActivity(new Intent(this, LoginPhoneActivity.class));
-            return;
-        }
 
-        //*********************************Notification************************************
-        createChannel();
-        objNotification = (ObjNotification) getIntent().getSerializableExtra("objNotification");
-        //******************************************************************
-
-        textViewOffline = findViewById(R.id.textView_notOnline);
-        textViewOnline = findViewById(R.id.textView_online);
-
-        if (mAuth.getCurrentUser() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            userID = mAuth.getCurrentUser().getUid();
-            getOnlineUser(this, userID, objNotification);
-            showImage(this, "profileImage", userID, navImageView);
-
-            //Go to ListEvent when we hit the notification
-            if (notificationTitle != null && notificationBody != null &&
-                    notificationTitle.equals("Evénement à venir")) {
-                loadEvent = "allEvents";
-                finish();
-                startActivity(new Intent(this, ListEventActivity.class));
-            } else if (notificationTitle == null && notificationBody == null) {
-                finish();
-                startActivity(new Intent(this, ProfileActivity.class));
-            }
-
-            //textViewOnline.setVisibility(View.VISIBLE);
-        } else {
-            textViewOffline.setVisibility(View.VISIBLE);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-
-            startActivity(new Intent(this, LoginPhoneActivity.class));
-        }
+        checkIfUserLoggedIn();
     }
 
-    @Override
-    public void hideMenuItem() {
-        Menu nav_Menu = navigationView.getMenu();
-        nav_Menu.findItem(R.id.nav_setting).setTitle("Modifier mon profil");
 
-        nav_Menu.findItem(R.id.nav_displayUsers).setVisible(false);
-        nav_Menu.findItem(R.id.nav_addUser).setVisible(false);
-        nav_Menu.findItem(R.id.nav_searchUser).setVisible(false);
+    //************************************* ProgressBar ***************************************
+    public void initViewsProgressBar() {
+        relativeLayoutData = findViewById(R.id.relativeLayout_data);
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+    }
 
-        nav_Menu.findItem(R.id.nav_finance).setVisible(false);
-        nav_Menu.findItem(R.id.nav_gallery).setVisible(false);
-        nav_Menu.findItem(R.id.nav_contact).setVisible(false);
-        nav_Menu.findItem(R.id.nav_addAnnouncement).setVisible(false);
-        nav_Menu.findItem(R.id.nav_displayAnnouncement).setVisible(false);
-        nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
-        nav_Menu.findItem(R.id.nav_displayEvent).setVisible(false);
+    private void checkIfUserLoggedIn() {
+        if (firebaseUser != null) {
+            createChannel();
+            objNotification = (ObjNotification) getIntent().getSerializableExtra("objNotification");
+            getOnlineUser(this, userID, objNotification);
+
+        } else {
+            finish();
+            startActivity(new Intent(this, HomeActivity.class));
+        }
     }
 
     private void createChannel() {
@@ -278,24 +108,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(channel);
         }
-    }
-
-    @Override
-    public void setDrawerMenu() {
-        drawerLayout = findViewById(R.id.drawer_layout);
-        navigationView = findViewById(R.id.nav_view);
-        navigationView.setItemIconTintList(null);
-        navigationView.setNavigationItemSelectedListener(this);
-        navHeader = navigationView.getHeaderView(0);
-        navImageView = navHeader.findViewById(R.id.nav_imageView);
-        textViewNavUserName = navHeader.findViewById(R.id.textView_navUserName);
-        textViewNavEmail = navHeader.findViewById(R.id.textView_navEmail);
-        toggle = new ActionBarDrawerToggle(this, drawerLayout,
-                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
-        navigationView.setCheckedItem(R.id.nav_home);
-        hideMenuItem();
     }
 
     public void getOnlineUser(final Context context, String userID, final ObjNotification objNotification) {
@@ -317,13 +129,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             onlineUser = documentSnapshot.toObject(User.class);
 
                             if (objNotification != null) {
-                                getDahira(context, objNotification);
+                                getDahira(context, objNotification.getDahiraID());
                                 break;
-                            } else
+                            } else {
+                                finish();
+                                context.startActivity(new Intent(context, HomeActivity.class));
                                 break;
+                            }
                         }
-                        textViewNavUserName.setText(onlineUser.getUserName());
-                        textViewNavEmail.setText(onlineUser.getEmail());
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -337,5 +150,127 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         dismissProgressDialog();
     }
 
+    public void getDahira(final Context context, final String dahiraID) {
+        relativeLayoutProgressBar.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
+        FirebaseFirestore.getInstance().collection("dahiras")
+                .whereEqualTo("dahiraID", dahiraID).get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @SuppressLint("LongLogTag")
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        relativeLayoutProgressBar.setVisibility(View.GONE);
+                        progressBar.setVisibility(View.GONE);
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                dahira = documentSnapshot.toObject(Dahira.class);
+                                break;
+                            }
+                            if (objNotification != null) {
+
+                                if (objNotification.getTitle().equals(TITLE_EXPENSE_NOTIFICATION)) {
+                                    getExistingExpenses(context, objNotification.getDahiraID());
+
+                                } else if (objNotification.getTitle().equals(TITLE_ANNOUNCEMENT_NOTIFICATION)) {
+                                    context.startActivity(new Intent(context, SendAnnouncementActivity.class));
+
+                                } else if (objNotification.getTitle().equals(TITLE_EVENT_NOTIFICATION)) {
+
+                                    if (onlineUser.getListDahiraID().contains(objNotification.getDahiraID())) {
+                                        displayEvent = "myEvents";
+                                        getMyEvents(context, dahira);
+                                    } else {
+                                        displayEvent = "allEvents";
+                                        getAllEvents(context);
+                                    }
+                                }else if (objNotification.getTitle().equals(TITLE_CONTRIBUTION_NOTIFICATION)){
+                                    context.startActivity(new Intent(context, HomeActivity.class));
+                                }
+                            } else {
+                                finish();
+                                context.startActivity(new Intent(context, HomeActivity.class));
+                            }
+                            Log.d(TAG, "Dahira downloaded");
+                        }
+                    }
+                });
+    }
+
+    public void getAllEvents(final Context context) {
+        if (listAllEvent == null) {
+            listAllEvent = new ArrayList<>();
+
+            firestore.collection("events").get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                                for (DocumentSnapshot documentSnapshot : list) {
+                                    Event event = documentSnapshot.toObject(Event.class);
+                                    listAllEvent.add(event);
+                                }
+                                if (objNotification != null) {
+                                    displayEvent = "allEvents";
+                                    finish();
+                                    context.startActivity(new Intent(context, ListEventActivity.class));
+                                } else {
+                                    finish();
+                                    context.startActivity(new Intent(context, HomeActivity.class));
+                                }
+
+                                Log.d(TAG, "Events downloaded.");
+                            }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    context.startActivity(new Intent(context, ProfileActivity.class));
+                    Log.d(TAG, "Error downloading events");
+                }
+            });
+        }
+    }
+
+    public void getMyEvents(final Context context, Dahira dahira) {
+        if (myListEvents == null || myListEvents.size() <= 0) {
+            myListEvents = new ArrayList<>();
+            toastMessage(context, "hi im here");
+            showProgressDialog(context, "Chargement des evenements en cours ...");
+
+            firestore.collection("dahiras")
+                    .document(dahira.getDahiraID())
+                    .collection("myEvents")
+                    .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                    dismissProgressDialog();
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            Event event = documentSnapshot.toObject(Event.class);
+                            myListEvents.add(event);
+                            toastMessage(context, "Size myListEvents = " + myListEvents.size());
+                        }
+                    }
+                    if (objNotification != null) {
+                        displayEvent = "myEvents";
+                        finish();
+                        context.startActivity(new Intent(context, ListEventActivity.class));
+                    } else {
+                        finish();
+                        context.startActivity(new Intent(context, ProfileActivity.class));
+                    }
+                    Log.d(TAG, "Even downloaded");
+                }
+            })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            dismissProgressDialog();
+                            Log.d(TAG, "Error downloading event");
+                        }
+                    });
+        }
+    }
 
 }

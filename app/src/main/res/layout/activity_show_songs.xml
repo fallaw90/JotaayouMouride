@@ -15,6 +15,28 @@
             android:id="@+id/toolbar"
             layout="@layout/toolbar" />
 
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:layout_below="@+id/toolbar"
+            android:layout_marginTop="@dimen/_15sdp"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
+
+        <TextView
+            android:id="@+id/tv_deleteInstruction"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_title"
+            android:gravity="center_vertical"
+            android:textAlignment="center"
+            android:textColor="@color/red"
+            android:layout_marginTop="@dimen/_15sdp"
+            android:text="Glissez un song vers la gauche pour la supprimer"/>
+
         <ProgressBar
             android:id="@+id/pb_main_loader"
             android:layout_width="50dp"
@@ -22,21 +44,30 @@
             android:layout_centerInParent="true"
             android:visibility="gone" />
 
+        <TextView
+            android:id="@+id/tv_empty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_deleteInstruction"
+            android:gravity="center_vertical"
+            android:textAlignment="center"
+            android:textColor="@color/red"
+            android:visibility="gone"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView_song"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/toolbar"
+            android:layout_below="@+id/tv_empty"
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:paddingTop="@dimen/activity_vertical_margin"
             android:paddingRight="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="@dimen/_15sdp"
             android:paddingBottom="130dp">
 
         </androidx.recyclerview.widget.RecyclerView>
 
-        <include
-            android:id="@+id/bottom_toolbar"
-            layout="@layout/bottom_toolbar" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_search"
@@ -50,5 +81,24 @@
             android:src="@android:drawable/ic_menu_search"
             app:fabSize="normal"
             app:layout_anchor="@id/recyclerView_song" />
+
+        <include
+            android:id="@+id/bottom_toolbar"
+            layout="@layout/bottom_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/button_back" />
+
+        <Button
+            android:id="@+id/button_back"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="@dimen/_5sdp"
+            android:background="@drawable/rounded_button_save"
+            android:padding="@dimen/_7sdp"
+            android:text="Retour a la page precedente"
+            android:textColor="@color/white"
+            android:textStyle="bold" />
     </RelativeLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,31 +1,54 @@
 package com.fallntic.jotaayumouride;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import static com.fallntic.jotaayumouride.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.DataHolder.indexOnlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.uploadImages;
+import com.fallntic.jotaayumouride.Adapter.ImageAdapter;
+import com.fallntic.jotaayumouride.Model.Image;
+import com.fallntic.jotaayumouride.Utility.PhotoFullPopupWindow;
+import com.fallntic.jotaayumouride.Utility.SwipeToDeleteCallback;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.StorageReference;
 
-public class ShowImagesActivity extends AppCompatActivity {
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firebaseStorage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listImage;
+
+public class ShowImagesActivity extends AppCompatActivity implements View.OnClickListener{
+    private static final String TAG = "ShowImagesActivity";
     //recyclerview object
     private RecyclerView recyclerView;
 
     //adapter object
     private ImageAdapter imageAdapter;
-    private TextView textViewEmpty;
+    private TextView textViewEmpty, textViewDelete, textViewTitle;
+    private CoordinatorLayout coordinatorLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,23 +57,28 @@ public class ShowImagesActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("Jotaayou Mouride");
-        toolbar.setSubtitle("Repertoire Photo");
+        toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        initViews();
 
-        textViewEmpty = findViewById(R.id.textView_empty);
+        textViewTitle.setText("Repertoire photo du dahira " + dahira.getDahiraName());
 
-        if (uploadImages != null && uploadImages.getListNameImages() != null &&
-                !uploadImages.getListNameImages().isEmpty()){
+        if (listImage != null && listImage != null && !listImage.isEmpty()){
 
-            recyclerView = findViewById(R.id.recyclerView);
+            if (!onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur"))
+                textViewDelete.setVisibility(View.GONE);
+
             recyclerView.setHasFixedSize(true);
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-            imageAdapter = new ImageAdapter(this);
+            imageAdapter = new ImageAdapter(this, listImage, new CustomItemClickListener() {
+                @Override
+                public void onItemClick(View v, int position) {
+                    new PhotoFullPopupWindow(ShowImagesActivity.this, R.layout.popup_photo_full, v, listImage.get(position).getUri(), null);
+                    //toastMessage(ShowImagesActivity.this, "A clique");
+                }
+            });
 
             recyclerView.setAdapter(imageAdapter);
         }
@@ -60,28 +88,30 @@ public class ShowImagesActivity extends AppCompatActivity {
             else
                 textViewEmpty.setText("Cette album photo est vide.");
 
-            textViewEmpty.setVisibility(View.VISIBLE);
+            textViewDelete.setVisibility(View.GONE);
         }
 
-
-
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (dahira.getDahiraID() != null)
-                    startActivity(new Intent(ShowImagesActivity.this, DahiraInfoActivity.class));
-                else
-                    startActivity(new Intent(ShowImagesActivity.this, MainActivity.class));
-            }
-        });
+        enableSwipeToDelete(this);
 
     }
 
     @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        startActivity(new Intent(ShowImagesActivity.this, DahiraInfoActivity.class));
-        return true;
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.button_back:
+                startActivity(new Intent(ShowImagesActivity.this, DahiraInfoActivity.class));
+                break;
+        }
+    }
+
+    private void initViews(){
+        textViewEmpty = findViewById(R.id.textView_empty);
+        textViewDelete = findViewById(R.id.textView_delete);
+        textViewTitle = findViewById(R.id.textView_title);
+        recyclerView = findViewById(R.id.recyclerView);
+        coordinatorLayout = findViewById(R.id.coordinatorLayout);
+
+        findViewById(R.id.button_back).setOnClickListener(this);
     }
 
     @Override
@@ -98,7 +128,7 @@ public class ShowImagesActivity extends AppCompatActivity {
         MenuItem iconAdd;
         iconAdd = menu.findItem(R.id.icon_add);
 
-        if (onlineUser.getListDahiraID().contains(dahira.getDahiraID()) && indexOnlineUser > 0) {
+        if (onlineUser.getListDahiraID().contains(dahira.getDahiraID()) && indexOnlineUser >= 0) {
             if (onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur"))
                 iconAdd.setVisible(true);
         }
@@ -115,5 +145,84 @@ public class ShowImagesActivity extends AppCompatActivity {
                 break;
         }
         return true;
+    }
+
+    private void enableSwipeToDelete(final Context context) {
+        SwipeToDeleteCallback swipeToDeleteCallback = new SwipeToDeleteCallback(this) {
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
+
+                final int position = viewHolder.getAdapterPosition();
+                final Image image = listImage.get(position);
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(ShowImagesActivity.this, R.style.alertDialog);
+                builder.setTitle("Supprimer image!");
+                builder.setMessage("Etes vous sure de vouloir supprimer cette image?");
+                builder.setCancelable(false);
+                builder.setPositiveButton("OUI", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        imageAdapter.removeItem(position);
+                        Map<String, Object> imageMap = new HashMap<>();
+                        imageMap.put("listImage", listImage);
+                        //Remove item in FirebaseFireStore
+                        updateDocument("images", dahira.getDahiraID(), imageMap, image);
+                    }
+                });
+                builder.setNegativeButton("NON", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startActivity(new Intent(ShowImagesActivity.this,
+                                ShowImagesActivity.class));
+                    }
+                });
+                builder.show();
+            }
+        };
+        ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeToDeleteCallback);
+        itemTouchhelper.attachToRecyclerView(recyclerView);
+    }
+
+    public void updateDocument(final String collectionName, String documentID, Map<String, Object> imageMap, final Image image) {
+        FirebaseFirestore.getInstance().collection(collectionName).document(documentID)
+                .update(imageMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, collectionName + " updated");
+
+                        removeInFirebaseStorage(image);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "Error updated " + collectionName);
+                    }
+                });
+    }
+
+    public void removeInFirebaseStorage(Image image) {
+        if (image.getUri() != null) {
+
+            StorageReference storageRef = firebaseStorage
+                    .getReferenceFromUrl(image.getUri());
+
+            storageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @SuppressLint("LongLogTag")
+                @Override
+                public void onSuccess(Void aVoid) {
+                    // File deleted successfully
+                    Log.d(TAG, "onSuccess: deleted file");
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @SuppressLint("LongLogTag")
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    // Uh-oh, an error occurred!
+                    Log.d(TAG, "onFailure: did not delete file");
+                }
+            });
+        }
     }
 }

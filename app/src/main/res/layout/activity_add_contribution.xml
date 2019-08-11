@@ -8,122 +8,116 @@
 
     <include
         android:id="@+id/toolbar"
+        layout="@layout/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        layout="@layout/toolbar" />
+        android:layout_height="wrap_content" />
 
     <TextView
         android:id="@+id/textView_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
         android:layout_below="@+id/toolbar"
         android:layout_marginTop="@dimen/_15sdp"
+        android:gravity="center"
         android:padding="@dimen/_7sdp"
-        android:textColor="@color/red"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
+        android:textColor="@color/red" />
 
-    <EditText
-        android:id="@+id/editText_date"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif"
-        android:hint="Date"
-        android:textAlignment="center"
-        android:layout_below="@+id/textView_title"
-        android:padding="@dimen/_7sdp"
-        android:focusable="false"
-        android:layout_marginTop="@dimen/_15sdp" />
+        android:gravity="center_vertical"
+        android:layout_below="@+id/textView_title">
 
-    <EditText
-        android:id="@+id/editText_amount"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fontFamily="sans-serif"
-        android:inputType="text"
-        android:hint="Montant cotisation"
-        android:layout_marginTop="@dimen/_15sdp"
-        android:padding="@dimen/_7sdp"
-        android:focusable="true"
-        android:layout_below="@+id/editText_date"/>
-
-    <RadioGroup
-        android:id="@+id/radioGroup"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="1"
-        android:layout_marginTop="@dimen/_15sdp"
-        android:layout_below="@+id/editText_amount">
-
-        <RadioButton
-            android:layout_width="wrap_content"
+        <EditText
+            android:id="@+id/editText_date"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="adiya"
-            android:id="@+id/adiya"
-            android:layout_gravity="center_horizontal"
-            android:checked="true"
             android:layout_marginTop="@dimen/_15sdp"
-            android:buttonTint="@color/black"
-            android:textColor="@color/black"
-            android:textSize="20dp"/>
+            android:focusable="false"
+            android:fontFamily="sans-serif"
+            android:hint="Date"
+            android:padding="@dimen/_7sdp"
+            android:textAlignment="center" />
 
-        <RadioButton
-            android:layout_width="wrap_content"
+        <EditText
+            android:id="@+id/editText_amount"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="sass"
-            android:id="@+id/sass"
-            android:layout_gravity="center_horizontal"
-            android:checked="false"
+            android:layout_below="@+id/editText_date"
             android:layout_marginTop="@dimen/_15sdp"
-            android:buttonTint="@color/black"
-            android:textColor="@color/black"
-            android:textSize="20dp"/>
+            android:focusable="true"
+            android:fontFamily="sans-serif"
+            android:hint="Montant cotisation"
+            android:inputType="text"
+            android:padding="@dimen/_7sdp" />
 
-        <RadioButton
-            android:layout_width="wrap_content"
+        <RadioGroup
+            android:id="@+id/radioGroup"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="social"
-            android:id="@+id/social"
-            android:layout_gravity="center_horizontal"
-            android:checked="false"
+            android:layout_below="@+id/editText_amount"
             android:layout_marginTop="@dimen/_15sdp"
-            android:buttonTint="@color/black"
-            android:textColor="@color/black"
-            android:textSize="20dp"/>
+            android:weightSum="1">
 
-    </RadioGroup>
+            <RadioButton
+                android:id="@+id/adiya"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/_15sdp"
+                android:buttonTint="@color/black"
+                android:checked="true"
+                android:text="adiya"
+                android:textColor="@color/black"
+                android:textSize="20dp" />
+
+            <RadioButton
+                android:id="@+id/sass"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/_15sdp"
+                android:buttonTint="@color/black"
+                android:checked="false"
+                android:text="sass"
+                android:textColor="@color/black"
+                android:textSize="20dp" />
+
+            <RadioButton
+                android:id="@+id/social"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/_15sdp"
+                android:buttonTint="@color/black"
+                android:checked="false"
+                android:text="social"
+                android:textColor="@color/black"
+                android:textSize="20dp" />
+
+        </RadioGroup>
+    </RelativeLayout>
 
     <Button
         android:id="@+id/button_save"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/button_cancel"
+        android:layout_margin="@dimen/_10sdp"
+        android:background="@color/green"
         android:text="Enregistrer"
         android:textAllCaps="false"
-        android:textColor="@color/colorAccent"
-        android:layout_below="@+id/radioGroup"
-        android:layout_margin="@dimen/_10sdp"
-        android:background="@color/green"/>
+        android:textColor="@color/colorAccent" />
 
     <Button
         android:id="@+id/button_cancel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="@dimen/_10sdp"
+        android:background="@color/gray"
         android:text="@string/btn_cancel"
         android:textAllCaps="false"
-        android:textColor="@color/colorAccent"
-        android:layout_below="@+id/button_save"
-        android:layout_margin="@dimen/_10sdp"
-        android:background="@color/gray"/>
-
-    <Button
-        android:id="@+id/button_delete"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Supprimer cette depense"
-        android:textAllCaps="false"
-        android:visibility="gone"
-        android:textColor="@color/colorAccent"
-        android:background="@color/red"
-        android:layout_below="@+id/button_cancel"
-        android:layout_margin="@dimen/_10sdp"/>
+        android:textColor="@color/colorAccent" />
 </RelativeLayout>

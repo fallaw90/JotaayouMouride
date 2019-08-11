@@ -23,28 +23,29 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.DataHolder.getCurrentDate;
-import static com.fallntic.jotaayumouride.DataHolder.hasValidationErrors;
-import static com.fallntic.jotaayumouride.DataHolder.isConnected;
-import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.saveContribution;
-import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.showImage;
-import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
-import static com.fallntic.jotaayumouride.MainActivity.progressBar;
-import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.AddContributionActivity.saveContribution;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.getCurrentDate;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.hasValidationErrors;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.progressDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.showImage;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
 
 public class UpdateAdminActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "CreateDahiraActivity";
 
-    private FirebaseFirestore db;
-    private ProgressDialog progressDialog;
     final Handler handler = new Handler();
 
     private EditText editTextUserName;
@@ -67,38 +68,14 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setSubtitle("Mettre a jour votre profile");
         setSupportActionBar(toolbar);
+        //***************** Set logo **********************
+        getSupportActionBar().setLogo(R.mipmap.logo);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
 
-        if (!isConnected(this)){
-            finish();
-            Intent intent = new Intent(this, LoginActivity.class);
-            showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
-        }
+        initViews();
+        displayViews();
 
-        //ProgressBar from static variable MainActivity
-        ListUserActivity.scrollView = findViewById(R.id.scrollView);
-        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
-        progressBar = findViewById(R.id.progressBar);
-        relativeLayoutProgressBar.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
-
-        db = FirebaseFirestore.getInstance();
-
-        progressDialog = new ProgressDialog(this);
-
-        editTextUserName = findViewById(R.id.editText_userName);
-        editTextPhoneNumber = findViewById(R.id.editText_userPhoneNumber);
-        editTextAddress = findViewById(R.id.editText_address);
-        editTextAdiya = findViewById(R.id.editText_adiyaVerse);
-        editTextSass = findViewById(R.id.editText_sassVerse);
-        editTextSocial = findViewById(R.id.editText_socialVerse);
-        textViewDahiraName = findViewById(R.id.textView_dahiraName);
-        imageViewProfile = findViewById(R.id.imageView);
-
-        textViewDahiraName.setText("Dahira " + dahira.getDahiraName());
-        editTextUserName.setText(onlineUser.getUserName());
-        String phoneNumber = onlineUser.getUserPhoneNumber().substring(4);
-        editTextPhoneNumber.setText(phoneNumber);
-        editTextAddress.setText(onlineUser.getAddress());
+        checkInternetConnection(this);
 
         showImage(this, "profileImage", onlineUser.getUserID(), imageViewProfile);
         //getData();
@@ -109,9 +86,31 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
             }
         }, 5000);
 
-        findViewById(R.id.button_save).setOnClickListener(this);
 
         hideSoftKeyboard();
+    }
+    private void displayViews(){
+        textViewDahiraName.setText("Enregistrez vous en tant que membre du dahira " + dahira.getDahiraName() + " que vous venez de creer pour terminer la creation de votre dahira.");
+        editTextUserName.setText(onlineUser.getUserName());
+        String phoneNumber = onlineUser.getUserPhoneNumber().substring(4);
+        editTextPhoneNumber.setText(phoneNumber);
+        editTextAddress.setText(onlineUser.getAddress());
+    }
+
+    private void initViews(){
+        editTextUserName = findViewById(R.id.editText_userName);
+        editTextPhoneNumber = findViewById(R.id.editText_userPhoneNumber);
+        editTextAddress = findViewById(R.id.editText_address);
+        editTextAdiya = findViewById(R.id.editText_adiyaVerse);
+        editTextSass = findViewById(R.id.editText_sassVerse);
+        editTextSocial = findViewById(R.id.editText_socialVerse);
+        textViewDahiraName = findViewById(R.id.textView_dahiraName);
+        imageViewProfile = findViewById(R.id.imageView);
+        ListUserActivity.scrollView = findViewById(R.id.scrollView);
+
+        initViewsProgressBar();
+
+        findViewById(R.id.button_save).setOnClickListener(this);
     }
 
     @Override
@@ -211,7 +210,7 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
             updateDahira();
             updateUserCollection();
 
-            Intent intent = new Intent(this, ProfileActivity.class);
+            Intent intent = new Intent(this, HomeActivity.class);
             double value;
 
             adiya = adiya.replace(",", ".");
@@ -232,14 +231,14 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
                 saveContribution(this, "social", onlineUser.getUserID(), social, getCurrentDate());
             }
 
-            startActivity(new Intent(UpdateAdminActivity.this, ProfileActivity.class));
+            startActivity(new Intent(UpdateAdminActivity.this, HomeActivity.class));
         }
     }
 
     private void updateUserCollection(){
 
-        ListUserActivity.showProgressBar();
-        db.collection("users").document(onlineUser.getUserID())
+        showProgressBar();
+        firestore.collection("users").document(onlineUser.getUserID())
                 .update("listUpdatedDahiraID", onlineUser.getListUpdatedDahiraID(),
                         "userName", onlineUser.getUserName(),
                         "userPhoneNumber", onlineUser.getUserPhoneNumber(),
@@ -252,13 +251,13 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        ListUserActivity.hideProgressBar();
+                        hideProgressBar();
                         toastMessage(getApplicationContext(), "Enregistrement reussi.");
                     }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                ListUserActivity.hideProgressBar();
+                hideProgressBar();
             }
         });
     }
@@ -269,8 +268,8 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
 
        dahira.setTotalMember(Integer.toString(totalMember++));
 
-        ListUserActivity.showProgressBar();
-        db.collection("dahiras").document(dahira.getDahiraID())
+        showProgressBar();
+        firestore.collection("dahiras").document(dahira.getDahiraID())
                 .update("totalAdiya", dahira.getTotalAdiya(),
                         "totalSass", dahira.getTotalSass(),
                         "totalSocial", dahira.getTotalSocial(),
@@ -278,18 +277,25 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        ListUserActivity.hideProgressBar();
+                        hideProgressBar();
                         toastMessage(getApplicationContext(),"Enregistrement reussi.");
                     }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                ListUserActivity.hideProgressBar();
+                hideProgressBar();
             }
         });
     }
 
     public void hideSoftKeyboard(){
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    }
+
+    public  void initViewsProgressBar() {
+        progressDialog = new ProgressDialog(this);
+        relativeLayoutData = findViewById(R.id.relativeLayout_data);
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
     }
 }

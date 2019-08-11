@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -15,29 +18,29 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.fallntic.jotaayumouride.Adapter.ContributionAdapter;
+import com.fallntic.jotaayumouride.Utility.SwipeToDeleteCallback;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.ContributionAdapter.getListAmount;
-import static com.fallntic.jotaayumouride.ContributionAdapter.getListDate;
-import static com.fallntic.jotaayumouride.ContributionAdapter.getListUserName;
-import static com.fallntic.jotaayumouride.DataHolder.adiya;
-import static com.fallntic.jotaayumouride.DataHolder.boolAddToDahira;
-import static com.fallntic.jotaayumouride.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.DataHolder.isConnected;
-import static com.fallntic.jotaayumouride.DataHolder.notificationBody;
-import static com.fallntic.jotaayumouride.DataHolder.notificationTitle;
-import static com.fallntic.jotaayumouride.DataHolder.sass;
-import static com.fallntic.jotaayumouride.DataHolder.selectedUser;
-import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.social;
-import static com.fallntic.jotaayumouride.DataHolder.typeOfContribution;
-import static com.fallntic.jotaayumouride.DataHolder.updateContribution;
+import static com.fallntic.jotaayumouride.Adapter.ContributionAdapter.getListAmount;
+import static com.fallntic.jotaayumouride.Adapter.ContributionAdapter.getListDate;
+import static com.fallntic.jotaayumouride.Adapter.ContributionAdapter.getListUserName;
+import static com.fallntic.jotaayumouride.AddContributionActivity.updateContribution;
 import static com.fallntic.jotaayumouride.UserInfoActivity.getAdiya;
 import static com.fallntic.jotaayumouride.UserInfoActivity.getSass;
 import static com.fallntic.jotaayumouride.UserInfoActivity.getSocial;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.adiya;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.boolAddToDahira;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.sass;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.selectedUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.social;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.typeOfContribution;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 
 public class ListContributionActivity extends AppCompatActivity {
 
@@ -50,6 +53,7 @@ public class ListContributionActivity extends AppCompatActivity {
     private List<String> listDateAdiya;
     private List<String> listUserName;
     private String amountDeleted;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,29 +61,15 @@ public class ListContributionActivity extends AppCompatActivity {
         setContentView(R.layout.activity_list_contribution);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setSubtitle("Adiya " + typeOfContribution + " verses");
+        toolbar = findViewById(R.id.toolbar);
+        toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
 
-        // add back arrow to toolbar
-        if (getSupportActionBar() != null){
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-        }
+        initViews();
 
-        if (!isConnected(this)) {
-            Intent intent = new Intent(this, LoginActivity.class);
-            showAlertDialog(this, "Oops! Pas de connexion, " +
-                    "verifier votre connexion internet puis reesayez SVP", intent);
-            return;
-        }
+        checkInternetConnection(this);
 
-        recyclerViewContribution = findViewById(R.id.recyclerview_contribution);
-        coordinatorLayout = findViewById(R.id.coordinatorLayout);
-        textViewTitle = findViewById(R.id.textView_title);
-
-        textViewTitle.setText("Dahira " + dahira.getDahiraName() +
-                "\nListe des " + typeOfContribution + "s verses par " + selectedUser.getUserName());
+        displayViews();
 
         getAdiya();
         getSass();
@@ -88,15 +78,17 @@ public class ListContributionActivity extends AppCompatActivity {
         showListContribution();
         enableSwipeToDeleteAndUndo();
 
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), UserInfoActivity.class));
-            }
-        });
+    }
 
-        notificationTitle = null;
-        notificationBody = null;
+    private void initViews(){
+        recyclerViewContribution = findViewById(R.id.recyclerview_contribution);
+        coordinatorLayout = findViewById(R.id.coordinatorLayout);
+        textViewTitle = findViewById(R.id.textView_title);
+    }
+
+    private void displayViews(){
+        textViewTitle.setText("Dahira " + dahira.getDahiraName() +
+                "\nListe des " + typeOfContribution + "s verses par " + selectedUser.getUserName());
     }
 
     @Override
@@ -222,5 +214,28 @@ public class ListContributionActivity extends AppCompatActivity {
         }
 
         contributionAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main_menu, menu);
+
+        MenuItem iconBack;
+        iconBack = menu.findItem(R.id.icon_back);
+        iconBack.setVisible(true);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.icon_back:
+                finish();
+                startActivity(new Intent(this, UserInfoActivity.class));
+                break;
+        }
+        return true;
     }
 }

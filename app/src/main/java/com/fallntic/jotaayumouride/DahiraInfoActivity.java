@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,28 +27,41 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.fallntic.jotaayumouride.Model.Event;
+import com.fallntic.jotaayumouride.Model.ListImageObject;
 import com.fallntic.jotaayumouride.Utility.MyStaticFunctions;
 import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
-import static com.fallntic.jotaayumouride.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.DataHolder.event;
-import static com.fallntic.jotaayumouride.DataHolder.expense;
-import static com.fallntic.jotaayumouride.DataHolder.indexOnlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.isConnected;
-import static com.fallntic.jotaayumouride.DataHolder.loadEvent;
-import static com.fallntic.jotaayumouride.DataHolder.logout;
-import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.showImage;
-import static com.fallntic.jotaayumouride.DataHolder.userID;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.actionSelected;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.logout;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.showImage;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.showProgressDialog;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listExpenses;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listImage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListEvents;
 
 public class DahiraInfoActivity extends AppCompatActivity implements View.OnClickListener,
         DrawerMenu, NavigationView.OnNavigationItemSelectedListener {
-    private final String TAG = "DahiraInfoActivity";
+    private static final String TAG = "DahiraInfoActivity";
 
     private TextView textViewDahiraName, textViewDieuwrine, textViewSiege, textViewtotalMembers,
             textViewTotalAdiya, textViewTotalSass, textViewTotalSocial, textViewPhoneNumber;
@@ -69,14 +83,9 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setSubtitle("Mon Dahira");
         setSupportActionBar(toolbar);
 
-        if (!isConnected(this)) {
-            finish();
-            Intent intent = new Intent(this, LoginActivity.class);
-            showAlertDialog(this, "Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
-        }
+        checkInternetConnection(this);
 
         init();
 
@@ -85,9 +94,11 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         setDrawerMenu();
         //**************************************************************************
 
-
         //**********************Get list song ***************************
         MyStaticFunctions.getSongList(this);
+
+        //***********************Get List Events *****************
+        getMyEvents(this);
     }
 
     private void init() {
@@ -124,7 +135,6 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        MyStaticVariables.displayDahira = "myDahira";
     }
 
     @Override
@@ -132,7 +142,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         switch (v.getId()) {
             case R.id.button_back:
                 finish();
-                //startActivity(new Intent(this, ListDahiraActivity.class));
+                startActivity(new Intent(this, HomeActivity.class));
                 break;
         }
     }
@@ -175,10 +185,10 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main_menu, menu);
 
-        MenuItem iconBack;
-        iconBack = menu.findItem(R.id.icon_back);
+        MenuItem iconLogo;
+        iconLogo = menu.findItem(R.id.logo);
 
-        iconBack.setVisible(true);
+        iconLogo.setVisible(true);
 
         return true;
     }
@@ -187,12 +197,6 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
     public boolean onOptionsItemSelected(MenuItem item) {
         if (toggle.onOptionsItemSelected(item))
             return true;
-
-        switch (item.getItemId()) {
-            case R.id.icon_back:
-                startActivity(new Intent(DahiraInfoActivity.this, ListDahiraActivity.class));
-                break;
-        }
 
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
@@ -226,7 +230,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
             @Override
             public void onClick(View view) {
                 actionSelected = "addNewAnnouncement";
-                context.startActivity(new Intent(context, AnnouncementActivity.class));
+                context.startActivity(new Intent(context, CreateAnnouncementActivity.class));
                 alertDialog.dismiss();
             }
         });
@@ -253,7 +257,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        showImage(this, "profileImage", userID, navImageView);
+        showImage(this, "profileImage", onlineUser.getUserID(), navImageView);
         textViewNavUserName.setText(onlineUser.getUserName());
         textViewNavEmail.setText(onlineUser.getEmail());
         navigationView.setCheckedItem(R.id.nav_displayMyDahira);
@@ -281,7 +285,6 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
             nav_Menu.findItem(R.id.nav_addExpense).setVisible(false);
         }
 
-        nav_Menu.findItem(R.id.nav_home).setVisible(false);
         nav_Menu.findItem(R.id.nav_displayMyDahira).setVisible(false);
         nav_Menu.findItem(R.id.nav_displayAllDahira).setVisible(false);
         nav_Menu.findItem(R.id.nav_addDahira).setVisible(false);
@@ -301,11 +304,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         switch (item.getItemId()) {
 
             case R.id.nav_home:
-                startActivity(new Intent(this, MainActivity.class));
-                break;
-
-            case R.id.nav_profile:
-                startActivity(new Intent(this, ProfileActivity.class));
+                startActivity(new Intent(this, HomeActivity.class));
                 break;
 
             case R.id.nav_displayUsers:
@@ -339,7 +338,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 break;
 
             case R.id.nav_displayExpenses:
-                if (expense != null && !expense.getListPrice().isEmpty())
+                if (listExpenses != null && listExpenses.size() > 0)
                     startActivity(new Intent(this, ListExpenseActivity.class));
                 else
                     showAlertDialog(this, "La liste des depenses de votre dahira est vide!");
@@ -350,7 +349,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 break;
 
             case R.id.nav_displayAnnouncement:
-                startActivity(new Intent(this, ShowAnnouncementActivity.class));
+                startActivity(new Intent(this, SendAnnouncementActivity.class));
                 //startActivity(new Intent(this, ListAnnouncementActivity.class));
                 break;
 
@@ -359,15 +358,16 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 break;
 
             case R.id.nav_displayEvent:
-                if (event == null || event.getListUserID().isEmpty())
+                if (myListEvents == null || myListEvents.size() <= 0)
                     showAlertDialog(this, "La liste des evenements est vide!");
-                else
-                    loadEvent = "myEvents";
-                startActivity(new Intent(this, ListEventActivity.class));
+                else {
+                    displayEvent = "myEvents";
+                    startActivity(new Intent(this, ListEventActivity.class));
+                }
                 break;
 
             case R.id.nav_photo:
-                startActivity(new Intent(this, ShowImagesActivity.class));
+                getImages(this);
                 break;
 
             case R.id.nav_audio:
@@ -395,5 +395,68 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
 
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public static void getMyEvents(Context context) {
+        if (myListEvents == null) {
+            myListEvents = new ArrayList<>();
+            showProgressDialog(context, "Chargement des evenements en cours ...");
+
+            firestore.collection("dahiras")
+                    .document(dahira.getDahiraID())
+                    .collection("myEvents")
+                    .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                    dismissProgressDialog();
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            Event event = documentSnapshot.toObject(Event.class);
+                            myListEvents.add(event);
+                        }
+                        Log.d(TAG, "Even downloaded");
+                    }
+                }
+            })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            dismissProgressDialog();
+                            Log.d(TAG, "Error downloading event");
+                        }
+                    });
+        }
+    }
+
+    public void getImages(final Context context) {
+        if (listImage == null ) {
+            listImage = new ArrayList<>();
+            showProgressBar();
+            firestore.collection("images")
+                    .whereEqualTo("dahiraID", dahira.getDahiraID()).get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            hideProgressBar();
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                    ListImageObject listImageObject = documentSnapshot.toObject(ListImageObject.class);
+                                    listImage.addAll(listImageObject.getListImage());
+                                    break;
+                                }
+                                startActivity(new Intent(context, ShowImagesActivity.class));
+                                Log.d(TAG, "Image name downloaded");
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(TAG, "Error downloading image name");
+                        }
+                    });
+        }
+        else
+            startActivity(new Intent(context, ShowImagesActivity.class));
     }
 }

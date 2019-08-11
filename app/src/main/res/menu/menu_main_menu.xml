@@ -20,4 +20,15 @@
         android:icon="@drawable/ic_back"
         app:showAsAction="always" />
 
+    <item
+        android:id="@+id/logo"
+        android:visible="false"
+        android:icon="@mipmap/logo"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/instruction"
+        android:title="Instructions"
+        android:icon="@mipmap/logo"
+        app:showAsAction="never" />
+
 </menu>

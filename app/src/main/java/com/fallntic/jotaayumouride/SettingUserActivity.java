@@ -24,15 +24,18 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.DataHolder.isConnected;
-import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.selectedUser;
-import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.showImage;
-import static com.fallntic.jotaayumouride.MainActivity.progressBar;
-import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.selectedUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.showImage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
 
 public class SettingUserActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "CreateDahiraActivity";
@@ -126,25 +129,33 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setSubtitle("Parametres membre");
         setSupportActionBar(toolbar);
+        //***************** Set logo **********************
+        getSupportActionBar().setLogo(R.mipmap.logo);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        if (!isConnected(this)){
-            finish();
-            Intent intent = new Intent(this, LoginActivity.class);
-            showAlertDialog(this,"Oops! Pas de connexion, " +
-                    "verifier votre connexion internet puis reesayez SVP", intent);
-        }
-
-        //ProgressBar from static variable MainActivity
-        ListUserActivity.scrollView = findViewById(R.id.scrollView);
-        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
-        progressBar = findViewById(R.id.progressBar);
-        relativeLayoutProgressBar.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
+        checkInternetConnection(this);
 
         db = FirebaseFirestore.getInstance();
+
+        initViews();
+
+        displayViews();
+
+        hideSoftKeyboard();
+
+
+    }
+
+    public  void initViewsProgressBar() {
+        relativeLayoutData = findViewById(R.id.relativeLayout_data);
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+    }
+
+    private void initViews(){
 
         editTextUserName = findViewById(R.id.editText_userName);
         editTextAddress = findViewById(R.id.editText_address);
@@ -154,12 +165,7 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         imageView = findViewById(R.id.imageView);
         buttonDelete = findViewById(R.id.button_delete);
 
-        editTextUserName.setText(selectedUser.getUserName());
-        editTextAddress.setText(selectedUser.getAddress());
-
-        editTextAdiya.setText(selectedUser.getListAdiya().get(indexSelectedUser));
-        editTextSass.setText(selectedUser.getListSass().get(indexSelectedUser));
-        editTextSocial.setText(selectedUser.getListSocial().get(indexSelectedUser));
+        initViewsProgressBar();
 
         radioRoleGroup = findViewById(R.id.radioGroup);
         // get selected radio button from radioGroup
@@ -167,7 +173,18 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         // find the radiobutton by returned id
         radioRoleButton = findViewById(selectedId);
 
+        findViewById(R.id.button_update).setOnClickListener(this);
+        findViewById(R.id.button_cancel).setOnClickListener(this);
+    }
 
+    private void displayViews(){
+
+        editTextUserName.setText(selectedUser.getUserName());
+        editTextAddress.setText(selectedUser.getAddress());
+
+        editTextAdiya.setText(selectedUser.getListAdiya().get(indexSelectedUser));
+        editTextSass.setText(selectedUser.getListSass().get(indexSelectedUser));
+        editTextSocial.setText(selectedUser.getListSocial().get(indexSelectedUser));
 
         showImage(this, "profileImage", selectedUser.getUserID(), imageView);
         //Select a commission
@@ -182,11 +199,6 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
             editTextUserName.setEnabled(false);
             editTextAddress.setEnabled(false);
         }
-
-        hideSoftKeyboard();
-
-        findViewById(R.id.button_update).setOnClickListener(this);
-        findViewById(R.id.button_cancel).setOnClickListener(this);
     }
 
     public void setSpinner(){
@@ -233,7 +245,7 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
             selectedUser.getListCommissions().set(indexSelectedUser, commission);
             selectedUser.getListRoles().set(indexSelectedUser, role);
 
-            ListUserActivity.showProgressBar();
+            showProgressBar();
             db.collection("users").document(selectedUser.getUserID())
                     .update("userName", selectedUser.getUserName(),
                             "address", selectedUser.getAddress(),
@@ -245,14 +257,14 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            ListUserActivity.hideProgressBar();
+                            hideProgressBar();
                             Intent intent = new Intent(SettingUserActivity.this, UserInfoActivity.class);
                             showAlertDialog(SettingUserActivity.this, "Enregistrement reussi.", intent);
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    ListUserActivity.hideProgressBar();
+                    hideProgressBar();
                     startActivity(new Intent(SettingUserActivity.this, UserInfoActivity.class));
                 }
             });

@@ -1,5 +1,6 @@
 package com.fallntic.jotaayumouride;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -22,6 +23,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.fallntic.jotaayumouride.Adapter.DahiraAdapter;
+import com.fallntic.jotaayumouride.Model.Dahira;
 import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.google.android.material.navigation.NavigationView;
 
@@ -30,20 +33,22 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
-import static com.fallntic.jotaayumouride.DataHolder.isConnected;
-import static com.fallntic.jotaayumouride.DataHolder.logout;
-import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.showImage;
-import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
-import static com.fallntic.jotaayumouride.MainActivity.progressBar;
-import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.actionSelected;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.logout;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.showImage;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayDahira;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllDahira;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listDahiraFound;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListDahira;
 
 public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
-        NavigationView.OnNavigationItemSelectedListener {
+        NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
-    private RecyclerView recyclerViewDahira;
+    private static RecyclerView recyclerViewDahira;
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle toggle;
@@ -52,7 +57,7 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
     private CircleImageView navImageView;
     private TextView textViewNavUserName;
     private TextView textViewNavEmail;
-    DahiraAdapter dahiraAdapter;
+    private DahiraAdapter dahiraAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,12 +68,7 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        if (!isConnected(this)) {
-            finish();
-            Intent intent = new Intent(this, LoginActivity.class);
-            showAlertDialog(this, "Oops! Pas de connexion, " +
-                    "verifier votre connexion internet puis reesayez SVP", intent);
-        }
+        checkInternetConnection(this);
 
         init();
 
@@ -76,31 +76,34 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
         setDrawerMenu();
         //*************************************************************
 
-        if (actionSelected.equals("searchDahira")) {
-            dialogSearchDahira();
-            actionSelected = "";
+        if (displayDahira.equals("searchDahira")) {
+            displayDahiras(listDahiraFound);
         }
 
-        if (MyStaticVariables.displayDahira.equals("myDahira")) {
-            toolbar.setSubtitle("Mes dahiras");
-            displayMyDahiras();
+        else if (displayDahira.equals("myDahira")) {
+            displayDahiras(myListDahira);
         }
 
-        if (MyStaticVariables.displayDahira.equals("allDahira")) {
-            toolbar.setSubtitle("Liste des dahiras a Dakar");
-            displayAllDahiras();
+        else if (displayDahira.equals("allDahira")) {
+            displayDahiras(listAllDahira);
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.button_back:
+                finish();
+                startActivity(new Intent(this, HomeActivity.class));
+                break;
         }
     }
 
     private void init() {
 
         recyclerViewDahira = findViewById(R.id.recyclerview_dahiras);
-
+        findViewById(R.id.button_back).setOnClickListener(this);
         //ProgressBar from static variable MainActivity
-        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
-        progressBar = findViewById(R.id.progressBar);
-        relativeLayoutProgressBar.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
     }
 
     @Override
@@ -113,53 +116,31 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
     public void onBackPressed() {
         super.onBackPressed();
         finish();
-        startActivity(new Intent(this, ProfileActivity.class));
+        startActivity(new Intent(this, HomeActivity.class));
     }
 
-    private void displayMyDahiras() {
-        if (MyStaticVariables.myListDahira.size() > 0) {
+    private void displayDahiras(List<Dahira> listDahira) {
+        if (listDahira.size() > 0) {
             //Attach adapter to recyclerView
             recyclerViewDahira.setHasFixedSize(true);
             recyclerViewDahira.setLayoutManager(new LinearLayoutManager(this));
             recyclerViewDahira.setVisibility(View.VISIBLE);
-            dahiraAdapter = new DahiraAdapter(this, MyStaticVariables.myListDahira);
+            dahiraAdapter = new DahiraAdapter(this, listDahira);
             recyclerViewDahira.setAdapter(dahiraAdapter);
             dahiraAdapter.notifyDataSetChanged();
-        } else {
-            showAlertDialog(ListDahiraActivity.this, "Vous n'etes membre d'un " +
-                    " aucun dahira pour le moment. Contactez l'administrateur de votre dahira " +
-                    "pour vous ajouter en tant que membre. Ou bien, creer un dahira si vous etes " +
-                    "administrateur.");
         }
     }
 
-    private void displayAllDahiras() {
-        if (MyStaticVariables.allListDahira.size() > 0) {
-            //Attach adapter to recyclerView
-            recyclerViewDahira.setHasFixedSize(true);
-            recyclerViewDahira.setLayoutManager(new LinearLayoutManager(this));
-            recyclerViewDahira.setVisibility(View.VISIBLE);
-            dahiraAdapter = new DahiraAdapter(this, MyStaticVariables.allListDahira);
-            recyclerViewDahira.setAdapter(dahiraAdapter);
-            dahiraAdapter.notifyDataSetChanged();
-        } else {
-            showAlertDialog(ListDahiraActivity.this, "Auccun dahira n'est " +
-                    "enregiste dans le plateforme pour le moment, creer un dahira si vous etes " +
-                    "administrateur.");
+    public static void searchDahira(Context context, final String searchName) {
+
+        if (listDahiraFound == null)
+            listDahiraFound = new ArrayList<>();
+
+        if (listAllDahira == null) {
+            listAllDahira = new ArrayList<>();
         }
-    }
 
-    private void searchDahira(final String searchName) {
-
-        //Attach adapter to recyclerView
-        recyclerViewDahira.setHasFixedSize(true);
-        recyclerViewDahira.setLayoutManager(new LinearLayoutManager(this));
-        recyclerViewDahira.setVisibility(View.VISIBLE);
-        final List<Dahira> dahiraList = new ArrayList<>();
-        final DahiraAdapter dahiraAdapter = new DahiraAdapter(this, dahiraList);
-        recyclerViewDahira.setAdapter(dahiraAdapter);
-
-        for (Dahira dahira : MyStaticVariables.allListDahira) {
+        for (Dahira dahira : listAllDahira) {
             if (searchName != null && !searchName.equals("")) {
                 String[] splitSearchName = searchName.split(" ");
                 String dahiraName = dahira.getDahiraName();
@@ -167,24 +148,24 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
                 for (String search : splitSearchName) {
                     search = search.toLowerCase();
                     if (dahiraName.contains(search)) {
-                        dahiraList.add(dahira);
+                        listDahiraFound.add(dahira);
                     }
                 }
             }
         }
-        if (dahiraList.isEmpty()) {
-            Intent intent = new Intent(ListDahiraActivity.this, ListDahiraActivity.class);
-            showAlertDialog(ListDahiraActivity.this, "Dahira non trouve.", intent);
+        if (listDahiraFound.isEmpty()) {
+            showAlertDialog(context, "Dahira non trouve.");
         } else {
-            Intent intent = new Intent(ListDahiraActivity.this, ListDahiraActivity.class);
-            showAlertDialog(ListDahiraActivity.this, "Dahira non trouve.", intent);
+            displayDahira = "searchDahira";
+            Intent intent = new Intent(context, ListDahiraActivity.class);
+            context.startActivity(intent);
         }
     }
 
-    private void dialogSearchDahira() {
+    public static void dialogSearchDahira(final Context context) {
 
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
         final View dialogView = inflater.inflate(R.layout.dialog_search, null);
         dialogBuilder.setView(dialogView);
         dialogBuilder.setCancelable(false);
@@ -213,7 +194,7 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
                     editTextDialogName.requestFocus();
                     return;
                 } else {
-                    searchDahira(dahiraName);
+                    searchDahira(context, dahiraName);
                     alertDialog.dismiss();
                 }
             }
@@ -232,11 +213,7 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
         switch (item.getItemId()) {
 
             case R.id.nav_home:
-                startActivity(new Intent(this, MainActivity.class));
-                break;
-
-            case R.id.nav_profile:
-                startActivity(new Intent(this, ProfileActivity.class));
+                startActivity(new Intent(this, HomeActivity.class));
                 break;
 
             case R.id.nav_displayMyDahira:
@@ -254,9 +231,7 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
                 break;
 
             case R.id.nav_searchDahira:
-                actionSelected = "searchDahira";
-                MyStaticVariables.displayDahira = "allDahira";
-                startActivity(new Intent(this, ListDahiraActivity.class));
+                dialogSearchDahira(this);
                 break;
 
             case R.id.nav_setting:
@@ -280,10 +255,10 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main_menu, menu);
 
-        MenuItem iconBack;
-        iconBack = menu.findItem(R.id.icon_back);
+        MenuItem iconLogo;
+        iconLogo = menu.findItem(R.id.logo);
 
-        iconBack.setVisible(true);
+        iconLogo.setVisible(true);
 
         return true;
     }
@@ -297,7 +272,7 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
         switch (item.getItemId()) {
             case R.id.icon_back:
                 finish();
-                startActivity(new Intent(this, ProfileActivity.class));
+                startActivity(new Intent(this, HomeActivity.class));
                 break;
         }
         return true;
@@ -321,11 +296,14 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
         textViewNavUserName.setText(onlineUser.getUserName());
         textViewNavEmail.setText(onlineUser.getEmail());
 
+        if (actionSelected == null)
+            actionSelected = "";
+
         if (MyStaticVariables.displayDahira.equals("myDahira"))
             navigationView.setCheckedItem(R.id.nav_displayMyDahira);
         else if (MyStaticVariables.displayDahira.equals("allDahira"))
             navigationView.setCheckedItem(R.id.nav_displayAllDahira);
-        else if (actionSelected.equals("searchDahira"))
+        else if (displayDahira.equals("searchDahira"))
             navigationView.setCheckedItem(R.id.nav_searchDahira);
         else if (actionSelected.equals("searchUser"))
             navigationView.setCheckedItem(R.id.nav_searchUser);
@@ -337,8 +315,6 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
     public void hideMenuItem() {
         Menu nav_Menu = navigationView.getMenu();
         nav_Menu.findItem(R.id.nav_setting).setTitle("Modifier mon profil");
-
-        nav_Menu.findItem(R.id.nav_home).setVisible(false);
 
         nav_Menu.findItem(R.id.nav_displayUsers).setVisible(false);
         nav_Menu.findItem(R.id.nav_addUser).setVisible(false);

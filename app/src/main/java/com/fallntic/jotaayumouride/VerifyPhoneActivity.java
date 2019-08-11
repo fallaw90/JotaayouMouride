@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.fallntic.jotaayumouride.Model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -31,10 +32,14 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
-import static com.fallntic.jotaayumouride.MainActivity.progressBar;
-import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
 
 public class VerifyPhoneActivity extends AppCompatActivity {
     private final String TAG = "VerifyPhoneActivity";
@@ -87,17 +92,13 @@ public class VerifyPhoneActivity extends AppCompatActivity {
         setContentView(R.layout.activity_verify_phone);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+
+        checkInternetConnection(this);
+
         //initializing objects
         mAuth = FirebaseAuth.getInstance();
-        editTextCode = findViewById(R.id.editTextCode);
 
-
-        //ProgressBar from static variable MainActivity
-        ListUserActivity.scrollView = findViewById(R.id.scrollView);
-        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
-        progressBar = findViewById(R.id.progressBar);
-        relativeLayoutProgressBar.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
+       initViews();
 
         //getting mobile number from the previous activity
         //and sending the verification code to the number
@@ -127,6 +128,18 @@ public class VerifyPhoneActivity extends AppCompatActivity {
 
     }
 
+    private void initViews(){
+        //ProgressBar from static variable MainActivity
+        ListUserActivity.scrollView = findViewById(R.id.scrollView);
+        editTextCode = findViewById(R.id.editTextCode);
+        initViewsProgressBar();
+    }
+    public  void initViewsProgressBar() {
+        relativeLayoutData = findViewById(R.id.relativeLayout_data);
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+    }
+
     //the method is sending verification code
     //the country id is concatenated
     //you can take the country id as user input as well
@@ -148,12 +161,12 @@ public class VerifyPhoneActivity extends AppCompatActivity {
     }
 
     private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
-        ListUserActivity.showProgressBar();
+        showProgressBar();
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(VerifyPhoneActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        ListUserActivity.hideProgressBar();
+                        hideProgressBar();
                         if (task.isSuccessful()) {
                             //verification successful we will start the profile activity
                             getUser();
@@ -175,25 +188,25 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                hideProgressBar();
                 toastMessage(VerifyPhoneActivity.this, e.getMessage());
-                ListUserActivity.hideProgressBar();
             }
         });
     }
 
     public void getUser() {
-        ListUserActivity.showProgressBar();
+        showProgressBar();
         FirebaseFirestore.getInstance().collection("users").
                 whereEqualTo("userPhoneNumber", mAuth.getCurrentUser().getPhoneNumber()).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        ListUserActivity.hideProgressBar();
+                        hideProgressBar();
                         if (!queryDocumentSnapshots.isEmpty()) {
                             for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                                 onlineUser = documentSnapshot.toObject(User.class);
 
-                                Intent intent = new Intent(VerifyPhoneActivity.this, ProfileActivity.class);
+                                Intent intent = new Intent(VerifyPhoneActivity.this, HomeActivity.class);
                                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                 startActivity(intent);
                             }
@@ -209,7 +222,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        ListUserActivity.hideProgressBar();
+                        hideProgressBar();
                         Log.d(TAG, "Error downloading Expenses");
                     }
                 });

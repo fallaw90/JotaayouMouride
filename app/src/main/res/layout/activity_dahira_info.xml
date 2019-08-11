@@ -8,7 +8,7 @@
     android:orientation="vertical"
     tools:context=".ProfileActivity">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -23,7 +23,7 @@
             android:id="@+id/scrollView"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/relativeLayout_imageView">
+            android:layout_below="@+id/toolbar">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -75,8 +75,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10dp"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-                    android:textColor="@color/black"/>
+                    android:textColor="@color/black"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
 
                 <TextView
                     android:id="@+id/textView_totalAdiya"
@@ -109,22 +109,19 @@
                     android:layout_marginBottom="10dp"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
                     android:textColor="@color/black"/>
-
-                <Button
-                    android:id="@+id/button_back"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:background="@color/green"
-                    android:text="@string/backButton"
-                    android:textAllCaps="false"
-                    android:textColor="@color/colorAccent" />
-
             </LinearLayout>
-
         </ScrollView>
 
-    </LinearLayout>
+        <Button
+            android:id="@+id/button_back"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/green"
+            android:text="Retour a l'accueil"
+            android:textAllCaps="false"
+            android:textColor="@color/colorAccent"
+            android:layout_alignParentBottom="true"/>
+    </RelativeLayout>
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"

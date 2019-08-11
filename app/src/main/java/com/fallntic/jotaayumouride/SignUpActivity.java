@@ -1,7 +1,6 @@
 package com.fallntic.jotaayumouride;
 
 import android.Manifest;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -11,6 +10,9 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Patterns;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
@@ -22,6 +24,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.fallntic.jotaayumouride.Model.Adiya;
+import com.fallntic.jotaayumouride.Model.Sass;
+import com.fallntic.jotaayumouride.Model.Social;
+import com.fallntic.jotaayumouride.Model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -32,7 +38,6 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -41,16 +46,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.DataHolder.checkPrefix;
-import static com.fallntic.jotaayumouride.DataHolder.createNewCollection;
-import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.DataHolder.isConnected;
-import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
-import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
-import static com.fallntic.jotaayumouride.DataHolder.userID;
-import static com.fallntic.jotaayumouride.MainActivity.progressBar;
-import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.checkPrefix;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.createNewCollection;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.userID;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
 
 public class SignUpActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -81,8 +88,6 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     private final int PICK_IMAGE_REQUEST = 71;
     private boolean imageSaved = true, userSaved = true;
 
-    private ProgressDialog progressDialog;
-
     //Firebase
     private FirebaseStorage firebaseStorage;
     private StorageReference storageReference;
@@ -96,23 +101,12 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        checkInternetConnection(this);
 
-        if (!isConnected(this)){
-            finish();
-            Intent intent = new Intent(this, LoginActivity.class);
-            showAlertDialog(this,"Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
-        }
-
-        //ProgressBar from static variable MainActivity
-        ListUserActivity.scrollView = findViewById(R.id.scrollView);
-        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
-        progressBar = findViewById(R.id.progressBar);
-        relativeLayoutProgressBar.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
+        initViews();
 
         //Initialize Firestore object
         mAuth = FirebaseAuth.getInstance();
@@ -120,7 +114,13 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
 
-        progressDialog = new ProgressDialog(this);
+        //Check access gallery permission
+        checkPermission();
+
+        hideSoftKeyboard();
+    }
+
+    private void initViews(){
 
         //User info
         imageView = findViewById(R.id.imageView);
@@ -131,26 +131,17 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         editTextConfirmPassword = findViewById(R.id.editText_confirmPassword);
         editTextUserAddress = findViewById(R.id.editText_address);
 
-        //Check access gallery permission
-        checkPermission();
-
-        hideSoftKeyboard();
-
         findViewById(R.id.button_back).setOnClickListener(this);
         findViewById(R.id.button_signUp).setOnClickListener(this);
         findViewById(R.id.imageView).setOnClickListener(this);
+
+        initViewsProgressBar();
     }
 
     @Override
     protected void onDestroy() {
         dismissProgressDialog();
         super.onDestroy();
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
     }
 
     @Override
@@ -163,9 +154,6 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 break;
             case R.id.button_signUp:
                 registration();
-                break;
-            case R.id.button_back:
-                finish();
                 break;
         }
     }
@@ -182,12 +170,12 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         if(!hasValidationErrors(userName, userPhoneNumber, email, pwd, confPwd, userAddress)) {
             userPhoneNumber = "+221" + userPhoneNumber;
 
-            ListUserActivity.showProgressBar();
+            showProgressBar();
             db.collection("users").whereEqualTo("userPhoneNumber", userPhoneNumber).get()
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            ListUserActivity.hideProgressBar();
+                            hideProgressBar();
                             if (task.isSuccessful()) {
                                 if (task.getResult().isEmpty()){
                                     saveAllData();
@@ -198,7 +186,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                                 }
                             }
                             else {
-                                ListUserActivity.hideProgressBar();
+                                hideProgressBar();
                                 toastMessage(getApplicationContext(),"Error");
                             }
                         }
@@ -210,7 +198,6 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     public void saveAllData(){
-        ListUserActivity.hideProgressBar();
         mAuth.createUserWithEmailAndPassword(email, pwd).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
@@ -224,7 +211,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                     saveUser();
                     if(isRegistrationSuccessful()){
                         finish();
-                        Intent intent = new Intent(SignUpActivity.this, ProfileActivity.class);
+                        Intent intent = new Intent(SignUpActivity.this, HomeActivity.class);
                         startActivity(intent);
                     }
                 } else {
@@ -235,7 +222,6 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                         toastMessage(getApplicationContext(), task.getException().getMessage());
                     }
                 }
-                ListUserActivity.hideProgressBar();
             }
         });
     }
@@ -264,21 +250,21 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
 
     private void uploadImage(String userID) {
         if(uri != null) {
-            showProgressDialog(this, "Enregistrement de votre image cours ...");
+            showProgressBar();
             final StorageReference ref = storageReference.child("profileImage").child(userID);
             ref.putFile(uri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            hideProgressBar();
                             Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
                             while (!urlTask.isSuccessful());
-                            dismissProgressDialog();
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            dismissProgressDialog();
+                            hideProgressBar();
                             imageSaved = false;
                             toastMessage(getApplicationContext(),"Failed "+e.getMessage());
                         }
@@ -287,26 +273,24 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void saveUser(){
-        String token_id = FirebaseInstanceId.getInstance().getToken();
         User user =  new User(userID, userName, userPhoneNumber, email, userAddress, "token_id", listDahiraID,
                 listUpdatedDahiraID, listCommissions, listAdiya, listSass, listSocial, listRoles);
 
-        showProgressDialog(this,"Enregistrement de vos informations personnelles cours ...");
+        showProgressBar();
         //Save user in firestore database
         db.collection("users").document(userID)
                 .set(user)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        dismissProgressDialog();
+                        hideProgressBar();
                         setAllNewCollection();
-                        //toastMessage("Utilisateur enregistre avec succes");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        dismissProgressDialog();
+                        hideProgressBar();
                         userSaved = false;
                         toastMessage(getApplicationContext(),"Error adding user!");
                         Log.d(TAG, e.toString());
@@ -340,7 +324,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void deleteUser() {
-        showProgressDialog(this,"Chargement en cours ..");
+        showProgressBar();
         db.collection("users").document(userID).delete()
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -349,7 +333,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                             dismissProgressDialog();
                         }
                         else {
-                            dismissProgressDialog();
+                            hideProgressBar();
                             toastMessage(getApplicationContext(), task.getException().getMessage());
                         }
                     }
@@ -357,18 +341,18 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void deleteProfileImage() {
-        showProgressDialog(this,"Chargement en cours ..");
+        showProgressBar();
         //mStorage defined on the onCreate function
         storageReference.child("images").child(userID).delete()
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            dismissProgressDialog();
+                            hideProgressBar();
                             toastMessage(getApplicationContext(), "Image supprimee");
                         }
                         else {
-                            dismissProgressDialog();
+                            hideProgressBar();
                             toastMessage(getApplicationContext(), task.getException().getMessage());
                         }
                     }
@@ -376,10 +360,12 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     public void setAllNewCollection(){
+        showProgressBar();
         db.collection("listAdiya").document(userID).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        hideProgressBar();
                         if (!documentSnapshot.exists()) {
                             initAllCollections();
                             Log.d(TAG, "Collections (Adiya, Sass and Social) created!");
@@ -391,7 +377,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        dismissProgressDialog();
+                        hideProgressBar();
                         Log.d(TAG, "Error creating collections Adiya, Sass and Social!");
                         Log.d(TAG, e.toString());
                     }
@@ -493,5 +479,36 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
 
     public void hideSoftKeyboard(){
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    }
+
+    public  void initViewsProgressBar() {
+        relativeLayoutData = findViewById(R.id.relativeLayout_data);
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main_menu, menu);
+
+        MenuItem iconBack;
+        iconBack = menu.findItem(R.id.icon_back);
+
+        iconBack.setVisible(true);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.icon_back:
+                finish();
+                startActivity(new Intent(this, LoginActivity.class));
+                break;
+        }
+        return true;
     }
 }

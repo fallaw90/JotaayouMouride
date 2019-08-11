@@ -8,53 +8,71 @@
 
     <include
         android:id="@+id/toolbar"
+        layout="@layout/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        layout="@layout/toolbar" />
-
-    <ScrollView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/scrollView"
-        android:layout_marginTop="@dimen/_50sdp"
         android:layout_below="@+id/toolbar">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+        <ScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_50sdp">
 
-            <TextView
-            android:id="@+id/textView_dahiraName"
+            <RelativeLayout
+                android:id="@+id/relativeLayout_data"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/textView_dahiraName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
+                    android:textColor="@color/black" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerview_event"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/textView_dahiraName"
+                    android:layout_marginTop="@dimen/_10sdp" />
+
+                <TextView
+                    android:id="@+id/textView_deleteInstruction"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/recyclerview_event"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:gravity="center"
+                    android:padding="@dimen/_10sdp"
+                    android:text="Glissez vers la gauche pour supprimer"
+                    android:textColor="@color/red" />
+            </RelativeLayout>
+        </ScrollView>
+
+        <Button
+            android:id="@+id/button_back"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textColor="@color/black"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerview_event"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:layout_below="@+id/textView_dahiraName"/>
-
-            <TextView
-                android:id="@+id/textView_deleteInstruction"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:gravity="center"
-                android:padding="@dimen/_10sdp"
-                android:textColor="@color/red"
-                android:layout_below="@+id/recyclerview_event"
-                android:text="Glissez vers la gauche pour supprimer"/>
-        </RelativeLayout>
-    </ScrollView>
+            android:layout_alignParentBottom="true"
+            android:background="@color/green"
+            android:text="Retour a la page precedente"
+            android:textAllCaps="false"
+            android:textColor="@color/colorAccent" />
+    </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/relativeLayout_progressBar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -62,7 +80,7 @@
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:text="Patientez SVP ..."
-            android:textSize="@dimen/_20sdp"/>
+            android:textSize="@dimen/_20sdp" />
 
         <ProgressBar
             android:id="@+id/progressBar"
@@ -75,7 +93,7 @@
             android:indeterminateTint="@color/green"
             android:indeterminateTintMode="src_atop"
             android:progress="80"
-            android:progressDrawable="@drawable/circle"/>
+            android:progressDrawable="@drawable/circle" />
     </RelativeLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

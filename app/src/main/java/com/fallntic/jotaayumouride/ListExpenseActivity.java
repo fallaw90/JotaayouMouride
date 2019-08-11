@@ -1,12 +1,11 @@
 package com.fallntic.jotaayumouride;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -14,6 +13,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -21,26 +21,37 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.fallntic.jotaayumouride.Adapter.ExpenseAdapter;
+import com.fallntic.jotaayumouride.Model.Expense;
+import com.fallntic.jotaayumouride.Utility.DataHolder;
+import com.fallntic.jotaayumouride.Utility.SwipeToDeleteCallback;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import static com.fallntic.jotaayumouride.DataHolder.notificationBody;
-import static com.fallntic.jotaayumouride.DataHolder.notificationTitle;
-import static com.fallntic.jotaayumouride.MainActivity.progressBar;
-import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
+import java.util.List;
+
+import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listExpenses;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.objNotification;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
 
 
-public class ListExpenseActivity extends AppCompatActivity {
+public class ListExpenseActivity extends AppCompatActivity implements View.OnClickListener{
     private final String TAG = "ListExpenseActivity";
 
     private TextView textViewTitle;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private RecyclerView recyclerViewExpense;
 
-    private final ExpenseAdapter expenseAdapter = new ExpenseAdapter(this);
     private CoordinatorLayout coordinatorLayout;
+    private ExpenseAdapter expenseAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,44 +60,43 @@ public class ListExpenseActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setSubtitle("Liste des depense");
+        toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
 
-        // add back arrow to toolbar
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-        }
+        checkInternetConnection(this);
 
-        if (!DataHolder.isConnected(this)) {
-            finish();
-            Intent intent = new Intent(this, LoginActivity.class);
-            DataHolder.showAlertDialog(this, "Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
-        }
-
-        ListUserActivity.scrollView = findViewById(R.id.scrollView);
-        //ProgressBar from static variable MainActivity
-        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
-        progressBar = findViewById(R.id.progressBar);
-        relativeLayoutProgressBar.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
-
-        recyclerViewExpense = findViewById(R.id.recyclerview_expense);
-        textViewTitle = findViewById(R.id.textView_title);
-        coordinatorLayout = findViewById(R.id.coordinatorLayout);
+        initViews();
 
         textViewTitle.setText("Liste des depense du dahira " + DataHolder.dahira.getDahiraName());
 
-        showListExpenses();
+        showListExpenses(listExpenses);
 
-        enableSwipeToDeleteAndUndo();
+        enableSwipeToDelete(this);
 
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.button_back:
                 finish();
-            }
-        });
+                startActivity(new Intent(this, DahiraInfoActivity.class));
+                break;
+        }
+    }
+
+    private void initViews() {
+        recyclerViewExpense = findViewById(R.id.recyclerview_expense);
+        textViewTitle = findViewById(R.id.textView_title);
+        coordinatorLayout = findViewById(R.id.coordinatorLayout);
+        findViewById(R.id.button_back).setOnClickListener(this);
+        initViewsProgressBar();
+    }
+
+    public  void initViewsProgressBar() {
+        relativeLayoutData = findViewById(R.id.relativeLayout_data);
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
     }
 
     @Override
@@ -119,114 +129,91 @@ public class ListExpenseActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        startActivity(new Intent(this, DahiraInfoActivity.class));
+        if (objNotification != null) {
+            objNotification = null;
+            startActivity(new Intent(ListExpenseActivity.this, ProfileActivity.class));
+        } else
+            startActivity(new Intent(ListExpenseActivity.this, DahiraInfoActivity.class));
         super.onBackPressed();
     }
 
-    private void showListExpenses() {
-
+    private void showListExpenses(List<Expense> listExpenses) {
         //Attach adapter to recyclerView
-        Intent intent = new Intent(ListExpenseActivity.this, DahiraInfoActivity.class);
-        if (DataHolder.expense != null) {
-            if (DataHolder.expense.getDahiraID().equals(DataHolder.dahira.getDahiraID())) {
-                recyclerViewExpense.setHasFixedSize(true);
-                recyclerViewExpense.setLayoutManager(new LinearLayoutManager(this));
-                recyclerViewExpense.setVisibility(View.VISIBLE);
+        if (listExpenses != null && listExpenses.size() > 0) {
+            expenseAdapter = new ExpenseAdapter(this, listExpenses);
 
+            recyclerViewExpense.setHasFixedSize(true);
+            recyclerViewExpense.setLayoutManager(new LinearLayoutManager(this));
+            recyclerViewExpense.setVisibility(View.VISIBLE);
 
-                recyclerViewExpense.setAdapter(expenseAdapter);
-                expenseAdapter.notifyDataSetChanged();
-            } else {
-                DataHolder.showAlertDialog(ListExpenseActivity.this, "Dahira " + DataHolder.dahira.getDahiraName() +
-                        " n'a aucune depense enregistree pour le moment", intent);
-            }
-        } else {
-            DataHolder.showAlertDialog(ListExpenseActivity.this, "Dahira " + DataHolder.dahira.getDahiraName() +
-                    " n'a aucun depense enregistre pour le moment", intent);
+            recyclerViewExpense.setAdapter(expenseAdapter);
+            expenseAdapter.notifyDataSetChanged();
         }
-
-        notificationTitle = null;
-        notificationBody = null;
     }
 
-    private void enableSwipeToDeleteAndUndo() {
+    private void enableSwipeToDelete(final Context context) {
         SwipeToDeleteCallback swipeToDeleteCallback = new SwipeToDeleteCallback(this) {
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
 
                 final int position = viewHolder.getAdapterPosition();
-                final String typeOfExpense = DataHolder.expense.getListTypeOfExpense().get(position);
-                final String price = DataHolder.expense.getListPrice().get(position);
-                final String userID = DataHolder.expense.getListUserID().get(position);
-                final String mDate = DataHolder.expense.getListDate().get(position);
-                final String note = DataHolder.expense.getListNote().get(position);
-                final String userName = DataHolder.expense.getListUserName().get(position);
+                final Expense expense = listExpenses.get(position);
 
-                //Update totalAdiya dahira
-                expenseAdapter.removeItem(position);
-                updateExpenseCollection(ListExpenseActivity.this);
-                CreateExpenseActivity.updateDahira(ListExpenseActivity.this, price, typeOfExpense, false);
-
-                Snackbar snackbar = null;
-                snackbar = Snackbar.make(coordinatorLayout,
-                        "Depense supprime.", Snackbar.LENGTH_LONG);
-
-                if (snackbar != null) {
-                    final String finalTypeOfExpense = typeOfExpense;
-                    snackbar.setAction("Annuler la suppression", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-
-                            expenseAdapter.restoreItem(price, mDate, finalTypeOfExpense, note, userID,
-                                    userName, position);
-
-                            updateExpenseCollection(ListExpenseActivity.this);
-                            CreateExpenseActivity.updateDahira(ListExpenseActivity.this, price, typeOfExpense, true);
-
-                            recyclerViewExpense.scrollToPosition(position);
-                        }
-                    });
-
-                    snackbar.setActionTextColor(Color.YELLOW);
-                    snackbar.show();
-                }
+                AlertDialog.Builder builder = new AlertDialog.Builder(ListExpenseActivity.this, R.style.alertDialog);
+                builder.setTitle("Supprimer evenement!");
+                builder.setMessage("Etes vous sure de vouloir supprimer cet evenement?");
+                builder.setCancelable(false);
+                builder.setPositiveButton("OUI", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        expenseAdapter.removeItem(position);
+                        //Remove item in FirebaseFireStore
+                        removeExpense(context, expense);
+                    }
+                });
+                builder.setNegativeButton("NON", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startActivity(new Intent(ListExpenseActivity.this,
+                                ListExpenseActivity.class));
+                    }
+                });
+                builder.show();
             }
         };
-
         ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeToDeleteCallback);
         itemTouchhelper.attachToRecyclerView(recyclerViewExpense);
     }
 
-    public void updateExpenseCollection(final Context context) {
-        ListUserActivity.showProgressBar();
-        FirebaseFirestore.getInstance().collection("expenses")
-                .document(DataHolder.dahira.getDahiraID())
-                .update("listUserID", DataHolder.expense.getListUserID(),
-                        "listUserName", DataHolder.expense.getListUserName(),
-                        "listDate", DataHolder.expense.getListDate(),
-                        "listNote", DataHolder.expense.getListNote(),
-                        "listPrice", DataHolder.expense.getListPrice(),
-                        "listTypeOfExpense", DataHolder.expense.getListTypeOfExpense())
+    public void removeExpense(final Context context, final Expense expense) {
+        showProgressBar();
+        db.collection("dahiras").document(dahira.getDahiraID())
+                .collection("expenses").document(expense.getExpenseID())
+                .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @SuppressLint("LongLogTag")
                     @Override
                     public void onSuccess(Void aVoid) {
-                        ListUserActivity.hideProgressBar();
-                        Log.d(TAG, "Expense updated");
+                        hideProgressBar();
+                        CreateExpenseActivity.updateDahira(context, expense.getPrice(),
+                                expense.getTypeOfExpense(), true);
+
+                        Snackbar snackbar = Snackbar.make(coordinatorLayout,
+                                "Depense supprimee.", Snackbar.LENGTH_LONG);
+                        snackbar.setActionTextColor(Color.GREEN);
+                        snackbar.show();
+
                     }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @SuppressLint("LongLogTag")
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        ListUserActivity.hideProgressBar();
-                        DataHolder.actionSelected = "";
-                        Intent intent = new Intent(context, DahiraInfoActivity.class);
-                        DataHolder.showAlertDialog(context, "Erreur lors de l'enregistrement." +
-                                "\nReessayez plutard SVP", intent);
-                        Log.d(TAG, "Error updated expense");
-                    }
-                });
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                hideProgressBar();
+                Snackbar snackbar = Snackbar.make(coordinatorLayout,
+                        "Erreur de la suppression de votre depense. " + e.getMessage(), Snackbar.LENGTH_LONG);
+                snackbar.setActionTextColor(Color.GREEN);
+                snackbar.show();
+                startActivity(new Intent(ListExpenseActivity.this, ListExpenseActivity.class));
+            }
+        });
     }
 
 }

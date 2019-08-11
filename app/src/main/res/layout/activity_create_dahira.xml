@@ -20,6 +20,7 @@
         android:layout_below="@id/toolbar">
 
         <RelativeLayout
+            android:id="@+id/relativeLayout_data"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1">
@@ -282,7 +283,7 @@
                         android:layout_height="wrap_content"
                         android:layout_margin="7dp"
                         android:background="@color/green"
-                        android:text="@string/button_save"
+                        android:text="Suivant"
                         android:textAllCaps="false"
                         android:textColor="@color/white" />
 
@@ -297,7 +298,8 @@
     <RelativeLayout
         android:id="@+id/relativeLayout_progressBar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:visibility="gone">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -2,12 +2,15 @@ package com.fallntic.jotaayumouride.Model;
 
 import com.google.firebase.database.Exclude;
 
-public class Song {
+import static com.fallntic.jotaayumouride.Utility.DataHolder.getCurrentDate;
+
+public class Song implements Comparable<Song>{
     public String audioTitle;
     public String audioDuration;
     public String audioUri;
     public String audioID;
-    public boolean isPlaying;
+    public String date;
+    public boolean playing;
 
     public Song(String audioID, String audioTitle, String audioDuration, String audioUri) {
 
@@ -18,6 +21,8 @@ public class Song {
         this.audioDuration = audioDuration;
         this.audioUri = audioUri;
         this.audioID = audioID;
+        this.playing = false;
+        this.date = getCurrentDate();
     }
 
     public Song() {
@@ -31,9 +36,8 @@ public class Song {
         this.audioTitle = songTitle;
     }
 
-    public long getAudioDuration() {
-        String str_duration = audioDuration.replace(":", "");
-        return Long.parseLong(str_duration);
+    public String getAudioDuration() {
+        return audioDuration;
     }
 
     public void setAudioDuration(String songDuration) {
@@ -59,10 +63,23 @@ public class Song {
     }
 
     public boolean isPlaying() {
-        return isPlaying;
+        return playing;
     }
 
     public void setPlaying(boolean playing) {
-        isPlaying = playing;
+        this.playing = playing;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    @Override
+    public int compareTo(Song song) {
+        return this.audioTitle.compareToIgnoreCase(song.getAudioTitle());
     }
 }

@@ -8,257 +8,256 @@
 
     <include
         android:id="@+id/toolbar"
+        layout="@layout/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout_data"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        layout="@layout/toolbar" />
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/scrollView"
         android:layout_below="@id/toolbar">
 
-        <RelativeLayout
+        <ScrollView
+            android:id="@+id/scrollView"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/textVview_updateAdmin"
-                    android:textAlignment="center"
-                    android:textColor="@color/black"
-                    android:textSize="20sp"/>
-
-                <ImageView
-                    android:id="@+id/imageView"
-                    android:layout_width="200dp"
-                    android:layout_height="200dp"
-                    android:layout_centerHorizontal="true"
-                    app:srcCompat="@drawable/profile_image"
-                    android:layout_below="@+id/labelImageView"
-                    android:layout_gravity="center"
-                    android:scaleType="centerCrop" />
-
-                <TextView
-                    android:id="@+id/textView_dahiraName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="5dp"
-                    android:textColor="@color/black"
-                    android:textAlignment="center"
-                    android:textSize="@dimen/_20sdp"/>
+                android:layout_height="match_parent">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginBottom="5dp"
-                    android:layout_marginTop="5dp"
-                    android:orientation="horizontal">
+                    android:layout_centerVertical="true"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <TextView
-                        android:id="@+id/textView_labelUserName"
-                        android:layout_width="135dp"
-                        android:layout_height="wrap_content"
-                        android:text="@string/userName"
-                        android:layout_marginRight="5dp"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/_15sdp"/>
-
-                    <EditText
-                        android:id="@+id/editText_userName"
+                        android:id="@+id/textView_dahiraName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/edittext_background"
-                        android:hint="@string/userName"
-                        android:padding="10dp" />
+                        android:textAlignment="center"
+                        android:textColor="@color/red"
+                        android:textSize="20sp" />
+
+                    <ImageView
+                        android:id="@+id/imageView"
+                        android:layout_width="150dp"
+                        android:layout_height="150dp"
+                        android:layout_below="@+id/labelImageView"
+                        android:layout_centerHorizontal="true"
+                        android:layout_gravity="center"
+                        android:scaleType="centerCrop"
+                        app:srcCompat="@drawable/profile_image" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginBottom="5dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/textView_labelUserName"
+                            android:layout_width="135dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="5dp"
+                            android:text="@string/userName"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/_15sdp" />
+
+                        <EditText
+                            android:id="@+id/editText_userName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/edittext_background"
+                            android:hint="@string/userName"
+                            android:padding="10dp" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/textView_phoneNumber"
+                            android:layout_width="135dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="5dp"
+                            android:text="@string/updatePhoneNumber"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/_15sdp" />
+
+                        <EditText
+                            android:id="@+id/editText_userPhoneNumber"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/edittext_background"
+                            android:digits="0123456789"
+                            android:hint="@string/phoneNumber"
+                            android:inputType="phone"
+                            android:maxLength="9"
+                            android:padding="10dp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginBottom="5dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/textView_commission"
+                            android:layout_width="135dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="5dp"
+                            android:text="@string/address"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/_15sdp" />
+
+                        <EditText
+                            android:id="@+id/editText_address"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/edittext_background"
+                            android:hint="@string/address"
+                            android:padding="10dp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginBottom="5dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/textView_adiya"
+                            android:layout_width="135dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="5dp"
+                            android:text="@string/adiyaVerse"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/_15sdp" />
+
+                        <EditText
+                            android:id="@+id/editText_adiyaVerse"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/edittext_background"
+                            android:padding="10dp"
+                            android:text="00" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginBottom="5dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/textView_sassVerse"
+                            android:layout_width="135dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="5dp"
+                            android:text="@string/sassVerse"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/_15sdp" />
+
+                        <EditText
+                            android:id="@+id/editText_sassVerse"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/edittext_background"
+                            android:padding="10dp"
+                            android:text="00" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginBottom="5dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/textView_spinnerLabelCommission"
+                            android:layout_width="135dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="5dp"
+                            android:text="@string/socialVerse"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/_15sdp" />
+
+                        <EditText
+                            android:id="@+id/editText_socialVerse"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/edittext_background"
+                            android:padding="10dp"
+                            android:text="00" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginBottom="5dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/textView_labelCommission"
+                            android:layout_width="135dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginRight="5dp"
+                            android:text="@string/labelCommission"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/_15sdp" />
+
+                        <Spinner
+                            android:id="@+id/spinner_commission"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:padding="10dp" />
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/button_save"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="7dp"
+                        android:background="#7fa208"
+                        android:text="Terminer la creation de mon dahira"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white" />
+
 
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:orientation="horizontal">
+            </RelativeLayout>
 
-                    <TextView
-                        android:id="@+id/textView_phoneNumber"
-                        android:layout_width="135dp"
-                        android:layout_height="wrap_content"
-                        android:text="@string/updatePhoneNumber"
-                        android:layout_marginRight="5dp"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/_15sdp"/>
-
-                    <EditText
-                        android:id="@+id/editText_userPhoneNumber"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/edittext_background"
-                        android:hint="@string/phoneNumber"
-                        android:digits="0123456789"
-                        android:inputType="phone"
-                        android:maxLength="9"
-                        android:padding="10dp"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginBottom="5dp"
-                    android:layout_marginTop="5dp"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/textView_commission"
-                        android:layout_width="135dp"
-                        android:layout_height="wrap_content"
-                        android:text="@string/address"
-                        android:layout_marginRight="5dp"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/_15sdp"/>
-
-                    <EditText
-                        android:id="@+id/editText_address"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/edittext_background"
-                        android:hint="@string/address"
-                        android:padding="10dp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginBottom="5dp"
-                    android:layout_marginTop="5dp"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/textView_adiya"
-                        android:layout_width="135dp"
-                        android:layout_height="wrap_content"
-                        android:text="@string/adiyaVerse"
-                        android:layout_marginRight="5dp"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/_15sdp"/>
-
-                    <EditText
-                        android:id="@+id/editText_adiyaVerse"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/edittext_background"
-                        android:text="00"
-                        android:padding="10dp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginBottom="5dp"
-                    android:layout_marginTop="5dp"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/textView_sassVerse"
-                        android:layout_width="135dp"
-                        android:layout_height="wrap_content"
-                        android:text="@string/sassVerse"
-                        android:layout_marginRight="5dp"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/_15sdp"/>
-
-                    <EditText
-                        android:id="@+id/editText_sassVerse"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/edittext_background"
-                        android:text="00"
-                        android:padding="10dp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginBottom="5dp"
-                    android:layout_marginTop="5dp"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/textView_spinnerLabelCommission"
-                        android:layout_width="135dp"
-                        android:layout_height="wrap_content"
-                        android:text="@string/socialVerse"
-                        android:layout_marginRight="5dp"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/_15sdp"/>
-
-                    <EditText
-                        android:id="@+id/editText_socialVerse"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/edittext_background"
-                        android:text="00"
-                        android:padding="10dp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginBottom="5dp"
-                    android:layout_marginTop="5dp"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/textView_labelCommission"
-                        android:layout_width="135dp"
-                        android:layout_height="match_parent"
-                        android:text="@string/labelCommission"
-                        android:layout_marginRight="5dp"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/_15sdp"/>
-
-                    <Spinner
-                        android:id="@+id/spinner_commission"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:padding="10dp"/>
-                </LinearLayout>
-
-                <Button
-                    android:id="@+id/button_save"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="7dp"
-                    android:background="#7fa208"
-                    android:text="@string/save"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white" />
-
-
-            </LinearLayout>
-
-        </RelativeLayout>
-
-    </ScrollView>
+        </ScrollView>
+    </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/relativeLayout_progressBar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -266,7 +265,7 @@
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:text="Patientez SVP ..."
-            android:textSize="@dimen/_20sdp"/>
+            android:textSize="@dimen/_20sdp" />
 
         <ProgressBar
             android:id="@+id/progressBar"
@@ -279,7 +278,7 @@
             android:indeterminateTint="@color/green"
             android:indeterminateTintMode="src_atop"
             android:progress="80"
-            android:progressDrawable="@drawable/circle"/>
+            android:progressDrawable="@drawable/circle" />
     </RelativeLayout>
 
 </RelativeLayout>

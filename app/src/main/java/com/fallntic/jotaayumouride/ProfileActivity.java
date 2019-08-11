@@ -20,6 +20,9 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.fallntic.jotaayumouride.Model.Dahira;
+import com.fallntic.jotaayumouride.Model.Event;
+import com.fallntic.jotaayumouride.Model.User;
 import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -32,32 +35,27 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-
-import static com.fallntic.jotaayumouride.DataHolder.actionSelected;
-import static com.fallntic.jotaayumouride.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.DataHolder.isConnected;
-import static com.fallntic.jotaayumouride.DataHolder.logout;
-import static com.fallntic.jotaayumouride.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.DataHolder.showImage;
-import static com.fallntic.jotaayumouride.DataHolder.showProgressDialog;
-import static com.fallntic.jotaayumouride.DataHolder.toastMessage;
-import static com.fallntic.jotaayumouride.DataHolder.userID;
-import static com.fallntic.jotaayumouride.MainActivity.progressBar;
-import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.actionSelected;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.logout;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.showImage;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.showProgressDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.userID;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllDahira;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllEvent;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListDahira;
 
 public class ProfileActivity extends AppCompatActivity implements View.OnClickListener,
         DrawerMenu, NavigationView.OnNavigationItemSelectedListener {
@@ -103,11 +101,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         setSupportActionBar(toolbar);
 
         //Check if device has internet connection
-        if (!isConnected(this)) {
-            finish();
-            Intent intent = new Intent(this, LoginActivity.class);
-            showAlertDialog(this, "Oops! Pas de connexion, verifier votre connexion internet puis reesayez SVP", intent);
-        }
+        checkInternetConnection(this);
 
         init();
 
@@ -126,11 +120,9 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             }
         });
 
-
-        saveTokenID();
-
-        getMyDahiras();
-        getAllDahiras();
+        //getMyDahira();
+        //getAllDahiras();
+        //getAllEvents();
     }
 
     private void init() {
@@ -152,13 +144,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         linearLayoutVerified = findViewById(R.id.linearLayout_verified);
         linEmail = findViewById(R.id.lin_email);
         swipeLayout = findViewById(R.id.swipeToRefresh);
-
-        //ProgressBar from static variable MainActivity
-        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
-        progressBar = findViewById(R.id.progressBar);
-        relativeLayoutProgressBar.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
-
 
         findViewById(R.id.button_verifyEmail).setOnClickListener(this);
     }
@@ -212,27 +197,22 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
-
     public void getUser() {
         if (onlineUser == null) {
-            setLayoutInvisible();
             db.collection("users").whereEqualTo("userID", userID).get()
                     .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                         @Override
                         public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            setLayoutVisible();
                             for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-
                                 onlineUser = documentSnapshot.toObject(User.class);
-
-                                textViewName.setText(DataHolder.onlineUser.getUserName());
-                                textViewPhoneNumber.setText(DataHolder.onlineUser.getUserPhoneNumber());
-                                textViewAdress.setText(DataHolder.onlineUser.getAddress());
-                                textViewEmail.setText(DataHolder.onlineUser.getEmail());
-                                textViewNavUserName.setText(onlineUser.getUserName());
-                                textViewNavEmail.setText(onlineUser.getEmail());
-                                getDahiraToUpdate();
                             }
+                            textViewName.setText(onlineUser.getUserName());
+                            textViewPhoneNumber.setText(onlineUser.getUserPhoneNumber());
+                            textViewAdress.setText(onlineUser.getAddress());
+                            textViewEmail.setText(onlineUser.getEmail());
+                            textViewNavUserName.setText(onlineUser.getUserName());
+                            textViewNavEmail.setText(onlineUser.getEmail());
+                            getDahiraToUpdate();
                         }
                     });
         } else {
@@ -268,12 +248,12 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
     public void getDahiraToUpdate() {
         if (!isAdminUpdated()) {
-            setLayoutInvisible();
+            //setLayoutInvisible();
             db.collection("dahiras").whereEqualTo("dahiraID", dahiraToUpdate).get()
                     .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                         @Override
                         public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            setLayoutVisible();
+                           // setLayoutVisible();
                             for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                                 dahira = documentSnapshot.toObject(Dahira.class);
                             }
@@ -282,7 +262,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            setLayoutVisible();
+                            //setLayoutVisible();
                             toastMessage(getApplicationContext(), "Error chargement dahiraToUpdate!");
                             Log.d(TAG, e.toString());
                         }
@@ -291,7 +271,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    setLayoutVisible();
+                   // setLayoutVisible();
                     startActivity(new Intent(ProfileActivity.this, UpdateAdminActivity.class));
                 }
             }, 3000);
@@ -306,7 +286,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         MenuItem iconBack;
         iconBack = menu.findItem(R.id.icon_back);
 
-        //iconBack.setVisible(true);
+        iconBack.setVisible(true);
 
         return true;
     }
@@ -325,11 +305,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         switch (item.getItemId()) {
 
             case R.id.nav_home:
-                startActivity(new Intent(this, MainActivity.class));
-                break;
-
-            case R.id.nav_profile:
-                startActivity(new Intent(this, ProfileActivity.class));
+                startActivity(new Intent(this, HomeActivity.class));
                 break;
 
             case R.id.nav_displayMyDahira:
@@ -347,8 +323,13 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 break;
 
             case R.id.nav_displayAllEvent:
-                DataHolder.loadEvent = "allEvents";
-                startActivity(new Intent(this, ListEventActivity.class));
+                if (listAllEvent == null || listAllEvent.size() <= 0) {
+                    showAlertDialog(ProfileActivity.this, "Il n'y a auccun " +
+                            "evenement enregistre pour le moment.");
+                } else {
+                    MyStaticVariables.displayEvent = "allEvents";
+                    startActivity(new Intent(this, ListEventActivity.class));
+                }
                 break;
 
             case R.id.nav_searchDahira:
@@ -377,8 +358,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     public void hideMenuItem() {
         Menu nav_Menu = navigationView.getMenu();
         nav_Menu.findItem(R.id.nav_setting).setTitle("Modifier mon profil");
-
-        nav_Menu.findItem(R.id.nav_home).setVisible(false);
 
         nav_Menu.findItem(R.id.nav_displayUsers).setVisible(false);
         nav_Menu.findItem(R.id.nav_addUser).setVisible(false);
@@ -411,67 +390,18 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         showImage(this, "profileImage", userID, navImageView);
 
-        navigationView.setCheckedItem(R.id.nav_profile);
         hideMenuItem();
     }
 
-    public void saveTokenID() {
-
-        FirebaseMessaging.getInstance().subscribeToTopic("JotaayouMouride");
-
-        FirebaseInstanceId.getInstance().getInstanceId()
-                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
-                        if (!task.isSuccessful()) {
-                            Log.w(TAG, "getInstanceId failed", task.getException());
-                            return;
-                        }
-                        // Get new Instance ID token
-                        String token_id = task.getResult().getToken();
-
-                        Map<String, Object> tokenMap = new HashMap<>();
-                        tokenMap.put("tokenID", token_id);
-                        //toastMessage(ProfileActivity.this, token_id);
-
-                        FirebaseFirestore.getInstance().collection("users")
-                                .document(userID).update(tokenMap)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        dismissProgressDialog();
-                                    }
-                                });
-
-                        // Log and toast
-                        Log.d(TAG, token_id);
-                    }
-                });
-    }
-
-    public void setLayoutInvisible() {
-        swipeLayout.setVisibility(View.GONE);
-        relativeLayoutProgressBar.setVisibility(View.VISIBLE);
-        progressBar.setVisibility(View.VISIBLE);
-    }
-
-    public void setLayoutVisible() {
-        swipeLayout.setVisibility(View.VISIBLE);
-        relativeLayoutProgressBar.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
-    }
-
-    private void getMyDahiras() {
+    private void getMyDahira() {
 
         if (MyStaticVariables.myListDahira == null) {
-
-            MyStaticVariables.myListDahira = new ArrayList<>();
-
+            myListDahira = new ArrayList<>();
             db.collection("dahiras").get()
                     .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                         @Override
                         public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            setLayoutVisible();
+                            //setLayoutVisible();
                             if (!queryDocumentSnapshots.isEmpty()) {
                                 List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
                                 for (DocumentSnapshot documentSnapshot : list) {
@@ -487,7 +417,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            setLayoutVisible();
+                            //setLayoutVisible();
                             toastMessage(getApplicationContext(), "Error charging dahira!");
                         }
                     });
@@ -496,21 +426,19 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
     private void getAllDahiras() {
 
-        if (MyStaticVariables.allListDahira == null) {
-
-            MyStaticVariables.allListDahira = new ArrayList<>();
-
+        if (MyStaticVariables.listAllDahira == null) {
+            listAllDahira = new ArrayList<>();
             db.collection("dahiras").get()
                     .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                         @Override
                         public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            setLayoutVisible();
+                            //setLayoutVisible();
                             if (!queryDocumentSnapshots.isEmpty()) {
                                 List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
                                 for (DocumentSnapshot documentSnapshot : list) {
                                     Dahira dahira = documentSnapshot.toObject(Dahira.class);
                                     dahira.setDahiraID(documentSnapshot.getId());
-                                    MyStaticVariables.allListDahira.add(dahira);
+                                    MyStaticVariables.listAllDahira.add(dahira);
                                 }
                             }
                         }
@@ -518,10 +446,34 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            setLayoutVisible();
+                            //setLayoutVisible();
                             toastMessage(getApplicationContext(), "Error charging dahira!");
                         }
                     });
+        }
+    }
+
+    public void getAllEvents() {
+        if (listAllEvent == null || listAllEvent.size() <= 0) {
+            firestore.collection("events").get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                                for (DocumentSnapshot documentSnapshot : list) {
+                                    Event event = documentSnapshot.toObject(Event.class);
+                                    listAllEvent.add(event);
+                                    Log.d(TAG, "Events downloaded.");
+                                }
+                            }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.d(TAG, "Error downloading events");
+                }
+            });
         }
     }
 }

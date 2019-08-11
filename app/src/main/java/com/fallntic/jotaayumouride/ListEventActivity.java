@@ -1,5 +1,7 @@
 package com.fallntic.jotaayumouride;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
@@ -11,6 +13,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -18,43 +21,44 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.fallntic.jotaayumouride.Adapter.EventAdapter;
+import com.fallntic.jotaayumouride.Model.Dahira;
+import com.fallntic.jotaayumouride.Model.Event;
+import com.fallntic.jotaayumouride.Utility.SwipeToDeleteCallback;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.ArrayList;
-import java.util.List;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.deleteDocument;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllEvent;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListEvents;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.objNotification;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
 
-import static com.fallntic.jotaayumouride.CreateEventActivity.updateEvent;
-import static com.fallntic.jotaayumouride.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.DataHolder.event;
-import static com.fallntic.jotaayumouride.DataHolder.isConnected;
-import static com.fallntic.jotaayumouride.DataHolder.loadEvent;
-import static com.fallntic.jotaayumouride.DataHolder.notificationBody;
-import static com.fallntic.jotaayumouride.DataHolder.notificationTitle;
-import static com.fallntic.jotaayumouride.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.MainActivity.progressBar;
-import static com.fallntic.jotaayumouride.MainActivity.relativeLayoutProgressBar;
-
-public class ListEventActivity extends AppCompatActivity {
+public class ListEventActivity extends AppCompatActivity implements View.OnClickListener{
     private final String TAG = "ListEventActivity";
 
     private TextView textViewDahiraName;
     private TextView textViewDelete;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    public static final String NODE_EVENTS = "events";
     private RecyclerView recyclerViewMyEvent;
     private CoordinatorLayout coordinatorLayout;
-    private RecyclerView recyclerViewAllEvent;
-    private FirebaseAuth mAuth;
-    private List<Event> eventList;
-    private AllEventAdapter allEventAdapter;
-    private MyEventAdapter myEventAdapter;
+    private EventAdapter eventAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,70 +67,58 @@ public class ListEventActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setSubtitle("Liste des evenements");
+        toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
 
+        checkInternetConnection(this);
 
-        // add back arrow to toolbar
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        if (objNotification != null) {
+            getDahira(objNotification.getDahiraID());
+            if (onlineUser.getListDahiraID().contains(objNotification.getDahiraID()))
+                indexOnlineUser = onlineUser.getListDahiraID().indexOf(objNotification.getDahiraID());
         }
 
-        if (!isConnected(this)) {
-            finish();
-            Intent intent = new Intent(this, LoginActivity.class);
-            showAlertDialog(this, "Oops! Pas de connexion, " +
-                    "verifier votre connexion internet puis reesayez SVP", intent);
-        }
+        initViews();
 
-        ListUserActivity.scrollView = findViewById(R.id.scrollView);
-        //ProgressBar from static variable MainActivity
+        loadEvents(this);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.button_back:
+                finish();
+                startActivity(new Intent(this, HomeActivity.class));
+                break;
+        }
+    }
+
+    private void initViews() {
+        coordinatorLayout = findViewById(R.id.coordinatorLayout);
+        textViewDelete = findViewById(R.id.textView_deleteInstruction);
+        recyclerViewMyEvent = findViewById(R.id.recyclerview_event);
+        textViewDahiraName = findViewById(R.id.textView_dahiraName);
+        findViewById(R.id.button_back).setOnClickListener(this);
+        initViewsProgressBar();
+    }
+
+    public  void initViewsProgressBar() {
+        relativeLayoutData = findViewById(R.id.relativeLayout_data);
         relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
         progressBar = findViewById(R.id.progressBar);
-        relativeLayoutProgressBar.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
-
-        if (DataHolder.loadEvent.equals("myEvents")){
-            loadMyEvents();
-            enableSwipeToDeleteAndUndo();
-        }
-        else if (DataHolder.loadEvent.equals("allEvents")) {
-            loadAllEvents();
-            textViewDelete = findViewById(R.id.textView_deleteInstruction);
-            textViewDelete.setVisibility(View.GONE);
-        }
-
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (DataHolder.notificationTitle != null && DataHolder.notificationBody != null) {
-                    DataHolder.notificationTitle = null;
-                    DataHolder.notificationBody = null;
-                    startActivity(new Intent(ListEventActivity.this, MainActivity.class));
-                }
-                else
-                    finish();
-            }
-        });
-
-        notificationTitle = null;
-        notificationBody = null;
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        if (DataHolder.notificationTitle != null || DataHolder.notificationBody != null) {
-            DataHolder.notificationTitle = null;
-            DataHolder.notificationBody = null;
-            startActivity(new Intent(ListEventActivity.this, MainActivity.class));
+        finish();
+        if (displayEvent.equals("allEvents") || objNotification != null){
+            objNotification = null;
+            startActivity(new Intent(ListEventActivity.this, HomeActivity.class));
         }
-        else if (loadEvent.equals("allEvents")){
-            startActivity(new Intent(ListEventActivity.this, MainActivity.class));
+        if (displayEvent.equals("myEvents") ){
+            startActivity(new Intent(ListEventActivity.this, DahiraInfoActivity.class));
         }
-        else
-            finish();
     }
 
     @Override
@@ -135,51 +127,28 @@ public class ListEventActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    private void loadMyEvents() {
+    private void loadEvents(Context context) {
 
-        recyclerViewMyEvent = findViewById(R.id.recyclerview_event);
-        textViewDahiraName = findViewById(R.id.textView_dahiraName);
-        textViewDahiraName.setText("Liste des evenements du dahira " + dahira.getDahiraName());
+        if (myListEvents != null || listAllEvent != null) {
+            if (displayEvent.equals("myEvents")) {
+                eventAdapter = new EventAdapter(this, myListEvents);
+                textViewDahiraName.setText("Liste des evenements du dahira " + dahira.getDahiraName());
+                enableSwipeToDelete();
 
-        //Attach adapter to recyclerView
-        recyclerViewMyEvent.setHasFixedSize(true);
-        recyclerViewMyEvent.setLayoutManager(new LinearLayoutManager(this));
-        recyclerViewMyEvent.setVisibility(View.VISIBLE);
-
-        myEventAdapter = new MyEventAdapter(this);
-        recyclerViewMyEvent.setAdapter(myEventAdapter);
-        myEventAdapter.notifyDataSetChanged();
-    }
-
-    private void loadAllEvents() {
-        eventList = new ArrayList<>();
-        recyclerViewAllEvent = findViewById(R.id.recyclerview_event);
-        recyclerViewAllEvent.setLayoutManager(new LinearLayoutManager(this));
-
-        ListUserActivity.showProgressBar();
-        db.collection("events").get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        ListUserActivity.hideProgressBar();
-                        if (!queryDocumentSnapshots.isEmpty()) {
-                            List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
-                            for (DocumentSnapshot documentSnapshot : list) {
-                                Event event = documentSnapshot.toObject(Event.class);
-                                eventList.add(event);
-                            }
-
-                            allEventAdapter = new AllEventAdapter(ListEventActivity.this, eventList);
-                            recyclerViewAllEvent.setAdapter(allEventAdapter);
-                        }
-                        allEventAdapter.notifyDataSetChanged();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                ListUserActivity.hideProgressBar();
+            } else if (displayEvent.equals("allEvents")) {
+                eventAdapter = new EventAdapter(this, listAllEvent);
+                textViewDelete.setVisibility(View.GONE);
+                textViewDahiraName.setText("Liste des evenements du dahira de tous les dahiras");
             }
-        });
+            //Attach adapter to recyclerView
+            recyclerViewMyEvent.setHasFixedSize(true);
+            recyclerViewMyEvent.setLayoutManager(new LinearLayoutManager(this));
+            recyclerViewMyEvent.setVisibility(View.VISIBLE);
+
+            recyclerViewMyEvent.setAdapter(eventAdapter);
+            eventAdapter.notifyDataSetChanged();
+        } else
+            toastMessage(context, "myListEvents and listAllEvent null");
     }
 
     @Override
@@ -189,8 +158,12 @@ public class ListEventActivity extends AppCompatActivity {
 
         MenuItem iconAdd;
         iconAdd = menu.findItem(R.id.icon_add);
-        if (loadEvent.equals("myEvents"))
+        if (displayEvent != null && displayEvent.equals("myEvents") && indexOnlineUser >= 0 && onlineUser.getListRoles()
+                .get(indexOnlineUser).equals("Administrateur")) {
+
             iconAdd.setVisible(true);
+
+        }
         return true;
     }
 
@@ -199,57 +172,103 @@ public class ListEventActivity extends AppCompatActivity {
 
         switch (item.getItemId()) {
             case R.id.icon_add:
+                if (objNotification != null) {
+                    objNotification = null;
+                }
                 startActivity(new Intent(this, CreateEventActivity.class));
                 break;
         }
         return true;
     }
 
-    private void enableSwipeToDeleteAndUndo() {
+    private void enableSwipeToDelete() {
         SwipeToDeleteCallback swipeToDeleteCallback = new SwipeToDeleteCallback(this) {
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
 
                 final int position = viewHolder.getAdapterPosition();
-                final String userName = event.getListUserName().get(position);
-                final String mDate = event.getListDate().get(position);
-                final String title = event.getListTitle().get(position);
-                final String note = event.getListNote().get(position);
-                final String location = event.getListLocation().get(position);
-                final String startTime = event.getListStartTime().get(position);
-                final String endTime = event.getListEndTime().get(position);
-                final String userID = event.getListUserID().get(position);
-                coordinatorLayout = findViewById(R.id.coordinatorLayout);
 
-                //Update totalAdiya dahira
-                myEventAdapter.removeItem(position);
-                updateEvent(ListEventActivity.this);
+                final Event event = myListEvents.get(position);
 
-                Snackbar snackbar = null;
-                snackbar = Snackbar.make(coordinatorLayout,
-                        "Depense supprime.", Snackbar.LENGTH_LONG);
+                AlertDialog.Builder builder = new AlertDialog.Builder(ListEventActivity.this, R.style.alertDialog);
+                builder.setTitle("Supprimer evenement!");
+                builder.setMessage("Etes vous sure de vouloir supprimer cet evenement?");
+                builder.setCancelable(false);
+                builder.setPositiveButton("OUI", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        eventAdapter.removeItem(position);
+                        //Remove item in FirebaseFireStore
 
-                if (snackbar != null) {
-                    snackbar.setAction("Annuler la suppression", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
+                        removeEvent(event);
+                    }
+                });
 
-                            myEventAdapter.restoreItem(userName, mDate, title, note, location,
-                                    startTime, endTime, userID, position);
-
-                            updateEvent(ListEventActivity.this);
-
-                            recyclerViewMyEvent.scrollToPosition(position);
-                        }
-                    });
-
-                    snackbar.setActionTextColor(Color.YELLOW);
-                    snackbar.show();
-                }
+                builder.setNegativeButton("NON", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startActivity(new Intent(ListEventActivity.this,
+                                ListEventActivity.class));
+                    }
+                });
+                builder.show();
             }
+
         };
 
         ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeToDeleteCallback);
         itemTouchhelper.attachToRecyclerView(recyclerViewMyEvent);
+    }
+
+    public void removeEvent(final Event event) {
+        showProgressBar();
+        db.collection("events").document(dahira.getDahiraID())
+                .collection("myEvents").document(event.getEventID())
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        hideProgressBar();
+                        deleteDocument(ListEventActivity.this, "events", event.getEventID());
+
+                        Snackbar snackbar = Snackbar.make(coordinatorLayout,
+                                "Evenement supprimee.", Snackbar.LENGTH_LONG);
+                        snackbar.setActionTextColor(Color.GREEN);
+                        snackbar.show();
+
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                hideProgressBar();
+                Snackbar snackbar = Snackbar.make(coordinatorLayout,
+                        "Erreur de la suppression de l'evenement. " + e.getMessage(), Snackbar.LENGTH_LONG);
+                snackbar.setActionTextColor(Color.GREEN);
+                snackbar.show();
+                startActivity(new Intent(ListEventActivity.this, ListEventActivity.class));
+            }
+        });
+    }
+
+    public void getDahira(final String dahiraID) {
+        showProgressBar();
+        firestore.collection("dahiras")
+                .whereEqualTo("dahiraID", dahiraID).get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        hideProgressBar();
+                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            dahira = documentSnapshot.toObject(Dahira.class);
+                            break;
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        hideProgressBar();
+                    }
+                });
     }
 }
