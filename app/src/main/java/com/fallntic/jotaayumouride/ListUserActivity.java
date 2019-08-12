@@ -53,16 +53,13 @@ import static com.fallntic.jotaayumouride.Utility.DataHolder.selectedUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.showImage;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.userID;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listExpenses;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListEvents;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.*;
 
 public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     private TextView textViewDahiraname;
-    private List<User> listUser;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private RecyclerView recyclerViewUser;
@@ -148,35 +145,8 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         recyclerViewUser.setHasFixedSize(true);
         recyclerViewUser.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewUser.setVisibility(View.VISIBLE);
-        listUser = new ArrayList<>();
         userAdapter = new UserAdapter(this, listUser);
         recyclerViewUser.setAdapter(userAdapter);
-
-        //showProgressBar();
-        db.collection("users").get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        //hideProgressBar();
-                        if (!queryDocumentSnapshots.isEmpty()) {
-                            List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
-                            for (DocumentSnapshot documentSnapshot : list) {
-                                User user = documentSnapshot.toObject(User.class);
-                                for (String id_dahira : user.getListDahiraID()) {
-                                    if (id_dahira.equals(dahira.getDahiraID())) {
-                                        listUser.add(user);
-                                    }
-                                }
-                            }
-                            userAdapter.notifyDataSetChanged();
-                        }
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                //hideProgressBar();
-            }
-        });
     }
 
     private void addNewMember() {
@@ -367,7 +337,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main_menu, menu);
+        inflater.inflate(R.menu.main_menu, menu);
 
         MenuItem iconLogo;
         iconLogo = menu.findItem(R.id.logo);
@@ -380,6 +350,18 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         if (toggle.onOptionsItemSelected(item)) {
             return true;
         }
+
+        switch (item.getItemId()) {
+            case R.id.instructions:
+                startActivity(new Intent(this, InstructionsActivity.class));
+                break;
+
+            case R.id.icon_back:
+                finish();
+                startActivity(new Intent(this, HomeActivity.class));
+                break;
+        }
+
         return true;
     }
 

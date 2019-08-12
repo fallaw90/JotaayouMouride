@@ -253,7 +253,7 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main_menu, menu);
+        inflater.inflate(R.menu.main_menu, menu);
 
         MenuItem iconLogo;
         iconLogo = menu.findItem(R.id.logo);
@@ -273,6 +273,10 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
             case R.id.icon_back:
                 finish();
                 startActivity(new Intent(this, HomeActivity.class));
+                break;
+
+            case R.id.instructions:
+                startActivity(new Intent(this, InstructionsActivity.class));
                 break;
         }
         return true;

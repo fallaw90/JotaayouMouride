@@ -51,7 +51,6 @@
         <activity android:name=".SignUpActivity" />
         <activity android:name=".CreateDahiraActivity" />
         <activity android:name=".LoginActivity" />
-        <activity android:name=".ProfileActivity" />
         <activity
             android:name=".SplashActivity"
             android:label="@string/app_name"

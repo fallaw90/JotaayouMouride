@@ -193,7 +193,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main_menu, menu);
+        inflater.inflate(R.menu.main_menu, menu);
 
         MenuItem iconLogo;
         iconLogo = menu.findItem(R.id.logo);

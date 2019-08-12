@@ -3,6 +3,9 @@ package com.fallntic.jotaayumouride;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -20,10 +23,10 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 
+import static com.fallntic.jotaayumouride.DahiraInfoActivity.getListUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
@@ -33,6 +36,8 @@ import static com.fallntic.jotaayumouride.Utility.DataHolder.showImage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
@@ -42,9 +47,6 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
 
     private RadioGroup radioRoleGroup;
     private RadioButton radioRoleButton;
-    private boolean commissionsSaved = true;
-
-    private FirebaseFirestore db;
 
     private EditText editTextUserName;
     private EditText editTextAddress;
@@ -109,13 +111,25 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public void onClick(View v) {
-        switch(v.getId()){
+        switch (v.getId()) {
             case R.id.button_update:
                 updateData();
                 break;
 
             case R.id.button_cancel:
                 startActivity(new Intent(SettingUserActivity.this, UserInfoActivity.class));
+                break;
+
+            case R.id.button_delete:
+                selectedUser.getListDahiraID().remove(indexSelectedUser);
+                selectedUser.getListUpdatedDahiraID().remove(indexSelectedUser);
+                selectedUser.getListRoles().remove(indexSelectedUser);
+                selectedUser.getListCommissions().remove(indexSelectedUser);
+                selectedUser.getListAdiya().remove(indexSelectedUser);
+                selectedUser.getListSass().remove(indexSelectedUser);
+                selectedUser.getListSocial().remove(indexSelectedUser);
+
+                deleteUser();
                 break;
         }
     }
@@ -127,19 +141,10 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setSubtitle("Parametres membre");
+        toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
-        //***************** Set logo **********************
-        getSupportActionBar().setLogo(R.mipmap.logo);
-        getSupportActionBar().setDisplayUseLogoEnabled(true);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         checkInternetConnection(this);
-
-        db = FirebaseFirestore.getInstance();
-
         initViews();
 
         displayViews();
@@ -149,13 +154,13 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
 
     }
 
-    public  void initViewsProgressBar() {
+    public void initViewsProgressBar() {
         relativeLayoutData = findViewById(R.id.relativeLayout_data);
         relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
         progressBar = findViewById(R.id.progressBar);
     }
 
-    private void initViews(){
+    private void initViews() {
 
         editTextUserName = findViewById(R.id.editText_userName);
         editTextAddress = findViewById(R.id.editText_address);
@@ -168,16 +173,13 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         initViewsProgressBar();
 
         radioRoleGroup = findViewById(R.id.radioGroup);
-        // get selected radio button from radioGroup
-        int selectedId = radioRoleGroup.getCheckedRadioButtonId();
-        // find the radiobutton by returned id
-        radioRoleButton = findViewById(selectedId);
 
         findViewById(R.id.button_update).setOnClickListener(this);
         findViewById(R.id.button_cancel).setOnClickListener(this);
+        findViewById(R.id.button_delete).setOnClickListener(this);
     }
 
-    private void displayViews(){
+    private void displayViews() {
 
         editTextUserName.setText(selectedUser.getUserName());
         editTextAddress.setText(selectedUser.getAddress());
@@ -190,18 +192,17 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         //Select a commission
         setSpinner();
 
-        if (selectedUser.getUserID().equals(onlineUser.getUserID())){
-            radioRoleGroup.setVisibility(View.GONE);
-            buttonDelete.setVisibility(View.GONE);
-        }
-        else if (onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")){
-            radioRoleGroup.setVisibility(View.GONE);
+        if (!selectedUser.getUserID().equals(onlineUser.getUserID())) {
             editTextUserName.setEnabled(false);
             editTextAddress.setEnabled(false);
         }
+        if (!onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
+            radioRoleGroup.setVisibility(View.GONE);
+            buttonDelete.setVisibility(View.GONE);
+        }
     }
 
-    public void setSpinner(){
+    public void setSpinner() {
         spinnerCommission = findViewById(R.id.spinner_commission);
 
         List<String> listCommissionDahira = dahira.getListCommissions();
@@ -216,13 +217,18 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
 
                 commission = parent.getItemAtPosition(position).toString();
             }
+
             @Override
-            public void onNothingSelected(AdapterView <?> parent) {
+            public void onNothingSelected(AdapterView<?> parent) {
             }
         });
     }
 
-    public void updateData(){
+    public void updateData() {
+        // get selected radio button from radioGroup
+        int selectedId = radioRoleGroup.getCheckedRadioButtonId();
+        // find the radiobutton by returned id
+        radioRoleButton = findViewById(selectedId);
 
         String name = editTextUserName.getText().toString().trim();
         String address = editTextAddress.getText().toString().trim();
@@ -235,8 +241,8 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         sass = sass.replace(",", ".");
         social = social.replace(",", ".");
 
-        if(!hasValidationErrors(name, editTextUserName, address, editTextAddress,
-                adiya, editTextAdiya, sass, editTextSass, social, editTextSocial)){
+        if (!hasValidationErrors(name, editTextUserName, address, editTextAddress,
+                adiya, editTextAdiya, sass, editTextSass, social, editTextSocial)) {
             selectedUser.setUserName(name);
             selectedUser.setAddress(address);
             selectedUser.getListAdiya().set(indexSelectedUser, adiya);
@@ -246,7 +252,7 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
             selectedUser.getListRoles().set(indexSelectedUser, role);
 
             showProgressBar();
-            db.collection("users").document(selectedUser.getUserID())
+            firestore.collection("users").document(selectedUser.getUserID())
                     .update("userName", selectedUser.getUserName(),
                             "address", selectedUser.getAddress(),
                             "listCommissions", selectedUser.getListCommissions(),
@@ -271,7 +277,56 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    public void hideSoftKeyboard(){
+    public void deleteUser() {
+        showProgressBar();
+        firestore.collection("users").document(selectedUser.getUserID())
+                .set(selectedUser)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        hideProgressBar();
+                        showAlertDialog(SettingUserActivity.this, selectedUser.getUserName() +
+                                " a ete supprime dans votre dahira avec succes.");
+                        listUser = null;
+                        getListUser(SettingUserActivity.this);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                hideProgressBar();
+                startActivity(new Intent(SettingUserActivity.this, UserInfoActivity.class));
+            }
+        });
+    }
+
+    public void hideSoftKeyboard() {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+
+        MenuItem iconBack, instructions;
+        iconBack = menu.findItem(R.id.icon_back);
+        iconBack.setVisible(true);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.icon_back:
+                finish();
+                break;
+
+            case R.id.instructions:
+                startActivity(new Intent(this, InstructionsActivity.class));
+                break;
+        }
+        return true;
     }
 }

@@ -31,11 +31,11 @@
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/imageView"
-                    android:layout_width="@dimen/_150sdp"
-                    android:layout_height="@dimen/_150sdp"
+                    android:layout_width="@dimen/_200sdp"
+                    android:layout_height="@dimen/_200sdp"
                     android:layout_gravity="center"
                     android:layout_marginTop="@dimen/_20sdp"
-                    android:src="@mipmap/logo"
+                    android:src="@drawable/logo_web"
                     app:civ_border_color="#EEEEEE"
                     app:civ_border_width="4dp"
                     app:civ_shadow="true"

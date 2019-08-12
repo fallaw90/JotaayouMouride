@@ -177,7 +177,7 @@ public class SendAnnouncementActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main_menu, menu);
+        inflater.inflate(R.menu.main_menu, menu);
 
         MenuItem iconAdd;
         iconAdd = menu.findItem(R.id.icon_add);
@@ -191,6 +191,10 @@ public class SendAnnouncementActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.icon_add:
                 DahiraInfoActivity.chooseMethodAnnouncement(SendAnnouncementActivity.this);
+                break;
+
+            case R.id.instructions:
+                startActivity(new Intent(this, InstructionsActivity.class));
                 break;
         }
         return true;

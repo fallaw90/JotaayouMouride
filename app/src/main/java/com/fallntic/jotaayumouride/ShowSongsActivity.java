@@ -35,7 +35,6 @@ import com.fallntic.jotaayumouride.Adapter.SongAdapter;
 import com.fallntic.jotaayumouride.Model.Song;
 import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.fallntic.jotaayumouride.Utility.SwipeToDeleteCallback;
-import com.fallntic.jotaayumouride.Utility.Utility;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -50,6 +49,7 @@ import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.convertDuration;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listSong;
 
 
@@ -77,7 +77,7 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
         public void run() {
             //seekBar.setMax(mediaPlayer.getDuration());
             startTime = mediaPlayer.getCurrentPosition();
-            tv_time.setText(Utility.convertDuration(mediaPlayer.getCurrentPosition()));
+            tv_time.setText(convertDuration(mediaPlayer.getCurrentPosition()));
             seekBar.setProgress((int) startTime);
             myHandler.postDelayed(this, 500);
         }
@@ -494,7 +494,7 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main_menu, menu);
+        inflater.inflate(R.menu.main_menu, menu);
 
         MenuItem iconAdd;
         iconAdd = menu.findItem(R.id.icon_add);

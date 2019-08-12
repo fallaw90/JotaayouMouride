@@ -27,8 +27,8 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/intro"
-                android:textSize="18sp"
+                android:text="@string/about"
+                android:textSize="16sp"
                 android:textColor="@color/black"
                 android:justificationMode="inter_word"/>
 

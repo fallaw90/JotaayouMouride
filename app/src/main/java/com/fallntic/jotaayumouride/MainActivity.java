@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -60,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
     public static final String CHANNEL_Name = "Jotaayou Mouride";
     public static final String CHANNEL_DESC = "Jotaayou Mouride Notifications";
 
+    private TextView textView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,28 +70,16 @@ public class MainActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
 
-        initViewsProgressBar();
+        textView = findViewById(R.id.textView);
 
         checkInternetConnection(this);
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
         userID = firebaseAuth.getUid();
 
-
-        checkIfUserLoggedIn();
-    }
-
-
-    //************************************* ProgressBar ***************************************
-    public void initViewsProgressBar() {
-        relativeLayoutData = findViewById(R.id.relativeLayout_data);
-        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
-        progressBar = findViewById(R.id.progressBar);
-    }
-
-    private void checkIfUserLoggedIn() {
         if (firebaseUser != null) {
             createChannel();
             objNotification = (ObjNotification) getIntent().getSerializableExtra("objNotification");
@@ -111,8 +102,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void getOnlineUser(final Context context, String userID, final ObjNotification objNotification) {
-        relativeLayoutProgressBar.setVisibility(View.VISIBLE);
-        progressBar.setVisibility(View.VISIBLE);
 
         if (objNotification != null) {
             userID = objNotification.getUserID();
@@ -123,11 +112,9 @@ public class MainActivity extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        relativeLayoutProgressBar.setVisibility(View.GONE);
-                        progressBar.setVisibility(View.GONE);
                         for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                             onlineUser = documentSnapshot.toObject(User.class);
-
+                            textView.setText("Bienvenu " + onlineUser.getUserName());
                             if (objNotification != null) {
                                 getDahira(context, objNotification.getDahiraID());
                                 break;
@@ -142,8 +129,7 @@ public class MainActivity extends AppCompatActivity {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        relativeLayoutProgressBar.setVisibility(View.GONE);
-                        progressBar.setVisibility(View.GONE);
+                        textView.setText("Erreur reseau reessayez plutard stp.");
                     }
                 });
 
@@ -151,16 +137,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void getDahira(final Context context, final String dahiraID) {
-        relativeLayoutProgressBar.setVisibility(View.VISIBLE);
-        progressBar.setVisibility(View.VISIBLE);
         FirebaseFirestore.getInstance().collection("dahiras")
                 .whereEqualTo("dahiraID", dahiraID).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @SuppressLint("LongLogTag")
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        relativeLayoutProgressBar.setVisibility(View.GONE);
-                        progressBar.setVisibility(View.GONE);
                         if (!queryDocumentSnapshots.isEmpty()) {
                             for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                                 dahira = documentSnapshot.toObject(Dahira.class);
@@ -225,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    context.startActivity(new Intent(context, ProfileActivity.class));
+                    context.startActivity(new Intent(context, HomeActivity.class));
                     Log.d(TAG, "Error downloading events");
                 }
             });
@@ -235,9 +217,8 @@ public class MainActivity extends AppCompatActivity {
     public void getMyEvents(final Context context, Dahira dahira) {
         if (myListEvents == null || myListEvents.size() <= 0) {
             myListEvents = new ArrayList<>();
-            toastMessage(context, "hi im here");
-            showProgressDialog(context, "Chargement des evenements en cours ...");
 
+            textView.setText("Chargement des evenements en cours ...");
             firestore.collection("dahiras")
                     .document(dahira.getDahiraID())
                     .collection("myEvents")
@@ -249,7 +230,6 @@ public class MainActivity extends AppCompatActivity {
                         for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                             Event event = documentSnapshot.toObject(Event.class);
                             myListEvents.add(event);
-                            toastMessage(context, "Size myListEvents = " + myListEvents.size());
                         }
                     }
                     if (objNotification != null) {
@@ -258,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
                         context.startActivity(new Intent(context, ListEventActivity.class));
                     } else {
                         finish();
-                        context.startActivity(new Intent(context, ProfileActivity.class));
+                        context.startActivity(new Intent(context, HomeActivity.class));
                     }
                     Log.d(TAG, "Even downloaded");
                 }
@@ -266,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            dismissProgressDialog();
+                            textView.setText("Erreur reseau reessayez plutard svp ...");
                             Log.d(TAG, "Error downloading event");
                         }
                     });

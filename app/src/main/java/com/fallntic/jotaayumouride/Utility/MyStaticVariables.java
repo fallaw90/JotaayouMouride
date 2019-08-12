@@ -18,6 +18,7 @@ import com.fallntic.jotaayumouride.Model.Expense;
 import com.fallntic.jotaayumouride.Model.Image;
 import com.fallntic.jotaayumouride.Model.ObjNotification;
 import com.fallntic.jotaayumouride.Model.Song;
+import com.fallntic.jotaayumouride.Model.User;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -27,6 +28,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.List;
+
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.convertDuration;
 
 public class MyStaticVariables {
 
@@ -46,6 +49,8 @@ public class MyStaticVariables {
     public static List<Song> listAudiosHTDK;
     public static List<Song> listAudiosAM;
     public static List<Song> listAudiosRadiass;
+
+    public static List<User> listUser;
 
     //************* ProgressBar ************
     public static RelativeLayout relativeLayoutProgressBar, relativeLayoutData;
@@ -99,7 +104,7 @@ public class MyStaticVariables {
         public void run() {
             //seekBar.setMax(mediaPlayer.getDuration());
             startTime = mediaPlayer.getCurrentPosition();
-            tv_time.setText(Utility.convertDuration(mediaPlayer.getCurrentPosition()));
+            tv_time.setText(convertDuration(mediaPlayer.getCurrentPosition()));
             seekBar.setProgress((int) startTime);
             myHandler.postDelayed(this, 500);
         }

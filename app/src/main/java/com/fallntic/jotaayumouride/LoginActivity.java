@@ -67,7 +67,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main_menu, menu);
+        inflater.inflate(R.menu.main_menu, menu);
 
         MenuItem iconBack;
         iconBack = menu.findItem(R.id.icon_back);
@@ -84,6 +84,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             case R.id.icon_back:
                 finish();
                 startActivity(new Intent(this, LoginPhoneActivity.class));
+                break;
+
+            case R.id.instructions:
+                startActivity(new Intent(this, InstructionsActivity.class));
                 break;
         }
         return true;

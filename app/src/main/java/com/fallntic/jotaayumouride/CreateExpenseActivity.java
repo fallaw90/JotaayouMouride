@@ -85,7 +85,7 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main_menu, menu);
+        inflater.inflate(R.menu.main_menu, menu);
 
         MenuItem iconBack;
         iconBack = menu.findItem(R.id.icon_back);
@@ -102,6 +102,10 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
             case R.id.icon_back:
                 finish();
                 startActivity(new Intent(this, DahiraInfoActivity.class));
+                break;
+
+            case R.id.instructions:
+                startActivity(new Intent(this, InstructionsActivity.class));
                 break;
         }
         return true;

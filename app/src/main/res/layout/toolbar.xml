@@ -6,6 +6,7 @@
     android:background="@color/dark_green"
     android:elevation="4dp"
     app:title="@string/app_name"
+    app:titleTextAppearance="@style/Toolbar.TitleText"
     android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
     app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 

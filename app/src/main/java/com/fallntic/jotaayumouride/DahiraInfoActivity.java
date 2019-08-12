@@ -29,15 +29,18 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.fallntic.jotaayumouride.Model.Event;
 import com.fallntic.jotaayumouride.Model.ListImageObject;
+import com.fallntic.jotaayumouride.Model.User;
 import com.fallntic.jotaayumouride.Utility.MyStaticFunctions;
 import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -57,6 +60,7 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listExpenses;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listImage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListEvents;
 
 public class DahiraInfoActivity extends AppCompatActivity implements View.OnClickListener,
@@ -183,11 +187,10 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main_menu, menu);
+        inflater.inflate(R.menu.main_menu, menu);
 
         MenuItem iconLogo;
         iconLogo = menu.findItem(R.id.logo);
-
         iconLogo.setVisible(true);
 
         return true;
@@ -197,6 +200,12 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
     public boolean onOptionsItemSelected(MenuItem item) {
         if (toggle.onOptionsItemSelected(item))
             return true;
+
+        switch (item.getItemId()) {
+            case R.id.instructions:
+                startActivity(new Intent(this, InstructionsActivity.class));
+                break;
+        }
 
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
@@ -309,7 +318,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
 
             case R.id.nav_displayUsers:
                 actionSelected = "";
-                startActivity(new Intent(this, ListUserActivity.class));
+                getListUser(DahiraInfoActivity.this);
                 break;
 
             case R.id.nav_searchUser:
@@ -429,7 +438,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
     }
 
     public void getImages(final Context context) {
-        if (listImage == null ) {
+        if (listImage == null) {
             listImage = new ArrayList<>();
             showProgressBar();
             firestore.collection("images")
@@ -455,8 +464,38 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                             Log.d(TAG, "Error downloading image name");
                         }
                     });
-        }
-        else
+        } else
             startActivity(new Intent(context, ShowImagesActivity.class));
+    }
+
+    public static void getListUser(final Context context) {
+        if (listUser == null) {
+            listUser = new ArrayList<>();
+            firestore.collection("users").get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            //hideProgressBar();
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                                for (DocumentSnapshot documentSnapshot : list) {
+                                    User user = documentSnapshot.toObject(User.class);
+                                    for (String id_dahira : user.getListDahiraID()) {
+                                        if (id_dahira.equals(dahira.getDahiraID())) {
+                                            listUser.add(user);
+                                        }
+                                    }
+                                }
+                                context.startActivity(new Intent(context, ListUserActivity.class));
+                            }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    //hideProgressBar();
+                }
+            });
+        } else
+            context.startActivity(new Intent(context, ListUserActivity.class));
     }
 }

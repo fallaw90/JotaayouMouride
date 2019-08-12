@@ -91,11 +91,15 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
         setContentView(R.layout.activity_record_audio);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+        /** setting up the toolbar  **/
+        toolbar = findViewById(R.id.toolbar);
+        toolbar.setLogo(R.mipmap.logo);
+        setSupportActionBar(toolbar);
+
         //initializingViews
         initViews();
         //***************** Set logo **********************
-        getSupportActionBar().setLogo(R.mipmap.logo);
-        getSupportActionBar().setDisplayUseLogoEnabled(true);
+
 
         checkInternetConnection(this);
 
@@ -107,14 +111,6 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void initViews() {
-
-        /** setting up the toolbar  **/
-        toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("Jotaayou Mouride");
-        toolbar.setTitleTextColor(getResources().getColor(android.R.color.white));
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         linearLayoutRecorder = findViewById(R.id.linearLayoutRecorder);
         chronometer = findViewById(R.id.chronometerTimer);
@@ -372,7 +368,10 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
     public boolean onCreateOptionsMenu(Menu menu) {
 
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.list_menu, menu);
+        inflater.inflate(R.menu.main_menu, menu);
+        MenuItem itemBack;
+        itemBack = menu.findItem(R.id.icon_back);
+        itemBack.setVisible(true);
         return true;
     }
 
@@ -380,16 +379,22 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
-            case R.id.item_list:
-                Intent intent = new Intent(this, ShowSongsActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-                return true;
+            case R.id.button_back:
+                if (dahira != null)
+                    startActivity(new Intent(RecordAudioActivity.this, DahiraInfoActivity.class));
+                else
+                    startActivity(new Intent(RecordAudioActivity.this, HomeActivity.class));
+                finish();
+                break;
+
+            case R.id.instructions:
+                startActivity(new Intent(RecordAudioActivity.this, InstructionsActivity.class));
+                finish();
             default:
                 return super.onOptionsItemSelected(item);
 
         }
-
+        return true;
     }
 
     public void uploadAudioToFirebase(View v) {

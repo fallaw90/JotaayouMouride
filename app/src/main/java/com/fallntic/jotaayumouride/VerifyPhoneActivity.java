@@ -134,6 +134,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
         editTextCode = findViewById(R.id.editTextCode);
         initViewsProgressBar();
     }
+
     public  void initViewsProgressBar() {
         relativeLayoutData = findViewById(R.id.relativeLayout_data);
         relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);

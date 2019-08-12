@@ -102,7 +102,7 @@ public class ListExpenseActivity extends AppCompatActivity implements View.OnCli
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main_menu, menu);
+        inflater.inflate(R.menu.main_menu, menu);
 
         MenuItem iconAdd;
         iconAdd = menu.findItem(R.id.icon_add);
@@ -116,6 +116,10 @@ public class ListExpenseActivity extends AppCompatActivity implements View.OnCli
         switch (item.getItemId()) {
             case R.id.icon_add:
                 startActivity(new Intent(this, CreateExpenseActivity.class));
+                break;
+
+            case R.id.instructions:
+                startActivity(new Intent(this, InstructionsActivity.class));
                 break;
         }
         return true;
@@ -131,7 +135,7 @@ public class ListExpenseActivity extends AppCompatActivity implements View.OnCli
     public void onBackPressed() {
         if (objNotification != null) {
             objNotification = null;
-            startActivity(new Intent(ListExpenseActivity.this, ProfileActivity.class));
+            startActivity(new Intent(ListExpenseActivity.this, HomeActivity.class));
         } else
             startActivity(new Intent(ListExpenseActivity.this, DahiraInfoActivity.class));
         super.onBackPressed();

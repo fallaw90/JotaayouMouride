@@ -109,7 +109,7 @@ public class AddImagesActivity extends AppCompatActivity implements View.OnClick
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main_menu, menu);
+        inflater.inflate(R.menu.main_menu, menu);
 
         MenuItem iconAdd;
         iconAdd = menu.findItem(R.id.icon_add);
@@ -126,6 +126,10 @@ public class AddImagesActivity extends AppCompatActivity implements View.OnClick
         switch (item.getItemId()) {
             case R.id.icon_add:
                 uploadMultipleImages();
+                break;
+
+            case R.id.instructions:
+                startActivity(new Intent(this, InstructionsActivity.class));
                 break;
         }
         return true;

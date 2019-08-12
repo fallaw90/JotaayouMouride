@@ -110,7 +110,7 @@ public class AddMultipleAudioActivity extends AppCompatActivity implements View.
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main_menu, menu);
+        inflater.inflate(R.menu.main_menu, menu);
 
         MenuItem iconAdd;
         iconAdd = menu.findItem(R.id.icon_add);
