@@ -188,4 +188,12 @@ public class KhassidaFragment extends Fragment implements View.OnClickListener {
         relativeLayoutProgressBar = view.findViewById(R.id.relativeLayout_progressBar);
         progressBar = view.findViewById(R.id.progressBar);
     }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            setLayoutMainKhassida();
+        }
+    }
 }

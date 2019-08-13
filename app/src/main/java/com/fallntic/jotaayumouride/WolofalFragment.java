@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getListAudios;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.setMyAdapter;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
@@ -77,14 +78,14 @@ public class WolofalFragment extends Fragment implements View.OnClickListener{
                 if (listAudiosSerigneMoussaKa == null)
                     listAudiosSerigneMoussaKa = new ArrayList<>();
                 setLayoutMedia();
-                getListAudios(getContext(), listAudiosSerigneMoussaKa, "serigneMoussaKa");
+                getListAudios(getContext(), listAudiosSerigneMoussaKa, "audios", "serigneMoussaKa");
                 break;
 
             case R.id.ib_smd:
                 setLayoutMedia();
                 if (listAudiosSerigneMbayeDiakhate == null)
                     listAudiosSerigneMbayeDiakhate = new ArrayList<>();
-                getListAudios(getContext(), listAudiosSerigneMbayeDiakhate, "serigneMbayeDiakhate");
+                getListAudios(getContext(), listAudiosSerigneMbayeDiakhate, "audios", "serigneMbayeDiakhate");
                 break;
 
             case R.id.button_back:
@@ -161,39 +162,11 @@ public class WolofalFragment extends Fragment implements View.OnClickListener{
         progressBar = view.findViewById(R.id.progressBar);
     }
 
-    private void getListAudios(final Context context, final List<Song> listSong, String documentID) {
-        //Retrieve all songs from FirebaseFirestore
-        if (listSong.isEmpty()) {
-            showProgressBar();
-            MyStaticVariables.collectionReference = MyStaticVariables.firestore.collection("audios");
-            MyStaticVariables.collectionReference.whereEqualTo("documentID", documentID).get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            ListSongObject listSongObject = null;
-                            if (!queryDocumentSnapshots.isEmpty()) {
-                                hideProgressBar();
-                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
-                                for (DocumentSnapshot documentSnapshot : list) {
-                                    listSongObject = documentSnapshot.toObject(ListSongObject.class);
-                                    listSong.addAll(listSongObject.getListSong());
-                                    break;
-                                }
-
-                                Collections.sort(listSong);
-                                setMyAdapter(context, listSong);
-                            }
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    hideProgressBar();
-                    toastMessage(context, "Erreur de telechargement du repertoire audio.");
-                }
-            });
-        } else {
-            setMyAdapter(context, listSong);
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            setLayoutMainWolofal();
         }
     }
-
 }

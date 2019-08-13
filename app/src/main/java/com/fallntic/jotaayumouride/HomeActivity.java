@@ -25,6 +25,16 @@ import com.fallntic.jotaayumouride.Adapter.PageAdapter;
 import com.fallntic.jotaayumouride.Model.Dahira;
 import com.fallntic.jotaayumouride.Model.Event;
 import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.NativeExpressAdView;
+import com.google.android.gms.ads.VideoController;
+import com.google.android.gms.ads.VideoOptions;
+import com.google.android.gms.ads.reward.RewardedVideoAd;
+import com.google.android.gms.ads.reward.RewardedVideoAdListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -94,6 +104,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private String userID;
     private String dahiraToUpdate;
 
+    private AdView bannerAd;
+    private InterstitialAd interstitial;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,6 +133,17 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             setupOfflineViewPager(viewPager);
         }
         changeTab();
+
+        //****************************** adMob ***********************************
+        // Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713
+        MobileAds.initialize(this, "ca-app-pub-3940256099942544~3347511713");
+        loadBannerAd();
+        new Handler().postDelayed(new Runnable(){
+            @Override
+            public void run(){
+                loadInterstitialAd();
+            }
+        }, 10000);
     }
 
     private void setupOnlineViewPager(ViewPager viewPager) {
@@ -144,6 +168,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void changeTab() {
+
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -162,7 +187,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
 
                 } else if (tab.getPosition() == 2) {
-
                     //toastMessage(HomeActivity.this, "Wolofal Fragment");
 
                 } else {
@@ -218,8 +242,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
         if (firebaseAuth.getCurrentUser() == null) {
             itemLogin.setVisible(true);
-        }
-        else {
+        } else {
             itemLogo.setVisible(true);
         }
 
@@ -511,8 +534,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                                 }
                                 Log.d(TAG, "Events downloaded.");
                                 context.startActivity(new Intent(context, ListEventActivity.class));
-                            }
-                            else {
+                            } else {
                                 showAlertDialog(context, "Il n'y a auccun evenement " +
                                         "disponible pour le moment.");
                             }
@@ -525,12 +547,70 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                     Log.d(TAG, "Error downloading events");
                 }
             });
-        }
-        else if(!listAllEvent.isEmpty())
+        } else if (!listAllEvent.isEmpty())
             context.startActivity(new Intent(context, ListEventActivity.class));
         else {
             showAlertDialog(context, "Il n'y a auccun evenement " +
                     "disponible pour le moment.");
+        }
+    }
+
+    @Override
+    public void onPause() {
+        // This method should be called in the parent Activity's onPause() method.
+        if (bannerAd != null) {
+            bannerAd.pause();
+        }
+
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // This method should be called in the parent Activity's onResume() method.
+        if (bannerAd != null) {
+            bannerAd.resume();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        // This method should be called in the parent Activity's onDestroy() method.
+        if (bannerAd != null) {
+            bannerAd.destroy();
+        }
+        super.onDestroy();
+    }
+
+    private void loadBannerAd() {
+        bannerAd = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        bannerAd.loadAd(adRequest);
+    }
+
+    private void loadInterstitialAd() {
+        AdRequest adRequest = new AdRequest.Builder().build();
+
+        // Prepare the Interstitial Ad
+        interstitial = new InterstitialAd(HomeActivity.this);
+        // Insert the Ad Unit ID
+        interstitial.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
+
+        interstitial.loadAd(adRequest);
+        // Prepare an Interstitial Ad Listener
+        interstitial.setAdListener(new AdListener() {
+            public void onAdLoaded() {
+        // Call displayInterstitial() function
+                displayInterstitial();
+            }
+        });
+    }
+
+    public void displayInterstitial() {
+    // If Ads are loaded, show Interstitial else show nothing.
+        if (interstitial.isLoaded()) {
+            interstitial.show();
         }
     }
 }

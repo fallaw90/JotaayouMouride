@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.fallntic.jotaayumouride.Adapter.SongAdapter;
 import com.fallntic.jotaayumouride.LoginPhoneActivity;
+import com.fallntic.jotaayumouride.Model.ListSongObject;
 import com.fallntic.jotaayumouride.Model.Song;
 import com.fallntic.jotaayumouride.R;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -32,30 +33,14 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.UpdateSongTime;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.currentIndex;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.currentSongLength;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.fab_search;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firstLaunch;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_next;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_play;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_previous;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mAdapter;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mediaPlayer;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myHandler;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.pb_loader;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.recycler;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.seekBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tb_title;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tv_time;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.*;
 
 public class MyStaticFunctions {
 
@@ -369,12 +354,17 @@ public class MyStaticFunctions {
 
     }
     public static void setMediaPlayer(){
+
+        //startTime = 0;
+        firstLaunch = true;
+        //currentIndex = 0;
+
         try {
             if (mediaPlayer != null && mediaPlayer.isPlaying()) {
                 mediaPlayer.stop();
                 mediaPlayer.release();
+                mediaPlayer = null;
             }
-
             if (mediaPlayer == null)
                 mediaPlayer = new MediaPlayer();
             if (myHandler == null)
@@ -403,5 +393,40 @@ public class MyStaticFunctions {
             return p2 + ":" + p3 + ":" + p1;
         else
             return p3 + ":" + p1;
+    }
+
+    public static void getListAudios(final Context context, final List<Song> listSong, String collection, String documentID) {
+        //Retrieve all songs from FirebaseFirestore
+        if (listSong.isEmpty()) {
+            showProgressBar();
+            MyStaticVariables.collectionReference = MyStaticVariables.firestore.collection(collection);
+            MyStaticVariables.collectionReference.whereEqualTo("documentID", documentID).get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            ListSongObject listSongObject = null;
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                hideProgressBar();
+                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                                for (DocumentSnapshot documentSnapshot : list) {
+                                    listSongObject = documentSnapshot.toObject(ListSongObject.class);
+                                    listSong.addAll(listSongObject.getListSong());
+                                    break;
+                                }
+
+                                Collections.sort(listSong);
+                                setMyAdapter(context, listSong);
+                            }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    hideProgressBar();
+                    toastMessage(context, "Erreur de telechargement du repertoire audio.");
+                }
+            });
+        } else {
+            setMyAdapter(context, listSong);
+        }
     }
 }

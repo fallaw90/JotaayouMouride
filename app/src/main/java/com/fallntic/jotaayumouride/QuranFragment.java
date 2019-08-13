@@ -2,7 +2,10 @@ package com.fallntic.jotaayumouride;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getListAudios;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.setMyAdapter;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
@@ -31,7 +35,10 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.fab_search;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_next;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_play;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_previous;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosHTDK;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosQuran;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosSerigneMbayeDiakhate;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosSerigneMoussaKa;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mediaPlayer;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myHandler;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.pb_loader;
@@ -48,9 +55,9 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tv_empty;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tv_time;
 
 
-public class QuranFragment extends Fragment{
-    private static final String TAG = "QuranFragment";
+public class QuranFragment extends Fragment implements View.OnClickListener{
 
+    private static final String TAG = "WolofalFragment";
     private View view;
 
     @SuppressLint("RestrictedApi")
@@ -60,15 +67,61 @@ public class QuranFragment extends Fragment{
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_quran, container, false);
 
-        initViewsMedia();
-
-        if (listAudiosQuran == null)
-            listAudiosQuran = new ArrayList<>();
-
-        getListAudios(getContext(), listAudiosQuran, "sudais");
-        //startActivity(new Intent(getContext(), AddMultipleAudioActivity.class));
+        initViewsMainQuran();
 
         return view;
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.ib_sudais:
+                if (listAudiosQuran == null)
+                    listAudiosQuran = new ArrayList<>();
+                setLayoutMedia();
+                getListAudios(getContext(), listAudiosQuran, "quran", "sudais");
+                break;
+
+            case R.id.button_back:
+                setLayoutMainQuran();
+                break;
+        }
+    }
+
+    private void setLayoutMedia(){
+        LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.view = inflater.inflate(R.layout.layout_media, null);
+        ViewGroup rootView = (ViewGroup) getView();
+        rootView.removeAllViews();
+        rootView.addView(this.view);
+        initViewsMedia();
+
+        if (mediaPlayer == null)
+            mediaPlayer = new MediaPlayer();
+        if (myHandler == null)
+            myHandler = new Handler();
+    }
+
+    private void setLayoutMainQuran(){
+        LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.view = inflater.inflate(R.layout.fragment_quran, null);
+        ViewGroup rootView = (ViewGroup) getView();
+        rootView.removeAllViews();
+        rootView.addView(this.view);
+        initViewsMainQuran();
+
+        if (myHandler != null) {
+            myHandler.removeCallbacks(UpdateSongTime);
+        }
+        if (mediaPlayer != null) {
+            if (mediaPlayer.isPlaying()){
+                mediaPlayer.stop();
+            }
+        }
+    }
+
+    public void initViewsMainQuran(){
+        view.findViewById(R.id.ib_sudais).setOnClickListener(this);
     }
 
     private void initViewsMedia() {
@@ -86,67 +139,27 @@ public class QuranFragment extends Fragment{
         tv_time = view.findViewById(R.id.tv_time);
         fab_search = view.findViewById(R.id.fab_search);
         recycler = view.findViewById(R.id.recyclerView_quran);
+        view.findViewById(R.id.button_back).setOnClickListener(this);
+
+        if (myHandler == null)
+            myHandler = new Handler();
+        if (mediaPlayer == null)
+            mediaPlayer = new MediaPlayer();
 
         initViewsProgressBar();
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        if (myHandler != null) {
-            myHandler.removeCallbacks(UpdateSongTime);
-        }
-
-        if (mediaPlayer != null) {
-            try {
-                if (mediaPlayer.isPlaying()) {
-                    mediaPlayer.stop();
-                    mediaPlayer.release();
-                }
-            } catch (Exception e) {
-                toastMessage(getContext(), e.getMessage());
-            }
-        }
-    }
-
-    private void getListAudios(final Context context, final List<Song> listSong, String documentID) {
-        //Retrieve all songs from FirebaseFirestore
-        if (listSong.isEmpty()) {
-            showProgressBar();
-            MyStaticVariables.collectionReference = MyStaticVariables.firestore.collection("quran");
-            MyStaticVariables.collectionReference.whereEqualTo("documentID", documentID).get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            hideProgressBar();
-                            ListSongObject listSongObject = null;
-                            if (!queryDocumentSnapshots.isEmpty()) {
-                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
-                                for (DocumentSnapshot documentSnapshot : list) {
-                                    listSongObject = documentSnapshot.toObject(ListSongObject.class);
-                                    listSong.addAll(listSongObject.getListSong());
-                                    break;
-                                }
-
-                                Collections.sort(listSong);
-                                setMyAdapter(context ,listSong);
-                            }
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    hideProgressBar();
-                    toastMessage(context, "Erreur de telechargement du repertoire audio.");
-                }
-            });
-        } else {
-            setMyAdapter(context, listSong);
-        }
     }
 
     public  void initViewsProgressBar() {
         relativeLayoutData = view.findViewById(R.id.relativeLayout_data);
         relativeLayoutProgressBar = view.findViewById(R.id.relativeLayout_progressBar);
         progressBar = view.findViewById(R.id.progressBar);
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            setLayoutMainQuran();
+        }
     }
 }

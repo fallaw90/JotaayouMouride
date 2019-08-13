@@ -1,92 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".QuranFragment">
 
-    <RelativeLayout
-        android:id="@+id/relativeLayout_data"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/_10sdp"
+        android:orientation="vertical">
 
-        <ProgressBar
-            android:id="@+id/pb_main_loader"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_centerInParent="true"
-            android:visibility="gone" />
-
-        <TextView
-            android:id="@+id/tv_empty"
+        <ImageButton
+            android:id="@+id/ib_sudais"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/toolbar"
-            android:gravity="center_vertical"
-            android:textAlignment="center"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-            android:textColor="@color/red"
-            android:visibility="gone" />
+            android:layout_height="200dp"
+            android:layout_margin="@dimen/_10sdp"
+            android:padding="@dimen/_5sdp"
+            android:src="@drawable/sudais"
+            android:background="@drawable/rounded_button_save"/>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView_quran"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/toolbar"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingTop="@dimen/activity_vertical_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:paddingBottom="130dp">
-
-        </androidx.recyclerview.widget.RecyclerView>
-
-        <include
-            android:id="@+id/bottom_toolbar"
-            layout="@layout/bottom_toolbar" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_search"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@id/bottom_toolbar"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_margin="16dp"
-            android:backgroundTint="@color/dark_green"
-            android:src="@android:drawable/ic_menu_search"
-            app:fabSize="normal"
-            app:layout_anchor="@id/recyclerView_quran" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/relativeLayout_progressBar"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/progressBar"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:text="Patientez SVP ..."
-            android:textSize="@dimen/_20sdp" />
-
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:progressBarStyleLarge"
-            android:layout_width="@dimen/_100sdp"
-            android:layout_height="@dimen/_100sdp"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:indeterminate="true"
-            android:indeterminateTint="@color/green"
-            android:indeterminateTintMode="src_atop"
-            android:progress="80"
-            android:progressDrawable="@drawable/circle" />
-    </RelativeLayout>
+    </LinearLayout>
 
 </RelativeLayout>
-

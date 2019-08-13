@@ -64,6 +64,14 @@
 
             </androidx.viewpager.widget.ViewPager>
         </LinearLayout>
+
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/layout_ads"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:tabSelectedTextColor="@color/green"/>
+
     </RelativeLayout>
 
     <RelativeLayout
