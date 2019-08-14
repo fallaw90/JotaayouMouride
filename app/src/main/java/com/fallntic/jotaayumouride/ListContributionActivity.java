@@ -19,10 +19,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fallntic.jotaayumouride.Adapter.ContributionAdapter;
+import com.fallntic.jotaayumouride.Model.Adiya;
+import com.fallntic.jotaayumouride.Model.Expense;
 import com.fallntic.jotaayumouride.Utility.SwipeToDeleteCallback;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static com.fallntic.jotaayumouride.Adapter.ContributionAdapter.getListAmount;
@@ -41,6 +48,7 @@ import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.social;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.typeOfContribution;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listExpenses;
 
 public class ListContributionActivity extends AppCompatActivity {
 

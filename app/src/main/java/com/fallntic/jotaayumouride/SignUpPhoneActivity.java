@@ -35,6 +35,9 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.mikelau.countrypickerx.Country;
+import com.mikelau.countrypickerx.CountryPickerCallbacks;
+import com.mikelau.countrypickerx.CountryPickerDialog;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,8 +56,10 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
     private static final String TAG = "SignUpActivity";
     private final int PICK_IMAGE_REQUEST = 71;
     private String userName;
-    private String userAddress;
+    private String userAddress, country, city;
     private ImageView imageView;
+    private EditText editTextCountry;
+    private EditText editTextCity;
     private EditText editTextUserName;
     private EditText editTextUserAddress;
     private List<String> listSass = new ArrayList<String>();
@@ -76,6 +81,8 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
     private StorageReference storageReference;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
+
+    private CountryPickerDialog countryPicker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +115,8 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
         imageView = findViewById(R.id.imageView);
         editTextUserName = findViewById(R.id.editText_name);
         editTextUserAddress = findViewById(R.id.editText_address);
+        editTextCountry = findViewById(R.id.editText_country);
+        editTextCity = findViewById(R.id.editText_city);
 
         //Check access gallery permission
         checkPermission();
@@ -115,6 +124,7 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
         findViewById(R.id.button_back).setOnClickListener(this);
         findViewById(R.id.button_signUp).setOnClickListener(this);
         findViewById(R.id.imageView).setOnClickListener(this);
+        findViewById(R.id.editText_country).setOnClickListener(this);
     }
 
     @Override
@@ -137,6 +147,9 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
                 checkPermission();
                 chooseImage();
                 break;
+            case R.id.editText_country:
+                getCountry();
+                break;
             case R.id.button_signUp:
                 registration();
                 break;
@@ -150,8 +163,11 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
         //Info user
         userName = editTextUserName.getText().toString().trim();
         userAddress = editTextUserAddress.getText().toString().trim();
+        country = editTextCountry.getText().toString().trim();
+        city = editTextCity.getText().toString().trim();
 
-        if (!hasValidationErrors(userName, userAddress)) {
+        if (!hasValidationErrors(userName, userAddress, city)) {
+            userAddress = userAddress.concat("\n" + city + ", " + country);
             saveUser();
             uploadImage(userID);
             Intent intent = new Intent(SignUpPhoneActivity.this, HomeActivity.class);
@@ -272,7 +288,7 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
         createNewCollection(this, "social", userID, social);
     }
 
-    private boolean hasValidationErrors(String userName, String userAddress) {
+    private boolean hasValidationErrors(String userName, String userAddress, String city) {
 
         if (userName.isEmpty()) {
             editTextUserName.setError("Veuillez remplir votre nom");
@@ -283,6 +299,12 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
         if (userAddress.isEmpty()) {
             editTextUserAddress.setError("Veuillez fournir votre adresse");
             editTextUserAddress.requestFocus();
+            return true;
+        }
+
+        if (city.isEmpty()) {
+            editTextCity.setError("Champ obligatoire");
+            editTextCity.requestFocus();
             return true;
         }
 
@@ -302,4 +324,23 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
+    public void getCountry(){
+        /* Name of your Custom JSON list */
+        int resourceId = getResources().getIdentifier("country_avail", "raw", getApplicationContext().getPackageName());
+
+        countryPicker = new CountryPickerDialog(SignUpPhoneActivity.this, new CountryPickerCallbacks() {
+            @Override
+            public void onCountrySelected(Country country, int flagResId) {
+                /* Get Country Name: country.getCountryName(context); */
+                editTextCountry.setText(country.getCountryName(SignUpPhoneActivity.this));
+                /* Call countryPicker.dismiss(); to prevent memory leaks */
+                countryPicker.dismiss();
+            }
+
+        /* Set to false if you want to disable Dial Code in the results and true if you want to show it
+        Set to zero if you don't have a custom JSON list of countries in your raw file otherwise use
+        resourceId for your customly available countries */
+        }, false, 0);
+        countryPicker.show();
+    }
 }

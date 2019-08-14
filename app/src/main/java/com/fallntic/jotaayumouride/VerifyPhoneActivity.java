@@ -58,7 +58,6 @@ public class VerifyPhoneActivity extends AppCompatActivity {
 
                 @Override
                 public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
-
                     //Getting the code sent by SMS
                     String code = phoneAuthCredential.getSmsCode();
 
@@ -146,7 +145,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
     //you can take the country id as user input as well
     private void sendVerificationCode(String mobile) {
         PhoneAuthProvider.getInstance().verifyPhoneNumber(
-                "+221" + mobile,
+                mobile,
                 60,
                 TimeUnit.SECONDS,
                 TaskExecutors.MAIN_THREAD,

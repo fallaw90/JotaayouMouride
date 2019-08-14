@@ -365,6 +365,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         nav_Menu.findItem(R.id.nav_displayUsers).setVisible(false);
         nav_Menu.findItem(R.id.nav_displayMyDahira).setVisible(false);
         nav_Menu.findItem(R.id.nav_displayAllDahira).setVisible(false);
+        nav_Menu.findItem(R.id.nav_removeDahira).setVisible(false);
     }
 
     public static void getAdiya() {

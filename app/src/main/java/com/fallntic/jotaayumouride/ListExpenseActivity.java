@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fallntic.jotaayumouride.Adapter.ExpenseAdapter;
+import com.fallntic.jotaayumouride.Model.Event;
 import com.fallntic.jotaayumouride.Model.Expense;
 import com.fallntic.jotaayumouride.Utility.DataHolder;
 import com.fallntic.jotaayumouride.Utility.SwipeToDeleteCallback;
@@ -30,12 +31,18 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllEvent;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listExpenses;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.objNotification;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
@@ -144,6 +151,9 @@ public class ListExpenseActivity extends AppCompatActivity implements View.OnCli
     private void showListExpenses(List<Expense> listExpenses) {
         //Attach adapter to recyclerView
         if (listExpenses != null && listExpenses.size() > 0) {
+
+            sortByDate();
+
             expenseAdapter = new ExpenseAdapter(this, listExpenses);
 
             recyclerViewExpense.setHasFixedSize(true);
@@ -220,4 +230,17 @@ public class ListExpenseActivity extends AppCompatActivity implements View.OnCli
         });
     }
 
+    private void sortByDate(){
+        Collections.sort(listExpenses, new Comparator<Expense>() {
+            DateFormat f = new SimpleDateFormat("dd/MM/yyyy");
+            @Override
+            public int compare(Expense expense1, Expense expense2) {
+                try {
+                    return f.parse(expense1.getDate()).compareTo(f.parse(expense2.getDate()));
+                } catch (ParseException e) {
+                    throw new IllegalArgumentException(e);
+                }
+            }
+        });
+    }
 }

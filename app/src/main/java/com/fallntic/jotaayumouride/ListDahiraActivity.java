@@ -29,6 +29,7 @@ import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -121,6 +122,7 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
 
     private void displayDahiras(List<Dahira> listDahira) {
         if (listDahira.size() > 0) {
+            Collections.sort(listDahira);
             //Attach adapter to recyclerView
             recyclerViewDahira.setHasFixedSize(true);
             recyclerViewDahira.setLayoutManager(new LinearLayoutManager(this));
@@ -328,5 +330,6 @@ public class ListDahiraActivity extends AppCompatActivity implements DrawerMenu,
         nav_Menu.findItem(R.id.nav_gallery).setVisible(false);
         nav_Menu.findItem(R.id.nav_release).setVisible(false);
         nav_Menu.findItem(R.id.nav_contact).setVisible(false);
+        nav_Menu.findItem(R.id.nav_removeDahira).setVisible(false);
     }
 }

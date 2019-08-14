@@ -36,10 +36,12 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.fallntic.jotaayumouride.CreateDahiraActivity.getCurrentCountryCode;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.actionSelected;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.call;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
@@ -134,13 +136,15 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         switch (v.getId()) {
             case R.id.button_back:
                 finish();
-                startActivity(new Intent(this, HomeActivity.class));
+                actionSelected = "";
+                startActivity(new Intent(this, DahiraInfoActivity.class));
                 break;
         }
     }
 
     private void showListUser() {
 
+        Collections.sort(listUser);
         //Attach adapter to recyclerView
         recyclerViewUser.setHasFixedSize(true);
         recyclerViewUser.setLayoutManager(new LinearLayoutManager(this));
@@ -319,7 +323,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                 String phoneNumber = editTextDialogPhoneNumber.getText().toString().trim();
 
                 if (!hasValidationErrors(userName, editTextDialogName, phoneNumber, editTextDialogPhoneNumber)) {
-                    phoneNumber = "+221" + phoneNumber;
+                    phoneNumber = getCurrentCountryCode(ListUserActivity.this) + phoneNumber;
                     searchUser(userName, phoneNumber);
                     alertDialog.dismiss();
                 }
@@ -358,6 +362,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
 
             case R.id.icon_back:
                 finish();
+                actionSelected = "";
                 startActivity(new Intent(this, HomeActivity.class));
                 break;
         }
@@ -386,24 +391,26 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                             for (DocumentSnapshot documentSnapshot : list) {
                                 //documentSnapshot equals dahira in list
                                 User member = documentSnapshot.toObject(User.class);
-                                if (name != null && !name.equals("") && member.getUserID() != null) {
-                                    if (name.equals(member.getUserName())) {
-                                        listUsers.add(member);
-                                    } else {
-                                        String[] splitSearchName = name.split(" ");
-                                        String userName = member.getUserName();
-                                        userName = userName.toLowerCase();
-                                        for (String name : splitSearchName) {
-                                            name = name.toLowerCase();
-                                            if (userName.contains(name)) {
-                                                listUsers.add(member);
+                                if (member.getListDahiraID().contains(dahira.getDahiraID())) {
+                                    if (name != null && !name.equals("") && member.getUserID() != null) {
+                                        if (name.equals(member.getUserName())) {
+                                            listUsers.add(member);
+                                        } else {
+                                            String[] splitSearchName = name.split(" ");
+                                            String userName = member.getUserName();
+                                            userName = userName.toLowerCase();
+                                            for (String name : splitSearchName) {
+                                                name = name.toLowerCase();
+                                                if (userName.contains(name)) {
+                                                    listUsers.add(member);
+                                                }
                                             }
                                         }
                                     }
-                                }
-                                if (phoneNumber != null && !phoneNumber.equals("")) {
-                                    if (phoneNumber.equals(member.getUserPhoneNumber())) {
-                                        listUsers.add(member);
+                                    if (phoneNumber != null && !phoneNumber.equals("")) {
+                                        if (phoneNumber.equals(member.getUserPhoneNumber())) {
+                                            listUsers.add(member);
+                                        }
                                     }
                                 }
                             }
@@ -573,5 +580,6 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         nav_Menu.findItem(R.id.nav_callUser).setVisible(false);
         nav_Menu.findItem(R.id.nav_searchDahira).setVisible(false);
         nav_Menu.findItem(R.id.nav_video).setVisible(false);
+        nav_Menu.findItem(R.id.nav_removeDahira).setVisible(false);
     }
 }

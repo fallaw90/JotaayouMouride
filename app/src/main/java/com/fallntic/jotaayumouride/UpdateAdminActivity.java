@@ -24,6 +24,7 @@ import androidx.appcompat.widget.Toolbar;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.fallntic.jotaayumouride.AddContributionActivity.saveContribution;
@@ -39,6 +40,7 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInterne
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListDahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
@@ -267,6 +269,14 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
         int totalMember = Integer.parseInt(dahira.getTotalMember());
 
        dahira.setTotalMember(Integer.toString(totalMember++));
+
+       if (myListDahira == null){
+           myListDahira = new ArrayList<>();
+           myListDahira.add(dahira);
+       }
+       else{
+           myListDahira.add(dahira);
+       }
 
         showProgressBar();
         firestore.collection("dahiras").document(dahira.getDahiraID())

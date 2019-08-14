@@ -2,6 +2,7 @@ package com.fallntic.jotaayumouride;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -46,6 +47,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.fallntic.jotaayumouride.Utility.DataHolder.actionSelected;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.deleteDocument;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.logout;
@@ -56,12 +58,17 @@ import static com.fallntic.jotaayumouride.Utility.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayDahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listExpenses;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listImage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listUser;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListDahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListEvents;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
 
 public class DahiraInfoActivity extends AppCompatActivity implements View.OnClickListener,
         DrawerMenu, NavigationView.OnNavigationItemSelectedListener {
@@ -79,6 +86,8 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
     private CircleImageView navImageView;
     private TextView textViewNavUserName;
     private TextView textViewNavEmail;
+
+    private boolean isDahiraEmpty = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,6 +143,8 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         }
 
         findViewById(R.id.button_back).setOnClickListener(this);
+
+        initViewsProgressBar();
     }
 
     @Override
@@ -324,7 +335,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
             case R.id.nav_searchUser:
                 actionSelected = "searchUser";
                 MyStaticVariables.displayDahira = "allDahira";
-                startActivity(new Intent(this, ListUserActivity.class));
+                getListUser(DahiraInfoActivity.this);
                 break;
 
             case R.id.nav_addUser:
@@ -395,6 +406,10 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
 
             case R.id.nav_setting:
                 startActivity(new Intent(this, UpdateDahiraActivity.class));
+                break;
+
+            case R.id.nav_removeDahira:
+                removeDahiraFromUser();
                 break;
 
             case R.id.nav_logout:
@@ -480,10 +495,8 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                                 List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
                                 for (DocumentSnapshot documentSnapshot : list) {
                                     User user = documentSnapshot.toObject(User.class);
-                                    for (String id_dahira : user.getListDahiraID()) {
-                                        if (id_dahira.equals(dahira.getDahiraID())) {
-                                            listUser.add(user);
-                                        }
+                                    if (user.getListDahiraID().contains(dahira.getDahiraID())) {
+                                        listUser.add(user);
                                     }
                                 }
                                 context.startActivity(new Intent(context, ListUserActivity.class));
@@ -497,5 +510,104 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
             });
         } else
             context.startActivity(new Intent(context, ListUserActivity.class));
+    }
+
+    public void initViewsProgressBar() {
+        relativeLayoutData = findViewById(R.id.relativeLayout_data);
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        dismissProgressDialog();
+    }
+
+    public void removeDahiraFromUser() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(DahiraInfoActivity.this, R.style.alertDialog);
+        builder.setTitle("Se desabonner du dahira " + dahira.getDahiraName());
+        builder.setMessage("Etes vous sure de vouloir quitter le dahira " + dahira.getDahiraName() + "?");
+        builder.setCancelable(false);
+        builder.setPositiveButton("OUI", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                onlineUser.getListSocial().remove(indexOnlineUser);
+                onlineUser.getListSass().remove(indexOnlineUser);
+                onlineUser.getListAdiya().remove(indexOnlineUser);
+                onlineUser.getListCommissions().remove(indexOnlineUser);
+                onlineUser.getListRoles().remove(indexOnlineUser);
+                onlineUser.getListUpdatedDahiraID().remove(indexOnlineUser);
+                onlineUser.getListDahiraID().remove(indexOnlineUser);
+                updateUser(DahiraInfoActivity.this);
+                checkIfDahiraCanBeDeleted(DahiraInfoActivity.this);
+            }
+        });
+
+        builder.setNegativeButton("NON", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+        builder.show();
+    }
+
+    public void updateUser(final Context context) {
+        showProgressDialog(context, "Patientez svp ...");
+        firestore.collection("users").document(onlineUser.getUserID())
+                .update("listDahiraID", onlineUser.getListDahiraID(),
+                        "listUpdatedDahiraID", onlineUser.getListUpdatedDahiraID(),
+                        "listCommissions", onlineUser.getListCommissions(),
+                        "listAdiya", onlineUser.getListAdiya(),
+                        "listSass", onlineUser.getListSass(),
+                        "listSocial", onlineUser.getListSocial(),
+                        "listRoles", onlineUser.getListRoles())
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        dismissProgressDialog();
+                        displayDahira = "myDahira";
+                        myListDahira.clear();
+                        myListDahira = null;
+                        Intent intent = new Intent(context, HomeActivity.class);
+                        showAlertDialog(context, "Desabonnement reussi.", intent);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                dismissProgressDialog();
+                startActivity(new Intent(context, UserInfoActivity.class));
+            }
+        });
+    }
+
+    public void checkIfDahiraCanBeDeleted(final Context context) {
+        showProgressBar();
+        firestore.collection("users").get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        hideProgressBar();
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                            for (DocumentSnapshot documentSnapshot : list) {
+                                User user = documentSnapshot.toObject(User.class);
+                                if (user.getListDahiraID().contains(dahira.getDahiraID()) &&
+                                        !user.getUserID().equals(onlineUser.getUserID())) {
+                                    isDahiraEmpty = false;
+                                }
+                            }
+                            if (isDahiraEmpty) {
+                                deleteDocument(context, "dahiras", dahira.getDahiraID());
+                            }
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                hideProgressBar();
+            }
+        });
     }
 }

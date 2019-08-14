@@ -32,9 +32,16 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Comparator;
+
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.deleteDocument;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.getCurrentDate;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
@@ -79,7 +86,6 @@ public class ListEventActivity extends AppCompatActivity implements View.OnClick
         }
 
         initViews();
-
         loadEvents(this);
     }
 
@@ -130,6 +136,10 @@ public class ListEventActivity extends AppCompatActivity implements View.OnClick
     private void loadEvents(Context context) {
 
         if (myListEvents != null || listAllEvent != null) {
+
+            sortByDate();
+            removePastEvent();
+
             if (displayEvent.equals("myEvents")) {
                 eventAdapter = new EventAdapter(this, myListEvents);
                 textViewDahiraName.setText("Liste des evenements du dahira " + dahira.getDahiraName());
@@ -274,5 +284,34 @@ public class ListEventActivity extends AppCompatActivity implements View.OnClick
                         hideProgressBar();
                     }
                 });
+    }
+
+    private void sortByDate(){
+        Collections.sort(listAllEvent, new Comparator<Event>() {
+            DateFormat f = new SimpleDateFormat("dd/MM/yyyy");
+            @Override
+            public int compare(Event event1, Event event2) {
+                try {
+                    return f.parse(event2.getDate()).compareTo(f.parse(event1.getDate()));
+                } catch (ParseException e) {
+                    throw new IllegalArgumentException(e);
+                }
+            }
+        });
+    }
+
+    private void removePastEvent(){
+        DateFormat f = new SimpleDateFormat("dd/MM/yyyy");
+        for (int i = 0; i < listAllEvent.size(); i++){
+            try {
+                int k = f.parse(listAllEvent.get(i).getDate()).compareTo(f.parse(getCurrentDate()));
+                if (k < 0){
+                    listAllEvent.remove(i);
+                }
+            } catch (ParseException e) {
+                i--;
+                throw new IllegalArgumentException(e);
+            }
+        }
     }
 }

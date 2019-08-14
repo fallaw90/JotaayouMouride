@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -41,11 +42,15 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.mikelau.countrypickerx.Country;
+import com.mikelau.countrypickerx.CountryPickerCallbacks;
+import com.mikelau.countrypickerx.CountryPickerDialog;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.fallntic.jotaayumouride.CreateDahiraActivity.getCurrentCountryCode;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.checkPrefix;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.createNewCollection;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
@@ -68,14 +73,17 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     private String confPwd;
     private String userName;
     private String userAddress;
-    private String userPhoneNumber;
+    private String userPhoneNumber, country, city, areaCode;
     private ImageView imageView;
+    private EditText editTextCity;
     private EditText editTextEmail;
+    private EditText editTextCountry;
     private EditText editTextPassword;
     private EditText editTextUserName;
     private EditText editTextUserAddress;
     private EditText editTextUserPhoneNumber;
     private EditText editTextConfirmPassword;
+    private TextView textViewAreaCode;
     private List<String> listSass = new ArrayList<String>();
     private List<String> listRoles = new ArrayList<String>();
     private List<String> listAdiya = new ArrayList<String>();
@@ -94,6 +102,8 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
+    private CountryPickerDialog countryPicker;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,9 +114,12 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
 
+        initViews();
+
         checkInternetConnection(this);
 
-        initViews();
+        areaCode = getCurrentCountryCode(this);
+        textViewAreaCode.setText(areaCode);
 
         //Initialize Firestore object
         mAuth = FirebaseAuth.getInstance();
@@ -130,6 +143,9 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         editTextPassword = findViewById(R.id.editText_password);
         editTextConfirmPassword = findViewById(R.id.editText_confirmPassword);
         editTextUserAddress = findViewById(R.id.editText_address);
+        editTextCity = findViewById(R.id.editText_city);
+        editTextCountry = findViewById(R.id.editText_country);
+        textViewAreaCode = findViewById(R.id.textView_areaCode);
 
         findViewById(R.id.button_back).setOnClickListener(this);
         findViewById(R.id.button_signUp).setOnClickListener(this);
@@ -152,8 +168,14 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 checkPermission();
                 chooseImage();
                 break;
+            case R.id.editText_country:
+                getCountry();
+                break;
             case R.id.button_signUp:
                 registration();
+                break;
+            case R.id.button_back:
+                finish();
                 break;
         }
     }
@@ -166,9 +188,12 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         email = editTextEmail.getText().toString().trim();
         pwd = editTextPassword.getText().toString().trim();
         confPwd = editTextConfirmPassword.getText().toString().trim();
+        country = editTextCountry.getText().toString().trim();
+        city = editTextCity.getText().toString().trim();
 
-        if(!hasValidationErrors(userName, userPhoneNumber, email, pwd, confPwd, userAddress)) {
-            userPhoneNumber = "+221" + userPhoneNumber;
+        if(!hasValidationErrors()) {
+            userPhoneNumber = areaCode.concat(userPhoneNumber);
+            userAddress = userAddress.concat("\n" + city + ", " + country);
 
             showProgressBar();
             db.collection("users").whereEqualTo("userPhoneNumber", userPhoneNumber).get()
@@ -397,8 +422,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         createNewCollection(this,"social", userID, social);
     }
 
-    private boolean hasValidationErrors(String userName, String userPhoneNumber, String email,
-                                        String pwd, String confPwd, String userAddress) {
+    private boolean hasValidationErrors() {
 
         if (userName.isEmpty()) {
             editTextUserName.setError("Veuillez remplir votre nom");
@@ -409,6 +433,12 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         if (userPhoneNumber.isEmpty()) {
             editTextUserPhoneNumber.setError("Veuillez entrer numero de telephone");
             editTextUserPhoneNumber.requestFocus();
+            return true;
+        }
+
+        if (city.isEmpty()) {
+            editTextCity.setError("Champ obligatoir");
+            editTextCity.requestFocus();
             return true;
         }
 
@@ -510,5 +540,25 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 break;
         }
         return true;
+    }
+
+    public void getCountry(){
+        /* Name of your Custom JSON list */
+        int resourceId = getResources().getIdentifier("country_avail", "raw", getApplicationContext().getPackageName());
+
+        countryPicker = new CountryPickerDialog(SignUpActivity.this, new CountryPickerCallbacks() {
+            @Override
+            public void onCountrySelected(Country country, int flagResId) {
+                /* Get Country Name: country.getCountryName(context); */
+                editTextCountry.setText(country.getCountryName(SignUpActivity.this));
+                /* Call countryPicker.dismiss(); to prevent memory leaks */
+                countryPicker.dismiss();
+            }
+
+        /* Set to false if you want to disable Dial Code in the results and true if you want to show it
+        Set to zero if you don't have a custom JSON list of countries in your raw file otherwise use
+        resourceId for your customly available countries */
+        }, false, 0);
+        countryPicker.show();
     }
 }

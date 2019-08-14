@@ -31,7 +31,7 @@
     <string name="social">Total social present dans la caisse</string>
     <string name="personalInfo">Informations personnelles</string>
     <string name="dahiraInfo">Informations du dahira</string>
-    <string name="AddCommissionInstruction">Lister les listCommissions de votre dahira en fournissant le nom de la commission et le responsable. Repetez autant de fois necessaire cette procedure.</string>
+    <string name="AddCommissionInstruction">Lister les commissions de votre dahira en fournissant le nom de la commission et le responsable. Repetez autant de fois necessaire cette procedure.</string>
     <string name="updateCommission">Pour modifier ou supprimer une commission deja ajoutee, faites un appuis long la dessus.</string>
     <string name="spinnerTitle">Selectionner une commission</string>
     <string name="backButton">Precedent</string>
@@ -106,8 +106,14 @@
     <string name="add_depa_description">"Seuls les membres designes comme administrateur peuvent ajouter des evenements, des photos ou des audios. Pour se faire, naviguez sur MENU, MES DAHIRAS, selectionnez votre dahira, selectionnez l'element souhaiter puis remplir les formulaires ou suivez les instructions proposees."</string>
     <string name="send_announcement_description">"Toute personne membre d'un dahira peut envoyer une annonce vocale ou ecrite qui sera visible pour tous les membres de ce dahira. Pour se faire, naviguez sur MENU, MES DAHIRAS, selectionnez votre dahira, naviguez encore sur le MENU puis AJOUTER UNE ANNONCE. Selectionnez l'image vocale ou ecrite puis enregistrer et envoyer votre annonce."</string>
     <string name="other_functions_description">"Toutes autres fonctionnalitees peuvent etre consultees par un membre d'un dahira donne. Assurez vous d'etre ajouter en tant que membre du dahira par l'administrateur du dahira si ce dernier est cree et enregistre dans l'app. Vous pouvez trouver le contact d'un dahira facilement en navigant sur le menu puis tous les dahira ou bien rechercher le dahira en entrant son nom puis l'appeler directement via l'app."</string>
-    <string name="add_admin_description">"Seuls un administrateur peut designer un autre membre comme administrateur. Pour se faire, naviguez sur MENU, MES DAHIRA, selectionnez votre dahira, naviguez encore sur MENU, VOIR LES MEMBRES et cliquez sur le membre que tu veux designer comme administrateur. Dans la page personnelle de ce membre, naviguez sur MENU puis cliquez sur MODIFIER CE MEMBRE en bas du menu et faite la modification souhaitee (designer ce membre comme administrateur, supprimer ce membre ou bien l'attribuer a une commission)."</string>
+    <string name="add_admin_description">"Seuls un administrateur peut designer un autre membre comme administrateur. Pour se faire, naviguez sur MENU, MES DAHIRAS, selectionnez votre dahira, naviguez encore sur MENU, VOIR LES MEMBRES et cliquez sur le membre que tu veux designer comme administrateur. Dans la page personnelle de ce membre, naviguez sur MENU puis cliquez sur MODIFIER CE MEMBRE en bas du menu et faite la modification souhaitee (designer ce membre comme administrateur, supprimer ce membre ou bien l'attribuer a une commission)."</string>
+    <string name="quit_modify_dahira_description">"Pour modifier ou se desabonner d'un dahira, naviguez sur MENU, MES DAHIRAS, selectionnez votre dahira, naviguez encore sur MENU, selection MODIFIER MON DAHIRA ou QUITTER CE DAHIRA en bas du menu et suivez les instructions."</string>
 
+    <string name="ad_banner_id">ca-app-pub-4572559956016262/5980352784</string>
+    <string name="ad_app_id">ca-app-pub-4572559956016262~6999002555</string>
+    <string name="ad_native_express_id">ca-app-pub-4572559956016262/4677512425</string>
+    <string name="ad_interstitial_id">ca-app-pub-4572559956016262/2592073432</string>
+    <string name="ad_rewarde_id">ca-app-pub-4572559956016262/5971494361</string>
 
     <string-array name="country_array">
         <item>Senegal</item>

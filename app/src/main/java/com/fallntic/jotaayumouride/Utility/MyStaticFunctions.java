@@ -21,6 +21,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.fallntic.jotaayumouride.Adapter.SongAdapter;
+import com.fallntic.jotaayumouride.HomeActivity;
 import com.fallntic.jotaayumouride.LoginPhoneActivity;
 import com.fallntic.jotaayumouride.Model.ListSongObject;
 import com.fallntic.jotaayumouride.Model.Song;
@@ -86,7 +87,7 @@ public class MyStaticFunctions {
 
     public static void checkInternetConnection(Context context) {
         if (!isConnected(context)) {
-            Intent intent = new Intent(context, LoginPhoneActivity.class);
+            Intent intent = new Intent(context, HomeActivity.class);
             showAlertDialog(context, "Oops! Pas de connexion, " +
                     "verifier votre connexion internet puis reesayez SVP.", intent);
             return;

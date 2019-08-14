@@ -429,6 +429,11 @@ public class DataHolder {
                     public void onDateSet(DatePicker view, int year,
                                           int monthOfYear, int dayOfMonth) {
 
+                        if (monthOfYear < 12)
+                            monthOfYear++;
+                        else if(monthOfYear == 12)
+                            monthOfYear = 1;
+
                         String mDate = dayOfMonth + "/" + monthOfYear + "/" + year;
                         editText.setText(mDate);
                     }

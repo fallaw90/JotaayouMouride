@@ -1,6 +1,7 @@
 package com.fallntic.jotaayumouride;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -8,6 +9,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,7 +24,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -43,14 +44,19 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.mikelau.countrypickerx.Country;
+import com.mikelau.countrypickerx.CountryPickerCallbacks;
+import com.mikelau.countrypickerx.CountryPickerDialog;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.fallntic.jotaayumouride.Utility.DataHolder.checkPrefix;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahiraID;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.hasValidationErrors;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.isDouble;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
@@ -64,6 +70,7 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayo
 public class CreateDahiraActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "CreateDahiraActivity";
+    private static final String DEFAULT_LOCAL = "Senegal";
 
     private EditText editTextDahiraName;
     private EditText editTextDieuwrine;
@@ -74,14 +81,15 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
     private EditText editTextAdiya;
     private EditText editTextSass;
     private EditText editTextSocial;
+    private EditText editTextCountry;
+    private EditText editTextCity;
     private TextView textViewLabelCommission;
     private TextView getTextViewLabelResponsible;
-    private TextView textViewUpdateCommission;
+    private TextView textViewUpdateCommission, textViewAreaCode;
     private ImageView imageView;
-    private Spinner spinnerCountry, spinnerRegion;
 
 
-    private String commission, region, country;
+    private String commission, city, country;
     private String dahiraName;
     private String dieuwrine;
     private String dahiraPhoneNumber;
@@ -89,6 +97,7 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
     private String totalAdiya;
     private String totalSass;
     private String totalSocial;
+    private String areaCode;
 
     private ListView listViewCommission;
 
@@ -111,6 +120,8 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
 
     private Toolbar toolbar;
 
+    private CountryPickerDialog countryPicker;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -126,6 +137,8 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         //Check internet connection
         checkInternetConnection(this);
 
+        areaCode = getCurrentCountryCode(this);
+        textViewAreaCode.setText(areaCode);
 
         //Display and modify ListView commissions
         arrayAdapter = new ArrayAdapter<String>(this, R.layout.list_commission, R.id.textView_commission, arrayList);
@@ -139,29 +152,6 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
             }
         });
 
-        spinnerCountry.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-                country = parent.getItemAtPosition(position).toString();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-
-        spinnerRegion.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-                region = parent.getItemAtPosition(position).toString();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
 
         hideSoftKeyboard();
     }
@@ -210,14 +200,16 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         editTextSass = findViewById(R.id.editText_sass);
         editTextSocial = findViewById(R.id.editText_social);
         textViewUpdateCommission = findViewById(R.id.textViewUpdateCommission);
-        spinnerCountry = findViewById(R.id.spinner_country);
-        spinnerRegion = findViewById(R.id.spinner_region);
+        editTextCountry = findViewById(R.id.editText_country);
+        editTextCity = findViewById(R.id.editText_city);
         imageView = findViewById(R.id.imageView);
+        textViewAreaCode = findViewById(R.id.textView_areaCode);
 
         findViewById(R.id.button_addCommission).setOnClickListener(this);
         findViewById(R.id.button_save).setOnClickListener(this);
         findViewById(R.id.button_back).setOnClickListener(this);
         findViewById(R.id.imageView).setOnClickListener(this);
+        findViewById(R.id.editText_country).setOnClickListener(this);
     }
 
     public void initViewsProgressBar() {
@@ -233,6 +225,9 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
             case R.id.imageView:
                 checkPermission();
                 chooseImage();
+                break;
+            case R.id.editText_country:
+                getCountry();
                 break;
             case R.id.button_addCommission:
                 showListViewCommissions();
@@ -287,11 +282,12 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         dahiraName = editTextDahiraName.getText().toString().trim();
         dieuwrine = editTextDieuwrine.getText().toString().trim();
         dahiraPhoneNumber = editTextDahiraPhoneNumber.getText().toString().trim();
-        siege = editTextSiege.getText().toString().trim();
-        siege = siege.concat(", " + region + " " + country);
         totalAdiya = editTextAdiya.getText().toString().trim();
         totalSass = editTextSass.getText().toString().trim();
         totalSocial = editTextSocial.getText().toString().trim();
+        country = editTextCountry.getText().toString().trim();
+        city = editTextCity.getText().toString().trim();
+        siege = editTextSiege.getText().toString().trim();
 
         if (totalAdiya == null || totalAdiya.equals("") || totalAdiya.isEmpty())
             totalAdiya = "00";
@@ -309,11 +305,9 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
             totalSocial = totalSocial.replace(",", ".");
 
 
-        if (!hasValidationErrors(dahiraName, editTextDahiraName, dieuwrine, editTextDieuwrine,
-                dahiraPhoneNumber, editTextDahiraPhoneNumber, siege, editTextSiege, totalAdiya, editTextAdiya,
-                totalSass, editTextSass, totalSocial, editTextSocial)) {
-
-            dahiraPhoneNumber = "+221" + dahiraPhoneNumber;
+        if (!hasValidationErrors()) {
+            siege = siege.concat(", " + city + " " + country);
+            dahiraPhoneNumber = areaCode + dahiraPhoneNumber;
             dahiraID = db.collection("dahiras").document().getId();
             dahira = new Dahira(dahiraID, dahiraName, dieuwrine, dahiraPhoneNumber, siege, totalAdiya,
                     totalSass, totalSocial, "1", listCommissionDahira, listResponsibles);
@@ -499,6 +493,105 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
                 setListViewHeightBasedOnChildren(listViewCommission);
             }
         });
+    }
+
+    public void getCountry(){
+        /* Name of your Custom JSON list */
+        int resourceId = getResources().getIdentifier("country_avail", "raw", getApplicationContext().getPackageName());
+
+        countryPicker = new CountryPickerDialog(CreateDahiraActivity.this, new CountryPickerCallbacks() {
+            @Override
+            public void onCountrySelected(Country country, int flagResId) {
+                /* Get Country Name: country.getCountryName(context); */
+                editTextCountry.setText(country.getCountryName(CreateDahiraActivity.this));
+                /* Call countryPicker.dismiss(); to prevent memory leaks */
+                countryPicker.dismiss();
+            }
+
+        /* Set to false if you want to disable Dial Code in the results and true if you want to show it
+        Set to zero if you don't have a custom JSON list of countries in your raw file otherwise use
+        resourceId for your customly available countries */
+        }, false, 0);
+        countryPicker.show();
+    }
+
+    public static String getCurrentCountryCode(Context context) {
+        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        String countryIso = telephonyManager.getSimCountryIso().toUpperCase();
+        return "+" + PhoneNumberUtil.getInstance().getCountryCodeForRegion(countryIso);
+    }
+
+    public boolean hasValidationErrors() {
+
+        if (dahiraName.isEmpty()) {
+            editTextDahiraName.setError("Nom dahira obligatoire");
+            editTextDahiraName.requestFocus();
+            return true;
+        }
+
+        if (dieuwrine.isEmpty()) {
+            editTextDieuwrine.setError("Champ obligatoire");
+            editTextDieuwrine.requestFocus();
+            return true;
+        }
+
+        if (dahiraPhoneNumber.isEmpty()) {
+            editTextDahiraPhoneNumber.setError("Champ obligatoire");
+            editTextDahiraPhoneNumber.requestFocus();
+            return true;
+        }
+
+        if (!dahiraPhoneNumber.isEmpty() && (!dahiraPhoneNumber.matches("[0-9]+"))) {
+            if (dahiraPhoneNumber.contains(areaCode)) {
+                editTextDahiraPhoneNumber.setError("Ne pas inclure votre indicatif svp.");
+                editTextDahiraPhoneNumber.requestFocus();
+                return true;
+            }
+        }
+
+        if (siege.isEmpty()) {
+            editTextSiege.setError("Champ obligatoire");
+            editTextSiege.requestFocus();
+            return true;
+        }
+
+        if (city.isEmpty()) {
+            editTextCity.setError("Champ obligatoire");
+            editTextCity.requestFocus();
+            return true;
+        }
+
+        if (totalAdiya.isEmpty()) {
+            editTextSiege.setError("Non montant, entrer 0");
+            editTextAdiya.requestFocus();
+            return true;
+        } else if (!isDouble(totalAdiya)) {
+            editTextAdiya.setText("Valeur listAdiya incorrecte");
+            editTextAdiya.requestFocus();
+            return true;
+        }
+
+        if (totalSass.isEmpty()) {
+            editTextSiege.setError("Non montant, entrer 0");
+            editTextSass.requestFocus();
+            return true;
+        } else if (!isDouble(totalSass)) {
+            editTextSass.setText("Valeur sass incorrecte");
+            editTextSass.requestFocus();
+            return true;
+        }
+
+        if (totalSocial.isEmpty()) {
+            editTextSiege.setError("Non montant, entrer 0");
+            editTextSass.requestFocus();
+            return true;
+        } else if (!isDouble(totalSocial)) {
+            editTextSocial.setText("Valeur sociale incorrecte");
+            editTextSocial.requestFocus();
+            return true;
+        }
+
+        return false;
     }
 
     public void hideSoftKeyboard() {

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -50,7 +52,15 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +77,7 @@ import static com.fallntic.jotaayumouride.Utility.DataHolder.showImage;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.isConnected;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.setMediaPlayer;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayDahira;
@@ -104,8 +115,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private String userID;
     private String dahiraToUpdate;
 
-    private AdView bannerAd;
-    private InterstitialAd interstitial;
+    public static AdView bannerAd;
+    public static InterstitialAd interstitial;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,7 +129,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
         initViews();
 
-        checkInternetConnection(this);
+        if (!isConnected(this)){
+            toastMessage(this, "Verifier votre connexion SVP.");
+            return;
+        }
 
         if (firebaseAuth.getCurrentUser() != null) {
             userID = firebaseAuth.getCurrentUser().getUid();
@@ -141,9 +155,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         new Handler().postDelayed(new Runnable(){
             @Override
             public void run(){
-                loadInterstitialAd();
+                loadInterstitialAd(HomeActivity.this);
             }
-        }, 10000);
+        }, 30000);
     }
 
     private void setupOnlineViewPager(ViewPager viewPager) {
@@ -277,7 +291,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.nav_displayMyDahira:
                 MyStaticVariables.displayDahira = "myDahira";
-                getMyDahira();
+                getMyDahira(HomeActivity.this);
                 break;
 
             case R.id.nav_addDahira:
@@ -331,7 +345,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         nav_Menu.findItem(R.id.nav_displayAnnouncement).setVisible(false);
         nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
         nav_Menu.findItem(R.id.nav_displayEvent).setVisible(false);
-
+        nav_Menu.findItem(R.id.nav_removeDahira).setVisible(false);
     }
 
     public void setDrawerMenu() {
@@ -382,7 +396,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 });
     }
 
-    private void getMyDahira() {
+    public static void getMyDahira(final Context context) {
         showProgressBar();
         if (MyStaticVariables.myListDahira == null || myListDahira.isEmpty()) {
             myListDahira = new ArrayList<>();
@@ -402,12 +416,13 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                                 }
                             }
                             if (myListDahira.isEmpty()) {
-                                showAlertDialog(HomeActivity.this, "Vous n'etes membre d'un " +
+                                Intent intent = new Intent(context, HomeActivity.class);
+                                showAlertDialog(context, "Vous n'etes membre d'un " +
                                         " aucun dahira pour le moment. Contactez l'administrateur de votre dahira " +
                                         "pour qu'il vous ajouter en tant que membre. Ou bien, creer un dahira si vous etes " +
-                                        "administrateur.");
+                                        "administrateur.", intent);
                             } else {
-                                startActivity(new Intent(HomeActivity.this, ListDahiraActivity.class));
+                                context.startActivity(new Intent(context, ListDahiraActivity.class));
                             }
                         }
                     })
@@ -415,11 +430,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             hideProgressBar();
-                            toastMessage(getApplicationContext(), "Error charging dahira!");
+                            toastMessage(context, "Error charging dahira!");
                         }
                     });
         } else {
-            startActivity(new Intent(HomeActivity.this, ListDahiraActivity.class));
+            context.startActivity(new Intent(context, ListDahiraActivity.class));
         }
     }
 
@@ -445,10 +460,12 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                                         " n'est enregistre dans le platforme pour le moment. " +
                                         "Merci de creer votre dahira si vous etes administrateur.");
                             }
-                            if (displayDahira.equals("searchDahira")) {
-                                dialogSearchDahira(context);
-                            } else
+                            else if (displayDahira.equals("allDahira")) {
                                 context.startActivity(new Intent(context, ListDahiraActivity.class));
+                            }
+                            else if (displayDahira.equals("searchDahira")) {
+                                dialogSearchDahira(context);
+                            }
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -522,6 +539,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             showProgressBar();
             firestore.collection("events").get()
                     .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @RequiresApi(api = Build.VERSION_CODES.O)
                         @Override
                         public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                             hideProgressBar();
@@ -532,6 +550,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                                     listAllEvent.add(event);
                                     Log.d(TAG, "Events downloaded.");
                                 }
+
+                                //Collections.sort(listAllEvent);
                                 Log.d(TAG, "Events downloaded.");
                                 context.startActivity(new Intent(context, ListEventActivity.class));
                             } else {
@@ -589,11 +609,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         bannerAd.loadAd(adRequest);
     }
 
-    private void loadInterstitialAd() {
+    public static void loadInterstitialAd(Context context) {
         AdRequest adRequest = new AdRequest.Builder().build();
 
         // Prepare the Interstitial Ad
-        interstitial = new InterstitialAd(HomeActivity.this);
+        interstitial = new InterstitialAd(context);
         // Insert the Ad Unit ID
         interstitial.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
 
@@ -607,10 +627,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-    public void displayInterstitial() {
+    public static void displayInterstitial() {
     // If Ads are loaded, show Interstitial else show nothing.
         if (interstitial.isLoaded()) {
             interstitial.show();
         }
     }
+
 }
