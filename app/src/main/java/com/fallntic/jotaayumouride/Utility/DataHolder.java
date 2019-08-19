@@ -84,9 +84,9 @@ public class DataHolder {
     public static User onlineUser = null;
     public static User selectedUser = null;
     public static Dahira dahira = null;
-    public static Adiya adiya = null;
-    public static Sass sass = null;
-    public static Social social = null;
+    public static Adiya adiya = new Adiya();
+    public static Sass sass = new Sass();
+    public static Social social = new Social();
 
     public static int indexOnlineUser = -1;
     public static int indexSelectedUser = -1;

@@ -31,6 +31,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import com.fallntic.jotaayumouride.Model.Event;
 import com.fallntic.jotaayumouride.Model.Expense;
 import com.fallntic.jotaayumouride.Model.ListImageObject;
+import com.fallntic.jotaayumouride.Model.Song;
 import com.fallntic.jotaayumouride.Model.User;
 import com.fallntic.jotaayumouride.Utility.MyStaticFunctions;
 import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
@@ -43,6 +44,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -67,6 +69,7 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listExpenses;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listImage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listSong;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListDahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListEvents;
@@ -408,9 +411,9 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                                     listImage.addAll(listImageObject.getListImage());
                                     break;
                                 }
-                                startActivity(new Intent(context, ShowImagesActivity.class));
                                 Log.d(TAG, "Image name downloaded");
                             }
+                            startActivity(new Intent(context, ShowImagesActivity.class));
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -438,6 +441,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
             nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
             nav_Menu.findItem(R.id.nav_setting).setVisible(false);
             nav_Menu.findItem(R.id.nav_searchUser).setVisible(false);
+            nav_Menu.findItem(R.id.nav_removeDahira).setVisible(false);
         } else if (!onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
             nav_Menu.findItem(R.id.nav_setting).setVisible(false);
             nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
@@ -628,7 +632,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 break;
 
             case R.id.nav_audio:
-                startActivity(new Intent(this, ShowSongsActivity.class));
+                getListAudios();
                 break;
 
             case R.id.nav_video:
@@ -656,5 +660,39 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
 
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void getListAudios() {
+        //Retrieve all songs from FirebaseFirestore
+        if (listSong == null) {
+            listSong = new ArrayList<>();
+            showProgressBar();
+            firestore.collection("dahiras").document(dahira.getDahiraID())
+                    .collection("audios").get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                hideProgressBar();
+                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                                for (DocumentSnapshot documentSnapshot : list) {
+                                    Song song = documentSnapshot.toObject(Song.class);
+                                    listSong.add(song);
+                                    break;
+                                }
+                                Collections.sort(listSong);
+                                startActivity(new Intent(DahiraInfoActivity.this, ShowSongsActivity.class));
+                            }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    hideProgressBar();
+                    toastMessage(DahiraInfoActivity.this, "Erreur de telechargement du repertoire audio.");
+                }
+            });
+        } else {
+            startActivity(new Intent(DahiraInfoActivity.this, ShowSongsActivity.class));
+        }
     }
 }

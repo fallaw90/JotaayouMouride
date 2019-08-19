@@ -333,6 +333,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
         nav_Menu.findItem(R.id.nav_displayEvent).setVisible(false);
         nav_Menu.findItem(R.id.nav_removeDahira).setVisible(false);
+
     }
 
     public static void getAllDahiras(final Context context) {

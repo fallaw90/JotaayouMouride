@@ -22,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.fallntic.jotaayumouride.Model.Song;
+import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
@@ -33,6 +34,7 @@ import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -196,8 +198,11 @@ public class AddAudioActivity extends AppCompatActivity {
                                 @Override
                                 public void onSuccess(Uri uri) {
 
-                                    Song song = new Song(uploadID, editTextTitle.getText().toString(),
+                                    final Song song = new Song(uploadID, editTextTitle.getText().toString(),
                                             finalDurationTxt, uri.toString());
+
+                                    if (MyStaticVariables.listSong == null)
+                                        MyStaticVariables.listSong = new ArrayList<>();
 
                                     collectionReference.document(uploadID).set(song)
                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -205,6 +210,7 @@ public class AddAudioActivity extends AppCompatActivity {
                                                 public void onSuccess(Void aVoid) {
                                                     progressBar.setVisibility(View.GONE);
                                                     textViewSelectedFile.setText("Aucun fichier selectionne");
+                                                    MyStaticVariables.listSong.add(song);
                                                     AlertDialog.Builder builder =
                                                             new AlertDialog.Builder(AddAudioActivity.this, R.style.alertDialog);
                                                     builder.setTitle("Fichier enregistre");

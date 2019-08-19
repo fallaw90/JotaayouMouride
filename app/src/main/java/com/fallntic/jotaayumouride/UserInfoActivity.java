@@ -370,6 +370,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
             nav_Menu.findItem(R.id.nav_finance).setVisible(false);
         }
 
+        nav_Menu.findItem(R.id.nav_removeDahira).setVisible(false);
         nav_Menu.findItem(R.id.nav_callDahira).setVisible(false);
         nav_Menu.findItem(R.id.nav_searchUser).setVisible(false);
         nav_Menu.findItem(R.id.nav_searchDahira).setVisible(false);

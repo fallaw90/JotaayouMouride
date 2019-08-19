@@ -35,6 +35,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -290,6 +291,8 @@ public class ShowEventActivity extends AppCompatActivity implements View.OnClick
     }
 
     private void sortByDate(){
+        if (listAllEvent == null)
+            listAllEvent = new ArrayList<>();
         Collections.sort(listAllEvent, new Comparator<Event>() {
             DateFormat f = new SimpleDateFormat("dd/MM/yyyy");
             @Override

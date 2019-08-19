@@ -114,7 +114,9 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
             toolbar_bottom.setVisibility(View.GONE);
         }
         textViewTitle.setText("Bienvenu dans le repertoire audio du dahira " + dahira.getDahiraName());
-        if (!onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur"))
+
+        if (indexOnlineUser == -1 || !onlineUser.getListDahiraID().contains(dahira.getDahiraID()) ||
+                !onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur"))
             textViewDeleteInstruction.setVisibility(View.GONE);
 
         setMyAdapter(listSong);

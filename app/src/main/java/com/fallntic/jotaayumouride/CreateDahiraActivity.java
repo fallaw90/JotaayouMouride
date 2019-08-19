@@ -65,6 +65,7 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInterne
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.saveLogoDahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListDahira;
 
 public class CreateDahiraActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -335,12 +336,16 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
             dahira = new Dahira(dahiraID, dahiraName, dieuwrine, dahiraPhoneNumber, siege, totalAdiya,
                     totalSass, totalSocial, "1", "", listCommissionDahira, listResponsibles);
 
+            if (myListDahira == null)
+                myListDahira = new ArrayList<>();
+
             showProgressBar();
             db.collection("dahiras").document(DataHolder.dahiraID).set(dahira)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             hideProgressBar();
+                            myListDahira.add(dahira);
                             if (fileUri != null)
                                 uploadImage();
                             updateUserListDahiraID();

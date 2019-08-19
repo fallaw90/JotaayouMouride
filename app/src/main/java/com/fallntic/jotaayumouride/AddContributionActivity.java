@@ -177,8 +177,6 @@ public class AddContributionActivity extends AppCompatActivity implements View.O
                         "listSocial", selectedUser.getListSocial());
             }
 
-            
-
         }
     }
 
@@ -286,9 +284,12 @@ public class AddContributionActivity extends AppCompatActivity implements View.O
                             Log.d(TAG, "New collection " + nameCollection + " created");
                         }
 
-                        notifyUser(context, value+"");
-                        final Intent intent = new Intent(context, UserInfoActivity.class);
-                        showAlertDialog(context, nameCollection + " ajoute avec succe!", intent);
+                        if (selectedUser != null) {
+                            notifyUser(context, value + "");
+                            final Intent intent = new Intent(context, UserInfoActivity.class);
+                            showAlertDialog(context, nameCollection + " ajoute avec succe!", intent);
+                        } else
+                            context.startActivity(new Intent(context, HomeActivity.class));
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {

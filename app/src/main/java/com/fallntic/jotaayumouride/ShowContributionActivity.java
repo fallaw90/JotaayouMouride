@@ -1,9 +1,11 @@
 package com.fallntic.jotaayumouride;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -11,6 +13,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -20,11 +23,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.fallntic.jotaayumouride.Adapter.ContributionAdapter;
 import com.fallntic.jotaayumouride.Utility.SwipeToDeleteCallback;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static androidx.constraintlayout.widget.Constraints.TAG;
 import static com.fallntic.jotaayumouride.Adapter.ContributionAdapter.getListAmount;
 import static com.fallntic.jotaayumouride.Adapter.ContributionAdapter.getListDate;
 import static com.fallntic.jotaayumouride.Adapter.ContributionAdapter.getListUserName;
@@ -35,10 +42,13 @@ import static com.fallntic.jotaayumouride.UserInfoActivity.getSocial;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.adiya;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.boolAddToDahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.indexSelectedUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.sass;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.selectedUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.social;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.typeOfContribution;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 
@@ -52,7 +62,7 @@ public class ShowContributionActivity extends AppCompatActivity {
     private List<String> listAmountAdiya;
     private List<String> listDateAdiya;
     private List<String> listUserName;
-    private String amountDeleted;
+    private double amountDeleted = 0.00, currentAmount = 0.00;
     private Toolbar toolbar;
 
     @Override
@@ -111,42 +121,59 @@ public class ShowContributionActivity extends AppCompatActivity {
                 else
                     userName = "inconnu";
 
-                amountDeleted = getListAmount().get(position);
+                amountDeleted = Double.parseDouble(getListAmount().get(position));
 
-                contributionAdapter.removeItem(position);
 
-                boolAddToDahira = false;
-                updateContribution(ShowContributionActivity.this, typeOfContribution,
-                        selectedUser.getUserID(), amountDeleted);
+                AlertDialog.Builder builder = new AlertDialog.Builder(ShowContributionActivity.this, R.style.alertDialog);
+                builder.setTitle("Supprimer " + typeOfContribution + "!");
+                builder.setMessage("Etes vous sure de vouloir supprimer cet " + typeOfContribution + "?");
+                builder.setCancelable(false);
+                builder.setPositiveButton("OUI", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        contributionAdapter.removeItem(position);
+                        //Remove item in FirebaseFireStore
+                        boolAddToDahira = true;
+                        boolAddToDahira = false;
+                        updateContribution(ShowContributionActivity.this, typeOfContribution,
+                                selectedUser.getUserID(), String.valueOf(amountDeleted));
 
-                Snackbar snackbar = null;
-                if (typeOfContribution.equals("adiya")) {
-                    snackbar = Snackbar.make(coordinatorLayout,
-                            "Adiya supprime.", Snackbar.LENGTH_LONG);
-                } else if (typeOfContribution.equals("sass")) {
-                    snackbar = Snackbar.make(coordinatorLayout,
-                            "Sass supprime.", Snackbar.LENGTH_LONG);
-                } else if (typeOfContribution.equals("social")) {
-                    snackbar = Snackbar.make(coordinatorLayout,
-                            "Social supprime.", Snackbar.LENGTH_LONG);
-                }
-
-                if (snackbar != null) {
-                    snackbar.setAction("Annuler la suppression", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-
-                            boolAddToDahira = true;
-                            updateContribution(ShowContributionActivity.this, typeOfContribution,
-                                    selectedUser.getUserID(), amountDeleted);
-
-                            contributionAdapter.restoreItem(position, mDate, amountDeleted, userName);
-                            recyclerViewContribution.scrollToPosition(position);
+                        Snackbar snackbar = null;
+                        if (typeOfContribution.equals("adiya")) {
+                            currentAmount = Double.parseDouble(selectedUser.getListAdiya().get(indexSelectedUser));
+                            selectedUser.getListAdiya().set(indexOnlineUser, String.valueOf(currentAmount - amountDeleted));
+                            snackbar = Snackbar.make(coordinatorLayout,
+                                    "Adiya supprime.", Snackbar.LENGTH_LONG);
+                        } else if (typeOfContribution.equals("sass")) {
+                            currentAmount = Double.parseDouble(selectedUser.getListSass().get(indexSelectedUser));
+                            selectedUser.getListSass().set(indexOnlineUser, String.valueOf(currentAmount - amountDeleted));
+                            snackbar = Snackbar.make(coordinatorLayout,
+                                    "Sass supprime.", Snackbar.LENGTH_LONG);
+                        } else if (typeOfContribution.equals("social")) {
+                            currentAmount = Double.parseDouble(selectedUser.getListSocial().get(indexSelectedUser));
+                            selectedUser.getListSocial().set(indexOnlineUser, String.valueOf(currentAmount - amountDeleted));
+                            snackbar = Snackbar.make(coordinatorLayout,
+                                    "Social supprime.", Snackbar.LENGTH_LONG);
                         }
-                    });
-                    snackbar.setActionTextColor(Color.YELLOW);
-                    snackbar.show();
-                }
+                        updateUserContribution();
+                        snackbar.setActionTextColor(Color.YELLOW);
+                        snackbar.show();
+
+                    }
+                });
+
+                builder.setNegativeButton("NON", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        /*
+                        startActivity(new Intent(ShowContributionActivity.this,
+                                ShowContributionActivity.class));
+                                */
+                    }
+                });
+                builder.show();
+
+
             }
         };
 
@@ -242,5 +269,25 @@ public class ShowContributionActivity extends AppCompatActivity {
         }
         finish();
         return true;
+    }
+
+    public void updateUserContribution() {
+        FirebaseFirestore.getInstance().collection("users").document(selectedUser.getUserID())
+                .set(selectedUser)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        toastMessage(ShowContributionActivity.this, typeOfContribution + " supprime avec succe!");
+                        Log.d(TAG, typeOfContribution + " set successfully");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        toastMessage(ShowContributionActivity.this,
+                                "Erreur " + e.getMessage() + " suppression " + typeOfContribution);
+                        Log.d(TAG, "Error initContributions function line 351");
+                    }
+                });
     }
 }
