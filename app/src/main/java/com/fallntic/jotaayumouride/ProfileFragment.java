@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.fallntic.jotaayumouride.Utility.MyStaticFunctions;
 import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -20,7 +21,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.fallntic.jotaayumouride.Utility.DataHolder.logout;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.showImage;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firebaseAuth;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firebaseUser;
@@ -98,16 +98,16 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                     linearLayoutVerified.setVisibility(View.GONE);
                 }
             } else if (firebaseUser.getPhoneNumber() != null && !firebaseUser.getPhoneNumber().equals("")) {
-                toastMessage(getContext(), firebaseUser.getPhoneNumber());
                 linearLayoutVerificationNeeded.setVisibility(View.GONE);
                 linEmail.setVisibility(View.GONE);
             }
 
-            showImage(getContext(), "profileImage", onlineUser.getUserID(), imageViewProfile);
             textViewName.setText(onlineUser.getUserName());
             textViewPhoneNumber.setText(onlineUser.getUserPhoneNumber());
             textViewAdress.setText(onlineUser.getAddress());
             textViewEmail.setText(onlineUser.getEmail());
+
+            MyStaticFunctions.showImage(getContext(), onlineUser.getImageUri(), imageViewProfile);
         }
     }
 

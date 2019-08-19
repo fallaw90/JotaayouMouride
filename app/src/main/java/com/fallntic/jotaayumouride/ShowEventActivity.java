@@ -38,6 +38,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Comparator;
 
+import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.deleteDocument;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
@@ -48,17 +49,17 @@ import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllEvent;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllEvent;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListEvents;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.objNotification;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
 
-public class ListEventActivity extends AppCompatActivity implements View.OnClickListener{
-    private final String TAG = "ListEventActivity";
+public class ShowEventActivity extends AppCompatActivity implements View.OnClickListener {
+    private final String TAG = "ShowEventActivity";
 
     private TextView textViewDahiraName;
     private TextView textViewDelete;
@@ -87,6 +88,8 @@ public class ListEventActivity extends AppCompatActivity implements View.OnClick
 
         initViews();
         loadEvents(this);
+
+        loadInterstitialAd(this);
     }
 
     @Override
@@ -120,10 +123,10 @@ public class ListEventActivity extends AppCompatActivity implements View.OnClick
         finish();
         if (displayEvent.equals("allEvents") || objNotification != null){
             objNotification = null;
-            startActivity(new Intent(ListEventActivity.this, HomeActivity.class));
+            startActivity(new Intent(ShowEventActivity.this, HomeActivity.class));
         }
         if (displayEvent.equals("myEvents") ){
-            startActivity(new Intent(ListEventActivity.this, DahiraInfoActivity.class));
+            startActivity(new Intent(ShowEventActivity.this, DahiraInfoActivity.class));
         }
     }
 
@@ -204,7 +207,7 @@ public class ListEventActivity extends AppCompatActivity implements View.OnClick
 
                 final Event event = myListEvents.get(position);
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(ListEventActivity.this, R.style.alertDialog);
+                AlertDialog.Builder builder = new AlertDialog.Builder(ShowEventActivity.this, R.style.alertDialog);
                 builder.setTitle("Supprimer evenement!");
                 builder.setMessage("Etes vous sure de vouloir supprimer cet evenement?");
                 builder.setCancelable(false);
@@ -221,8 +224,8 @@ public class ListEventActivity extends AppCompatActivity implements View.OnClick
                 builder.setNegativeButton("NON", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        startActivity(new Intent(ListEventActivity.this,
-                                ListEventActivity.class));
+                        startActivity(new Intent(ShowEventActivity.this,
+                                ShowEventActivity.class));
                     }
                 });
                 builder.show();
@@ -243,7 +246,7 @@ public class ListEventActivity extends AppCompatActivity implements View.OnClick
                     @Override
                     public void onSuccess(Void aVoid) {
                         hideProgressBar();
-                        deleteDocument(ListEventActivity.this, "events", event.getEventID());
+                        deleteDocument(ShowEventActivity.this, "events", event.getEventID());
 
                         Snackbar snackbar = Snackbar.make(coordinatorLayout,
                                 "Evenement supprimee.", Snackbar.LENGTH_LONG);
@@ -259,7 +262,7 @@ public class ListEventActivity extends AppCompatActivity implements View.OnClick
                         "Erreur de la suppression de l'evenement. " + e.getMessage(), Snackbar.LENGTH_LONG);
                 snackbar.setActionTextColor(Color.GREEN);
                 snackbar.show();
-                startActivity(new Intent(ListEventActivity.this, ListEventActivity.class));
+                startActivity(new Intent(ShowEventActivity.this, ShowEventActivity.class));
             }
         });
     }

@@ -18,25 +18,33 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.fallntic.jotaayumouride.Utility.MyStaticFunctions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
 
-import static com.fallntic.jotaayumouride.Utility.DataHolder.*;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.saveProfileImage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.*;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firebaseStorage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.storageReference;
 
 public class SettingProfileActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "UpdateUserActivity";
@@ -47,12 +55,11 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
     private EditText editTextAddress;
 
     private ImageView imageView;
-    private Uri uri;
+    private Uri imageUri;
     private final int PICK_IMAGE_REQUEST = 71;
+    private UploadTask uploadTask;
     private boolean imageSaved = true, userSaved = true;
 
-    //Firebase
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +74,9 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
 
         checkInternetConnection(this);
 
+        firebaseStorage = FirebaseStorage.getInstance();
+        storageReference = firebaseStorage.getReference();
+
         progressDialog = new ProgressDialog(this);
 
         initViews();
@@ -75,7 +85,7 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
         hideSoftKeyboard();
     }
 
-    private void initViews(){
+    private void initViews() {
 
         editTextUserName = findViewById(R.id.editText_userName);
         editTextAddress = findViewById(R.id.editText_address);
@@ -87,17 +97,17 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
         initViewsProgressBar();
     }
 
-    public  void initViewsProgressBar() {
+    public void initViewsProgressBar() {
         relativeLayoutData = findViewById(R.id.relativeLayout_data);
         relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
         progressBar = findViewById(R.id.progressBar);
     }
 
-    private void displayViews(){
+    private void displayViews() {
         editTextUserName.setText(onlineUser.getUserName());
         editTextAddress.setText(onlineUser.getAddress());
 
-        showImage(this, "profileImage", onlineUser.getUserID(), imageView);
+        MyStaticFunctions.showImage(this, onlineUser.getImageUri(), imageView);
     }
 
     @Override
@@ -107,7 +117,7 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
 
     @Override
     public void onClick(View v) {
-        switch(v.getId()){
+        switch (v.getId()) {
             case R.id.imageView:
                 checkPermission();
                 chooseImage();
@@ -119,52 +129,42 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
     }
 
     private void chooseImage() {
-        Intent intent = new Intent();
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Choisir une image"), PICK_IMAGE_REQUEST);
+        startActivityForResult(intent, 101);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
-                && data != null && data.getData() != null ) {
+
+        if (requestCode == 101 && resultCode == RESULT_OK && data.getData() != null) {
+            final Uri fileUri = data.getData();
             try {
-                uri = data.getData();
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), fileUri);
                 imageView.setImageBitmap(bitmap);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-    }
 
-    private void uploadImage() {
-        if(uri != null && onlineUser.getUserID() != null) {
-            showProgressBar();
-            final StorageReference ref = storageReference.child("profileImage").child(userID);
-            ref.putFile(uri)
+            final StorageReference fileToUpload = storageReference
+                    .child("profileImage").child(onlineUser.getUserID());
+            fileToUpload.putFile(fileUri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            hideProgressBar();
-                            Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
-                            while (!urlTask.isSuccessful());
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            hideProgressBar();
-                            imageSaved = false;
-                            System.out.println("Failed "+e.getMessage());
+                            fileToUpload.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    saveProfileImage(SettingProfileActivity.this, uri.toString());
+                                }
+                            });
                         }
                     });
         }
     }
 
-    public void checkPermission(){
+    public void checkPermission() {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -177,26 +177,27 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
         }
     }
 
-
-    public void updateData(){
+    public void updateData() {
 
         String name = editTextUserName.getText().toString().trim();
         String address = editTextAddress.getText().toString().trim();
 
-        if(!hasValidationErrors(name, address)){
+        if (!hasValidationErrors(name, address)) {
             onlineUser.setUserName(name);
             onlineUser.setAddress(address);
 
             showProgressBar();
-            db.collection("users").document(onlineUser.getUserID())
+            firestore.collection("users").document(onlineUser.getUserID())
                     .update("userName", onlineUser.getUserName(),
-                            "address", onlineUser.getAddress())
+                            "address", onlineUser.getAddress(),
+                            "imageUri", onlineUser.getImageUri())
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             hideProgressBar();
-                            uploadImage();
-                            showAlertDialog(SettingProfileActivity.this, "Enregistrement reussi");
+                            toastMessage(SettingProfileActivity.this, "Enregistrement reussi");
+                            startActivity(new Intent(SettingProfileActivity.this, HomeActivity.class));
+                            finish();
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -210,7 +211,6 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
             startActivity(new Intent(SettingProfileActivity.this, HomeActivity.class));
         }
     }
-
 
     private boolean hasValidationErrors(String name, String address) {
 
@@ -229,8 +229,7 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
         return false;
     }
 
-
-    public void hideSoftKeyboard(){
+    public void hideSoftKeyboard() {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 

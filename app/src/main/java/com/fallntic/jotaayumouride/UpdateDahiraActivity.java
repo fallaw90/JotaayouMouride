@@ -22,10 +22,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -35,32 +35,29 @@ import androidx.core.content.ContextCompat;
 import com.fallntic.jotaayumouride.Adapter.CommissionListAdapter;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.mikelau.countrypickerx.CountryPickerDialog;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dahiraID;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.hasValidationErrors;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.showImage;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.isDouble;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.saveLogoDahira;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showImage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
 
-public class UpdateDahiraActivity extends AppCompatActivity implements View.OnClickListener  {
+public class UpdateDahiraActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "CreateDahiraActivity";
 
@@ -76,11 +73,10 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
     private TextView textViewLabelCommission;
     private TextView getTextViewLabelResponsible;
     private TextView textViewUpdateCommission;
-    private ImageView imageView;
-    private Spinner spinnerCountry, spinnerRegion;
+    private ImageView imageViewLogo;
 
 
-    private String commission, region, country;
+    private String commission;
     private String dahiraName;
     private String dieuwrine;
     private String dahiraPhoneNumber;
@@ -105,6 +101,8 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
     private FirebaseAuth mAuth;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+    private CountryPickerDialog countryPicker;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -127,8 +125,6 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
 
         displayViews();
 
-        loadListCommissions();
-
         //Display and modify ListView commissions
         arrayAdapter = new ArrayAdapter<String>(this, R.layout.list_commission,
                 R.id.textView_commission, arrayList);
@@ -143,40 +139,19 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
             }
         });
 
-        spinnerCountry.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-                country = parent.getItemAtPosition(position).toString();
-            }
-            @Override
-            public void onNothingSelected(AdapterView <?> parent) {
-            }
-        });
-
-        spinnerRegion.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-                region = parent.getItemAtPosition(position).toString();
-            }
-            @Override
-            public void onNothingSelected(AdapterView <?> parent) {
-            }
-        });
-
         hideSoftKeyboard();
     }
 
-    public  void initViewsProgressBar() {
+    public void initViewsProgressBar() {
         relativeLayoutData = findViewById(R.id.relativeLayout_data);
         relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
         progressBar = findViewById(R.id.progressBar);
     }
-    private void initViews(){
+
+    private void initViews() {
 
         //ProgressBar from static variable MainActivity
-        ListUserActivity.scrollView = findViewById(R.id.scrollView);
+        ShowUserActivity.scrollView = findViewById(R.id.scrollView);
         initViewsProgressBar();
         //Dahira info
         editTextDahiraName = findViewById(R.id.editText_dahiraName);
@@ -193,29 +168,27 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
         editTextSass = findViewById(R.id.editText_sass);
         editTextSocial = findViewById(R.id.editText_social);
         textViewUpdateCommission = findViewById(R.id.textViewUpdateCommission);
-        spinnerCountry = findViewById(R.id.spinner_country);
-        spinnerRegion = findViewById(R.id.spinner_region);
-        imageView = findViewById(R.id.imageView);
+        imageViewLogo = findViewById(R.id.imageView_logo);
 
         findViewById(R.id.button_addCommission).setOnClickListener(this);
         findViewById(R.id.button_save).setOnClickListener(this);
         findViewById(R.id.button_back).setOnClickListener(this);
-        findViewById(R.id.imageView).setOnClickListener(this);
+        findViewById(R.id.imageView_logo).setOnClickListener(this);
     }
 
-    private void displayViews(){
+    private void displayViews() {
 
         editTextDahiraName.setText(dahira.getDahiraName());
         editTextDieuwrine.setText(dahira.getDieuwrine());
-        String[] arraySiege = dahira.getSiege().split(",");
-        String phoneNumber = dahira.getDahiraPhoneNumber().substring(4);
-        editTextDahiraPhoneNumber.setText(phoneNumber);
-        editTextSiege.setText(arraySiege[0]);
+        editTextDahiraPhoneNumber.setText(dahira.getDahiraPhoneNumber());
+        editTextSiege.setText(dahira.getSiege());
         editTextAdiya.setText(dahira.getTotalAdiya());
         editTextSass.setText(dahira.getTotalSass());
         editTextSocial.setText(dahira.getTotalSocial());
 
-        showImage(this, "logoDahira", dahira.getDahiraID(), imageView);
+        loadListCommissions();
+
+        showImage(this, dahira.getImageUri(), imageViewLogo);
     }
 
     @Override
@@ -233,7 +206,7 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.icon_back:
                 finish();
                 break;
@@ -244,8 +217,8 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
     @Override
     public void onClick(View v) {
 
-        switch(v.getId()){
-            case R.id.imageView:
+        switch (v.getId()) {
+            case R.id.imageView_logo:
                 checkPermission();
                 chooseImage();
                 break;
@@ -254,7 +227,6 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
                 break;
             case R.id.button_save:
                 updateData();
-                uploadImage();
                 break;
             case R.id.button_back:
                 finish();
@@ -264,53 +236,43 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
     }
 
     private void chooseImage() {
-        Intent intent = new Intent();
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Choisir une image"), PICK_IMAGE_REQUEST);
+        startActivityForResult(intent, 101);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
-                && data != null && data.getData() != null ) {
+
+        if (requestCode == 101 && resultCode == RESULT_OK && data.getData() != null) {
+            final Uri fileUri = data.getData();
             try {
-                uri = data.getData();
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                imageView.setImageBitmap(bitmap);
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), fileUri);
+                imageViewLogo.setImageBitmap(bitmap);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-    }
 
-    private void uploadImage() {
-        if(uri != null) {
-            showProgressBar();
-            final StorageReference ref = storageReference.child("logoDahira").child(dahira.getDahiraID());
-            ref.putFile(uri)
+            final StorageReference fileToUpload = storageReference
+                    .child("logoDahira").child(dahira.getDahiraID());
+            fileToUpload.putFile(fileUri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
-                            while (!urlTask.isSuccessful());
-                            hideProgressBar();
-                            toastMessage(getApplicationContext(), "Image enregistree");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            hideProgressBar();
-                            imageSaved = false;
-                            toastMessage(getApplicationContext(), "Failed "+e.getMessage());
+                            fileToUpload.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    dahira.setImageUri(uri.toString());
+                                    saveLogoDahira(UpdateDahiraActivity.this, uri.toString());
+                                }
+                            });
                         }
                     });
         }
     }
 
-    public void checkPermission(){
+    public void checkPermission() {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -323,14 +285,13 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
-    private void updateData(){
+    private void updateData() {
 
         //Info dahira
         dahiraName = editTextDahiraName.getText().toString().trim();
         dieuwrine = editTextDieuwrine.getText().toString().trim();
         dahiraPhoneNumber = editTextDahiraPhoneNumber.getText().toString().trim();
         siege = editTextSiege.getText().toString().trim();
-        siege = siege.concat(", " + region + " " + country);
         totalAdiya = editTextAdiya.getText().toString().trim();
         totalSass = editTextSass.getText().toString().trim();
         totalSocial = editTextSocial.getText().toString().trim();
@@ -339,19 +300,18 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
         totalSass = totalSass.replace(",", ".");
         totalSocial = totalSocial.replace(",", ".");
 
-        if(!hasValidationErrors(dahiraName, editTextDahiraName, dieuwrine, editTextDieuwrine,
-                dahiraPhoneNumber,  editTextDahiraPhoneNumber, siege, editTextSiege, totalAdiya, editTextAdiya,
-                totalSass, editTextSass, totalSocial, editTextSocial)) {
-
-            dahiraPhoneNumber = "+221"+dahiraPhoneNumber;
-
-            List<String> listID = onlineUser.getListDahiraID();
-            listID.add(dahiraID);
-            onlineUser.setListDahiraID(listID);
+        if (!hasValidationErrors()) {
+            dahira.setDahiraName(dahiraName);
+            dahira.setDieuwrine(dieuwrine);
+            dahira.setDahiraPhoneNumber(dahiraPhoneNumber);
+            dahira.setSiege(siege);
+            dahira.setTotalAdiya(totalAdiya);
+            dahira.setTotalAdiya(totalSass);
+            dahira.setTotalAdiya(totalSocial);
 
             showProgressBar();
             db.collection("dahiras").document(dahira.getDahiraID())
-                    .update( "dahiraName", dahiraName,
+                    .update("dahiraName", dahiraName,
                             "dieuwrine", dieuwrine,
                             "userPhoneNumber", dahiraPhoneNumber,
                             "siege", siege,
@@ -365,22 +325,21 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
                         @Override
                         public void onSuccess(Void aVoid) {
                             hideProgressBar();
-                            Intent intent = new Intent(UpdateDahiraActivity.this,
-                                    DahiraInfoActivity.class);
-                            showAlertDialog(UpdateDahiraActivity.this,
-                                    "Changements enregistre avec succe", intent);
+                            toastMessage(UpdateDahiraActivity.this, "Changements enregistre avec succe");
+                            finish();
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
                     toastMessage(UpdateDahiraActivity.this, "Erreur enregistrement");
+                    finish();
                     startActivity(new Intent(UpdateDahiraActivity.this, DahiraInfoActivity.class));
                 }
             });
         }
     }
 
-    public void showListViewCommissions(){
+    public void showListViewCommissions() {
         String commission = editTextCommission.getText().toString().trim();
         String responsible = editTextResponsible.getText().toString().trim();
 
@@ -415,7 +374,7 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
         editTextCommission.requestFocus();
     }
 
-    public void loadListCommissions(){
+    public void loadListCommissions() {
 
         CommissionListAdapter customAdapter = new CommissionListAdapter(getApplicationContext(),
                 dahira.getListCommissions(), dahira.getListResponsibles());
@@ -474,7 +433,7 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
         final AlertDialog alertDialog = dialogBuilder.create();
         alertDialog.show();
 
-        buttonUpdate.setOnClickListener( new View.OnClickListener() {
+        buttonUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String c = editTextCommissione.getText().toString().trim();
@@ -506,7 +465,72 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
         });
     }
 
-    public void hideSoftKeyboard(){
+    public boolean hasValidationErrors() {
+
+        if (dahiraName.isEmpty()) {
+            editTextDahiraName.setError("Nom dahira obligatoire");
+            editTextDahiraName.requestFocus();
+            return true;
+        }
+
+        if (dieuwrine.isEmpty()) {
+            editTextDieuwrine.setError("Champ obligatoire");
+            editTextDieuwrine.requestFocus();
+            return true;
+        }
+
+        if (dahiraPhoneNumber.isEmpty()) {
+            editTextDahiraPhoneNumber.setError("Champ obligatoire");
+            editTextDahiraPhoneNumber.requestFocus();
+            return true;
+        }
+
+        if (!dahiraPhoneNumber.isEmpty() && (!dahiraPhoneNumber.matches("[0-9,+]+"))) {
+            editTextDahiraPhoneNumber.setError("Numero incorrect inclure l'indicatif svp.");
+            editTextDahiraPhoneNumber.requestFocus();
+            return true;
+        }
+
+        if (siege.isEmpty()) {
+            editTextSiege.setError("Champ obligatoire");
+            editTextSiege.requestFocus();
+            return true;
+        }
+
+        if (totalAdiya.isEmpty()) {
+            editTextSiege.setError("Non montant, entrer 0");
+            editTextAdiya.requestFocus();
+            return true;
+        } else if (!isDouble(totalAdiya)) {
+            editTextAdiya.setText("Valeur listAdiya incorrecte");
+            editTextAdiya.requestFocus();
+            return true;
+        }
+
+        if (totalSass.isEmpty()) {
+            editTextSiege.setError("Non montant, entrer 0");
+            editTextSass.requestFocus();
+            return true;
+        } else if (!isDouble(totalSass)) {
+            editTextSass.setText("Valeur sass incorrecte");
+            editTextSass.requestFocus();
+            return true;
+        }
+
+        if (totalSocial.isEmpty()) {
+            editTextSiege.setError("Non montant, entrer 0");
+            editTextSass.requestFocus();
+            return true;
+        } else if (!isDouble(totalSocial)) {
+            editTextSocial.setText("Valeur sociale incorrecte");
+            editTextSocial.requestFocus();
+            return true;
+        }
+
+        return false;
+    }
+
+    public void hideSoftKeyboard() {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 }

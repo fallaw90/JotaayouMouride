@@ -21,6 +21,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import com.fallntic.jotaayumouride.Model.Adiya;
 import com.fallntic.jotaayumouride.Model.Sass;
 import com.fallntic.jotaayumouride.Model.Social;
+import com.fallntic.jotaayumouride.Utility.MyStaticFunctions;
 import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
@@ -32,6 +33,7 @@ import com.google.firebase.storage.StorageReference;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.actionSelected;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.adiya;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.call;
@@ -45,7 +47,6 @@ import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.sass;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.selectedUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.showImage;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.social;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.typeOfContribution;
@@ -104,7 +105,9 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         checkInternetConnection(this);
 
         //********************** Drawer Menu **************************
-        setDrawerMenu();
+        if (onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
+            setDrawerMenu();
+        }
         //*************************************************************
 
         displayViews();
@@ -112,6 +115,15 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         getAdiya();
         getSass();
         getSocial();
+
+        if (!onlineUser.getUserID().equals(selectedUser.getUserID()) &&
+                !onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
+            linearLayoutAdiya.setVisibility(View.GONE);
+            linearLayoutSass.setVisibility(View.GONE);
+            linearLayoutSocial.setVisibility(View.GONE);
+        }
+
+        loadInterstitialAd(this);
 
     }
 
@@ -164,15 +176,15 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
             linearLayoutSocial.setVisibility(View.GONE);
         }
 
-        showImage(this, "profileImage", selectedUser.getUserID(), imageView);
+        MyStaticFunctions.showImage(this, selectedUser.getImageUri(), imageView);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button_back:
-                indexSelectedUser = -1;
-                startActivity(new Intent(UserInfoActivity.this, ListUserActivity.class));
+                actionSelected = "displayUsers";
+                startActivity(new Intent(UserInfoActivity.this, ShowUserActivity.class));
                 break;
         }
     }
@@ -180,8 +192,8 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        indexSelectedUser = -1;
-        startActivity(new Intent(UserInfoActivity.this, ListUserActivity.class));
+        actionSelected = "displayUsers";
+        startActivity(new Intent(UserInfoActivity.this, ShowUserActivity.class));
     }
 
     @Override
@@ -208,6 +220,12 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         if (toggle.onOptionsItemSelected(item))
             return true;
 
+        switch (item.getItemId()) {
+            case R.id.instructions:
+                startActivity(new Intent(this, InstructionsActivity.class));
+                break;
+        }
+
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -222,7 +240,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
                 break;
 
             case R.id.nav_displayUsers:
-                startActivity(new Intent(this, ListUserActivity.class));
+                startActivity(new Intent(this, ShowUserActivity.class));
                 break;
 
             case R.id.nav_addUser:
@@ -232,12 +250,12 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
 
             case R.id.nav_displayMyDahira:
                 MyStaticVariables.displayDahira = "myDahira";
-                startActivity(new Intent(this, ListDahiraActivity.class));
+                startActivity(new Intent(this, ShowDahiraActivity.class));
                 break;
 
             case R.id.nav_displayAllDahira:
                 MyStaticVariables.displayDahira = "allDahira";
-                startActivity(new Intent(this, ListDahiraActivity.class));
+                startActivity(new Intent(this, ShowDahiraActivity.class));
                 break;
 
             case R.id.nav_addDahira:
@@ -250,17 +268,17 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
 
             case R.id.nav_displayAdiya:
                 typeOfContribution = "adiya";
-                startActivity(new Intent(this, ListContributionActivity.class));
+                startActivity(new Intent(this, ShowContributionActivity.class));
                 break;
 
             case R.id.nav_displaySass:
                 typeOfContribution = "sass";
-                startActivity(new Intent(this, ListContributionActivity.class));
+                startActivity(new Intent(this, ShowContributionActivity.class));
                 break;
 
             case R.id.nav_displaySocial:
                 typeOfContribution = "social";
-                startActivity(new Intent(this, ListContributionActivity.class));
+                startActivity(new Intent(this, ShowContributionActivity.class));
                 break;
 
             case R.id.nav_addAnnouncement:
@@ -273,7 +291,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
                     showAlertDialog(this, "La liste de vos evenements est vide!");
                 else {
                     displayEvent = "myEvents";
-                    startActivity(new Intent(this, ListEventActivity.class));
+                    startActivity(new Intent(this, ShowEventActivity.class));
                 }
                 break;
 
@@ -286,7 +304,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
                 if (listExpenses == null) {
                     showAlertDialog(this, "La liste des depenses de votre dahira est vide!");
                 } else
-                    startActivity(new Intent(this, ListExpenseActivity.class));
+                    startActivity(new Intent(this, ShowExpenseActivity.class));
                 break;
 
             case R.id.nav_addExpense:
@@ -327,7 +345,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
-        showImage(this, "profileImage", onlineUser.getUserID(), navImageView);
+        MyStaticFunctions.showImage(this, onlineUser.getImageUri(), navImageView);
         textViewNavUserName.setText(onlineUser.getUserName());
         textViewNavEmail.setText(onlineUser.getEmail());
         navigationView.setCheckedItem(R.id.nav_displayMyDahira);

@@ -101,6 +101,7 @@ public class AddImagesActivity extends AppCompatActivity implements View.OnClick
 
         switch (v.getId()) {
             case button_finish:
+                finish();
                 startActivity(new Intent(this, ShowImagesActivity.class));
                 break;
         }

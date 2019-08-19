@@ -25,6 +25,21 @@
         android:visible="false"
         android:icon="@mipmap/logo"
         app:showAsAction="always" />
+
+    <item
+        android:id="@+id/search_dahira"
+        android:icon="@mipmap/logo"
+        android:title="Rechercher un dahira"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/search_user"
+        android:icon="@mipmap/logo"
+        android:title="Rechercher un membre"
+        android:visible="false"
+        app:showAsAction="never" />
+
     <item
         android:id="@+id/instructions"
         android:title="Instructions"

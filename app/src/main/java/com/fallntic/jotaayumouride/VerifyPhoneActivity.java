@@ -129,7 +129,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
 
     private void initViews(){
         //ProgressBar from static variable MainActivity
-        ListUserActivity.scrollView = findViewById(R.id.scrollView);
+        ShowUserActivity.scrollView = findViewById(R.id.scrollView);
         editTextCode = findViewById(R.id.editTextCode);
         initViewsProgressBar();
     }

@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -26,7 +27,6 @@ import com.fallntic.jotaayumouride.Model.Social;
 import com.fallntic.jotaayumouride.Model.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -50,13 +50,14 @@ import static com.fallntic.jotaayumouride.Utility.DataHolder.showProgressDialog;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.userID;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.saveProfileImage;
 
 public class SignUpPhoneActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "SignUpActivity";
     private final int PICK_IMAGE_REQUEST = 71;
     private String userName;
-    private String userAddress, country, city;
+    private String userAddress, country, city, imageUri;
     private ImageView imageView;
     private EditText editTextCountry;
     private EditText editTextCity;
@@ -84,6 +85,9 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
 
     private CountryPickerDialog countryPicker;
 
+    private UploadTask uploadTask;
+    private Uri fileUri;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,6 +104,9 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         checkInternetConnection(this);
+
+        initViews();
+
         //Initialize Firestore object
         mAuth = FirebaseAuth.getInstance();
         userID = mAuth.getCurrentUser().getUid();
@@ -111,15 +118,15 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
 
         progressDialog = new ProgressDialog(this);
 
+    }
+
+    private void initViews() {
         //User info
         imageView = findViewById(R.id.imageView);
         editTextUserName = findViewById(R.id.editText_name);
         editTextUserAddress = findViewById(R.id.editText_address);
         editTextCountry = findViewById(R.id.editText_country);
         editTextCity = findViewById(R.id.editText_city);
-
-        //Check access gallery permission
-        checkPermission();
 
         findViewById(R.id.button_back).setOnClickListener(this);
         findViewById(R.id.button_signUp).setOnClickListener(this);
@@ -144,6 +151,7 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
 
         switch (v.getId()) {
             case R.id.imageView:
+                //Check access gallery permission
                 checkPermission();
                 chooseImage();
                 break;
@@ -169,27 +177,25 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
         if (!hasValidationErrors(userName, userAddress, city)) {
             userAddress = userAddress.concat("\n" + city + ", " + country);
             saveUser();
-            uploadImage(userID);
-            Intent intent = new Intent(SignUpPhoneActivity.this, HomeActivity.class);
-            startActivity(intent);
         }
     }
 
     private void chooseImage() {
-        Intent intent = new Intent();
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Choisir une image"), PICK_IMAGE_REQUEST);
+        startActivityForResult(intent, 101);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
-                && data != null && data.getData() != null) {
+
+        if (requestCode == 101 && resultCode == RESULT_OK && data.getData() != null) {
+
+            fileUri = data.getData();
+
             try {
-                uri = data.getData();
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), fileUri);
                 imageView.setImageBitmap(bitmap);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -197,45 +203,38 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    private void uploadImage(String userID) {
-        if (uri != null) {
-            showProgressDialog(this, "Enregistrement de votre image cours ...");
-            final StorageReference ref = storageReference.child("profileImage").child(userID);
-            ref.putFile(uri)
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
-                            while (!urlTask.isSuccessful()) ;
-                            dismissProgressDialog();
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            dismissProgressDialog();
-                            imageSaved = false;
-                            toastMessage(getApplicationContext(), "Failed " + e.getMessage());
-                        }
-                    });
-        }
+    private void uploadImage() {
+        final StorageReference fileToUpload = storageReference
+                .child("profileImage").child(onlineUser.getUserID());
+        uploadTask = (UploadTask) fileToUpload.putFile(fileUri)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        fileToUpload.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                saveProfileImage(SignUpPhoneActivity.this, uri.toString());
+                            }
+                        });
+                    }
+                });
     }
 
     private void saveUser() {
-
         String token_id = FirebaseInstanceId.getInstance().getToken();
-        User user =  new User(userID, userName, firebaseUser.getPhoneNumber(), "", userAddress, "token_id", listDahiraID,
+        onlineUser = new User(userID, userName, firebaseUser.getPhoneNumber(), "", userAddress, token_id, imageUri, listDahiraID,
                 listUpdatedDahiraID, listCommissions, listAdiya, listSass, listSocial, listRoles);
 
         showProgressDialog(this, "Enregistrement de vos informations personnelles cours ...");
         //Save user in firestore database
-        db.collection("users").document(userID).set(user)
+        db.collection("users").document(onlineUser.getUserID()).set(onlineUser)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                        uploadImage();
                         dismissProgressDialog();
                         setAllNewCollection();
-                        //toastMessage("Utilisateur enregistre avec succes");
+                        startActivity(new Intent(SignUpPhoneActivity.this, HomeActivity.class));
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -245,6 +244,7 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
                         userSaved = false;
                         toastMessage(getApplicationContext(), "Error adding user!");
                         Log.d(TAG, e.toString());
+                        startActivity(new Intent(SignUpPhoneActivity.this, HomeActivity.class));
                     }
                 });
     }
@@ -324,7 +324,7 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    public void getCountry(){
+    public void getCountry() {
         /* Name of your Custom JSON list */
         int resourceId = getResources().getIdentifier("country_avail", "raw", getApplicationContext().getPackageName());
 

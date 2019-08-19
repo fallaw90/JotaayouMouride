@@ -21,6 +21,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.fallntic.jotaayumouride.Utility.MyStaticFunctions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
@@ -32,7 +33,7 @@ import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDial
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.selectedUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.showImage;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
@@ -188,7 +189,6 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         editTextSass.setText(selectedUser.getListSass().get(indexSelectedUser));
         editTextSocial.setText(selectedUser.getListSocial().get(indexSelectedUser));
 
-        showImage(this, "profileImage", selectedUser.getUserID(), imageView);
         //Select a commission
         setSpinner();
 
@@ -200,6 +200,8 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
             radioRoleGroup.setVisibility(View.GONE);
             buttonDelete.setVisibility(View.GONE);
         }
+
+        MyStaticFunctions.showImage(this, onlineUser.getImageUri(), imageView);
     }
 
     public void setSpinner() {
@@ -264,8 +266,12 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
                         @Override
                         public void onSuccess(Void aVoid) {
                             hideProgressBar();
+                            toastMessage(SettingUserActivity.this, "Enregistrement reussi");
+                            finish();
+                            /*
                             Intent intent = new Intent(SettingUserActivity.this, UserInfoActivity.class);
                             showAlertDialog(SettingUserActivity.this, "Enregistrement reussi.", intent);
+                            */
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override

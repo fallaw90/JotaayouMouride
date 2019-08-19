@@ -52,6 +52,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
@@ -108,6 +109,8 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             getPermissionToRecordAudio();
         }
+
+        loadInterstitialAd(RecordAudioActivity.this);
     }
 
     private void initViews() {
@@ -218,6 +221,8 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
             }
         } else if (view == buttonSend) {
             uploadAudioToFirebase(view);
+        } else if (view == buttonCancel) {
+            finish();
         }
 
     }
@@ -456,7 +461,7 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
                                                         @Override
                                                         public void onClick(DialogInterface dialog, int which) {
                                                             startActivity(new Intent(RecordAudioActivity.this,
-                                                                    SendAnnouncementActivity.class));
+                                                                    ShowAnnouncementActivity.class));
                                                         }
                                                     });
                                                     builder.show();

@@ -201,7 +201,7 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
 
                             listExpenses.add(expense);
 
-                            final Intent intent = new Intent(context, ListExpenseActivity.class);
+                            final Intent intent = new Intent(context, ShowExpenseActivity.class);
                             showAlertDialog(context, "Depense enregistree.", intent);
                             Log.d(TAG, "Expense saved.");
                         }

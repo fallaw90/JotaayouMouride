@@ -9,7 +9,6 @@ import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -31,12 +30,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.Adapter.DahiraAdapter.getExistingExpenses;
+import static com.fallntic.jotaayumouride.DahiraInfoActivity.getExistingExpenses;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.showProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.userID;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.TITLE_ANNOUNCEMENT_NOTIFICATION;
@@ -50,9 +47,6 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllEvent;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListEvents;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.objNotification;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
 
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "MainActivity";
@@ -114,15 +108,17 @@ public class MainActivity extends AppCompatActivity {
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                             onlineUser = documentSnapshot.toObject(User.class);
+                        }
+                        if (onlineUser != null) {
                             textView.setText("Bienvenu " + onlineUser.getUserName());
                             if (objNotification != null) {
                                 getDahira(context, objNotification.getDahiraID());
-                                break;
                             } else {
                                 finish();
                                 context.startActivity(new Intent(context, HomeActivity.class));
-                                break;
                             }
+                        } else {
+                            context.startActivity(new Intent(context, SignUpPhoneActivity.class));
                         }
                     }
                 })
@@ -154,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
                                     getExistingExpenses(context, objNotification.getDahiraID());
 
                                 } else if (objNotification.getTitle().equals(TITLE_ANNOUNCEMENT_NOTIFICATION)) {
-                                    context.startActivity(new Intent(context, SendAnnouncementActivity.class));
+                                    context.startActivity(new Intent(context, ShowAnnouncementActivity.class));
 
                                 } else if (objNotification.getTitle().equals(TITLE_EVENT_NOTIFICATION)) {
 
@@ -195,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
                                 if (objNotification != null) {
                                     displayEvent = "allEvents";
                                     finish();
-                                    context.startActivity(new Intent(context, ListEventActivity.class));
+                                    context.startActivity(new Intent(context, ShowEventActivity.class));
                                 } else {
                                     finish();
                                     context.startActivity(new Intent(context, HomeActivity.class));
@@ -235,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
                     if (objNotification != null) {
                         displayEvent = "myEvents";
                         finish();
-                        context.startActivity(new Intent(context, ListEventActivity.class));
+                        context.startActivity(new Intent(context, ShowEventActivity.class));
                     } else {
                         finish();
                         context.startActivity(new Intent(context, HomeActivity.class));

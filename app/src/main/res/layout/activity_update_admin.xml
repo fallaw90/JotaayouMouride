@@ -44,8 +44,8 @@
 
                     <ImageView
                         android:id="@+id/imageView"
-                        android:layout_width="150dp"
-                        android:layout_height="150dp"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
                         android:layout_below="@+id/labelImageView"
                         android:layout_centerHorizontal="true"
                         android:layout_gravity="center"
@@ -56,7 +56,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginTop="5dp"
+                        android:layout_marginTop="20dp"
                         android:layout_marginBottom="5dp"
                         android:orientation="horizontal">
 
@@ -77,59 +77,6 @@
                             android:hint="@string/userName"
                             android:padding="10dp" />
 
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/textView_phoneNumber"
-                            android:layout_width="135dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
-                            android:text="@string/updatePhoneNumber"
-                            android:textColor="@color/black"
-                            android:textSize="@dimen/_15sdp" />
-
-                        <EditText
-                            android:id="@+id/editText_userPhoneNumber"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/edittext_background"
-                            android:digits="0123456789"
-                            android:hint="@string/phoneNumber"
-                            android:inputType="phone"
-                            android:maxLength="9"
-                            android:padding="10dp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginBottom="5dp"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/textView_commission"
-                            android:layout_width="135dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
-                            android:text="@string/address"
-                            android:textColor="@color/black"
-                            android:textSize="@dimen/_15sdp" />
-
-                        <EditText
-                            android:id="@+id/editText_address"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/edittext_background"
-                            android:hint="@string/address"
-                            android:padding="10dp" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -239,7 +186,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="7dp"
-                        android:background="#7fa208"
+                        android:background="@color/green"
                         android:text="Terminer la creation de mon dahira"
                         android:textAllCaps="false"
                         android:textColor="@color/white" />

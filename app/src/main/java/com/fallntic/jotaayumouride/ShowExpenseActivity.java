@@ -22,7 +22,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fallntic.jotaayumouride.Adapter.ExpenseAdapter;
-import com.fallntic.jotaayumouride.Model.Event;
 import com.fallntic.jotaayumouride.Model.Expense;
 import com.fallntic.jotaayumouride.Utility.DataHolder;
 import com.fallntic.jotaayumouride.Utility.SwipeToDeleteCallback;
@@ -42,7 +41,6 @@ import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllEvent;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listExpenses;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.objNotification;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
@@ -50,8 +48,8 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayo
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
 
 
-public class ListExpenseActivity extends AppCompatActivity implements View.OnClickListener{
-    private final String TAG = "ListExpenseActivity";
+public class ShowExpenseActivity extends AppCompatActivity implements View.OnClickListener {
+    private final String TAG = "ShowExpenseActivity";
 
     private TextView textViewTitle;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -142,9 +140,9 @@ public class ListExpenseActivity extends AppCompatActivity implements View.OnCli
     public void onBackPressed() {
         if (objNotification != null) {
             objNotification = null;
-            startActivity(new Intent(ListExpenseActivity.this, HomeActivity.class));
+            startActivity(new Intent(ShowExpenseActivity.this, HomeActivity.class));
         } else
-            startActivity(new Intent(ListExpenseActivity.this, DahiraInfoActivity.class));
+            startActivity(new Intent(ShowExpenseActivity.this, DahiraInfoActivity.class));
         super.onBackPressed();
     }
 
@@ -173,7 +171,7 @@ public class ListExpenseActivity extends AppCompatActivity implements View.OnCli
                 final int position = viewHolder.getAdapterPosition();
                 final Expense expense = listExpenses.get(position);
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(ListExpenseActivity.this, R.style.alertDialog);
+                AlertDialog.Builder builder = new AlertDialog.Builder(ShowExpenseActivity.this, R.style.alertDialog);
                 builder.setTitle("Supprimer evenement!");
                 builder.setMessage("Etes vous sure de vouloir supprimer cet evenement?");
                 builder.setCancelable(false);
@@ -188,8 +186,8 @@ public class ListExpenseActivity extends AppCompatActivity implements View.OnCli
                 builder.setNegativeButton("NON", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        startActivity(new Intent(ListExpenseActivity.this,
-                                ListExpenseActivity.class));
+                        startActivity(new Intent(ShowExpenseActivity.this,
+                                ShowExpenseActivity.class));
                     }
                 });
                 builder.show();
@@ -225,7 +223,7 @@ public class ListExpenseActivity extends AppCompatActivity implements View.OnCli
                         "Erreur de la suppression de votre depense. " + e.getMessage(), Snackbar.LENGTH_LONG);
                 snackbar.setActionTextColor(Color.GREEN);
                 snackbar.show();
-                startActivity(new Intent(ListExpenseActivity.this, ListExpenseActivity.class));
+                startActivity(new Intent(ShowExpenseActivity.this, ShowExpenseActivity.class));
             }
         });
     }

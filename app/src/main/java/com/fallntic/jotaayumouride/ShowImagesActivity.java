@@ -34,6 +34,7 @@ import com.google.firebase.storage.StorageReference;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
@@ -92,13 +93,14 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
         }
 
         enableSwipeToDelete(this);
-
+        loadInterstitialAd(this);
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.button_back:
+                finish();
                 startActivity(new Intent(ShowImagesActivity.this, DahiraInfoActivity.class));
                 break;
         }
@@ -117,6 +119,7 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        finish();
         startActivity(new Intent(this, DahiraInfoActivity.class));
     }
 
@@ -143,6 +146,11 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
             case R.id.icon_add:
                 startActivity(new Intent(this, AddImagesActivity.class));
                 break;
+
+            case R.id.instructions:
+                startActivity(new Intent(this, InstructionsActivity.class));
+                break;
+
         }
         return true;
     }

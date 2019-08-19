@@ -36,6 +36,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 
@@ -86,6 +87,8 @@ public class AddAudioActivity extends AppCompatActivity {
                 .child("gallery")
                 .child("audios")
                 .child(dahira.getDahiraID());
+
+        loadInterstitialAd(this);
     }
 
     @Override
@@ -129,7 +132,6 @@ public class AddAudioActivity extends AppCompatActivity {
         if (audioUri.getScheme().equals("content")) {
             Cursor cursor = getContentResolver().query(uri, null, null,
                     null, null);
-
             try {
                 if (cursor != null && cursor.moveToFirst()) {
                     result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
@@ -151,7 +153,6 @@ public class AddAudioActivity extends AppCompatActivity {
 
         return result;
     }
-
 
     public void uploadAudioToFirebase(View v) {
 
@@ -196,7 +197,7 @@ public class AddAudioActivity extends AppCompatActivity {
                                 public void onSuccess(Uri uri) {
 
                                     Song song = new Song(uploadID, editTextTitle.getText().toString(),
-                                            finalDurationTxt.toString(), uri.toString());
+                                            finalDurationTxt, uri.toString());
 
                                     collectionReference.document(uploadID).set(song)
                                             .addOnSuccessListener(new OnSuccessListener<Void>() {

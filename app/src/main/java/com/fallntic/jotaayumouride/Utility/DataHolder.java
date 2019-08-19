@@ -17,7 +17,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -41,16 +40,30 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
-import de.hdodenhof.circleimageview.CircleImageView;
-
 import static androidx.constraintlayout.widget.Constraints.TAG;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayDahira;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllDahira;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllEvent;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosAM;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosHT;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosHTDK;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosQuran;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosRadiass;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosSerigneMbayeDiakhate;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosSerigneMoussaKa;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listDahiraFound;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listExpenses;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listImage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listSong;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listUser;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListDahira;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListEvents;
 
 public class DataHolder {
 
@@ -61,7 +74,7 @@ public class DataHolder {
 
     /*Set to null one more time in class:
      *      ListAnnouncementActivity line 103
-     *      ListExpenseActivity line 139
+     *      ShowExpenseActivity line 139
      */
 
     public static UploadImage uploadImages = null;
@@ -79,56 +92,6 @@ public class DataHolder {
     public static int indexSelectedUser = -1;
 
     public static ProgressDialog progressDialog;
-
-
-    public static void showImage(Context context, String child1, String child2,
-                                 ImageView imageView) {
-
-        FirebaseStorage firebaseStorage;
-        firebaseStorage = FirebaseStorage.getInstance();
-        StorageReference storageReference;
-        storageReference = firebaseStorage.getReference();
-        StorageReference imageReference = storageReference.child(child1).child(child2);
-        // Download directly from StorageReference using Glide
-        GlideApp.with(context)
-                .load(imageReference)
-                .placeholder(R.drawable.logo_dahira)
-                .centerCrop()
-                .into(imageView);
-    }
-
-    public static void showImage(Context context, String child1, String child2,
-                                 String child3, String child4, ImageView imageView) {
-
-        FirebaseStorage firebaseStorage;
-        firebaseStorage = FirebaseStorage.getInstance();
-        StorageReference storageReference;
-        storageReference = firebaseStorage.getReference();
-        StorageReference imageReference = storageReference.child(child1).child(child2)
-                .child(child3).child(child4);
-        // Download directly from StorageReference using Glide
-        GlideApp.with(context)
-                .load(imageReference)
-                .placeholder(R.drawable.image_loading)
-                .centerCrop()
-                .into(imageView);
-    }
-
-    public static void showImage(Context context, String child1,
-                                 String child2, CircleImageView imageView) {
-
-        FirebaseStorage firebaseStorage;
-        firebaseStorage = FirebaseStorage.getInstance();
-        StorageReference storageReference;
-        storageReference = firebaseStorage.getReference();
-        StorageReference imageReference = storageReference.child(child1).child(child2);
-        // Download directly from StorageReference using Glide
-        GlideApp.with(context)
-                .load(imageReference)
-                .placeholder(R.drawable.logo_web)
-                .centerCrop()
-                .into(imageView);
-    }
 
     public static void toastMessage(Context context, String message) {
         Toast.makeText(context, message, Toast.LENGTH_LONG).show();
@@ -151,12 +114,31 @@ public class DataHolder {
 
     public static void logout(Context context) {
         typeOfContribution = "";
-        onlineUser = null;
-        selectedUser = null;
-        dahira = null;
         indexOnlineUser = -1;
         indexSelectedUser = -1;
         actionSelected = "";
+        displayDahira = "";
+        displayEvent = "";
+
+        onlineUser = null;
+        selectedUser = null;
+        dahira = null;
+        listSong = null;
+        listAudiosQuran = null;
+        listAudiosSerigneMbayeDiakhate = null;
+        listAudiosSerigneMoussaKa = null;
+        listAudiosHT = null;
+        listAudiosHTDK = null;
+        listAudiosAM = null;
+        listAudiosRadiass = null;
+        listUser = null;
+        myListEvents = null;
+        listAllEvent = null;
+        myListDahira = null;
+        listAllDahira = null;
+        listDahiraFound = null;
+        listExpenses = null;
+        listImage = null;
         FirebaseAuth.getInstance().signOut();
         context.startActivity(new Intent(context, MainActivity.class));
     }
@@ -423,7 +405,7 @@ public class DataHolder {
         mMonth = c.get(Calendar.MONTH);
         mDay = c.get(Calendar.DAY_OF_MONTH);
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(context,
+        DatePickerDialog datePickerDialog = new DatePickerDialog(context, R.style.DatePickerDialog,
                 new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year,
@@ -431,7 +413,7 @@ public class DataHolder {
 
                         if (monthOfYear < 12)
                             monthOfYear++;
-                        else if(monthOfYear == 12)
+                        else if (monthOfYear == 12)
                             monthOfYear = 1;
 
                         String mDate = dayOfMonth + "/" + monthOfYear + "/" + year;

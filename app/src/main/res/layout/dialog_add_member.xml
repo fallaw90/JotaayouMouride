@@ -9,11 +9,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif"
-        android:hint="@string/editText_dialogPhoneNumber"
+        android:digits="+0123456789"
         android:layout_marginTop="20dp"
-        android:digits="0123456789"
-        android:inputType="phone"
-        android:maxLength="9"/>
+        android:hint="Telephone (exemple: +221771866656)"
+        android:inputType="phone" />
 
     <TextView
         android:layout_width="match_parent"

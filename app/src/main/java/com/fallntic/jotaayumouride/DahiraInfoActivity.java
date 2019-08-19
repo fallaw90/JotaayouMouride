@@ -29,6 +29,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.fallntic.jotaayumouride.Model.Event;
+import com.fallntic.jotaayumouride.Model.Expense;
 import com.fallntic.jotaayumouride.Model.ListImageObject;
 import com.fallntic.jotaayumouride.Model.User;
 import com.fallntic.jotaayumouride.Utility.MyStaticFunctions;
@@ -37,6 +38,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -45,6 +47,7 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.actionSelected;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.deleteDocument;
@@ -53,10 +56,11 @@ import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.logout;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.showImage;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.showProgressDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showImage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayDahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent;
@@ -66,6 +70,7 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listImage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListDahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListEvents;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.objNotification;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
@@ -89,62 +94,75 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
 
     private boolean isDahiraEmpty = true;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_dahira_info);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        checkInternetConnection(this);
-
-        init();
-
-
-        //********************** Drawer Menu ***************************************
-        setDrawerMenu();
-        //**************************************************************************
-
-        //**********************Get list song ***************************
-        MyStaticFunctions.getSongList(this);
-
-        //***********************Get List Events *****************
-        getMyEvents(this);
+    public static void getListUser(final Context context) {
+        if (listUser == null) {
+            listUser = new ArrayList<>();
+            firestore.collection("users").get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            //hideProgressBar();
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                                for (DocumentSnapshot documentSnapshot : list) {
+                                    User user = documentSnapshot.toObject(User.class);
+                                    if (user.getListDahiraID().contains(dahira.getDahiraID())) {
+                                        listUser.add(user);
+                                    }
+                                }
+                                context.startActivity(new Intent(context, ShowUserActivity.class));
+                            }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    //hideProgressBar();
+                }
+            });
+        } else
+            context.startActivity(new Intent(context, ShowUserActivity.class));
     }
 
-    private void init() {
-        textViewDahiraName = findViewById(R.id.textView_dahiraName);
-        textViewDieuwrine = findViewById(R.id.textView_dieuwrine);
-        textViewSiege = findViewById(R.id.textView_siege);
-        textViewPhoneNumber = findViewById(R.id.textView_dahiraPhoneNumber);
-        textViewTotalAdiya = findViewById(R.id.textView_totalAdiya);
-        textViewTotalSass = findViewById(R.id.textView_totalSass);
-        textViewTotalSocial = findViewById(R.id.textView_totalSocial);
-        textViewtotalMembers = findViewById(R.id.textView_totalMembers);
-        imageView = findViewById(R.id.imageView);
-        showImage(this, "logoDahira", dahira.getDahiraID(), imageView);
+    public static void getExistingExpenses(final Context context, String dahiraID) {
+        if (listExpenses == null)
+            listExpenses = new ArrayList<>();
+        else
+            listExpenses.clear();
 
-        textViewDahiraName.setText("Dahira " + dahira.getDahiraName());
-        textViewDieuwrine.setText("Dieuwrine: " + dahira.getDieuwrine());
-        textViewSiege.setText("Siege: " + dahira.getSiege());
-        textViewPhoneNumber.setText("Telephone: " + dahira.getDahiraPhoneNumber());
-        textViewtotalMembers.setText("Nombre de participant: " + dahira.getTotalMember());
-        textViewTotalAdiya.setText("Total Adiya dans la caisse: " + dahira.getTotalAdiya() + " FCFA");
-        textViewTotalSass.setText("Total Sass dans la caisse: " + dahira.getTotalSass() + " FCFA");
-        textViewTotalSocial.setText("Total Social dans la caisse: " + dahira.getTotalSocial() + " FCFA");
-
-
-        if (!onlineUser.getListDahiraID().contains(dahira.getDahiraID())) {
-            textViewTotalAdiya.setVisibility(View.GONE);
-            textViewTotalSass.setVisibility(View.GONE);
-            textViewTotalSocial.setVisibility(View.GONE);
+        if (onlineUser.getListDahiraID().contains(dahiraID)) {
+            showProgressDialog(context, "Chargement de vos depenses en cours ...");
+            FirebaseFirestore.getInstance().collection("dahiras")
+                    .document(dahiraID)
+                    .collection("expenses").get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            dismissProgressDialog();
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                    Expense expense = documentSnapshot.toObject(Expense.class);
+                                    listExpenses.add(expense);
+                                }
+                                Log.d(TAG, "Expenses downloaded");
+                            }
+                            if (objNotification == null && listExpenses.size() > 0)
+                                context.startActivity(new Intent(context, ShowExpenseActivity.class));
+                            else if (listExpenses.isEmpty())
+                                showAlertDialog(context, "La liste des depenses de votre dahira est vide!");
+                            else if (objNotification != null) {
+                                context.startActivity(new Intent(context, ShowExpenseActivity.class));
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            dismissProgressDialog();
+                            toastMessage(context, "erreur: " + e.getMessage());
+                            Log.d(TAG, "Error downloading Expenses");
+                        }
+                    });
         }
-
-        findViewById(R.id.button_back).setOnClickListener(this);
-
-        initViewsProgressBar();
     }
 
     @Override
@@ -157,7 +175,6 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         switch (v.getId()) {
             case R.id.button_back:
                 finish();
-                startActivity(new Intent(this, HomeActivity.class));
                 break;
         }
     }
@@ -263,6 +280,66 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         });
     }
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_dahira_info);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        checkInternetConnection(this);
+
+        init();
+
+
+        //********************** Drawer Menu ***************************************
+        setDrawerMenu();
+        //**************************************************************************
+
+        //**********************Get list song ***************************
+        MyStaticFunctions.getSongList(this);
+
+        //***********************Get List Events *****************
+        getMyEvents(this);
+
+        loadInterstitialAd(DahiraInfoActivity.this);
+    }
+
+    private void init() {
+        textViewDahiraName = findViewById(R.id.textView_dahiraName);
+        textViewDieuwrine = findViewById(R.id.textView_dieuwrine);
+        textViewSiege = findViewById(R.id.textView_siege);
+        textViewPhoneNumber = findViewById(R.id.textView_dahiraPhoneNumber);
+        textViewTotalAdiya = findViewById(R.id.textView_totalAdiya);
+        textViewTotalSass = findViewById(R.id.textView_totalSass);
+        textViewTotalSocial = findViewById(R.id.textView_totalSocial);
+        textViewtotalMembers = findViewById(R.id.textView_totalMembers);
+        imageView = findViewById(R.id.imageView);
+        showImage(this, dahira.getImageUri(), imageView);
+
+        textViewDahiraName.setText("Dahira " + dahira.getDahiraName());
+        textViewDieuwrine.setText("Dieuwrine: " + dahira.getDieuwrine());
+        textViewSiege.setText("Siege: " + dahira.getSiege());
+        textViewPhoneNumber.setText("Telephone: " + dahira.getDahiraPhoneNumber());
+        textViewtotalMembers.setText("Nombre de participant: " + dahira.getTotalMember());
+        textViewTotalAdiya.setText("Total Adiya dans la caisse: " + dahira.getTotalAdiya() + " FCFA");
+        textViewTotalSass.setText("Total Sass dans la caisse: " + dahira.getTotalSass() + " FCFA");
+        textViewTotalSocial.setText("Total Social dans la caisse: " + dahira.getTotalSocial() + " FCFA");
+
+
+        if (!onlineUser.getListDahiraID().contains(dahira.getDahiraID())) {
+            textViewTotalAdiya.setVisibility(View.GONE);
+            textViewTotalSass.setVisibility(View.GONE);
+            textViewTotalSocial.setVisibility(View.GONE);
+        }
+
+        findViewById(R.id.button_back).setOnClickListener(this);
+
+        initViewsProgressBar();
+    }
+
     public void setDrawerMenu() {
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
@@ -277,148 +354,11 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        showImage(this, "profileImage", onlineUser.getUserID(), navImageView);
+        showImage(this, onlineUser.getImageUri(), navImageView);
         textViewNavUserName.setText(onlineUser.getUserName());
         textViewNavEmail.setText(onlineUser.getEmail());
         navigationView.setCheckedItem(R.id.nav_displayMyDahira);
         hideMenuItem();
-    }
-
-    public void hideMenuItem() {
-        Menu nav_Menu = navigationView.getMenu();
-        nav_Menu.findItem(R.id.nav_setting).setTitle("Modifier mon dahira");
-
-        if (!onlineUser.getListDahiraID().contains(dahira.getDahiraID())) {
-            nav_Menu.findItem(R.id.nav_displayUsers).setVisible(false);
-            nav_Menu.findItem(R.id.nav_searchUser).setVisible(false);
-            nav_Menu.findItem(R.id.nav_addUser).setVisible(false);
-            nav_Menu.findItem(R.id.nav_displayAnnouncement).setVisible(false);
-            nav_Menu.findItem(R.id.nav_addAnnouncement).setVisible(false);
-            nav_Menu.findItem(R.id.nav_addExpense).setVisible(false);
-            nav_Menu.findItem(R.id.nav_displayExpenses).setVisible(false);
-            nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
-            nav_Menu.findItem(R.id.nav_setting).setVisible(false);
-            nav_Menu.findItem(R.id.nav_searchUser).setVisible(false);
-        } else if (!onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
-            nav_Menu.findItem(R.id.nav_setting).setVisible(false);
-            nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
-            nav_Menu.findItem(R.id.nav_addExpense).setVisible(false);
-        }
-
-        nav_Menu.findItem(R.id.nav_displayMyDahira).setVisible(false);
-        nav_Menu.findItem(R.id.nav_displayAllDahira).setVisible(false);
-        nav_Menu.findItem(R.id.nav_addDahira).setVisible(false);
-        nav_Menu.findItem(R.id.nav_searchDahira).setVisible(false);
-        nav_Menu.findItem(R.id.nav_displayAllEvent).setVisible(false);
-        nav_Menu.findItem(R.id.nav_callUser).setVisible(false);
-        nav_Menu.findItem(R.id.nav_addContribution).setVisible(false);
-        nav_Menu.findItem(R.id.nav_displayAdiya).setVisible(false);
-        nav_Menu.findItem(R.id.nav_displaySass).setVisible(false);
-        nav_Menu.findItem(R.id.nav_displaySocial).setVisible(false);
-        nav_Menu.findItem(R.id.nav_video).setVisible(false);
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
-        switch (item.getItemId()) {
-
-            case R.id.nav_home:
-                startActivity(new Intent(this, HomeActivity.class));
-                break;
-
-            case R.id.nav_displayUsers:
-                actionSelected = "";
-                getListUser(DahiraInfoActivity.this);
-                break;
-
-            case R.id.nav_searchUser:
-                actionSelected = "searchUser";
-                MyStaticVariables.displayDahira = "allDahira";
-                getListUser(DahiraInfoActivity.this);
-                break;
-
-            case R.id.nav_addUser:
-                actionSelected = "addNewMember";
-                startActivity(new Intent(this, ListUserActivity.class));
-                break;
-
-            case R.id.nav_displayMyDahira:
-                MyStaticVariables.displayDahira = "myDahira";
-                startActivity(new Intent(this, ListDahiraActivity.class));
-                break;
-
-            case R.id.nav_displayAllDahira:
-                MyStaticVariables.displayDahira = "allDahira";
-                startActivity(new Intent(this, ListDahiraActivity.class));
-                break;
-
-            case R.id.nav_addExpense:
-                startActivity(new Intent(this, CreateExpenseActivity.class));
-                break;
-
-            case R.id.nav_displayExpenses:
-                if (listExpenses != null && listExpenses.size() > 0)
-                    startActivity(new Intent(this, ListExpenseActivity.class));
-                else
-                    showAlertDialog(this, "La liste des depenses de votre dahira est vide!");
-                break;
-
-            case R.id.nav_addAnnouncement:
-                chooseMethodAnnouncement(DahiraInfoActivity.this);
-                break;
-
-            case R.id.nav_displayAnnouncement:
-                startActivity(new Intent(this, SendAnnouncementActivity.class));
-                //startActivity(new Intent(this, ListAnnouncementActivity.class));
-                break;
-
-            case R.id.nav_addEvent:
-                startActivity(new Intent(this, CreateEventActivity.class));
-                break;
-
-            case R.id.nav_displayEvent:
-                if (myListEvents == null || myListEvents.size() <= 0)
-                    showAlertDialog(this, "La liste des evenements est vide!");
-                else {
-                    displayEvent = "myEvents";
-                    startActivity(new Intent(this, ListEventActivity.class));
-                }
-                break;
-
-            case R.id.nav_photo:
-                getImages(this);
-                break;
-
-            case R.id.nav_audio:
-                startActivity(new Intent(this, ShowSongsActivity.class));
-                break;
-
-            case R.id.nav_video:
-                showAlertDialog(this, "Cette page est en cours de contruction." +
-                        "Revenez plutard SVP.");
-                break;
-
-            case R.id.nav_callDahira:
-                navigationView.setCheckedItem(R.id.nav_callDahira);
-                callDahira();
-                break;
-
-            case R.id.nav_setting:
-                startActivity(new Intent(this, UpdateDahiraActivity.class));
-                break;
-
-            case R.id.nav_removeDahira:
-                removeDahiraFromUser();
-                break;
-
-            case R.id.nav_logout:
-                logout(this);
-                break;
-        }
-
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
     }
 
     public static void getMyEvents(Context context) {
@@ -483,33 +423,39 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
             startActivity(new Intent(context, ShowImagesActivity.class));
     }
 
-    public static void getListUser(final Context context) {
-        if (listUser == null) {
-            listUser = new ArrayList<>();
-            firestore.collection("users").get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            //hideProgressBar();
-                            if (!queryDocumentSnapshots.isEmpty()) {
-                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
-                                for (DocumentSnapshot documentSnapshot : list) {
-                                    User user = documentSnapshot.toObject(User.class);
-                                    if (user.getListDahiraID().contains(dahira.getDahiraID())) {
-                                        listUser.add(user);
-                                    }
-                                }
-                                context.startActivity(new Intent(context, ListUserActivity.class));
-                            }
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    //hideProgressBar();
-                }
-            });
-        } else
-            context.startActivity(new Intent(context, ListUserActivity.class));
+    public void hideMenuItem() {
+        Menu nav_Menu = navigationView.getMenu();
+        nav_Menu.findItem(R.id.nav_setting).setTitle("Modifier mon dahira");
+
+        if (!onlineUser.getListDahiraID().contains(dahira.getDahiraID())) {
+            nav_Menu.findItem(R.id.nav_displayUsers).setVisible(false);
+            nav_Menu.findItem(R.id.nav_searchUser).setVisible(false);
+            nav_Menu.findItem(R.id.nav_addUser).setVisible(false);
+            nav_Menu.findItem(R.id.nav_displayAnnouncement).setVisible(false);
+            nav_Menu.findItem(R.id.nav_addAnnouncement).setVisible(false);
+            nav_Menu.findItem(R.id.nav_addExpense).setVisible(false);
+            nav_Menu.findItem(R.id.nav_displayExpenses).setVisible(false);
+            nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
+            nav_Menu.findItem(R.id.nav_setting).setVisible(false);
+            nav_Menu.findItem(R.id.nav_searchUser).setVisible(false);
+        } else if (!onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
+            nav_Menu.findItem(R.id.nav_setting).setVisible(false);
+            nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
+            nav_Menu.findItem(R.id.nav_addExpense).setVisible(false);
+            nav_Menu.findItem(R.id.nav_addUser).setVisible(false);
+        }
+
+        nav_Menu.findItem(R.id.nav_displayMyDahira).setVisible(false);
+        nav_Menu.findItem(R.id.nav_displayAllDahira).setVisible(false);
+        nav_Menu.findItem(R.id.nav_addDahira).setVisible(false);
+        nav_Menu.findItem(R.id.nav_searchDahira).setVisible(false);
+        nav_Menu.findItem(R.id.nav_displayAllEvent).setVisible(false);
+        nav_Menu.findItem(R.id.nav_callUser).setVisible(false);
+        nav_Menu.findItem(R.id.nav_addContribution).setVisible(false);
+        nav_Menu.findItem(R.id.nav_displayAdiya).setVisible(false);
+        nav_Menu.findItem(R.id.nav_displaySass).setVisible(false);
+        nav_Menu.findItem(R.id.nav_displaySocial).setVisible(false);
+        nav_Menu.findItem(R.id.nav_video).setVisible(false);
     }
 
     public void initViewsProgressBar() {
@@ -609,5 +555,106 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 hideProgressBar();
             }
         });
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+        switch (item.getItemId()) {
+
+            case R.id.nav_home:
+                startActivity(new Intent(this, HomeActivity.class));
+                break;
+
+            case R.id.nav_displayUsers:
+                actionSelected = "displayUsers";
+                getListUser(DahiraInfoActivity.this);
+                break;
+
+            case R.id.nav_searchUser:
+                actionSelected = "searchUser";
+                MyStaticVariables.displayDahira = "allDahira";
+                getListUser(DahiraInfoActivity.this);
+                break;
+
+            case R.id.nav_addUser:
+                actionSelected = "addNewMember";
+                getListUser(this);
+                startActivity(new Intent(this, ShowUserActivity.class));
+                break;
+
+            case R.id.nav_displayMyDahira:
+                MyStaticVariables.displayDahira = "myDahira";
+                startActivity(new Intent(this, ShowDahiraActivity.class));
+                break;
+
+            case R.id.nav_displayAllDahira:
+                MyStaticVariables.displayDahira = "allDahira";
+                startActivity(new Intent(this, ShowDahiraActivity.class));
+                break;
+
+            case R.id.nav_addExpense:
+                startActivity(new Intent(this, CreateExpenseActivity.class));
+                break;
+
+            case R.id.nav_displayExpenses:
+                getExistingExpenses(DahiraInfoActivity.this, dahira.getDahiraID());
+                break;
+
+            case R.id.nav_addAnnouncement:
+                chooseMethodAnnouncement(DahiraInfoActivity.this);
+                break;
+
+            case R.id.nav_displayAnnouncement:
+                startActivity(new Intent(this, ShowAnnouncementActivity.class));
+                //startActivity(new Intent(this, ListAnnouncementActivity.class));
+                break;
+
+            case R.id.nav_addEvent:
+                startActivity(new Intent(this, CreateEventActivity.class));
+                break;
+
+            case R.id.nav_displayEvent:
+                if (myListEvents == null || myListEvents.size() <= 0)
+                    showAlertDialog(this, "La liste des evenements est vide!");
+                else {
+                    displayEvent = "myEvents";
+                    startActivity(new Intent(this, ShowEventActivity.class));
+                }
+                break;
+
+            case R.id.nav_photo:
+                getImages(this);
+                break;
+
+            case R.id.nav_audio:
+                startActivity(new Intent(this, ShowSongsActivity.class));
+                break;
+
+            case R.id.nav_video:
+                showAlertDialog(this, "Cette page est en cours de contruction." +
+                        "Revenez plutard SVP.");
+                break;
+
+            case R.id.nav_callDahira:
+                navigationView.setCheckedItem(R.id.nav_callDahira);
+                callDahira();
+                break;
+
+            case R.id.nav_setting:
+                startActivity(new Intent(this, UpdateDahiraActivity.class));
+                break;
+
+            case R.id.nav_removeDahira:
+                removeDahiraFromUser();
+                break;
+
+            case R.id.nav_logout:
+                logout(this);
+                break;
+        }
+
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
     }
 }

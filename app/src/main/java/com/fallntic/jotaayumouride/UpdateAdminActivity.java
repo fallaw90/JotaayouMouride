@@ -21,6 +21,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.fallntic.jotaayumouride.Utility.MyStaticFunctions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
@@ -31,10 +32,9 @@ import static com.fallntic.jotaayumouride.AddContributionActivity.saveContributi
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.getCurrentDate;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.hasValidationErrors;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.isDouble;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.progressDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.showImage;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
@@ -51,15 +51,13 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
     final Handler handler = new Handler();
 
     private EditText editTextUserName;
-    private EditText editTextPhoneNumber;
-    private EditText editTextAddress;
     private EditText editTextAdiya;
     private EditText editTextSass;
     private EditText editTextSocial;
     private TextView textViewDahiraName;
     private ImageView imageViewProfile;
     private Spinner spinnerCommission;
-    private String commission;
+    private String name, adiya, sass, social, role, commission;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,12 +72,12 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
         getSupportActionBar().setLogo(R.mipmap.logo);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
 
+        checkInternetConnection(this);
+
         initViews();
         displayViews();
 
-        checkInternetConnection(this);
-
-        showImage(this, "profileImage", onlineUser.getUserID(), imageViewProfile);
+        MyStaticFunctions.showImage(this, onlineUser.getImageUri(), imageViewProfile);
         //getData();
         handler.postDelayed(new Runnable() {
             @Override
@@ -94,21 +92,17 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
     private void displayViews(){
         textViewDahiraName.setText("Enregistrez vous en tant que membre du dahira " + dahira.getDahiraName() + " que vous venez de creer pour terminer la creation de votre dahira.");
         editTextUserName.setText(onlineUser.getUserName());
-        String phoneNumber = onlineUser.getUserPhoneNumber().substring(4);
-        editTextPhoneNumber.setText(phoneNumber);
-        editTextAddress.setText(onlineUser.getAddress());
     }
 
     private void initViews(){
         editTextUserName = findViewById(R.id.editText_userName);
-        editTextPhoneNumber = findViewById(R.id.editText_userPhoneNumber);
-        editTextAddress = findViewById(R.id.editText_address);
+        editTextUserName.setEnabled(false);
         editTextAdiya = findViewById(R.id.editText_adiyaVerse);
         editTextSass = findViewById(R.id.editText_sassVerse);
         editTextSocial = findViewById(R.id.editText_socialVerse);
         textViewDahiraName = findViewById(R.id.textView_dahiraName);
         imageViewProfile = findViewById(R.id.imageView);
-        ListUserActivity.scrollView = findViewById(R.id.scrollView);
+        ShowUserActivity.scrollView = findViewById(R.id.scrollView);
 
         initViewsProgressBar();
 
@@ -180,24 +174,18 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
 
     private void updateAdmin(){
 
-        String name = editTextUserName.getText().toString().trim();
-        String phoneNumber = editTextPhoneNumber.getText().toString().trim();
-        String address = editTextAddress.getText().toString().trim();
-        String adiya = editTextAdiya.getText().toString().trim();
-        String sass = editTextSass.getText().toString().trim();
-        String social = editTextSocial.getText().toString().trim();
-        String role = "Administrateur";
+        name = editTextUserName.getText().toString().trim();
+        adiya = editTextAdiya.getText().toString().trim();
+        sass = editTextSass.getText().toString().trim();
+        social = editTextSocial.getText().toString().trim();
+        role = "Administrateur";
 
         adiya = adiya.replace(",", ".");
         sass = sass.replace(",", ".");
         social = social.replace(",", ".");
 
-        if(!hasValidationErrors(name, editTextUserName, phoneNumber, editTextPhoneNumber,
-                address, editTextAddress, adiya, editTextAdiya, sass, editTextSass, social, editTextSocial)){
+        if (!hasValidationErrors()) {
 
-            phoneNumber = "+221"+phoneNumber;
-
-            onlineUser.setUserPhoneNumber(phoneNumber);
             onlineUser.getListUpdatedDahiraID().add(dahira.getDahiraID());
             onlineUser.getListCommissions().add(commission);
             onlineUser.getListRoles().add(role);
@@ -307,5 +295,21 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
         relativeLayoutData = findViewById(R.id.relativeLayout_data);
         relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
         progressBar = findViewById(R.id.progressBar);
+    }
+
+    public boolean hasValidationErrors() {
+        if (sass.isEmpty() || !isDouble(sass)) {
+            editTextSass.setError("Valeur incorrecte!");
+            editTextSass.requestFocus();
+            return true;
+        }
+
+        if (social.isEmpty() || !isDouble(social)) {
+            editTextSocial.setError("Valeur incorrecte!");
+            editTextSocial.requestFocus();
+            return true;
+        }
+
+        return false;
     }
 }

@@ -136,7 +136,7 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
         if (!note.isEmpty()) {
             showProgressBar();
 
-            final Intent intent = new Intent(context, SendAnnouncementActivity.class);
+            final Intent intent = new Intent(context, ShowAnnouncementActivity.class);
 
             final String announcementID = onlineUser.getUserName() + System.currentTimeMillis();
             Announcement announcement = new Announcement(announcementID, onlineUser.getUserName(), note);

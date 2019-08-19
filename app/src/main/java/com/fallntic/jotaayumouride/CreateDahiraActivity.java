@@ -24,9 +24,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -38,7 +41,6 @@ import com.fallntic.jotaayumouride.Model.Dahira;
 import com.fallntic.jotaayumouride.Utility.DataHolder;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -53,7 +55,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.Utility.DataHolder.checkPrefix;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahiraID;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.isDouble;
@@ -62,10 +63,8 @@ import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.saveLogoDahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
 
 public class CreateDahiraActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -107,8 +106,8 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
     private List<String> listCommissionDahira = new ArrayList<>();
     private List<String> listResponsibles = new ArrayList<>();
 
-    private Uri uri;
-    private final int PICK_IMAGE_REQUEST = 71;
+    private RelativeLayout relativeLayoutData, relativeLayoutProgressBar;
+    private ProgressBar progressBar;
 
     private boolean imageSaved = true, dahiraSaved = true, dahiraUpdated = true;
 
@@ -121,6 +120,9 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
     private Toolbar toolbar;
 
     private CountryPickerDialog countryPicker;
+
+    private UploadTask uploadTask;
+    private Uri fileUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,6 +154,8 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
             }
         });
 
+        firebaseStorage = FirebaseStorage.getInstance();
+        storageReference = firebaseStorage.getReference();
 
         hideSoftKeyboard();
     }
@@ -256,25 +260,44 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
     }
 
     private void chooseImage() {
-        Intent intent = new Intent();
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Choisir une image"), PICK_IMAGE_REQUEST);
+        startActivityForResult(intent, 101);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
-                && data != null && data.getData() != null) {
+
+        if (requestCode == 101 && resultCode == RESULT_OK && data.getData() != null) {
+
+            fileUri = data.getData();
+
             try {
-                uri = data.getData();
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), fileUri);
                 imageView.setImageBitmap(bitmap);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void uploadImage() {
+        final StorageReference fileToUpload = storageReference
+                .child("logoDahira").child(dahira.getDahiraID());
+        uploadTask = (UploadTask) fileToUpload.putFile(fileUri)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        fileToUpload.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                dahira.setImageUri(uri.toString());
+                                saveLogoDahira(CreateDahiraActivity.this, uri.toString());
+                            }
+                        });
+                    }
+                });
     }
 
     private void saveDahira() {
@@ -310,7 +333,7 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
             dahiraPhoneNumber = areaCode + dahiraPhoneNumber;
             dahiraID = db.collection("dahiras").document().getId();
             dahira = new Dahira(dahiraID, dahiraName, dieuwrine, dahiraPhoneNumber, siege, totalAdiya,
-                    totalSass, totalSocial, "1", listCommissionDahira, listResponsibles);
+                    totalSass, totalSocial, "1", "", listCommissionDahira, listResponsibles);
 
             showProgressBar();
             db.collection("dahiras").document(DataHolder.dahiraID).set(dahira)
@@ -318,7 +341,8 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
                         @Override
                         public void onSuccess(Void aVoid) {
                             hideProgressBar();
-                            saveLogoDahira();
+                            if (fileUri != null)
+                                uploadImage();
                             updateUserListDahiraID();
                         }
                     })
@@ -329,30 +353,6 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
                             dahiraSaved = false;
                             toastMessage(getApplicationContext(), "Error adding dahira!");
                             Log.d(TAG, e.toString());
-                        }
-                    });
-        }
-    }
-
-    private void saveLogoDahira() {
-        if (uri != null) {
-            showProgressBar();
-            final StorageReference ref = storageReference.child("logoDahira").child(dahira.getDahiraID());
-            ref.putFile(uri)
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            hideProgressBar();
-                            Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
-                            while (!urlTask.isSuccessful()) ;
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            hideProgressBar();
-                            imageSaved = false;
-                            DataHolder.toastMessage(getApplicationContext(), "Failed " + e.getMessage());
                         }
                     });
         }
@@ -495,7 +495,7 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         });
     }
 
-    public void getCountry(){
+    public void getCountry() {
         /* Name of your Custom JSON list */
         int resourceId = getResources().getIdentifier("country_avail", "raw", getApplicationContext().getPackageName());
 

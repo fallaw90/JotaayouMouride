@@ -28,7 +28,29 @@ import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.setMyAdapter;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.*;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.UpdateSongTime;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.fab_search;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_next;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_play;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_previous;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosAM;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosHT;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosHTDK;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosRadiass;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mediaPlayer;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myHandler;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.pb_loader;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.pb_main_loader;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.recycler;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.seekBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tb_title;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.toolbar_bottom;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tv_duration;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tv_empty;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tv_time;
 
 
 public class KhassidaFragment extends Fragment implements View.OnClickListener {
@@ -183,7 +205,7 @@ public class KhassidaFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    public  void initViewsProgressBar() {
+    public void initViewsProgressBar() {
         relativeLayoutData = view.findViewById(R.id.relativeLayout_data);
         relativeLayoutProgressBar = view.findViewById(R.id.relativeLayout_progressBar);
         progressBar = view.findViewById(R.id.progressBar);

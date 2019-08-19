@@ -3,6 +3,7 @@ package com.fallntic.jotaayumouride.Utility;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
@@ -12,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
@@ -22,26 +24,48 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.fallntic.jotaayumouride.Adapter.SongAdapter;
 import com.fallntic.jotaayumouride.HomeActivity;
-import com.fallntic.jotaayumouride.LoginPhoneActivity;
 import com.fallntic.jotaayumouride.Model.ListSongObject;
 import com.fallntic.jotaayumouride.Model.Song;
 import com.fallntic.jotaayumouride.R;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
+import static com.fallntic.jotaayumouride.MainActivity.TAG;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.*;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.UpdateSongTime;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.currentIndex;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.currentSongLength;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.fab_search;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firstLaunch;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_next;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_play;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_previous;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mAdapter;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mediaPlayer;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myHandler;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.pb_loader;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.recycler;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.seekBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tb_title;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tv_time;
 
 public class MyStaticFunctions {
 
@@ -121,6 +145,54 @@ public class MyStaticFunctions {
         relativeLayoutProgressBar.setVisibility(View.GONE);
     }
 
+    public static void showImage(final Context context, String uri, ImageView imageView) {
+        GlideApp.with(context)
+                .load(uri)
+                .placeholder(R.drawable.logo_web)
+                .centerCrop()
+                .into(imageView);
+    }
+
+    public static void saveProfileImage(final Context context, final String uri) {
+        final Map<String, Object> mapUri = new HashMap<>();
+        mapUri.put("imageUri", uri);
+        onlineUser.setImageUri(uri);
+
+        firestore.collection("users").document(onlineUser.getUserID())
+                .update(mapUri).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Log.d(TAG, "Image name saved");
+                toastMessage(context, "Photo profil enregistre.");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "Error downloading image name");
+            }
+        });
+    }
+
+    public static void saveLogoDahira(final Context context, final String uri) {
+        final Map<String, Object> mapUri = new HashMap<>();
+        mapUri.put("imageUri", uri);
+
+        firestore.collection("dahiras").document(dahira.getDahiraID())
+                .update(mapUri).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Log.d(TAG, "Image name saved");
+                toastMessage(context, "Logo enregistre!");
+                //context.startActivity(new Intent(context, HomeActivity.class));
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "Error downloading image name");
+            }
+        });
+    }
+
     //***************************** Mmedia Player *******************************************
     public static void setMyAdapter(final Context context, final List<Song> listSong) {
 
@@ -188,6 +260,7 @@ public class MyStaticFunctions {
             }
         });
     }
+
     public static void handleSeekbar() {
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -206,6 +279,7 @@ public class MyStaticFunctions {
             }
         });
     }
+
     public static void prepareSong(Context context, Song song) {
         String str_duration = song.getAudioDuration().replace(":", "");
         currentSongLength = Integer.parseInt(str_duration);
@@ -225,6 +299,7 @@ public class MyStaticFunctions {
 
 
     }
+
     public static void togglePlay(Context context, MediaPlayer mp) {
         seekBar.setMax(mediaPlayer.getDuration());
         if (mp.isPlaying()) {
@@ -240,12 +315,14 @@ public class MyStaticFunctions {
             myHandler.postDelayed(UpdateSongTime, 100);
         }
     }
+
     public static void changeSelectedSong(int index) {
         mAdapter.notifyItemChanged(mAdapter.getSelectedPosition());
         currentIndex = index;
         mAdapter.setSelectedPosition(currentIndex);
         mAdapter.notifyItemChanged(currentIndex);
     }
+
     public static void pushPlay(final Context context, final List<Song> listSong) {
         iv_play.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -257,7 +334,7 @@ public class MyStaticFunctions {
                     if (firstLaunch) {
                         Song song = listSong.get(0);
                         changeSelectedSong(0);
-                        prepareSong(context,song);
+                        prepareSong(context, song);
                     } else {
                         mediaPlayer.start();
                         firstLaunch = false;
@@ -267,6 +344,7 @@ public class MyStaticFunctions {
             }
         });
     }
+
     public static void pushPrevious(final Context context, final List<Song> listSong) {
 
         iv_previous.setOnClickListener(new View.OnClickListener() {
@@ -278,10 +356,10 @@ public class MyStaticFunctions {
                     if (currentIndex - 1 >= 0) {
                         Song previous = listSong.get(currentIndex - 1);
                         changeSelectedSong(currentIndex - 1);
-                        prepareSong(context,previous);
+                        prepareSong(context, previous);
                     } else {
                         changeSelectedSong(listSong.size() - 1);
-                        prepareSong(context,listSong.get(listSong.size() - 1));
+                        prepareSong(context, listSong.get(listSong.size() - 1));
                     }
 
                 }
@@ -289,6 +367,7 @@ public class MyStaticFunctions {
         });
 
     }
+
     public static void pushNext(final Context context, final List<Song> listSong) {
 
         iv_next.setOnClickListener(new View.OnClickListener() {
@@ -311,10 +390,11 @@ public class MyStaticFunctions {
         });
 
     }
+
     public static void searchSong(final Context context, final List<Song> listSong) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View view = inflater.inflate(R.layout.dialog_search_song, null);
         builder.setTitle(R.string.rechercher);
         builder.setView(view);
@@ -332,8 +412,8 @@ public class MyStaticFunctions {
                             listSongFound.add(song);
                         }
 
-                        List<String> titleSong = Arrays.asList(song.audioTitle.split("-"));
-                        for (String title : titleSong){
+                        String[] titleSong = song.audioTitle.split("-");
+                        for (String title : titleSong) {
                             if (title.contains(search) || title.equals(search)) {
                                 listSongFound.add(song);
                             }
@@ -351,10 +431,13 @@ public class MyStaticFunctions {
             }
         });
 
-        builder.create().show();
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.BLACK);
 
     }
-    public static void setMediaPlayer(){
+
+    public static void setMediaPlayer() {
 
         //startTime = 0;
         firstLaunch = true;

@@ -263,7 +263,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
                         myListEvents.add(event);
                         displayEvent = "myEvents";
-                        final Intent intent = new Intent(context, ListEventActivity.class);
+                        final Intent intent = new Intent(context, ShowEventActivity.class);
                         showAlertDialog(context, "Evenement enregistre.", intent);
                         Log.d(TAG, "Event saved.");
                     }

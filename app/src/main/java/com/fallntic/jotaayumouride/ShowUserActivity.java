@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,12 +16,9 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,7 +27,6 @@ import com.fallntic.jotaayumouride.Model.User;
 import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -39,27 +36,22 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import de.hdodenhof.circleimageview.CircleImageView;
-
 import static com.fallntic.jotaayumouride.CreateDahiraActivity.getCurrentCountryCode;
+import static com.fallntic.jotaayumouride.DahiraInfoActivity.getListUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.actionSelected;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.call;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.hasValidationErrors;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.hasValidationErrorsSearch;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.logout;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.selectedUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.showImage;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.*;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listUser;
 
-public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
-        NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
+public class ShowUserActivity extends AppCompatActivity implements View.OnClickListener {
 
     private TextView textViewDahiraname;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -67,13 +59,6 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
     private RecyclerView recyclerViewUser;
     private UserAdapter userAdapter;
 
-    private DrawerLayout drawerLayout;
-    private ActionBarDrawerToggle toggle;
-    private NavigationView navigationView;
-    private View navHeader;
-    private CircleImageView navImageView;
-    private TextView textViewNavUserName;
-    private TextView textViewNavEmail;
 
     public static ScrollView scrollView;
 
@@ -84,46 +69,38 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         super.onDestroy();
     }
 
+    public static boolean hasValidationErrorsSearch(String phoneNumber, EditText editTextPhoneNumber,
+                                                    String email, EditText editTextEmail) {
+
+        if (phoneNumber.isEmpty() && email.isEmpty()) {
+            editTextPhoneNumber.setError("Entrer un numero ou une adresse email");
+            editTextPhoneNumber.requestFocus();
+            return true;
+        }
+
+        if (!phoneNumber.isEmpty() && (!phoneNumber.contains("+"))) {
+            editTextPhoneNumber.setError("Inclure l'indicatif svp (exemple: +221771866656)");
+            editTextPhoneNumber.requestFocus();
+            return true;
+        }
+
+        if (!email.isEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            editTextEmail.setError("Adresse email incorrect");
+            editTextEmail.requestFocus();
+            return true;
+        }
+
+        return false;
+    }
+
     @Override
     public void onBackPressed() {
         actionSelected = "";
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            startActivity(new Intent(this, DahiraInfoActivity.class));
-            super.onBackPressed();
-        }
+        startActivity(new Intent(this, DahiraInfoActivity.class));
+        super.onBackPressed();
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list_user);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        initViews();
-
-        //********************** Drawer Menu **************************
-        setDrawerMenu();
-        //*************************************************************
-
-        checkInternetConnection(this);
-
-        textViewDahiraname.setText("Dahira " + dahira.getDahiraName() + "\nListe de tous les membres");
-
-        showListUser();
-
-        if (actionSelected.equals("addNewMember")) {
-            addNewMember();
-        } else if (actionSelected.equals("searchUser")) {
-            dialogSearchUser();
-        }
-    }
-
-    private void initViews(){
+    private void initViews() {
         recyclerViewUser = findViewById(R.id.recyclerview_users);
         scrollView = findViewById(R.id.scrollView);
         textViewDahiraname = findViewById(R.id.textView_dahiraName);
@@ -142,7 +119,38 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         }
     }
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_list_user);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setLogo(R.mipmap.logo);
+        setSupportActionBar(toolbar);
+
+        initViews();
+
+        //********************** Drawer Menu **************************
+        //setDrawerMenu();
+        //*************************************************************
+
+        checkInternetConnection(this);
+
+        textViewDahiraname.setText("Dahira " + dahira.getDahiraName() + "\nListe de tous les membres");
+
+
+        if (actionSelected.equals("addNewMember")) {
+            addNewMember();
+        } else if (actionSelected.equals("searchUser")) {
+            dialogSearchUser();
+        } else if (actionSelected.equals("displayUsers"))
+            showListUser();
+    }
+
     private void showListUser() {
+        if (listUser == null)
+            listUser = new ArrayList<>();
 
         Collections.sort(listUser);
         //Attach adapter to recyclerView
@@ -181,7 +189,6 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                 if (!hasValidationErrorsSearch(phoneNumber, editTextPhoneNumber, email, editTextEmail)) {
 
                     if (!phoneNumber.isEmpty()) {
-                        phoneNumber = "221" + phoneNumber;
                         getNewMemberToUpdate("userPhoneNumber", phoneNumber);
                     } else if (!email.isEmpty()) {
                         getNewMemberToUpdate("email", email);
@@ -196,7 +203,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
             @Override
             public void onClick(View view) {
                 actionSelected = "";
-                startActivity(new Intent(ListUserActivity.this, DahiraInfoActivity.class));
+                startActivity(new Intent(ShowUserActivity.this, DahiraInfoActivity.class));
                 alertDialog.dismiss();
             }
         });
@@ -204,22 +211,24 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
 
     public void getNewMemberToUpdate(String field, String value) {
         //showProgressBar();
+        actionSelected = "displayUsers";
+        final Intent intent = new Intent(ShowUserActivity.this, ShowUserActivity.class);
         db.collection("users").whereEqualTo(field, value).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         //hideProgressBar();
                         if (queryDocumentSnapshots.isEmpty()) {
-                            showAlertDialog(ListUserActivity.this,
+                            showAlertDialog(ShowUserActivity.this,
                                     "Utilisateur inconnu!\n Pour ajouter un membre, " +
-                                            "assurez vous que la personne s'est inscrit d'abord.");
+                                            "assurez vous que la personne s'est inscrit d'abord.", intent);
                         } else {
                             for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                                 User newMember = documentSnapshot.toObject(User.class);
                                 if (newMember.getListDahiraID().contains(dahira.getDahiraID())) {
-                                    showAlertDialog(ListUserActivity.this,
+                                    showAlertDialog(ShowUserActivity.this,
                                             "Cet utilisateur est deja membre du dahira " +
-                                                    dahira.getDahiraName() + ".");
+                                                    dahira.getDahiraName() + ".", intent);
                                     return;
                                 } else {
                                     updateNewMember(newMember);
@@ -240,7 +249,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                 });
     }
 
-    private void updateNewMember(User user) {
+    private void updateNewMember(final User user) {
 
         user.getListDahiraID().add(dahira.getDahiraID());
         user.getListUpdatedDahiraID().add(dahira.getDahiraID());
@@ -263,6 +272,9 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                     @Override
                     public void onSuccess(Void aVoid) {
                        // hideProgressBar();
+                        if (listUser == null)
+                            listUser = new ArrayList<>();
+                        listUser.add(user);
                         System.out.println("User updated");
                     }
                 }).addOnFailureListener(new OnFailureListener() {
@@ -285,8 +297,8 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                     @Override
                     public void onSuccess(Void aVoid) {
                         //hideProgressBar();
-                        Intent intent = new Intent(ListUserActivity.this, ListUserActivity.class);
-                        showAlertDialog(ListUserActivity.this, "Votre nouveau membre a ete ajoute avec succes. \n Selectionnez le sur la liste des membres pour mettre a jour son profil.", intent);
+                        Intent intent = new Intent(ShowUserActivity.this, ShowUserActivity.class);
+                        showAlertDialog(ShowUserActivity.this, "Votre nouveau membre a ete ajoute avec succes. \n Selectionnez le sur la liste des membres pour mettre a jour son profil.", intent);
                     }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -323,7 +335,7 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                 String phoneNumber = editTextDialogPhoneNumber.getText().toString().trim();
 
                 if (!hasValidationErrors(userName, editTextDialogName, phoneNumber, editTextDialogPhoneNumber)) {
-                    phoneNumber = getCurrentCountryCode(ListUserActivity.this) + phoneNumber;
+                    phoneNumber = getCurrentCountryCode(ShowUserActivity.this) + phoneNumber;
                     searchUser(userName, phoneNumber);
                     alertDialog.dismiss();
                 }
@@ -333,6 +345,8 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         buttonCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                actionSelected = "displayUsers";
+                startActivity(new Intent(ShowUserActivity.this, ShowUserActivity.class));
                 alertDialog.dismiss();
             }
         });
@@ -343,31 +357,49 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
 
-        MenuItem iconLogo;
-        iconLogo = menu.findItem(R.id.logo);
-        iconLogo.setVisible(true);
+        MenuItem iconAdd, search_user;
+        iconAdd = menu.findItem(R.id.icon_add);
+        search_user = menu.findItem(R.id.search_user);
+
+        search_user.setVisible(true);
+        if (onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
+            iconAdd.setVisible(true);
+        }
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (toggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-
         switch (item.getItemId()) {
             case R.id.instructions:
                 startActivity(new Intent(this, InstructionsActivity.class));
                 break;
 
-            case R.id.icon_back:
-                finish();
-                actionSelected = "";
-                startActivity(new Intent(this, HomeActivity.class));
+            case R.id.search_user:
+                actionSelected = "searchUser";
+                MyStaticVariables.displayDahira = "allDahira";
+                getListUser(ShowUserActivity.this);
+                break;
+
+            case R.id.icon_add:
+                actionSelected = "addNewMember";
+                getListUser(this);
+                startActivity(new Intent(this, ShowUserActivity.class));
                 break;
         }
 
         return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 101) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                call(this, this, selectedUser.getUserPhoneNumber());
+            }
+        }
     }
 
     private void searchUser(final String name, final String phoneNumber) {
@@ -416,14 +448,14 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                             }
 
                             if (listUsers.isEmpty()) {
-                                Intent intent = new Intent(ListUserActivity.this, ListUserActivity.class);
-                                showAlertDialog(ListUserActivity.this, "Membre non trouve!", intent);
+                                Intent intent = new Intent(ShowUserActivity.this, ShowUserActivity.class);
+                                showAlertDialog(ShowUserActivity.this, "Membre non trouve!", intent);
                             } else {
                                 userAdapter.notifyDataSetChanged();
                             }
                         } else {
-                            Intent intent = new Intent(ListUserActivity.this, ListUserActivity.class);
-                            showAlertDialog(ListUserActivity.this, "Membre non trouve!", intent);
+                            Intent intent = new Intent(ShowUserActivity.this, ShowUserActivity.class);
+                            showAlertDialog(ShowUserActivity.this, "Membre non trouve!", intent);
                         }
                     }
                 })
@@ -431,155 +463,8 @@ public class ListUserActivity extends AppCompatActivity implements DrawerMenu,
                     @Override
                     public void onFailure(@NonNull Exception e) {
                        // hideProgressBar();
-                        toastMessage(getApplicationContext(), "Error search dahira in ListUserActivity!");
+                        toastMessage(getApplicationContext(), "Error search dahira in ShowUserActivity!");
                     }
                 });
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 101) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                call(this, this, selectedUser.getUserPhoneNumber());
-            }
-        }
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-
-            case R.id.nav_home:
-                startActivity(new Intent(this, HomeActivity.class));
-                break;
-
-            case R.id.nav_displayUsers:
-                startActivity(new Intent(this, ListUserActivity.class));
-                break;
-
-            case R.id.nav_searchUser:
-                dialogSearchUser();
-                break;
-
-            case R.id.nav_addUser:
-                addNewMember();
-                break;
-
-            case R.id.nav_displayMyDahira:
-                MyStaticVariables.displayDahira = "myDahira";
-                startActivity(new Intent(this, ListDahiraActivity.class));
-                break;
-
-            case R.id.nav_displayAllDahira:
-                MyStaticVariables.displayDahira = "allDahira";
-                startActivity(new Intent(this, ListDahiraActivity.class));
-                break;
-
-            case R.id.nav_searchDahira:
-                actionSelected = "searchDahira";
-                MyStaticVariables.displayDahira = "allDahira";
-                startActivity(new Intent(this, ListDahiraActivity.class));
-                break;
-
-            case R.id.nav_addExpense:
-                actionSelected = "addNewExpense";
-                startActivity(new Intent(this, CreateExpenseActivity.class));
-                break;
-
-            case R.id.nav_displayExpenses:
-                if (listExpenses == null) {
-                    showAlertDialog(this, "La liste des depenses de votre dahira est vide!");
-                } else
-                    startActivity(new Intent(this, ListExpenseActivity.class));
-                break;
-
-            case R.id.nav_addAnnouncement:
-                actionSelected = "addNewAnnouncement";
-                startActivity(new Intent(this, CreateAnnouncementActivity.class));
-                break;
-
-            case R.id.nav_addEvent:
-                actionSelected = "addNewEvent";
-                startActivity(new Intent(this, CreateEventActivity.class));
-                break;
-
-            case R.id.nav_displayEvent:
-                if (myListEvents == null) {
-                    navigationView.setCheckedItem(R.id.nav_displayEvent);
-                    showAlertDialog(this, "La liste de vos evenements est vide!");
-                } else
-                    startActivity(new Intent(this, ListEventActivity.class));
-                break;
-
-            case R.id.nav_photo:
-                startActivity(new Intent(this, ShowImagesActivity.class));
-                break;
-
-            case R.id.nav_audio:
-                startActivity(new Intent(this, ShowSongsActivity.class));
-                break;
-
-            case R.id.nav_callDahira:
-                navigationView.setCheckedItem(R.id.nav_callDahira);
-                call(this, this, dahira.getDahiraPhoneNumber());
-                break;
-
-            case R.id.nav_setting:
-                startActivity(new Intent(this, UpdateDahiraActivity.class));
-                break;
-
-            case R.id.nav_logout:
-                logout(this);
-                break;
-        }
-
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
-    }
-
-    @Override
-    public void setDrawerMenu() {
-        drawerLayout = findViewById(R.id.drawer_layout);
-        navigationView = findViewById(R.id.nav_view);
-        navigationView.setItemIconTintList(null);
-        navigationView.setNavigationItemSelectedListener(this);
-        navHeader = navigationView.getHeaderView(0);
-        navImageView = navHeader.findViewById(R.id.nav_imageView);
-        textViewNavUserName = navHeader.findViewById(R.id.textView_navUserName);
-        textViewNavEmail = navHeader.findViewById(R.id.textView_navEmail);
-        toggle = new ActionBarDrawerToggle(this, drawerLayout,
-                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        showImage(this, "profileImage", onlineUser.getUserID(), navImageView);
-        textViewNavUserName.setText(onlineUser.getUserName());
-        textViewNavEmail.setText(onlineUser.getEmail());
-        navigationView.setCheckedItem(R.id.nav_displayUsers);
-        hideMenuItem();
-    }
-
-    @Override
-    public void hideMenuItem() {
-        Menu nav_Menu = navigationView.getMenu();
-        nav_Menu.findItem(R.id.nav_setting).setTitle("Modifier mon dahira");
-
-        if (!onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
-            nav_Menu.findItem(R.id.nav_addUser).setVisible(false);
-            nav_Menu.findItem(R.id.nav_addExpense).setVisible(false);
-            nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
-            nav_Menu.findItem(R.id.nav_setting).setVisible(false);
-        }
-
-        nav_Menu.findItem(R.id.nav_addContribution).setVisible(false);
-        nav_Menu.findItem(R.id.nav_displayAdiya).setVisible(false);
-        nav_Menu.findItem(R.id.nav_displaySass).setVisible(false);
-        nav_Menu.findItem(R.id.nav_displaySocial).setVisible(false);
-        nav_Menu.findItem(R.id.nav_callUser).setVisible(false);
-        nav_Menu.findItem(R.id.nav_searchDahira).setVisible(false);
-        nav_Menu.findItem(R.id.nav_video).setVisible(false);
-        nav_Menu.findItem(R.id.nav_removeDahira).setVisible(false);
     }
 }

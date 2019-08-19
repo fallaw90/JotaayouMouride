@@ -9,26 +9,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.fallntic.jotaayumouride.Model.ListSongObject;
-import com.fallntic.jotaayumouride.Model.Song;
-import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
-import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getListAudios;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.setMyAdapter;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.UpdateSongTime;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.fab_search;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_next;
@@ -67,6 +52,7 @@ public class WolofalFragment extends Fragment implements View.OnClickListener{
         initViewsMainWolofal();
 
         //startActivity(new Intent(getContext(), AddMultipleAudioActivity.class));
+
 
         return view;
     }

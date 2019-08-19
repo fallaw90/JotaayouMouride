@@ -2,7 +2,6 @@ package com.fallntic.jotaayumouride;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,35 +9,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.fallntic.jotaayumouride.Model.ListSongObject;
-import com.fallntic.jotaayumouride.Model.Song;
-import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
-import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getListAudios;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.setMyAdapter;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.UpdateSongTime;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.fab_search;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_next;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_play;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_previous;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosHTDK;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosQuran;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosSerigneMbayeDiakhate;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosSerigneMoussaKa;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mediaPlayer;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myHandler;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.pb_loader;
@@ -55,7 +37,7 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tv_empty;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tv_time;
 
 
-public class QuranFragment extends Fragment implements View.OnClickListener{
+public class QuranFragment extends Fragment implements View.OnClickListener {
 
     private static final String TAG = "WolofalFragment";
     private View view;
@@ -68,6 +50,8 @@ public class QuranFragment extends Fragment implements View.OnClickListener{
         view = inflater.inflate(R.layout.fragment_quran, container, false);
 
         initViewsMainQuran();
+
+        loadInterstitialAd(getContext());
 
         return view;
     }
@@ -88,7 +72,7 @@ public class QuranFragment extends Fragment implements View.OnClickListener{
         }
     }
 
-    private void setLayoutMedia(){
+    private void setLayoutMedia() {
         LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.view = inflater.inflate(R.layout.layout_media, null);
         ViewGroup rootView = (ViewGroup) getView();
@@ -102,7 +86,7 @@ public class QuranFragment extends Fragment implements View.OnClickListener{
             myHandler = new Handler();
     }
 
-    private void setLayoutMainQuran(){
+    private void setLayoutMainQuran() {
         LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.view = inflater.inflate(R.layout.fragment_quran, null);
         ViewGroup rootView = (ViewGroup) getView();
@@ -114,13 +98,13 @@ public class QuranFragment extends Fragment implements View.OnClickListener{
             myHandler.removeCallbacks(UpdateSongTime);
         }
         if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()){
+            if (mediaPlayer.isPlaying()) {
                 mediaPlayer.stop();
             }
         }
     }
 
-    public void initViewsMainQuran(){
+    public void initViewsMainQuran() {
         view.findViewById(R.id.ib_sudais).setOnClickListener(this);
     }
 
@@ -149,7 +133,7 @@ public class QuranFragment extends Fragment implements View.OnClickListener{
         initViewsProgressBar();
     }
 
-    public  void initViewsProgressBar() {
+    public void initViewsProgressBar() {
         relativeLayoutData = view.findViewById(R.id.relativeLayout_data);
         relativeLayoutProgressBar = view.findViewById(R.id.relativeLayout_progressBar);
         progressBar = view.findViewById(R.id.progressBar);

@@ -45,6 +45,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
@@ -162,12 +163,14 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
 
         enableSwipeToDelete();
 
+        loadInterstitialAd(this);
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.button_back:
+                finish();
                 startActivity(new Intent(ShowSongsActivity.this, DahiraInfoActivity.class));
                 break;
         }
@@ -513,6 +516,10 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
         switch (item.getItemId()) {
             case R.id.icon_add:
                 startActivity(new Intent(this, AddAudioActivity.class));
+                break;
+
+            case R.id.instructions:
+                startActivity(new Intent(this, InstructionsActivity.class));
                 break;
         }
         return true;

@@ -38,13 +38,16 @@ import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.objNotification;
 
-public class SendAnnouncementActivity extends AppCompatActivity {
+public class ShowAnnouncementActivity extends AppCompatActivity {
     private final String TAG = "ListAnnouncementActivity";
 
     private TextView textViewDahiraName, textViewDelete;
@@ -77,7 +80,12 @@ public class SendAnnouncementActivity extends AppCompatActivity {
 
         showListAnnouncements();
 
-        enableSwipeToDelete();
+        if (onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
+            enableSwipeToDelete();
+            textViewDelete.setVisibility(View.VISIBLE);
+        }
+
+        loadInterstitialAd(this);
 
     }
 
@@ -97,9 +105,9 @@ public class SendAnnouncementActivity extends AppCompatActivity {
         super.onBackPressed();
         if (objNotification != null) {
             objNotification = null;
-            startActivity(new Intent(SendAnnouncementActivity.this, HomeActivity.class));
+            startActivity(new Intent(ShowAnnouncementActivity.this, HomeActivity.class));
         } else
-            startActivity(new Intent(SendAnnouncementActivity.this, DahiraInfoActivity.class));
+            startActivity(new Intent(ShowAnnouncementActivity.this, DahiraInfoActivity.class));
     }
 
     @Override
@@ -117,7 +125,7 @@ public class SendAnnouncementActivity extends AppCompatActivity {
         recyclerViewAnnoucement.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewAnnoucement.setVisibility(View.VISIBLE);
         listAnnouncement = new ArrayList<>();
-        announcementAdapter = new AnnouncementAdapter(SendAnnouncementActivity.this, listAnnouncement);
+        announcementAdapter = new AnnouncementAdapter(ShowAnnouncementActivity.this, listAnnouncement);
         recyclerViewAnnoucement.setAdapter(announcementAdapter);
 
         db.collection("announcements").document(dahira.getDahiraID())
@@ -169,7 +177,7 @@ public class SendAnnouncementActivity extends AppCompatActivity {
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                toastMessage(SendAnnouncementActivity.this, "Error : " + e.getMessage());
+                toastMessage(ShowAnnouncementActivity.this, "Error : " + e.getMessage());
             }
         });
     }
@@ -190,7 +198,7 @@ public class SendAnnouncementActivity extends AppCompatActivity {
 
         switch (item.getItemId()) {
             case R.id.icon_add:
-                DahiraInfoActivity.chooseMethodAnnouncement(SendAnnouncementActivity.this);
+                DahiraInfoActivity.chooseMethodAnnouncement(ShowAnnouncementActivity.this);
                 break;
 
             case R.id.instructions:
@@ -209,7 +217,7 @@ public class SendAnnouncementActivity extends AppCompatActivity {
 
                 final Object object = listAnnouncement.get(position);
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(SendAnnouncementActivity.this, R.style.alertDialog);
+                AlertDialog.Builder builder = new AlertDialog.Builder(ShowAnnouncementActivity.this, R.style.alertDialog);
                 builder.setTitle("Supprimer annonce!");
                 builder.setMessage("Etes vous sure de vouloir supprimer cette annonce?");
                 builder.setCancelable(false);
@@ -232,8 +240,8 @@ public class SendAnnouncementActivity extends AppCompatActivity {
                 builder.setNegativeButton("NON", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        startActivity(new Intent(SendAnnouncementActivity.this,
-                                SendAnnouncementActivity.class));
+                        startActivity(new Intent(ShowAnnouncementActivity.this,
+                                ShowAnnouncementActivity.class));
                     }
                 });
                 builder.show();
@@ -266,7 +274,7 @@ public class SendAnnouncementActivity extends AppCompatActivity {
                         "Erreur de la suppression de l'annonce. " + e.getMessage(), Snackbar.LENGTH_LONG);
                 snackbar.setActionTextColor(Color.GREEN);
                 snackbar.show();
-                startActivity(new Intent(SendAnnouncementActivity.this, SendAnnouncementActivity.class));
+                startActivity(new Intent(ShowAnnouncementActivity.this, ShowAnnouncementActivity.class));
             }
         });
     }
@@ -294,7 +302,7 @@ public class SendAnnouncementActivity extends AppCompatActivity {
                         "Erreur de la suppression de l'annonce. " + e.getMessage(), Snackbar.LENGTH_LONG);
                 snackbar.setActionTextColor(Color.GREEN);
                 snackbar.show();
-                startActivity(new Intent(SendAnnouncementActivity.this, SendAnnouncementActivity.class));
+                startActivity(new Intent(ShowAnnouncementActivity.this, ShowAnnouncementActivity.class));
             }
         });
     }
