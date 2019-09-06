@@ -61,7 +61,7 @@ public class ShowExpenseActivity extends AppCompatActivity implements View.OnCli
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list_expense);
+        setContentView(R.layout.activity_show_expense);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);

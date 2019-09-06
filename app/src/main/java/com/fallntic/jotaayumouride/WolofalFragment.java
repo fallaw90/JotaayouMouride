@@ -19,8 +19,10 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.fab_search;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_next;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_play;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_previous;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosMixedWolofal;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosSerigneMbayeDiakhate;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosSerigneMoussaKa;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosZikr;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mediaPlayer;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myHandler;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.pb_loader;
@@ -50,10 +52,6 @@ public class WolofalFragment extends Fragment implements View.OnClickListener{
         view = inflater.inflate(R.layout.fragment_wolofal, container, false);
 
         initViewsMainWolofal();
-
-        //startActivity(new Intent(getContext(), AddMultipleAudioActivity.class));
-
-
         return view;
     }
 
@@ -72,6 +70,20 @@ public class WolofalFragment extends Fragment implements View.OnClickListener{
                 if (listAudiosSerigneMbayeDiakhate == null)
                     listAudiosSerigneMbayeDiakhate = new ArrayList<>();
                 getListAudios(getContext(), listAudiosSerigneMbayeDiakhate, "audios", "serigneMbayeDiakhate");
+                break;
+
+            case R.id.iv_mixed:
+                setLayoutMedia();
+                if (listAudiosMixedWolofal == null)
+                    listAudiosMixedWolofal = new ArrayList<>();
+                getListAudios(getContext(), listAudiosMixedWolofal, "audios", "mixedWolofal");
+                break;
+
+            case R.id.iv_zikr:
+                setLayoutMedia();
+                if (listAudiosZikr == null)
+                    listAudiosZikr = new ArrayList<>();
+                getListAudios(getContext(), listAudiosZikr, "audios", "zikr");
                 break;
 
             case R.id.button_back:
@@ -115,6 +127,8 @@ public class WolofalFragment extends Fragment implements View.OnClickListener{
     private void initViewsMainWolofal(){
         view.findViewById(R.id.ib_smk).setOnClickListener(this);
         view.findViewById(R.id.ib_smd).setOnClickListener(this);
+        view.findViewById(R.id.iv_mixed).setOnClickListener(this);
+        view.findViewById(R.id.iv_zikr).setOnClickListener(this);
     }
 
     private void initViewsMedia() {

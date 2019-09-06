@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,6 +20,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskExecutors;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.FirebaseException;
+import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
@@ -33,6 +33,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.concurrent.TimeUnit;
 
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
@@ -45,13 +46,16 @@ public class VerifyPhoneActivity extends AppCompatActivity {
     private final String TAG = "VerifyPhoneActivity";
     //These are the objects needed
     //It is the verification id that will be sent to the user
-    private String mVerificationId;
+    private String mVerificationId, mobile;
 
     //The edittext to input the code
     private EditText editTextCode;
 
     //firebase auth object
     private FirebaseAuth mAuth;
+
+    private PhoneAuthProvider.ForceResendingToken resendToken;
+
     //the callback to detect the verification status
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks =
             new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
@@ -73,7 +77,15 @@ public class VerifyPhoneActivity extends AppCompatActivity {
 
                 @Override
                 public void onVerificationFailed(FirebaseException e) {
-                    Toast.makeText(VerifyPhoneActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+
+                    if (e instanceof FirebaseAuthInvalidCredentialsException) {
+                        // Invalid request
+                        Log.d(TAG, "Invalid credential: "
+                                + e.getLocalizedMessage());
+                    } else if (e instanceof FirebaseTooManyRequestsException) {
+                        // SMS quota exceeded
+                        Log.d(TAG, "SMS Quota exceeded.");
+                    }
                 }
 
                 @Override
@@ -82,6 +94,8 @@ public class VerifyPhoneActivity extends AppCompatActivity {
 
                     //storing the verification id that is sent to the user
                     mVerificationId = s;
+
+                    resendToken = forceResendingToken;
                 }
             };
 
@@ -102,7 +116,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
         //getting mobile number from the previous activity
         //and sending the verification code to the number
         Intent intent = getIntent();
-        String mobile = intent.getStringExtra("mobile");
+        mobile = intent.getStringExtra("mobile");
         sendVerificationCode(mobile);
 
 
@@ -120,6 +134,14 @@ public class VerifyPhoneActivity extends AppCompatActivity {
 
                 //verifying the code entered manually
                 verifyVerificationCode(code);
+            }
+        });
+
+        findViewById(R.id.button_resendCode).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                resendCode(v);
+                showAlertDialog(VerifyPhoneActivity.this, "Code reenvoyer avec succes.");
             }
         });
 
@@ -192,6 +214,17 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                 toastMessage(VerifyPhoneActivity.this, e.getMessage());
             }
         });
+    }
+
+    public void resendCode(View view) {
+
+        PhoneAuthProvider.getInstance().verifyPhoneNumber(
+                mobile,
+                60,
+                TimeUnit.SECONDS,
+                this,
+                mCallbacks,
+                resendToken);
     }
 
     public void getUser() {

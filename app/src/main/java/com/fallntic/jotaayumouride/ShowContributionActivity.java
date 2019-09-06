@@ -68,7 +68,7 @@ public class ShowContributionActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list_contribution);
+        setContentView(R.layout.activity_show_contribution);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         toolbar = findViewById(R.id.toolbar);

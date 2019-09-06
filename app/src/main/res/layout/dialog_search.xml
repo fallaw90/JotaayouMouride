@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <EditText
@@ -23,15 +24,29 @@
         android:layout_marginTop="20dp"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <EditText
-        android:id="@+id/editText_dialogPhoneNumber"
+    <LinearLayout
+        android:id="@+id/lin_phoneNumber"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif"
-        android:digits="0123456789"
-        android:inputType="phone"
-        android:maxLength="9"
-        android:layout_marginTop="20dp"/>
+        android:layout_gravity="center_vertical"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal">
+
+        <com.hbb20.CountryCodePicker
+            android:id="@+id/ccp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:ccp_defaultNameCode="SN" />
+
+        <EditText
+            android:id="@+id/editText_dialogPhoneNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:digits="0123456789"
+            android:fontFamily="sans-serif"
+            android:hint="Telephone"
+            android:inputType="phone" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

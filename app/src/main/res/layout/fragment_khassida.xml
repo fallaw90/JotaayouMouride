@@ -16,38 +16,39 @@
             android:layout_margin="@dimen/_10sdp"
             android:orientation="vertical">
 
-            <ImageButton
+            <ImageView
                 android:id="@+id/ib_ht"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:layout_margin="@dimen/_10sdp"
                 android:padding="@dimen/_5sdp"
                 android:src="@drawable/image_ht"
-                android:background="@drawable/rounded_button_save"/>
+                android:background="@color/green" />
 
-            <ImageButton
+            <ImageView
                 android:id="@+id/ib_htdk"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:layout_margin="@dimen/_5sdp"
                 android:src="@drawable/image_htdk"
-                android:background="@drawable/rounded_button_save"/>
+                android:background="@color/green" />
 
-            <ImageButton
+            <ImageView
                 android:id="@+id/ib_am"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:layout_margin="@dimen/_5sdp"
                 android:src="@drawable/image_am"
-                android:background="@drawable/rounded_button_save"/>
+                android:background="@color/green"
+                android:contentDescription="Ahlou Minam" />
 
-            <ImageButton
+            <ImageView
                 android:id="@+id/ib_radiass"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:layout_margin="@dimen/_5sdp"
                 android:src="@drawable/image_radiass"
-                android:background="@drawable/rounded_button_save"/>
+                android:background="@color/green" />
         </LinearLayout>
     </ScrollView>
 </RelativeLayout>

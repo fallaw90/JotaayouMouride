@@ -1,5 +1,6 @@
 package com.fallntic.jotaayumouride;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
@@ -26,7 +27,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -43,7 +43,7 @@ import static com.fallntic.jotaayumouride.R.id.button_finish;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 
 public class AddMultipleAudioActivity extends AppCompatActivity implements View.OnClickListener {
-    private static final String TAG = "AddImagesActivity";
+    private static final String TAG = "AddMultipleAudioActivity";
 
     private static final int RESULT_LOAD_IMAGE = 1;
     private RecyclerView recyclerViewImage;
@@ -97,14 +97,23 @@ public class AddMultipleAudioActivity extends AppCompatActivity implements View.
         findViewById(button_finish).setOnClickListener(this);
     }
 
-    @Override
-    public void onClick(View v) {
-
-        switch (v.getId()) {
-            case button_finish:
-                startActivity(new Intent(this, ShowImagesActivity.class));
-                break;
-        }
+    public static void updateDocument(final String collectionName, String documentID, Map<String, Object> songMap) {
+        FirebaseFirestore.getInstance().collection(collectionName).document(documentID)
+                .update(songMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @SuppressLint("LongLogTag")
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, collectionName + " updated");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @SuppressLint("LongLogTag")
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "Error updated " + collectionName);
+                    }
+                });
     }
 
     @Override
@@ -146,6 +155,58 @@ public class AddMultipleAudioActivity extends AppCompatActivity implements View.
         startActivityForResult(Intent.createChooser(intent, "Choisir une image"), RESULT_LOAD_IMAGE);
     }
 
+    public static void createNewCollection(final String collectionName, String documentName, Object data) {
+        FirebaseFirestore.getInstance().collection(collectionName).document(documentName)
+                .set(data)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @SuppressLint("LongLogTag")
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "New collection " + collectionName + " set successfully");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @SuppressLint("LongLogTag")
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "Error initContributions function line 351");
+                    }
+                });
+    }
+
+    public String getFileName(Uri uri) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            Cursor cursor = getContentResolver().query(uri, null, null,
+                    null, null);
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public void onClick(View v) {
+
+        switch (v.getId()) {
+            case button_finish:
+                startActivity(new Intent(this, HomeActivity.class));
+                break;
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -167,15 +228,13 @@ public class AddMultipleAudioActivity extends AppCompatActivity implements View.
                     addImagesAdapter.notifyDataSetChanged();
 
                     final StorageReference fileToUpload = mStorage.child("audios")
-                            .child("serigneMoussaKa").child(fileName);
+                            .child("zikr").child(fileName);
                     final String duration = getDurationFromMilli(findSongDuration(fileUri));
                     final String songID =  fileName +System.currentTimeMillis();
 
 
                     if (listSong == null)
                         listSong = new ArrayList<>();
-
-
 
                     final int finalI = i;
 
@@ -208,85 +267,24 @@ public class AddMultipleAudioActivity extends AppCompatActivity implements View.
 
     }
 
-    public String getFileName(Uri uri) {
-        String result = null;
-        if (uri.getScheme().equals("content")) {
-            Cursor cursor = getContentResolver().query(uri, null, null,
-                    null, null);
-            try {
-                if (cursor != null && cursor.moveToFirst()) {
-                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                }
-            } finally {
-                cursor.close();
-            }
-        }
-        if (result == null) {
-            result = uri.getPath();
-            int cut = result.lastIndexOf('/');
-            if (cut != -1) {
-                result = result.substring(cut + 1);
-            }
-        }
-        return result;
-    }
-
     public void saveUploadImages() {
-        FirebaseFirestore.getInstance().collection("audio")
-                .document("khassida").collection("serigneMoussaKa").get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+        Map<String, Object> songMap = new HashMap<>();
+        songMap.put("documentID", "zikr");
+        songMap.put("listSong", listSong);
+        FirebaseFirestore.getInstance().collection("audios")
+                .document("zikr").set(songMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @SuppressLint("LongLogTag")
                     @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        Map<String, Object> songMap = new HashMap<>();
-                        songMap.put("listSong", listSong);
-                        if (!queryDocumentSnapshots.isEmpty()) {
-                            //listSong.addAll(listSong);
-                            updateDocument("audios", "serigneMoussaKa", songMap);
-
-                            Log.d(TAG, "Image name saved");
-                        } else {
-                            createNewCollection("audios", "serigneMoussaKa", songMap);
-                        }
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "Audio name saved");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
+                    @SuppressLint("LongLogTag")
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.d(TAG, "Error downloading image name");
-                    }
-                });
-    }
-
-    public static void updateDocument(final String collectionName, String documentID, Map<String, Object> songMap) {
-        FirebaseFirestore.getInstance().collection(collectionName).document(documentID)
-                .update(songMap)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, collectionName + " updated");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "Error updated " + collectionName);
-                    }
-                });
-    }
-
-    public static void createNewCollection(final String collectionName, String documentName, Object data) {
-        FirebaseFirestore.getInstance().collection(collectionName).document(documentName)
-                .set(data)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "New collection " + collectionName + " set successfully");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "Error initContributions function line 351");
                     }
                 });
     }

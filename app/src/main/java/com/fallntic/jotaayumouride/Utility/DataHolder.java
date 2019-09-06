@@ -11,7 +11,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
-import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -25,7 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 
-import com.fallntic.jotaayumouride.MainActivity;
+import com.fallntic.jotaayumouride.HomeActivity;
 import com.fallntic.jotaayumouride.Model.Adiya;
 import com.fallntic.jotaayumouride.Model.Dahira;
 import com.fallntic.jotaayumouride.Model.Sass;
@@ -140,7 +139,7 @@ public class DataHolder {
         listExpenses = null;
         listImage = null;
         FirebaseAuth.getInstance().signOut();
-        context.startActivity(new Intent(context, MainActivity.class));
+        context.startActivity(new Intent(context, HomeActivity.class));
     }
 
     public static void showAlertDialog(final Context context, String message) {
@@ -309,49 +308,6 @@ public class DataHolder {
         return false;
     }
 
-    public static boolean hasValidationErrorsSearch(String phoneNumber, EditText editTextPhoneNumber,
-                                                    String email, EditText editTextEmail) {
-
-        if (phoneNumber.isEmpty() && email.isEmpty()) {
-            editTextPhoneNumber.setError("Entrer un numero ou une adresse email");
-            editTextPhoneNumber.requestFocus();
-            return true;
-        }
-
-        if (!phoneNumber.isEmpty() && (!phoneNumber.matches("[0-9]+") ||
-                phoneNumber.length() != 9 || !checkPrefix(phoneNumber))) {
-            editTextPhoneNumber.setError("Numero de telephone incorrect");
-            editTextPhoneNumber.requestFocus();
-            return true;
-        }
-
-        if (!email.isEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            editTextEmail.setError("Adresse email incorrect");
-            editTextEmail.requestFocus();
-            return true;
-        }
-
-        return false;
-    }
-
-    public static boolean hasValidationErrors(String name, EditText editTextName, String phoneNumber,
-                                              EditText editTextPhoneNumber) {
-
-        if (name.isEmpty() && phoneNumber.isEmpty()) {
-            editTextName.setError("Entrer un nom ou un numero de telephone!");
-            editTextName.requestFocus();
-            return true;
-        }
-
-        if (!phoneNumber.isEmpty() && (!phoneNumber.matches("[0-9]+") ||
-                phoneNumber.length() != 9 || !checkPrefix(phoneNumber))) {
-            editTextPhoneNumber.setError("Numero de telephone incorrect");
-            editTextPhoneNumber.requestFocus();
-            return true;
-        }
-
-        return false;
-    }
 
     public static boolean checkPrefix(String str) {
         String prefix = str.substring(0, 2);

@@ -38,7 +38,6 @@ import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
@@ -84,8 +83,6 @@ public class ShowAnnouncementActivity extends AppCompatActivity {
             enableSwipeToDelete();
             textViewDelete.setVisibility(View.VISIBLE);
         }
-
-        loadInterstitialAd(this);
 
     }
 

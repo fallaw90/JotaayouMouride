@@ -31,18 +31,17 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.hbb20.CountryCodePicker;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.CreateDahiraActivity.getCurrentCountryCode;
 import static com.fallntic.jotaayumouride.DahiraInfoActivity.getListUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.actionSelected;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.call;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.hasValidationErrors;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.selectedUser;
@@ -122,7 +121,7 @@ public class ShowUserActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list_user);
+        setContentView(R.layout.activity_show_user);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -171,6 +170,8 @@ public class ShowUserActivity extends AppCompatActivity implements View.OnClickL
 
         final EditText editTextPhoneNumber = dialogView.findViewById(R.id.editText_dialogPhoneNumber);
         final EditText editTextEmail = dialogView.findViewById(R.id.editText_dialogEmail);
+        final CountryCodePicker ccp = dialogView.findViewById(R.id.ccp);
+        ccp.registerCarrierNumberEditText(editTextPhoneNumber);
 
         Button buttonAdd = dialogView.findViewById(R.id.button_dialogAdd);
         Button buttonCancel = dialogView.findViewById(R.id.button_dialogCancel);
@@ -186,15 +187,28 @@ public class ShowUserActivity extends AppCompatActivity implements View.OnClickL
                 String phoneNumber = editTextPhoneNumber.getText().toString().trim();
                 String email = editTextEmail.getText().toString().trim();
 
-                if (!hasValidationErrorsSearch(phoneNumber, editTextPhoneNumber, email, editTextEmail)) {
-
-                    if (!phoneNumber.isEmpty()) {
+                if (!phoneNumber.isEmpty()) {
+                    if (phoneNumber.contains("+")) {
+                        editTextPhoneNumber.setError("Ne pas inclure l'indicatif svp.");
+                        editTextPhoneNumber.requestFocus();
+                        return;
+                    } else {
+                        phoneNumber = ccp.getFullNumberWithPlus();
                         getNewMemberToUpdate("userPhoneNumber", phoneNumber);
-                    } else if (!email.isEmpty()) {
-                        getNewMemberToUpdate("email", email);
+                        alertDialog.dismiss();
                     }
-
-                    alertDialog.dismiss();
+                } else if (!email.isEmpty()) {
+                    if (Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                        getNewMemberToUpdate("email", email);
+                        alertDialog.dismiss();
+                    } else {
+                        editTextEmail.setError("Adresse email incorrect");
+                        editTextEmail.requestFocus();
+                        return;
+                    }
+                } else {
+                    toastMessage(ShowUserActivity.this, "Entrez un numero de telephone ou un adresse email svp.");
+                    return;
                 }
             }
         });
@@ -271,7 +285,7 @@ public class ShowUserActivity extends AppCompatActivity implements View.OnClickL
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                       // hideProgressBar();
+                        // hideProgressBar();
                         if (listUser == null)
                             listUser = new ArrayList<>();
                         listUser.add(user);
@@ -280,7 +294,7 @@ public class ShowUserActivity extends AppCompatActivity implements View.OnClickL
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-               // hideProgressBar();
+                // hideProgressBar();
             }
         });
     }
@@ -303,7 +317,7 @@ public class ShowUserActivity extends AppCompatActivity implements View.OnClickL
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-               // hideProgressBar();
+                // hideProgressBar();
             }
         });
     }
@@ -320,9 +334,11 @@ public class ShowUserActivity extends AppCompatActivity implements View.OnClickL
         final EditText editTextDialogPhoneNumber = dialogView.findViewById(R.id.editText_dialogPhoneNumber);
         Button buttonSearch = dialogView.findViewById(R.id.button_dialogSearch);
         Button buttonCancel = dialogView.findViewById(R.id.button_cancel);
+        final CountryCodePicker ccp;
+        ccp = dialogView.findViewById(R.id.ccp);
+        ccp.registerCarrierNumberEditText(editTextDialogPhoneNumber);
 
         editTextDialogName.setHint("Nom du membre");
-        editTextDialogPhoneNumber.setHint("Numero telephone du membre");
 
         final AlertDialog alertDialog = dialogBuilder.create();
         alertDialog.setTitle("Rechercher un membre");
@@ -334,10 +350,22 @@ public class ShowUserActivity extends AppCompatActivity implements View.OnClickL
                 String userName = editTextDialogName.getText().toString().trim();
                 String phoneNumber = editTextDialogPhoneNumber.getText().toString().trim();
 
-                if (!hasValidationErrors(userName, editTextDialogName, phoneNumber, editTextDialogPhoneNumber)) {
-                    phoneNumber = getCurrentCountryCode(ShowUserActivity.this) + phoneNumber;
-                    searchUser(userName, phoneNumber);
+                if (!phoneNumber.isEmpty()) {
+                    if (phoneNumber.contains("+")) {
+                        editTextDialogPhoneNumber.setError("Ne pas inclure l'indicatif svp.");
+                        editTextDialogPhoneNumber.requestFocus();
+                        return;
+                    } else {
+                        phoneNumber = ccp.getFullNumberWithPlus();
+                        searchUser("", phoneNumber);
+                        alertDialog.dismiss();
+                    }
+                } else if (!userName.isEmpty()) {
+                    searchUser(userName, "");
                     alertDialog.dismiss();
+                } else {
+                    toastMessage(ShowUserActivity.this, "Entrez le nom du membre ou son numero de telephone svp.");
+                    return;
                 }
             }
         });
@@ -462,9 +490,11 @@ public class ShowUserActivity extends AppCompatActivity implements View.OnClickL
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                       // hideProgressBar();
+                        // hideProgressBar();
                         toastMessage(getApplicationContext(), "Error search dahira in ShowUserActivity!");
                     }
                 });
     }
+
+
 }

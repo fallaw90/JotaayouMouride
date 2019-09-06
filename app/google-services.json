@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "1010011435830-8oqtan88tvejn54tl5p44h9bnclk0jvd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fallntic.jotaayumouride",
+            "certificate_hash": "1daea0638f1c5cda9ed108b9d67315c4a9c530ad"
+          }
+        },
+        {
           "client_id": "1010011435830-jfq76q67hkr45k43ob7j3n6gum27n6pr.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

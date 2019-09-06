@@ -1,25 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/_10sdp"
+    android:orientation="vertical"
     tools:context=".QuranFragment">
 
-    <LinearLayout
+    <ImageView
+        android:id="@+id/ib_sudais"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="200dp"
         android:layout_margin="@dimen/_10sdp"
-        android:orientation="vertical">
+        android:background="@color/green"
+        android:padding="@dimen/_5sdp"
+        android:src="@drawable/sudais" />
 
-        <ImageButton
-            android:id="@+id/ib_sudais"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_margin="@dimen/_10sdp"
-            android:padding="@dimen/_5sdp"
-            android:src="@drawable/sudais"
-            android:background="@drawable/rounded_button_save"/>
-
-    </LinearLayout>
-
-</RelativeLayout>
+</LinearLayout>

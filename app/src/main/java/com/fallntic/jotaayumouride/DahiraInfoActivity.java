@@ -42,6 +42,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.hbb20.CountryCodePicker;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -96,6 +97,8 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
     private TextView textViewNavEmail;
 
     private boolean isDahiraEmpty = true;
+
+    CountryCodePicker ccp;
 
     public static void getListUser(final Context context) {
         if (listUser == null) {
@@ -170,7 +173,9 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        finish();
+        startActivity(new Intent(this, ShowDahiraActivity.class));
+
     }
 
     @Override
@@ -178,6 +183,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         switch (v.getId()) {
             case R.id.button_back:
                 finish();
+                startActivity(new Intent(this, ShowDahiraActivity.class));
                 break;
         }
     }
@@ -567,6 +573,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         switch (item.getItemId()) {
 
             case R.id.nav_home:
+                finish();
                 startActivity(new Intent(this, HomeActivity.class));
                 break;
 

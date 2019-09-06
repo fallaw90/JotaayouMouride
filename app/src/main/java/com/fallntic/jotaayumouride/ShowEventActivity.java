@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.deleteDocument;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
@@ -72,7 +71,7 @@ public class ShowEventActivity extends AppCompatActivity implements View.OnClick
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list_event);
+        setContentView(R.layout.activity_show_event);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -89,8 +88,6 @@ public class ShowEventActivity extends AppCompatActivity implements View.OnClick
 
         initViews();
         loadEvents(this);
-
-        loadInterstitialAd(this);
     }
 
     @Override

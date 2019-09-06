@@ -568,6 +568,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
         initViews();
 
+        //startActivity(new Intent(this, AddMultipleAudioActivity.class));
+
         if (!isConnected(this)) {
             toastMessage(this, "Verifier votre connexion SVP.");
             return;
@@ -588,18 +590,18 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         changeTab();
 
         //****************************** adMob ***********************************
-        // Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713
-        //MobileAds.initialize(this, "ca-app-pub-4572559956016262~6999002555");
-        //loadBannerAd();
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
             @Override
             public void onInitializationComplete(InitializationStatus initializationStatus) {
             }
         });
 
-        loadBannerAd();
-
         loadInterstitialAd(HomeActivity.this);
+    }
+
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
     }
 
     public void setDrawerMenu() {
@@ -611,8 +613,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         MyStaticFunctions.showImage(this, onlineUser.getImageUri(), navImageView);
-
-        //navigationView.setCheckedItem(R.id.nav_home);
+        navigationView.setCheckedItem(R.id.nav_home);
 
         hideMenuItem();
     }
@@ -623,11 +624,5 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 .addTestDevice("60266E00FC66E6BEFD20A22AA709804C")
                 .build();
         bannerAd.loadAd(adRequest);
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        startActivity(new Intent(this, HomeActivity.class));
     }
 }

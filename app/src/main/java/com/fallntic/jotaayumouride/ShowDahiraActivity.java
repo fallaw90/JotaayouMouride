@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.fallntic.jotaayumouride.Adapter.DahiraAdapter;
 import com.fallntic.jotaayumouride.Model.Dahira;
+import com.hbb20.CountryCodePicker;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,8 +37,8 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListDahira
 
 public class ShowDahiraActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private TextView textViewTitle;
     private static RecyclerView recyclerViewDahira;
-
     private DahiraAdapter dahiraAdapter;
 
     public static void searchDahira(Context context, final String searchName) {
@@ -84,11 +85,57 @@ public class ShowDahiraActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
-    private void init() {
+    public static void dialogSearchDahira(final Context context) {
 
-        recyclerViewDahira = findViewById(R.id.recyclerview_dahiras);
-        findViewById(R.id.button_back).setOnClickListener(this);
-        //ProgressBar from static variable MainActivity
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        final View dialogView = inflater.inflate(R.layout.dialog_search, null);
+        dialogBuilder.setView(dialogView);
+        dialogBuilder.setCancelable(false);
+
+        final EditText editTextDialogName = dialogView.findViewById(R.id.editText_dialogName);
+        final EditText editTextDialogPhoneNumber = dialogView.findViewById(R.id.editText_dialogPhoneNumber);
+        final TextView textView = dialogView.findViewById(R.id.textView_dialogOr);
+        final CountryCodePicker ccp = dialogView.findViewById(R.id.ccp);
+        Button buttonSearch = dialogView.findViewById(R.id.button_dialogSearch);
+        Button buttonCancel = dialogView.findViewById(R.id.button_cancel);
+
+        editTextDialogName.setHint("Nom du dahira");
+        editTextDialogPhoneNumber.setVisibility(View.GONE);
+        textView.setVisibility(View.GONE);
+        ccp.setVisibility(View.GONE);
+
+        final AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.setTitle("Rechercher un dahira");
+        alertDialog.show();
+
+        buttonSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String dahiraName = editTextDialogName.getText().toString().trim();
+
+                if (dahiraName.isEmpty()) {
+                    editTextDialogName.setError("Donner le nom du dahira!");
+                    editTextDialogName.requestFocus();
+                    return;
+                } else {
+                    searchDahira(context, dahiraName);
+                    alertDialog.dismiss();
+                }
+            }
+        });
+
+        buttonCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                alertDialog.dismiss();
+                if (displayDahira.equals("searchDahira")) {
+                    Intent intent = new Intent(context, HomeActivity.class);
+                    context.startActivity(intent);
+                    displayDahira = "";
+                }
+            }
+        });
     }
 
     @Override
@@ -117,56 +164,18 @@ public class ShowDahiraActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
-    public static void dialogSearchDahira(final Context context) {
+    private void init() {
 
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        final View dialogView = inflater.inflate(R.layout.dialog_search, null);
-        dialogBuilder.setView(dialogView);
-        dialogBuilder.setCancelable(false);
-
-        final EditText editTextDialogName = dialogView.findViewById(R.id.editText_dialogName);
-        final EditText editTextDialogPhoneNumber = dialogView.findViewById(R.id.editText_dialogPhoneNumber);
-        final TextView textView = dialogView.findViewById(R.id.textView_dialogOr);
-        Button buttonSearch = dialogView.findViewById(R.id.button_dialogSearch);
-        Button buttonCancel = dialogView.findViewById(R.id.button_cancel);
-
-        editTextDialogName.setHint("Nom du dahira");
-        editTextDialogPhoneNumber.setVisibility(View.GONE);
-        textView.setVisibility(View.GONE);
-
-        final AlertDialog alertDialog = dialogBuilder.create();
-        alertDialog.setTitle("Rechercher un dahira");
-        alertDialog.show();
-
-        buttonSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String dahiraName = editTextDialogName.getText().toString().trim();
-
-                if (dahiraName.isEmpty()) {
-                    editTextDialogName.setError("Donner le nom du dahira!");
-                    editTextDialogName.requestFocus();
-                    return;
-                } else {
-                    searchDahira(context, dahiraName);
-                    alertDialog.dismiss();
-                }
-            }
-        });
-
-        buttonCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                alertDialog.dismiss();
-            }
-        });
+        textViewTitle = findViewById(R.id.textView_title);
+        recyclerViewDahira = findViewById(R.id.recyclerview_dahiras);
+        findViewById(R.id.button_back).setOnClickListener(this);
+        //ProgressBar from static variable MainActivity
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list_dahira);
+        setContentView(R.layout.activity_show_dahira);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -178,10 +187,13 @@ public class ShowDahiraActivity extends AppCompatActivity implements View.OnClic
         init();
 
         if (displayDahira.equals("searchDahira")) {
+            textViewTitle.setText("Dahiras trouves");
             displayDahiras(listDahiraFound);
         } else if (displayDahira.equals("myDahira")) {
+            textViewTitle.setText("Liste des dahiras dont vous etes membre. Cliquez sur un dahira pour continuer.");
             displayDahiras(myListDahira);
         } else if (displayDahira.equals("allDahira")) {
+            textViewTitle.setText("Liste des dahiras enregistre. Cliquez sur un dahira pour continuer.");
             displayDahiras(listAllDahira);
         }
 

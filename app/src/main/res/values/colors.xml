@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#07A00F</color>
-    <color name="colorPrimary1">#A1C2EC</color>
-    <color name="colorPrimaryDark">#138dc8</color>
+    <color name="colorPrimary1">#07A00F</color>
+    <color name="colorPrimaryDark">#07A00F</color>
     <color name="colorAccent">#dff2fa</color>
     <color name="transparent">#00000000</color>
     <color name="blue">#0009ff</color>
@@ -14,7 +14,7 @@
     <color name="green1">#07A00F</color>
     <color name="green">#07A00F</color>
     <color name="gray">#696969</color>
-    <color name="light_gray">#C5C4C4</color>
+    <color name="light_gray">#B4B3B3</color>
     <color name="dark_green">#025E05</color>
     <color name="background_toolbar">#e3333333</color>
     <color name="ic_drawer">#07A00F</color>

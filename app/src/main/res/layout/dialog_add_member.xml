@@ -2,17 +2,32 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/editText_dialogPhoneNumber"
+    <LinearLayout
+        android:id="@+id/lin_phoneNumber"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif"
-        android:digits="+0123456789"
+        android:layout_gravity="center_vertical"
         android:layout_marginTop="20dp"
-        android:hint="Telephone (exemple: +221771866656)"
-        android:inputType="phone" />
+        android:orientation="horizontal">
+
+        <com.hbb20.CountryCodePicker
+            android:id="@+id/ccp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:ccp_defaultNameCode="SN" />
+
+        <EditText
+            android:id="@+id/editText_dialogPhoneNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:digits="0123456789"
+            android:hint="Telephone"
+            android:inputType="phone" />
+
+    </LinearLayout>
 
     <TextView
         android:layout_width="match_parent"
@@ -29,7 +44,8 @@
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif"
         android:hint="@string/editText_dialogEmail"
-        android:inputType="text"
+        android:autofillHints="email"
+        android:inputType="textEmailAddress"
         android:layout_marginTop="20dp"/>
 
     <LinearLayout

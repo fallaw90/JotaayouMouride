@@ -17,7 +17,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,6 +42,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.hbb20.CountryCodePicker;
 import com.mikelau.countrypickerx.Country;
 import com.mikelau.countrypickerx.CountryPickerCallbacks;
 import com.mikelau.countrypickerx.CountryPickerDialog;
@@ -51,8 +51,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.CreateDahiraActivity.getCurrentCountryCode;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.checkPrefix;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.createNewCollection;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
@@ -86,7 +84,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     private EditText editTextUserAddress;
     private EditText editTextUserPhoneNumber;
     private EditText editTextConfirmPassword;
-    private TextView textViewAreaCode;
+    private CountryCodePicker ccp;
     private List<String> listSass = new ArrayList<String>();
     private List<String> listRoles = new ArrayList<String>();
     private List<String> listAdiya = new ArrayList<String>();
@@ -124,8 +122,8 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
 
         checkInternetConnection(this);
 
-        areaCode = getCurrentCountryCode(this);
-        textViewAreaCode.setText(areaCode);
+        ccp = findViewById(R.id.ccp);
+        ccp.registerCarrierNumberEditText(editTextUserPhoneNumber);
 
         //Initialize Firestore object
         mAuth = FirebaseAuth.getInstance();
@@ -151,7 +149,6 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         editTextUserAddress = findViewById(R.id.editText_address);
         editTextCity = findViewById(R.id.editText_city);
         editTextCountry = findViewById(R.id.editText_country);
-        textViewAreaCode = findViewById(R.id.textView_areaCode);
 
         findViewById(R.id.button_back).setOnClickListener(this);
         findViewById(R.id.button_signUp).setOnClickListener(this);
@@ -198,7 +195,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         city = editTextCity.getText().toString().trim();
 
         if (!hasValidationErrors()) {
-            userPhoneNumber = areaCode.concat(userPhoneNumber);
+            userPhoneNumber = ccp.getFullNumberWithPlus();
             userAddress = userAddress.concat("\n" + city + ", " + country);
 
             showProgressBar();
@@ -428,17 +425,15 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
             editTextUserPhoneNumber.requestFocus();
             return true;
         }
+        if (!userPhoneNumber.contains("+")) {
+            editTextUserPhoneNumber.setError("Pas d'indicatif svp");
+            editTextUserPhoneNumber.requestFocus();
+            return true;
+        }
 
         if (city.isEmpty()) {
             editTextCity.setError("Champ obligatoir");
             editTextCity.requestFocus();
-            return true;
-        }
-
-        if (!userPhoneNumber.isEmpty() && (!userPhoneNumber.matches("[0-9]+") ||
-                userPhoneNumber.length() != 9 || !checkPrefix(userPhoneNumber))) {
-            editTextUserPhoneNumber.setError("Numero de telephone incorrect");
-            editTextUserPhoneNumber.requestFocus();
             return true;
         }
 

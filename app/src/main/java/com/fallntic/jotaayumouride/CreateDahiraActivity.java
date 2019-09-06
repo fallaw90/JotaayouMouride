@@ -47,6 +47,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.hbb20.CountryCodePicker;
 import com.mikelau.countrypickerx.Country;
 import com.mikelau.countrypickerx.CountryPickerCallbacks;
 import com.mikelau.countrypickerx.CountryPickerDialog;
@@ -97,7 +98,6 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
     private String totalAdiya;
     private String totalSass;
     private String totalSocial;
-    private String areaCode;
 
     private ListView listViewCommission;
 
@@ -125,6 +125,8 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
     private UploadTask uploadTask;
     private Uri fileUri;
 
+    private CountryCodePicker ccp;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -139,9 +141,6 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
 
         //Check internet connection
         checkInternetConnection(this);
-
-        areaCode = getCurrentCountryCode(this);
-        textViewAreaCode.setText(areaCode);
 
         //Display and modify ListView commissions
         arrayAdapter = new ArrayAdapter<String>(this, R.layout.list_commission, R.id.textView_commission, arrayList);
@@ -178,6 +177,7 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
 
         switch (item.getItemId()) {
             case R.id.icon_back:
+                finish();
                 startActivity(new Intent(this, HomeActivity.class));
                 break;
 
@@ -187,7 +187,6 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         }
         return true;
     }
-
 
     private void initViews() {
         //Dahira info
@@ -208,7 +207,8 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         editTextCountry = findViewById(R.id.editText_country);
         editTextCity = findViewById(R.id.editText_city);
         imageView = findViewById(R.id.imageView);
-        textViewAreaCode = findViewById(R.id.textView_areaCode);
+        ccp = findViewById(R.id.ccp);
+        ccp.registerCarrierNumberEditText(editTextDahiraPhoneNumber);
 
         findViewById(R.id.button_addCommission).setOnClickListener(this);
         findViewById(R.id.button_save).setOnClickListener(this);
@@ -331,7 +331,7 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
 
         if (!hasValidationErrors()) {
             siege = siege.concat(", " + city + " " + country);
-            dahiraPhoneNumber = areaCode + dahiraPhoneNumber;
+            dahiraPhoneNumber = ccp.getFullNumberWithPlus();
             dahiraID = db.collection("dahiras").document().getId();
             dahira = new Dahira(dahiraID, dahiraName, dieuwrine, dahiraPhoneNumber, siege, totalAdiya,
                     totalSass, totalSocial, "1", "", listCommissionDahira, listResponsibles);
@@ -547,7 +547,7 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         }
 
         if (!dahiraPhoneNumber.isEmpty() && (!dahiraPhoneNumber.matches("[0-9]+"))) {
-            if (dahiraPhoneNumber.contains(areaCode)) {
+            if (dahiraPhoneNumber.contains("+")) {
                 editTextDahiraPhoneNumber.setError("Ne pas inclure votre indicatif svp.");
                 editTextDahiraPhoneNumber.requestFocus();
                 return true;
