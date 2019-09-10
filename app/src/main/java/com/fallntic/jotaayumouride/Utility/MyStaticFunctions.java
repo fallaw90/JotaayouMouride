@@ -1,5 +1,6 @@
 package com.fallntic.jotaayumouride.Utility;
 
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -8,6 +9,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -42,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static android.os.Environment.DIRECTORY_DOWNLOADS;
 import static com.fallntic.jotaayumouride.MainActivity.TAG;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
@@ -205,6 +208,7 @@ public class MyStaticFunctions {
         //Requête récupérant les chansons
         recycler.setLayoutManager(new LinearLayoutManager(context));
         mAdapter = new SongAdapter(context, listSong, new SongAdapter.RecyclerItemClickListener() {
+
             @Override
             public void onClickListener(Song song, int position) {
                 if (mediaPlayer == null) {
@@ -213,6 +217,13 @@ public class MyStaticFunctions {
                 firstLaunch = false;
                 changeSelectedSong(position);
                 prepareSong(context, song);
+            }
+
+            @Override
+            public boolean onLongClickListener(Song song, int position) {
+                downloadFile(context, song.getAudioTitle(), song.getAudioUri());
+                toastMessage(context, "Telechargement en cours ...");
+                return true;
             }
         });
         recycler.setAdapter(mAdapter);
@@ -511,6 +522,22 @@ public class MyStaticFunctions {
             });
         } else {
             setMyAdapter(context, listSong);
+        }
+    }
+
+    public static void downloadFile(Context context, String fileName, String url) {
+
+
+        DownloadManager downloadmanager = (DownloadManager) context.
+                getSystemService(Context.DOWNLOAD_SERVICE);
+        Uri uri = Uri.parse(url);
+        DownloadManager.Request request = new DownloadManager.Request(uri);
+
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        request.setDestinationInExternalFilesDir(context, DIRECTORY_DOWNLOADS, fileName);
+
+        if (downloadmanager != null) {
+            downloadmanager.enqueue(request);
         }
     }
 }

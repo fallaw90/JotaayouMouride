@@ -35,7 +35,12 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
@@ -74,15 +79,18 @@ public class ShowAnnouncementActivity extends AppCompatActivity {
 
         checkInternetConnection(this);
 
+
         textViewDahiraName.setText("Liste des annonces du dahira " + dahira.getDahiraName());
 
 
         showListAnnouncements();
 
+
         if (onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
             enableSwipeToDelete();
             textViewDelete.setVisibility(View.VISIBLE);
         }
+
 
     }
 
@@ -137,6 +145,7 @@ public class ShowAnnouncementActivity extends AppCompatActivity {
                                 listAnnouncement.add(announcement);
                             }
                             isAnnouncementExist = true;
+                            sortAnnouncementByDate();
                         }
                         getListAudio();
                     }
@@ -160,6 +169,7 @@ public class ShowAnnouncementActivity extends AppCompatActivity {
                                 listAnnouncement.add(song);
                             }
                             isAnnouncementExist = true;
+                            sortAnnouncementByDate();
                         }
                         if (!isAnnouncementExist) {
                             textViewDahiraName.setText("La liste des annonces du dahira " +
@@ -326,6 +336,46 @@ public class ShowAnnouncementActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    public void sortAnnouncementByDate() {
+        Collections.sort(listAnnouncement, new Comparator<Object>() {
+            DateFormat f = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+
+            @Override
+            public int compare(Object obj1, Object obj2) {
+                try {
+                    Announcement a1 = null, a2 = null;
+                    Song s1 = null, s2 = null;
+                    if (obj1 instanceof Announcement)
+                        a1 = (Announcement) obj1;
+                    else
+                        s1 = (Song) obj1;
+
+                    if (obj2 instanceof Announcement)
+                        a2 = (Announcement) obj2;
+                    else
+                        s2 = (Song) obj2;
+
+                    if (a1 != null && a2 != null)
+                        return f.parse(a2.getDate()).compareTo(f.parse(a1.getDate()));
+
+                    if (a1 != null && s2 != null)
+                        return f.parse(a2.getDate()).compareTo(f.parse(s1.getDate()));
+
+                    if (a2 != null && s1 != null)
+                        return f.parse(a2.getDate()).compareTo(f.parse(s1.getDate()));
+
+                    if (s1 != null && s2 != null)
+                        return f.parse(s2.getDate()).compareTo(f.parse(s1.getDate()));
+
+                    return 0;
+
+                } catch (ParseException e) {
+                    throw new IllegalArgumentException(e);
+                }
+            }
+        });
     }
 }
 

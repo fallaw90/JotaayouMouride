@@ -149,8 +149,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
     private void setupOnlineViewPager(ViewPager viewPager) {
         pageAdapter.addFragment(new ProfileFragment(), "Profile", 0);
-        pageAdapter.addFragment(new KhassidaFragment(), "Khassida", 1);
-        pageAdapter.addFragment(new WolofalFragment(), "Wolofal", 2);
+        pageAdapter.addFragment(new AudioFragment(), "Audios", 1);
+        pageAdapter.addFragment(new PDFFragment(), "Khassida PDF", 2);
         pageAdapter.addFragment(new QuranFragment(), "Quran", 3);
         tabLayout.getTabAt(0).setText("Mon Profil");
         viewPager.setOffscreenPageLimit(4);
@@ -158,9 +158,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void setupOfflineViewPager(ViewPager viewPager) {
-        pageAdapter.addFragment(new AboutFragment(), "Instructions", 0);
-        pageAdapter.addFragment(new KhassidaFragment(), "Khassida", 1);
-        pageAdapter.addFragment(new WolofalFragment(), "Wolofal", 2);
+        pageAdapter.addFragment(new AboutFragment(), "About", 0);
+        pageAdapter.addFragment(new AudioFragment(), "Audios", 1);
+        pageAdapter.addFragment(new PDFFragment(), "Khassida PDF", 2);
         pageAdapter.addFragment(new QuranFragment(), "Quran", 3);
         tabLayout.getTabAt(0).setText("About");
 

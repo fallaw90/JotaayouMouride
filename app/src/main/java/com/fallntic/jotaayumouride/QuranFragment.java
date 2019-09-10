@@ -39,7 +39,7 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tv_time;
 
 public class QuranFragment extends Fragment implements View.OnClickListener {
 
-    private static final String TAG = "WolofalFragment";
+    private static final String TAG = "PDFFragment";
     private View view;
 
     @SuppressLint("RestrictedApi")

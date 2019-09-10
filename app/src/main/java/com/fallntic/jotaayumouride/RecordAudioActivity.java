@@ -34,8 +34,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
+import com.fallntic.jotaayumouride.Model.ObjNotification;
 import com.fallntic.jotaayumouride.Model.Song;
 import com.fallntic.jotaayumouride.Utility.DataHolder;
+import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
@@ -54,8 +56,10 @@ import java.util.Locale;
 
 import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.NotificationHelper.sendNotificationToSpecificUsers;
 
 public class RecordAudioActivity extends AppCompatActivity implements View.OnClickListener {
     private final String TAG = "RecordAudioActivity";
@@ -451,6 +455,13 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
                                                 @Override
                                                 public void onSuccess(Void aVoid) {
                                                     progressBar.setVisibility(View.GONE);
+                                                    //send notification.
+                                                    final String announcementID = onlineUser.getUserName() + System.currentTimeMillis();
+                                                    MyStaticVariables.objNotification = new ObjNotification(announcementID,
+                                                            onlineUser.getUserID(), dahira.getDahiraID(), MyStaticVariables.TITLE_ANNOUNCEMENT_NOTIFICATION,
+                                                            "Vous avez une nouvelle annonce de la part du dahira " + dahira.getDahiraName());
+
+                                                    sendNotificationToSpecificUsers(RecordAudioActivity.this, MyStaticVariables.objNotification);
 
                                                     AlertDialog.Builder builder = new AlertDialog.
                                                             Builder(RecordAudioActivity.this, R.style.alertDialog);

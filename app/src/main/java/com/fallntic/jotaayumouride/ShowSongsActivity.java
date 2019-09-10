@@ -1,6 +1,9 @@
 package com.fallntic.jotaayumouride;
 
 import android.annotation.SuppressLint;
+import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -44,13 +47,16 @@ import com.google.firebase.storage.StorageReference;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.convertDuration;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.downloadFile;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listSong;
 
 
@@ -73,6 +79,7 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
     private FloatingActionButton fab_search;
     private boolean isPlaying = false;
     private double startTime = 0;
+    private long downloadID;
     private Handler myHandler = new Handler();
     private Runnable UpdateSongTime = new Runnable() {
         public void run() {
@@ -178,9 +185,22 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
         }
     }
 
+    private BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //Fetching the download id received with the broadcast
+            long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+            //Checking if the received broadcast is for our enqueued download by matching download id
+            if (downloadID == id) {
+                toastMessage(ShowSongsActivity.this, "Telechargement termine");
+            } else {
+                toastMessage(ShowSongsActivity.this, "Telechargement en cours");
+            }
+        }
+    };
+
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         if (mediaPlayer != null) {
             if (mediaPlayer.isPlaying())
                 mediaPlayer.stop();
@@ -192,10 +212,11 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
             myHandler.removeCallbacks(UpdateSongTime);
             myHandler = null;
         }
-
+        finish();
+        startActivity(new Intent(ShowSongsActivity.this, DahiraInfoActivity.class));
     }
 
-    private void setMyAdapter(List<Song> songList) {
+    private void setMyAdapter(List<Song> listSong) {
         //Requête récupérant les chansons
         recycler.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         mAdapter = new SongAdapter(getApplicationContext(), listSong, new SongAdapter.RecyclerItemClickListener() {
@@ -204,6 +225,13 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
                 firstLaunch = false;
                 changeSelectedSong(position);
                 prepareSong(song);
+            }
+
+            @Override
+            public boolean onLongClickListener(Song song, int position) {
+                downloadFile(ShowSongsActivity.this, song.getAudioTitle(), song.getAudioUri());
+                toastMessage(ShowSongsActivity.this, "Telechargement en cours ...");
+                return true;
             }
         });
         recycler.setAdapter(mAdapter);
@@ -404,7 +432,11 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
     @Override
     protected void onDestroy() {
         releaseMediaPlayer();
-
+        try {
+            Objects.requireNonNull(this).unregisterReceiver(onDownloadComplete);
+        } catch (Exception e) {
+            // already registered
+        }
         super.onDestroy();
     }
 

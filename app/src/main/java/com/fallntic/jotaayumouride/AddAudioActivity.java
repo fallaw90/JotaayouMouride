@@ -95,9 +95,15 @@ public class AddAudioActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        onBackPressed();
+        finish();
         startActivity(new Intent(this, DahiraInfoActivity.class));
         return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
+        startActivity(new Intent(this, DahiraInfoActivity.class));
     }
 
     public void initView() {
@@ -296,4 +302,5 @@ public class AddAudioActivity extends AppCompatActivity {
 
         return mime.getExtensionFromMimeType(contentResolver.getType(audioUri));
     }
+
 }

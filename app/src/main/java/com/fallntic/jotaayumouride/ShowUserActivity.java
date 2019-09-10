@@ -95,8 +95,8 @@ public class ShowUserActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void onBackPressed() {
         actionSelected = "";
+        finish();
         startActivity(new Intent(this, DahiraInfoActivity.class));
-        super.onBackPressed();
     }
 
     private void initViews() {

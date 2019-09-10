@@ -41,13 +41,13 @@
                     android:id="@+id/tab_kourel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Khassida" />
+                    android:text="Audios" />
 
                 <com.google.android.material.tabs.TabItem
                     android:id="@+id/tab_wolofal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Wolofal" />
+                    android:text="Khassida PDF" />
 
                 <com.google.android.material.tabs.TabItem
                     android:id="@+id/tab_quran"

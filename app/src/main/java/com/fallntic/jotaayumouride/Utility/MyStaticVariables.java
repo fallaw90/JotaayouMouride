@@ -18,6 +18,7 @@ import com.fallntic.jotaayumouride.Model.Expense;
 import com.fallntic.jotaayumouride.Model.Image;
 import com.fallntic.jotaayumouride.Model.ObjNotification;
 import com.fallntic.jotaayumouride.Model.Song;
+import com.fallntic.jotaayumouride.Model.UploadPdf;
 import com.fallntic.jotaayumouride.Model.User;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -75,6 +76,7 @@ public class MyStaticVariables {
 
     public static ObjNotification objNotification;
 
+    public static List<UploadPdf> listUploadPDF;
 
     //*************************** Firebase ****************************
     public static FirebaseAuth firebaseAuth;

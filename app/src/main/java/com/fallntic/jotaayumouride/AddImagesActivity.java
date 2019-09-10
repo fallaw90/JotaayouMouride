@@ -86,7 +86,6 @@ public class AddImagesActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         finish();
         startActivity(new Intent(this, ShowImagesActivity.class));
     }

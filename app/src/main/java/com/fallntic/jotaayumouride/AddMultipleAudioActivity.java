@@ -21,7 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fallntic.jotaayumouride.Adapter.AddImagesAdapter;
-import com.fallntic.jotaayumouride.Model.Song;
+import com.fallntic.jotaayumouride.Model.UploadPdf;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -51,8 +51,8 @@ public class AddMultipleAudioActivity extends AppCompatActivity implements View.
     private List<String> fileNameList;
     private List<String> listDuration;
     private List<String> fileDoneList;
-    private List<Song> listSong;
-    private Song song;
+    private List<UploadPdf> listPDF_Khassida;
+    private UploadPdf uploadPdf;
     UploadTask uploadTask;
 
     private AddImagesAdapter addImagesAdapter;
@@ -149,7 +149,7 @@ public class AddMultipleAudioActivity extends AppCompatActivity implements View.
         recyclerViewImage.setAdapter(addImagesAdapter);
 
         Intent intent = new Intent();
-        intent.setType("audio/*");
+        intent.setType("application/pdf");
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(intent, "Choisir une image"), RESULT_LOAD_IMAGE);
@@ -227,14 +227,12 @@ public class AddMultipleAudioActivity extends AppCompatActivity implements View.
                     fileDoneList.add("uploading");
                     addImagesAdapter.notifyDataSetChanged();
 
-                    final StorageReference fileToUpload = mStorage.child("audios")
-                            .child("zikr").child(fileName);
-                    final String duration = getDurationFromMilli(findSongDuration(fileUri));
-                    final String songID =  fileName +System.currentTimeMillis();
+                    final StorageReference fileToUpload = mStorage.child("PDF")
+                            .child("Khassida").child(fileName);
 
 
-                    if (listSong == null)
-                        listSong = new ArrayList<>();
+                    if (listPDF_Khassida == null)
+                        listPDF_Khassida = new ArrayList<>();
 
                     final int finalI = i;
 
@@ -247,8 +245,8 @@ public class AddMultipleAudioActivity extends AppCompatActivity implements View.
                                 @Override
                                 public void onSuccess(Uri uri) {
 
-                                    Song song = new Song(songID, fileName, duration, uri.toString());
-                                    listSong.add(song);
+                                    UploadPdf pdf_file = new UploadPdf(fileName, uri.toString());
+                                    listPDF_Khassida.add(pdf_file);
                                     fileDoneList.remove(finalI);
                                     fileDoneList.add(finalI, "done");
                                     addImagesAdapter.notifyDataSetChanged();
@@ -268,11 +266,11 @@ public class AddMultipleAudioActivity extends AppCompatActivity implements View.
     }
 
     public void saveUploadImages() {
-        Map<String, Object> songMap = new HashMap<>();
-        songMap.put("documentID", "zikr");
-        songMap.put("listSong", listSong);
-        FirebaseFirestore.getInstance().collection("audios")
-                .document("zikr").set(songMap)
+        Map<String, Object> pdfMap = new HashMap<>();
+        pdfMap.put("documentID", "pdf_khassida");
+        pdfMap.put("listPDF_Khassida", listPDF_Khassida);
+        FirebaseFirestore.getInstance().collection("PDF")
+                .document("khassida").set(pdfMap)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @SuppressLint("LongLogTag")
                     @Override

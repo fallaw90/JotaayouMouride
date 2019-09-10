@@ -85,7 +85,12 @@ public class ShowExpenseActivity extends AppCompatActivity implements View.OnCli
         switch (v.getId()) {
             case R.id.button_back:
                 finish();
-                startActivity(new Intent(this, DahiraInfoActivity.class));
+                if (objNotification != null) {
+                    objNotification = null;
+                    startActivity(new Intent(this, HomeActivity.class));
+                } else {
+                    startActivity(new Intent(this, DahiraInfoActivity.class));
+                }
                 break;
         }
     }
@@ -143,7 +148,6 @@ public class ShowExpenseActivity extends AppCompatActivity implements View.OnCli
             startActivity(new Intent(ShowExpenseActivity.this, HomeActivity.class));
         } else
             startActivity(new Intent(ShowExpenseActivity.this, DahiraInfoActivity.class));
-        super.onBackPressed();
     }
 
     private void showListExpenses(List<Expense> listExpenses) {

@@ -1,10 +1,10 @@
 package com.fallntic.jotaayumouride.Model;
 
-import com.fallntic.jotaayumouride.Utility.DataHolder;
-
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-public class Announcement implements Serializable {
+public class Announcement implements Serializable, Comparable<Announcement> {
 
     public String mDate;
     private String announcementID;
@@ -15,7 +15,10 @@ public class Announcement implements Serializable {
         this.announcementID = announcementID;
         this.userName = userName;
         this.note = note;
-        this.mDate = DataHolder.getCurrentDate();
+
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        Date date = new Date();
+        this.mDate = formatter.format(date);
     }
 
     public Announcement() {
@@ -51,5 +54,11 @@ public class Announcement implements Serializable {
 
     public void setDate(String mDate) {
         this.mDate = mDate;
+    }
+
+    @Override
+    public int compareTo(Announcement announcement) {
+        int i = this.mDate.compareTo(announcement.getDate());
+        return i;
     }
 }

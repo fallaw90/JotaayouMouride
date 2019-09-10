@@ -33,6 +33,7 @@ import java.util.List;
 import static com.fallntic.jotaayumouride.DahiraInfoActivity.getExistingExpenses;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.userID;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
@@ -142,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
                         if (!queryDocumentSnapshots.isEmpty()) {
                             for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                                 dahira = documentSnapshot.toObject(Dahira.class);
+                                indexOnlineUser = onlineUser.getListDahiraID().indexOf(dahira.getDahiraID());
                                 break;
                             }
                             if (objNotification != null) {

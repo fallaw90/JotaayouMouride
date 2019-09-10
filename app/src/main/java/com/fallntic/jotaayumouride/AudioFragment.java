@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 
 import com.fallntic.jotaayumouride.Model.ListSongObject;
 import com.fallntic.jotaayumouride.Model.Song;
+import com.fallntic.jotaayumouride.Utility.MyStaticFunctions;
 import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -36,7 +37,11 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_previous;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosAM;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosHT;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosHTDK;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosMixedWolofal;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosRadiass;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosSerigneMbayeDiakhate;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosSerigneMoussaKa;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosZikr;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mediaPlayer;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myHandler;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.pb_loader;
@@ -53,9 +58,9 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tv_empty;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tv_time;
 
 
-public class KhassidaFragment extends Fragment implements View.OnClickListener {
+public class AudioFragment extends Fragment implements View.OnClickListener {
 
-    private static final String TAG = "KhassidaFragment";
+    private static final String TAG = "AudioFragment";
     private View view;
 
     @SuppressLint("RestrictedApi")
@@ -63,7 +68,7 @@ public class KhassidaFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_khassida, container, false);
+        view = inflater.inflate(R.layout.fragment_audio, container, false);
 
         initViewsMainKhassida();
 
@@ -100,6 +105,34 @@ public class KhassidaFragment extends Fragment implements View.OnClickListener {
                 getListAudios(getContext(), listAudiosRadiass, "moustaphaGningue");
                 break;
 
+            case R.id.ib_smk:
+                if (listAudiosSerigneMoussaKa == null)
+                    listAudiosSerigneMoussaKa = new ArrayList<>();
+                setLayoutMedia();
+                MyStaticFunctions.getListAudios(getContext(), listAudiosSerigneMoussaKa, "audios", "serigneMoussaKa");
+                break;
+
+            case R.id.ib_smd:
+                setLayoutMedia();
+                if (listAudiosSerigneMbayeDiakhate == null)
+                    listAudiosSerigneMbayeDiakhate = new ArrayList<>();
+                MyStaticFunctions.getListAudios(getContext(), listAudiosSerigneMbayeDiakhate, "audios", "serigneMbayeDiakhate");
+                break;
+
+            case R.id.iv_mixed:
+                setLayoutMedia();
+                if (listAudiosMixedWolofal == null)
+                    listAudiosMixedWolofal = new ArrayList<>();
+                MyStaticFunctions.getListAudios(getContext(), listAudiosMixedWolofal, "audios", "mixedWolofal");
+                break;
+
+            case R.id.iv_zikr:
+                setLayoutMedia();
+                if (listAudiosZikr == null)
+                    listAudiosZikr = new ArrayList<>();
+                MyStaticFunctions.getListAudios(getContext(), listAudiosZikr, "audios", "zikr");
+                break;
+
             case R.id.button_back:
                 setLayoutMainKhassida();
                 break;
@@ -122,7 +155,7 @@ public class KhassidaFragment extends Fragment implements View.OnClickListener {
 
     private void setLayoutMainKhassida() {
         LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.view = inflater.inflate(R.layout.fragment_khassida, null);
+        this.view = inflater.inflate(R.layout.fragment_audio, null);
         ViewGroup rootView = (ViewGroup) getView();
         rootView.removeAllViews();
         rootView.addView(this.view);
@@ -143,6 +176,10 @@ public class KhassidaFragment extends Fragment implements View.OnClickListener {
         view.findViewById(R.id.ib_htdk).setOnClickListener(this);
         view.findViewById(R.id.ib_am).setOnClickListener(this);
         view.findViewById(R.id.ib_radiass).setOnClickListener(this);
+        view.findViewById(R.id.ib_smk).setOnClickListener(this);
+        view.findViewById(R.id.ib_smd).setOnClickListener(this);
+        view.findViewById(R.id.iv_mixed).setOnClickListener(this);
+        view.findViewById(R.id.iv_zikr).setOnClickListener(this);
     }
 
     private void initViewsMedia() {

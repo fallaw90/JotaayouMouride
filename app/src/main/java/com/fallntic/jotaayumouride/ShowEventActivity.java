@@ -22,15 +22,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fallntic.jotaayumouride.Adapter.EventAdapter;
-import com.fallntic.jotaayumouride.Model.Dahira;
 import com.fallntic.jotaayumouride.Model.Event;
 import com.fallntic.jotaayumouride.Utility.SwipeToDeleteCallback;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -50,7 +47,6 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInterne
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllEvent;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListEvents;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.objNotification;
@@ -80,24 +76,25 @@ public class ShowEventActivity extends AppCompatActivity implements View.OnClick
 
         checkInternetConnection(this);
 
-        if (objNotification != null) {
-            getDahira(objNotification.getDahiraID());
-            if (onlineUser.getListDahiraID().contains(objNotification.getDahiraID()))
-                indexOnlineUser = onlineUser.getListDahiraID().indexOf(objNotification.getDahiraID());
-        }
-
         initViews();
         loadEvents(this);
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.button_back:
-                finish();
-                startActivity(new Intent(this, HomeActivity.class));
-                break;
-        }
+    public static void sortEventByDate(ArrayList arrayList) {
+        if (arrayList == null)
+            arrayList = new ArrayList<>();
+        Collections.sort(arrayList, new Comparator<Event>() {
+            DateFormat f = new SimpleDateFormat("dd/MM/yyyy");
+
+            @Override
+            public int compare(Event event1, Event event2) {
+                try {
+                    return f.parse(event2.getDate()).compareTo(f.parse(event1.getDate()));
+                } catch (ParseException e) {
+                    throw new IllegalArgumentException(e);
+                }
+            }
+        });
     }
 
     private void initViews() {
@@ -117,7 +114,6 @@ public class ShowEventActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         finish();
         if (displayEvent.equals("allEvents") || objNotification != null){
             objNotification = null;
@@ -134,32 +130,20 @@ public class ShowEventActivity extends AppCompatActivity implements View.OnClick
         super.onDestroy();
     }
 
-    private void loadEvents(Context context) {
-
-        if (myListEvents != null || listAllEvent != null) {
-
-            sortByDate();
-            removePastEvent();
-
-            if (displayEvent.equals("myEvents")) {
-                eventAdapter = new EventAdapter(this, myListEvents);
-                textViewDahiraName.setText("Liste des evenements du dahira " + dahira.getDahiraName());
-                enableSwipeToDelete();
-
-            } else if (displayEvent.equals("allEvents")) {
-                eventAdapter = new EventAdapter(this, listAllEvent);
-                textViewDelete.setVisibility(View.GONE);
-                textViewDahiraName.setText("Liste des evenements du dahira de tous les dahiras");
-            }
-            //Attach adapter to recyclerView
-            recyclerViewMyEvent.setHasFixedSize(true);
-            recyclerViewMyEvent.setLayoutManager(new LinearLayoutManager(this));
-            recyclerViewMyEvent.setVisibility(View.VISIBLE);
-
-            recyclerViewMyEvent.setAdapter(eventAdapter);
-            eventAdapter.notifyDataSetChanged();
-        } else
-            toastMessage(context, "myListEvents and listAllEvent null");
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.button_back:
+                finish();
+                if (displayEvent.equals("allEvents") || objNotification != null) {
+                    objNotification = null;
+                    startActivity(new Intent(ShowEventActivity.this, HomeActivity.class));
+                }
+                if (displayEvent.equals("myEvents")) {
+                    startActivity(new Intent(ShowEventActivity.this, DahiraInfoActivity.class));
+                }
+                break;
+        }
     }
 
     @Override
@@ -265,42 +249,33 @@ public class ShowEventActivity extends AppCompatActivity implements View.OnClick
         });
     }
 
-    public void getDahira(final String dahiraID) {
-        showProgressBar();
-        firestore.collection("dahiras")
-                .whereEqualTo("dahiraID", dahiraID).get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        hideProgressBar();
-                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                            dahira = documentSnapshot.toObject(Dahira.class);
-                            break;
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        hideProgressBar();
-                    }
-                });
-    }
+    private void loadEvents(Context context) {
 
-    private void sortByDate(){
-        if (listAllEvent == null)
-            listAllEvent = new ArrayList<>();
-        Collections.sort(listAllEvent, new Comparator<Event>() {
-            DateFormat f = new SimpleDateFormat("dd/MM/yyyy");
-            @Override
-            public int compare(Event event1, Event event2) {
-                try {
-                    return f.parse(event2.getDate()).compareTo(f.parse(event1.getDate()));
-                } catch (ParseException e) {
-                    throw new IllegalArgumentException(e);
-                }
+        if (myListEvents != null || listAllEvent != null) {
+
+            sortEventByDate((ArrayList) myListEvents);
+            removePastEvent();
+
+            if (displayEvent.equals("myEvents")) {
+                eventAdapter = new EventAdapter(this, myListEvents);
+                textViewDahiraName.setText("Liste des evenements du dahira " + dahira.getDahiraName());
+                enableSwipeToDelete();
+
+            } else if (displayEvent.equals("allEvents")) {
+                sortEventByDate((ArrayList) listAllEvent);
+                eventAdapter = new EventAdapter(this, listAllEvent);
+                textViewDelete.setVisibility(View.GONE);
+                textViewDahiraName.setText("Liste des evenements du dahira de tous les dahiras");
             }
-        });
+            //Attach adapter to recyclerView
+            recyclerViewMyEvent.setHasFixedSize(true);
+            recyclerViewMyEvent.setLayoutManager(new LinearLayoutManager(this));
+            recyclerViewMyEvent.setVisibility(View.VISIBLE);
+
+            recyclerViewMyEvent.setAdapter(eventAdapter);
+            eventAdapter.notifyDataSetChanged();
+        } else
+            toastMessage(context, "myListEvents and listAllEvent null");
     }
 
     private void removePastEvent(){

@@ -2,7 +2,8 @@ package com.fallntic.jotaayumouride.Model;
 
 import com.google.firebase.database.Exclude;
 
-import static com.fallntic.jotaayumouride.Utility.DataHolder.getCurrentDate;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Song implements Comparable<Song>{
     public String audioTitle;
@@ -11,6 +12,7 @@ public class Song implements Comparable<Song>{
     public String audioID;
     public String date;
     public boolean playing;
+    public String userID;
 
     public Song(String audioID, String audioTitle, String audioDuration, String audioUri) {
 
@@ -22,7 +24,10 @@ public class Song implements Comparable<Song>{
         this.audioUri = audioUri;
         this.audioID = audioID;
         this.playing = false;
-        this.date = getCurrentDate();
+
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        Date date = new Date();
+        this.date = formatter.format(date);
     }
 
     public Song() {
@@ -76,6 +81,14 @@ public class Song implements Comparable<Song>{
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getUserID() {
+        return userID;
+    }
+
+    public void setUserID(String userID) {
+        this.userID = userID;
     }
 
     @Override
