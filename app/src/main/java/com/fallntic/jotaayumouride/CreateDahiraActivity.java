@@ -345,7 +345,6 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
                         @Override
                         public void onSuccess(Void aVoid) {
                             hideProgressBar();
-                            myListDahira.add(dahira);
                             if (fileUri != null)
                                 uploadImage();
                             updateUserListDahiraID();

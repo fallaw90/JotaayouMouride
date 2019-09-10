@@ -152,7 +152,8 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
 
         hideSoftKeyboard();
 
-
+        if (onlineUser.getUserID().equals(selectedUser.getUserID()) || selectedUser.getListRoles().get(indexSelectedUser).equals("Administrateur"))
+            findViewById(R.id.button_delete).setVisibility(View.GONE);
     }
 
     public void initViewsProgressBar() {
@@ -291,8 +292,7 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
                     @Override
                     public void onSuccess(Void aVoid) {
                         hideProgressBar();
-                        showAlertDialog(SettingUserActivity.this, selectedUser.getUserName() +
-                                " a ete supprime dans votre dahira avec succes.");
+                        updateDahira();
                         listUser = null;
                         getListUser(SettingUserActivity.this);
                     }
@@ -301,6 +301,29 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
             public void onFailure(@NonNull Exception e) {
                 hideProgressBar();
                 startActivity(new Intent(SettingUserActivity.this, UserInfoActivity.class));
+            }
+        });
+    }
+
+    private void updateDahira() {
+        int totalMember = Integer.parseInt(dahira.getTotalMember());
+        totalMember--;
+        dahira.setTotalMember(Integer.toString(totalMember));
+
+        //showProgressBar();
+        firestore.collection("dahiras").document(dahira.getDahiraID())
+                .update("totalMember", dahira.getTotalMember())
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        //hideProgressBar();
+                        Intent intent = new Intent(SettingUserActivity.this, ShowUserActivity.class);
+                        showAlertDialog(SettingUserActivity.this, "Membre supprime avec succes.", intent);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                // hideProgressBar();
             }
         });
     }

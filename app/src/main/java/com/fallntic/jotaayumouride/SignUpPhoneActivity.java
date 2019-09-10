@@ -86,7 +86,7 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
     private CountryPickerDialog countryPicker;
 
     private UploadTask uploadTask;
-    private Uri fileUri;
+    private Uri fileUri = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -231,7 +231,8 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        uploadImage();
+                        if (fileUri != null)
+                            uploadImage();
                         dismissProgressDialog();
                         setAllNewCollection();
                         startActivity(new Intent(SignUpPhoneActivity.this, HomeActivity.class));

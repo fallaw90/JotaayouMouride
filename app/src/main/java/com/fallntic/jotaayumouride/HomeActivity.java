@@ -612,7 +612,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        MyStaticFunctions.showImage(this, onlineUser.getImageUri(), navImageView);
+        if (onlineUser.getImageUri() != null)
+            MyStaticFunctions.showImage(this, onlineUser.getImageUri(), navImageView);
         navigationView.setCheckedItem(R.id.nav_home);
 
         hideMenuItem();

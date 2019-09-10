@@ -89,6 +89,7 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
 
         hideSoftKeyboard();
     }
+
     private void displayViews(){
         textViewDahiraName.setText("Enregistrez vous en tant que membre du dahira " + dahira.getDahiraName() + " que vous venez de creer pour terminer la creation de votre dahira.");
         editTextUserName.setText(onlineUser.getUserName());
