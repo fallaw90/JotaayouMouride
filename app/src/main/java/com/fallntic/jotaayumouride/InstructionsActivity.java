@@ -1,15 +1,20 @@
 package com.fallntic.jotaayumouride;
 
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 public class InstructionsActivity extends AppCompatActivity {
+
+    private Button buttonVideo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +25,14 @@ public class InstructionsActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
+
+        buttonVideo = findViewById(R.id.button_video);
+        buttonVideo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(InstructionsActivity.this, InstructionVideoActivity.class));
+            }
+        });
     }
 
     @Override

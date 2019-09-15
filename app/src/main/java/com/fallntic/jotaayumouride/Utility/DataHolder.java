@@ -25,10 +25,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 
 import com.fallntic.jotaayumouride.HomeActivity;
-import com.fallntic.jotaayumouride.Model.Adiya;
 import com.fallntic.jotaayumouride.Model.Dahira;
-import com.fallntic.jotaayumouride.Model.Sass;
-import com.fallntic.jotaayumouride.Model.Social;
 import com.fallntic.jotaayumouride.Model.UploadImage;
 import com.fallntic.jotaayumouride.Model.User;
 import com.fallntic.jotaayumouride.R;
@@ -37,7 +34,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
@@ -80,12 +76,9 @@ public class DataHolder {
 
     public static boolean boolAddToDahira;
 
-    public static User onlineUser = null;
-    public static User selectedUser = null;
-    public static Dahira dahira = null;
-    public static Adiya adiya = new Adiya();
-    public static Sass sass = new Sass();
-    public static Social social = new Social();
+    public static User onlineUser = new User();
+    public static User selectedUser = new User();
+    public static Dahira dahira = new Dahira();
 
     public static int indexOnlineUser = -1;
     public static int indexSelectedUser = -1;
@@ -417,8 +410,7 @@ public class DataHolder {
         actionSelected = "";
     }
 
-    public static void updateDocument(final Context context, final String collectionName,
-                                      String documentID, String field, String value) {
+    public static void updateDocument(final Context context, final String collectionName, String documentID, String field, String value) {
         showProgressDialog(context, "Mis a jour " + collectionName + " en cours ...");
         FirebaseFirestore.getInstance().collection(collectionName).document(documentID)
                 .update(field, value)
@@ -438,8 +430,7 @@ public class DataHolder {
                 });
     }
 
-    public static void updateDocument(final Context context, final String collectionName, String documentID,
-                                      String field, List<String> listValue) {
+    public static void updateDocument(final Context context, final String collectionName, String documentID, String field, List<String> listValue) {
         showProgressDialog(context, "Mis a jour " + collectionName + " en cours ...");
         FirebaseFirestore.getInstance().collection(collectionName).document(documentID)
                 .update(field, listValue)
@@ -494,39 +485,5 @@ public class DataHolder {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-    }
-
-
-    public static boolean isOnline(String email) {
-        final boolean[] connected = new boolean[1];
-        FirebaseAuth.getInstance().fetchSignInMethodsForEmail(email)
-                .addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
-                        connected[0] = task.isSuccessful();
-                    }
-                });
-
-        return connected[0];
-    }
-
-    public static boolean isEmailExist(String email) {
-        final boolean[] isEmailExist = new boolean[1];
-        FirebaseAuth.getInstance().fetchSignInMethodsForEmail(email)
-                .addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
-
-                        isEmailExist[0] = task.getResult().getSignInMethods().isEmpty();
-
-                        if (isEmailExist[0]) {
-                            Log.e("TAG", "Is New User!");
-                        } else {
-                            Log.e("TAG", "Is Old User!");
-                        }
-
-                    }
-                });
-        return isEmailExist[0];
     }
 }

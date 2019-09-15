@@ -38,9 +38,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
+import static com.fallntic.jotaayumouride.HomeActivity.displayInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getSizeSongsStorage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.updateStorageSize;
 
 
 public class AddAudioActivity extends AppCompatActivity {
@@ -90,7 +92,7 @@ public class AddAudioActivity extends AppCompatActivity {
                 .child("audios")
                 .child(dahira.getDahiraID());
 
-        loadInterstitialAd(this);
+        displayInterstitialAd(this);
     }
 
     @Override
@@ -207,6 +209,8 @@ public class AddAudioActivity extends AppCompatActivity {
                                     final Song song = new Song(uploadID, editTextTitle.getText().toString(),
                                             finalDurationTxt, uri.toString());
 
+                                    getSizeSongsStorage(song);
+
                                     if (MyStaticVariables.listSong == null)
                                         MyStaticVariables.listSong = new ArrayList<>();
 
@@ -231,8 +235,8 @@ public class AddAudioActivity extends AppCompatActivity {
                                                     builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
                                                         @Override
                                                         public void onClick(DialogInterface dialog, int which) {
-                                                            startActivity(new Intent(
-                                                                    AddAudioActivity.this, DahiraInfoActivity.class));
+                                                            updateStorageSize(dahira.getCurrentSizeStorage());
+                                                            startActivity(new Intent(AddAudioActivity.this, DahiraInfoActivity.class));
                                                         }
                                                     });
                                                     builder.show();
@@ -245,10 +249,8 @@ public class AddAudioActivity extends AppCompatActivity {
                                                             e.getMessage());
                                                 }
                                             });
-
                                 }
                             });
-
                         }
                     })
                     .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {

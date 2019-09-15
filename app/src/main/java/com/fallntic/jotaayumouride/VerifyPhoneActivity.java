@@ -131,8 +131,15 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                     return;
                 }
 
-                //verifying the code entered manually
-                verifyVerificationCode(code);
+                try {
+                    //verifying the code entered manually
+                    verifyVerificationCode(code);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    toastMessage(VerifyPhoneActivity.this, "Error " + e);
+                }
+
             }
         });
 
@@ -176,7 +183,6 @@ public class VerifyPhoneActivity extends AppCompatActivity {
     private void verifyVerificationCode(String code) {
         //creating the credential
         PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, code);
-
         //signing the user
         signInWithPhoneAuthCredential(credential);
     }

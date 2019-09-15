@@ -37,8 +37,10 @@
             android:focusable="false"
             android:fontFamily="sans-serif"
             android:hint="Date"
-            android:padding="@dimen/_7sdp"
-            android:textAlignment="center" />
+            android:background="@drawable/edittext_background"
+            android:padding="@dimen/_10sdp"
+            android:textAlignment="center"
+            android:textSize="@dimen/_20sdp" />
 
         <EditText
             android:id="@+id/editText_amount"
@@ -49,8 +51,11 @@
             android:focusable="true"
             android:fontFamily="sans-serif"
             android:hint="Montant cotisation"
-            android:inputType="text"
-            android:padding="@dimen/_7sdp" />
+            android:background="@drawable/edittext_background"
+            android:inputType="numberDecimal"
+            android:padding="@dimen/_10sdp"
+            android:textAlignment="center"
+            android:textSize="@dimen/_20sdp" />
 
         <RadioGroup
             android:id="@+id/radioGroup"
@@ -70,7 +75,7 @@
                 android:checked="true"
                 android:text="adiya"
                 android:textColor="@color/black"
-                android:textSize="20dp" />
+                android:textSize="@dimen/_20sdp" />
 
             <RadioButton
                 android:id="@+id/sass"
@@ -82,7 +87,7 @@
                 android:checked="false"
                 android:text="sass"
                 android:textColor="@color/black"
-                android:textSize="20dp" />
+                android:textSize="@dimen/_20sdp" />
 
             <RadioButton
                 android:id="@+id/social"
@@ -94,7 +99,7 @@
                 android:checked="false"
                 android:text="social"
                 android:textColor="@color/black"
-                android:textSize="20dp" />
+                android:textSize="@dimen/_20sdp" />
 
         </RadioGroup>
     </RelativeLayout>

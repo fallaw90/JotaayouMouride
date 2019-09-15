@@ -24,24 +24,30 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.fallntic.jotaayumouride.Adapter.ImageAdapter;
 import com.fallntic.jotaayumouride.Model.Image;
+import com.fallntic.jotaayumouride.Model.Song;
 import com.fallntic.jotaayumouride.Utility.PhotoFullPopupWindow;
 import com.fallntic.jotaayumouride.Utility.SwipeToDeleteCallback;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
+import static com.fallntic.jotaayumouride.HomeActivity.displayInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.updateStorageSize;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firebaseStorage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listImage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listSong;
 
-public class ShowImagesActivity extends AppCompatActivity implements View.OnClickListener{
+public class ShowImagesActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "ShowImagesActivity";
     //recyclerview object
     private RecyclerView recyclerView;
@@ -61,11 +67,19 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
         toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
 
+
         initViews();
+        if (onlineUser.getListDahiraID().contains(dahira.getDahiraID()) && onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
+            if (dahira.getDedicatedSizeStorage() <= 0)
+                updateStorageSize(dahira.getCurrentSizeStorage(), 200);
+            else {
+                getSizeStorage();
+            }
+        } else {
+            textViewTitle.setText("Repertoire photo du dahira " + dahira.getDahiraName());
+        }
 
-        textViewTitle.setText("Repertoire photo du dahira " + dahira.getDahiraName());
-
-        if (listImage != null && listImage != null && !listImage.isEmpty()){
+        if (listImage != null && listImage != null && !listImage.isEmpty()) {
 
             if (!onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur"))
                 textViewDelete.setVisibility(View.GONE);
@@ -82,8 +96,7 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
             });
 
             recyclerView.setAdapter(imageAdapter);
-        }
-        else{
+        } else {
             if (onlineUser.getListDahiraID().contains(dahira.getDahiraID()))
                 textViewEmpty.setText("Votre album photo est vide.\n Clique sur l'icone (+) pour ajouter des photo.");
             else
@@ -93,20 +106,22 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
         }
 
         enableSwipeToDelete(this);
-        loadInterstitialAd(this);
+
+        displayInterstitialAd(this);
+
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.button_back:
-                finish();
+                updateStorageSize(dahira.getCurrentSizeStorage());
                 startActivity(new Intent(ShowImagesActivity.this, DahiraInfoActivity.class));
                 break;
         }
     }
 
-    private void initViews(){
+    private void initViews() {
         textViewEmpty = findViewById(R.id.textView_empty);
         textViewDelete = findViewById(R.id.textView_delete);
         textViewTitle = findViewById(R.id.textView_title);
@@ -118,8 +133,7 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        finish();
+        updateStorageSize(dahira.getCurrentSizeStorage());
         startActivity(new Intent(this, DahiraInfoActivity.class));
     }
 
@@ -144,7 +158,10 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
 
         switch (item.getItemId()) {
             case R.id.icon_add:
-                startActivity(new Intent(this, AddImagesActivity.class));
+                if (dahira.getCurrentSizeStorage() < dahira.getDedicatedSizeStorage())
+                    startActivity(new Intent(this, AddImagesActivity.class));
+                else
+                    showAlertDialog(this, "Memoire insuffisante! Veuillez contacter +1 (320) 803-0902 via WhatSapp si vous avez besoin plus de memoire.");
                 break;
 
             case R.id.instructions:
@@ -174,14 +191,13 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
                         Map<String, Object> imageMap = new HashMap<>();
                         imageMap.put("listImage", listImage);
                         //Remove item in FirebaseFireStore
-                        updateDocument("images", dahira.getDahiraID(), imageMap, image);
+                        updateDocument(imageMap, image);
                     }
                 });
                 builder.setNegativeButton("NON", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        startActivity(new Intent(ShowImagesActivity.this,
-                                ShowImagesActivity.class));
+                        startActivity(new Intent(ShowImagesActivity.this, ShowImagesActivity.class));
                     }
                 });
                 builder.show();
@@ -191,13 +207,13 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
         itemTouchhelper.attachToRecyclerView(recyclerView);
     }
 
-    public void updateDocument(final String collectionName, String documentID, Map<String, Object> imageMap, final Image image) {
-        FirebaseFirestore.getInstance().collection(collectionName).document(documentID)
+    public void updateDocument(Map<String, Object> imageMap, final Image image) {
+        FirebaseFirestore.getInstance().collection("images").document(dahira.getDahiraID())
                 .update(imageMap)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d(TAG, collectionName + " updated");
+                        Log.d(TAG, "images" + " updated");
 
                         removeInFirebaseStorage(image);
                     }
@@ -205,12 +221,12 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "Error updated " + collectionName);
+                        Log.d(TAG, "Error updated " + "images");
                     }
                 });
     }
 
-    public void removeInFirebaseStorage(Image image) {
+    public void removeInFirebaseStorage(final Image image) {
         if (image.getUri() != null) {
 
             StorageReference storageRef = firebaseStorage
@@ -221,6 +237,7 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
                 @Override
                 public void onSuccess(Void aVoid) {
                     // File deleted successfully
+                    startActivity(new Intent(ShowImagesActivity.this, ShowImagesActivity.class));
                     Log.d(TAG, "onSuccess: deleted file");
                 }
             }).addOnFailureListener(new OnFailureListener() {
@@ -233,4 +250,46 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
             });
         }
     }
+
+    public void getSizeStorage() {
+        FirebaseStorage storage = FirebaseStorage.getInstance(); // 1
+        StorageReference storageRef = storage.getReference();
+        StorageReference reference;
+
+        dahira.setCurrentSizeStorage(0);
+        for (final Song song : listSong) {
+            reference = storageRef.child("gallery").child("audios").child(dahira.getDahiraID()).child(song.getAudioID());
+            reference.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+                @Override
+                public void onSuccess(StorageMetadata storageMetadata) {
+                    dahira.setCurrentSizeStorage(dahira.getCurrentSizeStorage() + storageMetadata.getSizeBytes() / 1048576);
+                    textViewTitle.setText("Repertoire photo du dahira " + dahira.getDahiraName() + "\nMemoire disponible " + (dahira.getDedicatedSizeStorage() - dahira.getCurrentSizeStorage()) + " Mo.");
+                    Log.i("Size = ", String.valueOf(storageMetadata.getSizeBytes()));
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+
+                }
+            });
+        }
+
+        for (final Image image : listImage) {
+            reference = storageRef.child("gallery").child("picture").child(dahira.getDahiraID()).child(image.getImageName());
+            reference.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+                @Override
+                public void onSuccess(StorageMetadata storageMetadata) {
+                    dahira.setCurrentSizeStorage(dahira.getCurrentSizeStorage() + storageMetadata.getSizeBytes() / 1048576);
+                    textViewTitle.setText("Repertoire photo du dahira " + dahira.getDahiraName() + "\nMemoire disponible " + (dahira.getDedicatedSizeStorage() - dahira.getCurrentSizeStorage()) + " Mo.");
+                    Log.i("Size = ", String.valueOf(storageMetadata.getSizeBytes()));
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+
+                }
+            });
+        }
+    }
+
 }

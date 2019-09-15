@@ -54,7 +54,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
+import static com.fallntic.jotaayumouride.HomeActivity.displayInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
@@ -114,7 +114,7 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
             getPermissionToRecordAudio();
         }
 
-        loadInterstitialAd(RecordAudioActivity.this);
+        displayInterstitialAd(RecordAudioActivity.this);
     }
 
     private void initViews() {

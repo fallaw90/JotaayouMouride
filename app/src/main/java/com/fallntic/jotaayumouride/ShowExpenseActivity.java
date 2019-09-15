@@ -37,7 +37,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.fallntic.jotaayumouride.HomeActivity.displayInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
@@ -78,6 +80,8 @@ public class ShowExpenseActivity extends AppCompatActivity implements View.OnCli
 
         enableSwipeToDelete(this);
 
+        if (onlineUser == null || !onlineUser.hasPaid())
+            displayInterstitialAd(this);
     }
 
     @Override
@@ -211,7 +215,7 @@ public class ShowExpenseActivity extends AppCompatActivity implements View.OnCli
                     public void onSuccess(Void aVoid) {
                         hideProgressBar();
                         CreateExpenseActivity.updateDahira(context, expense.getPrice(),
-                                expense.getTypeOfExpense(), true);
+                                expense.getTypeOfExpense(), true, expense);
 
                         Snackbar snackbar = Snackbar.make(coordinatorLayout,
                                 "Depense supprimee.", Snackbar.LENGTH_LONG);

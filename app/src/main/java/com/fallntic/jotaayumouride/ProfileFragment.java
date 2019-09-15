@@ -34,7 +34,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     private TextView textViewName;
     private TextView textViewAdress;
     private TextView textViewPhoneNumber;
-    private TextView textViewEmail;
+    private TextView textViewEmail, textViewLabeEmail;
     private CircleImageView imageViewProfile;
     private LinearLayout linearLayoutVerificationNeeded;
     private LinearLayout linearLayoutVerified;
@@ -49,6 +49,11 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
         init();
 
+        if (onlineUser.getEmail() == null || onlineUser.getEmail().equals("")) {
+            textViewLabeEmail.setVisibility(View.GONE);
+            textViewEmail.setVisibility(View.GONE);
+        }
+
         loadUserInformation();
 
         return this.view;
@@ -57,6 +62,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     private void init() {
         textViewAdress = this.view.findViewById(R.id.textView_userAddress);
         textViewEmail = this.view.findViewById(R.id.textView_email);
+        textViewLabeEmail = this.view.findViewById(R.id.textView_labelEmail);
         textViewName = this.view.findViewById(R.id.textView_userName);
         textViewPhoneNumber = this.view.findViewById(R.id.textView_userPhoneNumber);
         imageViewProfile = this.view.findViewById(R.id.imageView);

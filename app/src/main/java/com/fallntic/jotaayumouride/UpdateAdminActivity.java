@@ -28,10 +28,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.AddContributionActivity.saveContribution;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.getCurrentDate;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.isDouble;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.progressDialog;
@@ -57,7 +56,8 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
     private TextView textViewDahiraName;
     private ImageView imageViewProfile;
     private Spinner spinnerCommission;
-    private String name, adiya, sass, social, role, commission;
+    private String name, amountAdiya, amountSass, amountSocial, role, commission;
+    private String totalAdiya, totalSass, totalSocial;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,12 +90,12 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
         hideSoftKeyboard();
     }
 
-    private void displayViews(){
+    private void displayViews() {
         textViewDahiraName.setText("Enregistrez vous en tant que membre du dahira " + dahira.getDahiraName() + " que vous venez de creer pour terminer la creation de votre dahira.");
         editTextUserName.setText(onlineUser.getUserName());
     }
 
-    private void initViews(){
+    private void initViews() {
         editTextUserName = findViewById(R.id.editText_userName);
         editTextUserName.setEnabled(false);
         editTextAdiya = findViewById(R.id.editText_adiyaVerse);
@@ -118,7 +118,7 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public void onClick(View v) {
-        switch(v.getId()){
+        switch (v.getId()) {
             case R.id.button_save:
                 updateAdmin();
                 break;
@@ -126,7 +126,8 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
     }
 
     @Override
-    public void onBackPressed() {}
+    public void onBackPressed() {
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -143,7 +144,7 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.icon_back:
                 finish();
                 break;
@@ -151,7 +152,7 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
         return true;
     }
 
-    public void setSpinner(){
+    public void setSpinner() {
         spinnerCommission = findViewById(R.id.spinner_commission);
 
         List<String> listCommissionDahira = dahira.getListCommissions();
@@ -167,66 +168,53 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
 
                 commission = parent.getItemAtPosition(position).toString();
             }
+
             @Override
-            public void onNothingSelected(AdapterView <?> parent) {
+            public void onNothingSelected(AdapterView<?> parent) {
             }
         });
     }
 
-    private void updateAdmin(){
+    private void updateAdmin() {
 
         name = editTextUserName.getText().toString().trim();
-        adiya = editTextAdiya.getText().toString().trim();
-        sass = editTextSass.getText().toString().trim();
-        social = editTextSocial.getText().toString().trim();
+        amountAdiya = editTextAdiya.getText().toString().trim();
+        amountSass = editTextSass.getText().toString().trim();
+        amountSocial = editTextSocial.getText().toString().trim();
         role = "Administrateur";
 
-        adiya = adiya.replace(",", ".");
-        sass = sass.replace(",", ".");
-        social = social.replace(",", ".");
+        if (amountAdiya.contains(","))
+            amountAdiya = amountAdiya.replace(",", ".");
+        if (amountSass.contains(","))
+            amountSass = amountSass.replace(",", ".");
+        if (amountSocial.contains(","))
+            amountSocial = amountSocial.replace(",", ".");
 
         if (!hasValidationErrors()) {
 
             onlineUser.getListUpdatedDahiraID().add(dahira.getDahiraID());
             onlineUser.getListCommissions().add(commission);
             onlineUser.getListRoles().add(role);
-            onlineUser.getListAdiya().add(adiya);
-            onlineUser.getListSass().add(sass);
-            onlineUser.getListSocial().add(social);
+            onlineUser.getListAdiya().add(amountAdiya);
+            onlineUser.getListSass().add(amountSass);
+            onlineUser.getListSocial().add(amountSocial);
 
-            dahira.setTotalAdiya(adiya);
-            dahira.setTotalSass(sass);
-            dahira.setTotalSocial(social);
+            double valueAdiya, valueSass, valueSocial;
 
-            updateDahira();
+            valueAdiya = Double.parseDouble(amountAdiya);
+            totalAdiya = String.valueOf(valueAdiya + Double.parseDouble(dahira.getTotalAdiya()));
+
+            valueSass = Double.parseDouble(amountSass);
+            totalSass = String.valueOf(valueSass + Double.parseDouble(dahira.getTotalSass()));
+
+            valueSocial = Double.parseDouble(amountSocial);
+            totalSocial = String.valueOf(valueSocial + Double.parseDouble(dahira.getTotalSocial()));
+
             updateUserCollection();
-
-            Intent intent = new Intent(this, HomeActivity.class);
-            double value;
-
-            adiya = adiya.replace(",", ".");
-            value = Double.parseDouble(adiya);
-            if (value != 0){
-                saveContribution(this, "adiya", onlineUser.getUserID(), adiya, getCurrentDate());
-            }
-
-            sass = sass.replace(",", ".");
-            value = Double.parseDouble(sass);
-            if (value != 0){
-                saveContribution(this, "sass", onlineUser.getUserID(), sass, getCurrentDate());
-            }
-
-            social = social.replace(",", ".");
-            value = Double.parseDouble(social);
-            if (value != 0){
-                saveContribution(this, "social", onlineUser.getUserID(), social, getCurrentDate());
-            }
-
-            startActivity(new Intent(UpdateAdminActivity.this, HomeActivity.class));
         }
     }
 
-    private void updateUserCollection(){
+    private void updateUserCollection() {
 
         showProgressBar();
         firestore.collection("users").document(onlineUser.getUserID())
@@ -243,6 +231,7 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
                     @Override
                     public void onSuccess(Void aVoid) {
                         hideProgressBar();
+                        updateDahira();
                         toastMessage(getApplicationContext(), "Enregistrement reussi.");
                     }
                 }).addOnFailureListener(new OnFailureListener() {
@@ -253,31 +242,35 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
         });
     }
 
-    private void updateDahira(){
+    private void updateDahira() {
 
         int totalMember = Integer.parseInt(dahira.getTotalMember());
 
-       dahira.setTotalMember(Integer.toString(totalMember++));
+        dahira.setTotalMember(Integer.toString(totalMember++));
+        dahira.setTotalAdiya(totalAdiya);
+        dahira.setTotalSass(totalSass);
+        dahira.setTotalSocial(totalSocial);
 
-       if (myListDahira == null){
-           myListDahira = new ArrayList<>();
-           myListDahira.add(dahira);
-       }
-       else{
-           myListDahira.add(dahira);
-       }
+        if (myListDahira == null) {
+            myListDahira = new ArrayList<>();
+            myListDahira.add(dahira);
+        } else {
+            myListDahira.add(dahira);
+        }
 
         showProgressBar();
         firestore.collection("dahiras").document(dahira.getDahiraID())
-                .update("totalAdiya", dahira.getTotalAdiya(),
-                        "totalSass", dahira.getTotalSass(),
-                        "totalSocial", dahira.getTotalSocial(),
+                .update("totalAdiya", totalAdiya,
+                        "totalSass", totalSass,
+                        "totalSocial", totalSocial,
                         "totalMember", dahira.getTotalMember())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         hideProgressBar();
-                        toastMessage(getApplicationContext(),"Enregistrement reussi.");
+                        indexOnlineUser = onlineUser.getListDahiraID().indexOf(dahira.getDahiraID());
+                        startActivity(new Intent(UpdateAdminActivity.this, HomeActivity.class));
+                        toastMessage(getApplicationContext(), "Enregistrement reussi.");
                     }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -287,11 +280,11 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
         });
     }
 
-    public void hideSoftKeyboard(){
+    public void hideSoftKeyboard() {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
-    public  void initViewsProgressBar() {
+    public void initViewsProgressBar() {
         progressDialog = new ProgressDialog(this);
         relativeLayoutData = findViewById(R.id.relativeLayout_data);
         relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
@@ -299,13 +292,19 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
     }
 
     public boolean hasValidationErrors() {
-        if (sass.isEmpty() || !isDouble(sass)) {
+        if (amountAdiya.isEmpty() || !isDouble(amountAdiya)) {
+            editTextAdiya.setError("Valeur incorrecte!");
+            editTextAdiya.requestFocus();
+            return true;
+        }
+
+        if (amountSass.isEmpty() || !isDouble(amountSass)) {
             editTextSass.setError("Valeur incorrecte!");
             editTextSass.requestFocus();
             return true;
         }
 
-        if (social.isEmpty() || !isDouble(social)) {
+        if (amountSocial.isEmpty() || !isDouble(amountSocial)) {
             editTextSocial.setError("Valeur incorrecte!");
             editTextSocial.requestFocus();
             return true;

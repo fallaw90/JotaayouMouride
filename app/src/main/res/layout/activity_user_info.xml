@@ -21,27 +21,16 @@
         <ScrollView
             android:id="@+id/scrollView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/toolbar">
+            android:layout_height="match_parent">
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TextView
-                    android:id="@+id/textView_dahiraName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="5dp"
-                    android:textAlignment="center"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/_20sdp" />
+                android:layout_height="wrap_content">
 
                 <ImageView
                     android:id="@+id/imageView"
                     android:layout_width="@dimen/_130sdp"
                     android:layout_height="@dimen/_130sdp"
-                    android:layout_below="@+id/textView_dahiraName"
                     android:layout_centerHorizontal="true"
                     android:layout_gravity="center"
                     android:scaleType="centerCrop"
@@ -54,6 +43,15 @@
                     android:layout_centerVertical="true"
                     android:orientation="vertical"
                     android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/textView_dahiraName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="5dp"
+                        android:textAlignment="center"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_20sdp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"

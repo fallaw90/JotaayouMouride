@@ -30,10 +30,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.fallntic.jotaayumouride.Model.Event;
 import com.fallntic.jotaayumouride.Model.Expense;
-import com.fallntic.jotaayumouride.Model.ListImageObject;
-import com.fallntic.jotaayumouride.Model.Song;
 import com.fallntic.jotaayumouride.Model.User;
-import com.fallntic.jotaayumouride.Utility.MyStaticFunctions;
 import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -45,12 +42,11 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.hbb20.CountryCodePicker;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
+import static com.fallntic.jotaayumouride.HomeActivity.displayInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.actionSelected;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.deleteDocument;
@@ -69,8 +65,6 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayDahir
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listExpenses;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listImage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listSong;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListDahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListEvents;
@@ -95,6 +89,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
     private CircleImageView navImageView;
     private TextView textViewNavUserName;
     private TextView textViewNavEmail;
+    private String displayLibrary;
 
     private boolean isDahiraEmpty = true;
 
@@ -289,31 +284,37 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         });
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_dahira_info);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    public static void getMyEvents(final Context context) {
+        if (myListEvents == null) {
+            myListEvents = new ArrayList<>();
+            showProgressDialog(context, "Chargement des evenements en cours ...");
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        checkInternetConnection(this);
-
-        init();
-
-
-        //********************** Drawer Menu ***************************************
-        setDrawerMenu();
-        //**************************************************************************
-
-        //**********************Get list song ***************************
-        MyStaticFunctions.getSongList(this);
-
-        //***********************Get List Events *****************
-        getMyEvents(this);
-
-        loadInterstitialAd(DahiraInfoActivity.this);
+            firestore.collection("dahiras")
+                    .document(dahira.getDahiraID())
+                    .collection("myEvents")
+                    .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                    dismissProgressDialog();
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            Event event = documentSnapshot.toObject(Event.class);
+                            myListEvents.add(event);
+                        }
+                        context.startActivity(new Intent(context, ShowEventActivity.class));
+                        Log.d(TAG, "Even downloaded");
+                    }
+                }
+            })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            dismissProgressDialog();
+                            Log.d(TAG, "Error downloading event");
+                        }
+                    });
+        } else
+            context.startActivity(new Intent(context, ShowEventActivity.class));
     }
 
     private void init() {
@@ -370,66 +371,25 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         hideMenuItem();
     }
 
-    public static void getMyEvents(Context context) {
-        if (myListEvents == null) {
-            myListEvents = new ArrayList<>();
-            showProgressDialog(context, "Chargement des evenements en cours ...");
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_dahira_info);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-            firestore.collection("dahiras")
-                    .document(dahira.getDahiraID())
-                    .collection("myEvents")
-                    .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                @Override
-                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                    dismissProgressDialog();
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                            Event event = documentSnapshot.toObject(Event.class);
-                            myListEvents.add(event);
-                        }
-                        Log.d(TAG, "Even downloaded");
-                    }
-                }
-            })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            dismissProgressDialog();
-                            Log.d(TAG, "Error downloading event");
-                        }
-                    });
-        }
-    }
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-    public void getImages(final Context context) {
-        if (listImage == null) {
-            listImage = new ArrayList<>();
-            showProgressBar();
-            firestore.collection("images")
-                    .whereEqualTo("dahiraID", dahira.getDahiraID()).get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            hideProgressBar();
-                            if (!queryDocumentSnapshots.isEmpty()) {
-                                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                                    ListImageObject listImageObject = documentSnapshot.toObject(ListImageObject.class);
-                                    listImage.addAll(listImageObject.getListImage());
-                                    break;
-                                }
-                                Log.d(TAG, "Image name downloaded");
-                            }
-                            startActivity(new Intent(context, ShowImagesActivity.class));
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.d(TAG, "Error downloading image name");
-                        }
-                    });
-        } else
-            startActivity(new Intent(context, ShowImagesActivity.class));
+        checkInternetConnection(this);
+
+        init();
+
+        //********************** Drawer Menu ***************************************
+        setDrawerMenu();
+        //**************************************************************************
+
+        displayInterstitialAd(DahiraInfoActivity.this);
+
     }
 
     public void hideMenuItem() {
@@ -618,7 +578,6 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
 
             case R.id.nav_displayAnnouncement:
                 startActivity(new Intent(this, ShowAnnouncementActivity.class));
-                //startActivity(new Intent(this, ListAnnouncementActivity.class));
                 break;
 
             case R.id.nav_addEvent:
@@ -630,16 +589,16 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                     showAlertDialog(this, "La liste des evenements est vide!");
                 else {
                     displayEvent = "myEvents";
-                    startActivity(new Intent(this, ShowEventActivity.class));
+                    getMyEvents(this);
                 }
                 break;
 
             case R.id.nav_photo:
-                getImages(this);
+                startActivity(new Intent(DahiraInfoActivity.this, ShowImagesActivity.class));
                 break;
 
             case R.id.nav_audio:
-                getListAudios();
+                startActivity(new Intent(DahiraInfoActivity.this, ShowSongsActivity.class));
                 break;
 
             case R.id.nav_video:
@@ -667,39 +626,5 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
 
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    public void getListAudios() {
-        //Retrieve all songs from FirebaseFirestore
-        if (listSong == null) {
-            listSong = new ArrayList<>();
-            showProgressBar();
-            firestore.collection("dahiras").document(dahira.getDahiraID())
-                    .collection("audios").get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            if (!queryDocumentSnapshots.isEmpty()) {
-                                hideProgressBar();
-                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
-                                for (DocumentSnapshot documentSnapshot : list) {
-                                    Song song = documentSnapshot.toObject(Song.class);
-                                    listSong.add(song);
-                                    break;
-                                }
-                                Collections.sort(listSong);
-                                startActivity(new Intent(DahiraInfoActivity.this, ShowSongsActivity.class));
-                            }
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    hideProgressBar();
-                    toastMessage(DahiraInfoActivity.this, "Erreur de telechargement du repertoire audio.");
-                }
-            });
-        } else {
-            startActivity(new Intent(DahiraInfoActivity.this, ShowSongsActivity.class));
-        }
     }
 }

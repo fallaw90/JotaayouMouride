@@ -46,7 +46,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.isDouble;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
@@ -81,9 +80,6 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
     private String dieuwrine;
     private String dahiraPhoneNumber;
     private String siege;
-    private String totalAdiya;
-    private String totalSass;
-    private String totalSocial;
 
     private ListView listViewCommission;
 
@@ -185,6 +181,10 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
         editTextAdiya.setText(dahira.getTotalAdiya());
         editTextSass.setText(dahira.getTotalSass());
         editTextSocial.setText(dahira.getTotalSocial());
+
+        editTextAdiya.setEnabled(false);
+        editTextSass.setEnabled(false);
+        editTextSocial.setEnabled(false);
 
         loadListCommissions();
 
@@ -292,22 +292,12 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
         dieuwrine = editTextDieuwrine.getText().toString().trim();
         dahiraPhoneNumber = editTextDahiraPhoneNumber.getText().toString().trim();
         siege = editTextSiege.getText().toString().trim();
-        totalAdiya = editTextAdiya.getText().toString().trim();
-        totalSass = editTextSass.getText().toString().trim();
-        totalSocial = editTextSocial.getText().toString().trim();
-
-        totalAdiya = totalAdiya.replace(",", ".");
-        totalSass = totalSass.replace(",", ".");
-        totalSocial = totalSocial.replace(",", ".");
 
         if (!hasValidationErrors()) {
             dahira.setDahiraName(dahiraName);
             dahira.setDieuwrine(dieuwrine);
             dahira.setDahiraPhoneNumber(dahiraPhoneNumber);
             dahira.setSiege(siege);
-            dahira.setTotalAdiya(totalAdiya);
-            dahira.setTotalAdiya(totalSass);
-            dahira.setTotalAdiya(totalSocial);
 
             showProgressBar();
             db.collection("dahiras").document(dahira.getDahiraID())
@@ -316,10 +306,7 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
                             "userPhoneNumber", dahiraPhoneNumber,
                             "siege", siege,
                             "listCommissions", dahira.getListCommissions(),
-                            "listResponsibles", dahira.getListResponsibles(),
-                            "totalAdiya", totalAdiya,
-                            "totalSass", totalSass,
-                            "totalSocial", totalSocial
+                            "listResponsibles", dahira.getListResponsibles()
                     )
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
@@ -494,36 +481,6 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
         if (siege.isEmpty()) {
             editTextSiege.setError("Champ obligatoire");
             editTextSiege.requestFocus();
-            return true;
-        }
-
-        if (totalAdiya.isEmpty()) {
-            editTextSiege.setError("Non montant, entrer 0");
-            editTextAdiya.requestFocus();
-            return true;
-        } else if (!isDouble(totalAdiya)) {
-            editTextAdiya.setText("Valeur listAdiya incorrecte");
-            editTextAdiya.requestFocus();
-            return true;
-        }
-
-        if (totalSass.isEmpty()) {
-            editTextSiege.setError("Non montant, entrer 0");
-            editTextSass.requestFocus();
-            return true;
-        } else if (!isDouble(totalSass)) {
-            editTextSass.setText("Valeur sass incorrecte");
-            editTextSass.requestFocus();
-            return true;
-        }
-
-        if (totalSocial.isEmpty()) {
-            editTextSiege.setError("Non montant, entrer 0");
-            editTextSass.requestFocus();
-            return true;
-        } else if (!isDouble(totalSocial)) {
-            editTextSocial.setText("Valeur sociale incorrecte");
-            editTextSocial.requestFocus();
             return true;
         }
 

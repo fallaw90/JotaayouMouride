@@ -25,7 +25,10 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.fallntic.jotaayumouride.Adapter.SongAdapter;
+import com.fallntic.jotaayumouride.DahiraInfoActivity;
 import com.fallntic.jotaayumouride.HomeActivity;
+import com.fallntic.jotaayumouride.Model.Image;
+import com.fallntic.jotaayumouride.Model.ListImageObject;
 import com.fallntic.jotaayumouride.Model.ListSongObject;
 import com.fallntic.jotaayumouride.Model.Song;
 import com.fallntic.jotaayumouride.R;
@@ -34,7 +37,11 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageMetadata;
+import com.google.firebase.storage.StorageReference;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,12 +52,14 @@ import java.util.Map;
 import java.util.Objects;
 
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
+import static com.fallntic.jotaayumouride.HomeActivity.displayInterstitialAd;
 import static com.fallntic.jotaayumouride.MainActivity.TAG;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.UpdateSongTime;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.collectionReference;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.currentIndex;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.currentSongLength;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.fab_search;
@@ -59,6 +68,8 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firstLaunch;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_next;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_play;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_previous;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listImage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listSong;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mAdapter;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mediaPlayer;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myHandler;
@@ -69,6 +80,7 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayo
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.seekBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tb_title;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tv_time;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.updateStorage;
 
 public class MyStaticFunctions {
 
@@ -78,30 +90,32 @@ public class MyStaticFunctions {
      *
      * @param context
      */
-    public static void getSongList(final Context context) {
+    public static void getListSongs(final Context context) {
         //Retrieve all songs from FirebaseFirestore
-        if (MyStaticVariables.listSong == null) {
-            MyStaticVariables.listSong = new ArrayList<>();
+        if (listSong == null) {
+            listSong = new ArrayList<>();
 
-            MyStaticVariables.collectionReference = MyStaticVariables.firestore.collection("dahiras")
+            collectionReference = firestore.collection("dahiras")
                     .document(dahira.getDahiraID()).collection("audios");
-            MyStaticVariables.collectionReference.get()
+            collectionReference.get()
                     .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                         @Override
                         public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-
                             if (!queryDocumentSnapshots.isEmpty()) {
                                 List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
                                 for (DocumentSnapshot documentSnapshot : list) {
                                     Song song = documentSnapshot.toObject(Song.class);
                                     if (song.getAudioUri() != null)
-                                        MyStaticVariables.listSong.add(song);
+                                        listSong.add(song);
                                     else {
                                         String uploadID = documentSnapshot.getId();
                                         MyStaticVariables.collectionReference.document(uploadID).delete();
                                     }
                                 }
+                                Collections.sort(listSong);
                             }
+
+                            getListImages(context);
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -110,6 +124,38 @@ public class MyStaticFunctions {
                 }
             });
         }
+    }
+
+    public static void getListImages(final Context context) {
+        if (listImage == null) {
+            listImage = new ArrayList<>();
+            showProgressBar();
+            firestore.collection("images").whereEqualTo("dahiraID", dahira.getDahiraID()).get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            hideProgressBar();
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                    ListImageObject listImageObject = documentSnapshot.toObject(ListImageObject.class);
+                                    listImage.addAll(listImageObject.getListImage());
+                                    break;
+                                }
+                                Log.d(TAG, "Image name downloaded");
+                            }
+
+                            context.startActivity(new Intent(context, DahiraInfoActivity.class));
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(TAG, "Error downloading image name");
+                            toastMessage(context, "Erreur de telechargement du repertoire audio.");
+                        }
+                    });
+        } else
+            getSizeStorage(context);
     }
 
     public static void checkInternetConnection(Context context) {
@@ -187,6 +233,127 @@ public class MyStaticFunctions {
                 Log.d(TAG, "Image name saved");
                 toastMessage(context, "Logo enregistre!");
                 //context.startActivity(new Intent(context, HomeActivity.class));
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "Error downloading image name");
+            }
+        });
+    }
+
+    //********************Size Storage**********************
+    public static void getSizeStorage(Context context) {
+        FirebaseStorage storage = FirebaseStorage.getInstance(); // 1
+        StorageReference storageRef = storage.getReference();
+        StorageReference reference;
+
+        dahira.setCurrentSizeStorage(0);
+        for (final Song song : listSong) {
+            reference = storageRef.child("gallery").child("audios").child(dahira.getDahiraID()).child(song.getAudioID());
+            reference.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+                @Override
+                public void onSuccess(StorageMetadata storageMetadata) {
+                    dahira.setCurrentSizeStorage(dahira.getCurrentSizeStorage() + storageMetadata.getSizeBytes() / 1048576);
+                    Log.i("Size = ", String.valueOf(storageMetadata.getSizeBytes()));
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+
+                }
+            });
+        }
+
+        for (final Image image : listImage) {
+            reference = storageRef.child("gallery").child("picture").child(dahira.getDahiraID()).child(image.getImageName());
+            reference.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+                @Override
+                public void onSuccess(StorageMetadata storageMetadata) {
+                    dahira.setCurrentSizeStorage(dahira.getCurrentSizeStorage() + storageMetadata.getSizeBytes() / 1048576);
+                    Log.i("Size = ", String.valueOf(storageMetadata.getSizeBytes()));
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+
+                }
+            });
+        }
+    }
+
+    public static void getSizeSongsStorage(Song song) {
+        FirebaseStorage storage = FirebaseStorage.getInstance(); // 1
+        StorageReference storageRef = storage.getReference();
+        StorageReference reference;
+
+        reference = storageRef.child("gallery").child("audios").child(dahira.getDahiraID()).child(song.getAudioID());
+        reference.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+            @Override
+            public void onSuccess(StorageMetadata storageMetadata) {
+                dahira.setCurrentSizeStorage(dahira.getCurrentSizeStorage() + storageMetadata.getSizeBytes() / 1048576);
+                Log.i("Size = ", String.valueOf(storageMetadata.getSizeBytes()));
+                updateStorageSize(dahira.getCurrentSizeStorage());
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+
+            }
+        });
+    }
+
+    public static void getSizeImagesStorage(Image image) {
+        FirebaseStorage storage = FirebaseStorage.getInstance(); // 1
+        StorageReference storageRef = storage.getReference();
+        StorageReference reference;
+        reference = storageRef.child("gallery").child("picture").child(dahira.getDahiraID()).child(image.getImageName());
+        reference.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+            @Override
+            public void onSuccess(StorageMetadata storageMetadata) {
+                dahira.setCurrentSizeStorage(dahira.getCurrentSizeStorage() + storageMetadata.getSizeBytes() / 1048576);
+                Log.i("Size = ", String.valueOf(storageMetadata.getSizeBytes()));
+                updateStorageSize(dahira.getCurrentSizeStorage());
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+
+            }
+        });
+    }
+
+    public static void updateStorageSize(final double currentSize, final double dedicatedSize) {
+        final Map<String, Object> mapSizeStorage = new HashMap<>();
+        mapSizeStorage.put("currentSizeStorage", currentSize);
+        mapSizeStorage.put("dedicatedSizeStorage", dedicatedSize);
+
+        dahira.setDedicatedSizeStorage(dedicatedSize);
+
+        firestore.collection("dahiras").document(dahira.getDahiraID())
+                .update(mapSizeStorage).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Log.d(TAG, "Image name saved");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "Error downloading image name");
+            }
+        });
+    }
+
+    public static void updateStorageSize(final double currentSize) {
+        final Map<String, Object> mapSizeStorage = new HashMap<>();
+        mapSizeStorage.put("currentSizeStorage", currentSize);
+
+        firestore.collection("dahiras").document(dahira.getDahiraID())
+                .update(mapSizeStorage).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                updateStorage = false;
+                Log.d(TAG, "Image name saved");
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -292,6 +459,9 @@ public class MyStaticFunctions {
     }
 
     public static void prepareSong(Context context, Song song) {
+        //Load ads
+        displayInterstitialAd(context);
+
         String str_duration = song.getAudioDuration().replace(":", "");
         currentSongLength = Integer.parseInt(str_duration);
         pb_loader.setVisibility(View.VISIBLE);
@@ -527,6 +697,9 @@ public class MyStaticFunctions {
 
     public static void downloadFile(Context context, String fileName, String url) {
 
+        //Load ads
+        if (onlineUser != null && !onlineUser.hasPaid())
+            displayInterstitialAd(context);
 
         DownloadManager downloadmanager = (DownloadManager) context.
                 getSystemService(Context.DOWNLOAD_SERVICE);

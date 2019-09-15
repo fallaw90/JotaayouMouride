@@ -453,6 +453,14 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    public static void displayInterstitialAd(Context context) {
+        if (onlineUser == null) {
+            loadInterstitialAd(context);
+        } else if (!onlineUser.hasPaid()) {
+            loadInterstitialAd(context);
+        }
+    }
+
     public static void loadInterstitialAd(Context context) {
         AdRequest adRequest = new AdRequest.Builder().build();
 
@@ -596,7 +604,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        loadInterstitialAd(HomeActivity.this);
+        //Load ads
+        if (onlineUser == null || !onlineUser.hasPaid())
+            displayInterstitialAd(HomeActivity.this);
     }
 
     @Override

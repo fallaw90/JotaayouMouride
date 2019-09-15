@@ -33,9 +33,8 @@ import com.google.firebase.storage.StorageReference;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
+import static com.fallntic.jotaayumouride.HomeActivity.displayInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.actionSelected;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.adiya;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.call;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
@@ -44,16 +43,17 @@ import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.indexSelectedUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.logout;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.sass;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.selectedUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.social;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.typeOfContribution;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.adiya;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listExpenses;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListEvents;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.sass;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.social;
 
 public class UserInfoActivity extends AppCompatActivity implements View.OnClickListener,
         NavigationView.OnNavigationItemSelectedListener {
@@ -88,7 +88,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
     private View navHeader;
     private CircleImageView navImageView;
     private TextView textViewNavUserName;
-    private TextView textViewNavEmail;
+    private TextView textViewNavEmail, textViewLabeEmail;
     private Toolbar toolbar;
 
     @Override
@@ -123,7 +123,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
             linearLayoutSocial.setVisibility(View.GONE);
         }
 
-        loadInterstitialAd(this);
+        displayInterstitialAd(this);
 
     }
 
@@ -139,6 +139,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         textViewPhoneNumber = findViewById(R.id.textView_phoneNumber);
         textViewAdress = findViewById(R.id.textView_address);
         textViewEmail = findViewById(R.id.textView_email);
+        textViewLabeEmail = findViewById(R.id.textView_labelEmail);
         textViewCommission = findViewById(R.id.textView_commission);
         textViewRole = findViewById(R.id.textView_role);
         textViewAdiya = findViewById(R.id.totalAdiya);
@@ -154,7 +155,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
 
     private void displayViews() {
         textViewName.setText(selectedUser.getUserName());
-        textViewDahiraName.setText(dahira.getDahiraName());
+        textViewDahiraName.setText("Dahira" + dahira.getDahiraName());
         textViewPhoneNumber.setText(selectedUser.getUserPhoneNumber());
         textViewAdress.setText(selectedUser.getAddress());
         textViewEmail.setText(selectedUser.getEmail());
@@ -163,6 +164,11 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         textViewSass.setText(selectedUser.getListSass().get(indexSelectedUser));
         textViewSocial.setText(selectedUser.getListSocial().get(indexSelectedUser));
         textViewRole.setText(selectedUser.getListRoles().get(indexSelectedUser));
+
+        if (selectedUser.getEmail() == null || selectedUser.getEmail().equals("")) {
+            textViewLabeEmail.setVisibility(View.GONE);
+            textViewEmail.setVisibility(View.GONE);
+        }
 
 
         if (!selectedUser.getListRoles().get(indexSelectedUser).equals("Administrateur")) {
@@ -263,21 +269,27 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
                 break;
 
             case R.id.nav_addContribution:
+                getAdiya();
                 startActivity(new Intent(this, AddContributionActivity.class));
                 break;
 
             case R.id.nav_displayAdiya:
                 typeOfContribution = "adiya";
+                getAdiya();
+                getSass();
+                getSocial();
                 startActivity(new Intent(this, ShowContributionActivity.class));
                 break;
 
             case R.id.nav_displaySass:
                 typeOfContribution = "sass";
+                getSass();
                 startActivity(new Intent(this, ShowContributionActivity.class));
                 break;
 
             case R.id.nav_displaySocial:
                 typeOfContribution = "social";
+                getSocial();
                 startActivity(new Intent(this, ShowContributionActivity.class));
                 break;
 
@@ -387,36 +399,51 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         nav_Menu.findItem(R.id.nav_removeDahira).setVisible(false);
     }
 
-    public static void getAdiya() {
-        DocumentReference docRef = FirebaseFirestore.getInstance()
-                .collection("adiya").document(selectedUser.getUserID());
-        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                adiya = documentSnapshot.toObject(Adiya.class);
-            }
-        });
+    public void getAdiya() {
+        if (adiya == null) {
+            adiya = new Adiya();
+
+            DocumentReference docRef = FirebaseFirestore.getInstance()
+                    .collection("adiya").document(selectedUser.getUserID());
+            docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    if (documentSnapshot.toObject(Adiya.class) != null)
+                        adiya = documentSnapshot.toObject(Adiya.class);
+                }
+            });
+        }
     }
 
-    public static void getSass() {
-        DocumentReference docRef = FirebaseFirestore.getInstance()
-                .collection("sass").document(selectedUser.getUserID());
-        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                sass = documentSnapshot.toObject(Sass.class);
-            }
-        });
+    public void getSass() {
+        if (sass == null) {
+            sass = new Sass();
+
+            DocumentReference docRef = FirebaseFirestore.getInstance()
+                    .collection("sass").document(selectedUser.getUserID());
+            docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    if (documentSnapshot.toObject(Sass.class) != null)
+                        sass = documentSnapshot.toObject(Sass.class);
+                }
+            });
+        }
     }
 
-    public static void getSocial() {
-        DocumentReference docRef = FirebaseFirestore.getInstance()
-                .collection("social").document(selectedUser.getUserID());
-        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                social = documentSnapshot.toObject(Social.class);
-            }
-        });
+    public void getSocial() {
+        if (social == null) {
+            social = new Social();
+
+            DocumentReference docRef = FirebaseFirestore.getInstance()
+                    .collection("social").document(selectedUser.getUserID());
+            docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    if (documentSnapshot.toObject(Social.class) != null)
+                        social = documentSnapshot.toObject(Social.class);
+                }
+            });
+        }
     }
 }

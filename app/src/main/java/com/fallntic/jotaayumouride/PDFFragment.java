@@ -35,6 +35,8 @@ import java.util.List;
 import java.util.Objects;
 
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
+import static com.fallntic.jotaayumouride.HomeActivity.displayInterstitialAd;
+import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
@@ -96,6 +98,8 @@ public class PDFFragment extends Fragment {
                 openPDF(getContext(), pdf_file);
             }
         });
+
+        loadInterstitialAd(getContext());
 
         return view;
     }
@@ -171,7 +175,6 @@ public class PDFFragment extends Fragment {
         startActivity(intent);
     }
 
-
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -179,6 +182,9 @@ public class PDFFragment extends Fragment {
     }
 
     public void openPDF(final Context context, final UploadPdf pdf_file) {
+        //Load ads
+        displayInterstitialAd(context);
+
         AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getContext()), R.style.alertDialog);
         builder.setCancelable(true);
         builder.setMessage("Cliquez sur Ouvrir pour lire le fichier ou Telecharger pour l'enregistrer dans votre telephone.");

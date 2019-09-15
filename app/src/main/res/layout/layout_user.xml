@@ -16,18 +16,17 @@
 
             <ImageView
                 android:id="@+id/imageView"
-                android:layout_width="@dimen/_120sdp"
-                android:layout_height="@dimen/_120sdp"
-                android:layout_below="@+id/textView_dahiraName"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
                 android:layout_centerHorizontal="true"
-                android:layout_gravity="center"
                 android:layout_margin="10dp"
                 android:scaleType="centerCrop"
                 app:srcCompat="@drawable/profile_image" />
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
                 android:orientation="vertical"
                 android:padding="5dp">
 
@@ -36,7 +35,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Nom: Cheikh Fall"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
+                    android:textColor="@color/black"
                     android:textStyle="bold" />
 
                 <TextView
@@ -44,7 +44,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Adresse: Parcelles Assainies Unite 05, Dakar Senegal"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
                     android:textColor="@color/black" />
 
                 <TextView
@@ -52,7 +51,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Tel: 771866656"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
                     android:textColor="@color/black" />
 
                 <TextView
@@ -60,7 +58,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Administrateur"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
                     android:textColor="@color/red" />
 
             </LinearLayout>

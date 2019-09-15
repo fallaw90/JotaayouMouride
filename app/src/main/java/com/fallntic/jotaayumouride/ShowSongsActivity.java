@@ -35,6 +35,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fallntic.jotaayumouride.Adapter.SongAdapter;
+import com.fallntic.jotaayumouride.Model.Image;
 import com.fallntic.jotaayumouride.Model.Song;
 import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.fallntic.jotaayumouride.Utility.SwipeToDeleteCallback;
@@ -42,6 +43,8 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.IOException;
@@ -49,18 +52,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
+import static com.fallntic.jotaayumouride.HomeActivity.displayInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.convertDuration;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.downloadFile;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.updateStorageSize;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listImage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listSong;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.updateStorage;
 
 
-public class ShowSongsActivity extends AppCompatActivity implements View.OnClickListener{
+public class ShowSongsActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "ShowSongsActivity";
     int lastProgress = 0;
@@ -107,10 +114,28 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
 
         checkInternetConnection(this);
 
+        if (onlineUser.getListDahiraID().contains(dahira.getDahiraID()) && onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
+            if (dahira.getDedicatedSizeStorage() <= 0)
+                updateStorageSize(dahira.getCurrentSizeStorage(), 200);
+            else {
+                getSizeStorage();
+            }
+        } else {
+            textViewTitle.setText("Bienvenu dans le repertoire audio du dahira " + dahira.getDahiraName());
+        }
+
+        if (updateStorage)
+            updateStorageSize(dahira.getCurrentSizeStorage());
+
+        if (onlineUser.getListDahiraID().contains(dahira.getDahiraID())) {
+            if (dahira.getDedicatedSizeStorage() <= 0)
+                updateStorageSize(dahira.getCurrentSizeStorage(), 200);
+        }
+
+
         if (listSong == null || listSong.size() <= 0) {
-            if (onlineUser.getListDahiraID().contains(dahira.getDahiraID()) &&
-                    onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
-                tv_empty.setText("Votre repertoire audio est vide. Cliquez sur l'icone pour " +
+            if (onlineUser.getListDahiraID().contains(dahira.getDahiraID()) && onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
+                tv_empty.setText("Votre repertoire audio est vide. Cliquez sur l'icone (+) pour " +
                         "enregistrer ou ajouter un audio dans votre repertoire.");
             } else {
                 tv_empty.setText("Le repertoire audio du dahira " + dahira.getDahiraName() + " est vide.");
@@ -120,7 +145,6 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
             fab_search.setVisibility(View.GONE);
             toolbar_bottom.setVisibility(View.GONE);
         }
-        textViewTitle.setText("Bienvenu dans le repertoire audio du dahira " + dahira.getDahiraName());
 
         if (indexOnlineUser == -1 || !onlineUser.getListDahiraID().contains(dahira.getDahiraID()) ||
                 !onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur"))
@@ -172,14 +196,15 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
 
         enableSwipeToDelete();
 
-        loadInterstitialAd(this);
+        displayInterstitialAd(this);
+
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.button_back:
-                finish();
+                updateStorageSize(dahira.getCurrentSizeStorage());
                 startActivity(new Intent(ShowSongsActivity.this, DahiraInfoActivity.class));
                 break;
         }
@@ -212,7 +237,7 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
             myHandler.removeCallbacks(UpdateSongTime);
             myHandler = null;
         }
-        finish();
+        updateStorageSize(dahira.getCurrentSizeStorage());
         startActivity(new Intent(ShowSongsActivity.this, DahiraInfoActivity.class));
     }
 
@@ -257,6 +282,9 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
     }
 
     private void prepareSong(Song song) {
+
+        displayInterstitialAd(this);
+
         String str_duration = song.getAudioDuration().replace(":", "");
         currentSongLength = Integer.parseInt(str_duration);
         pb_loader.setVisibility(View.VISIBLE);
@@ -440,7 +468,7 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
         super.onDestroy();
     }
 
-    public void releaseMediaPlayer(){
+    public void releaseMediaPlayer() {
         try {
             if (mediaPlayer != null && mediaPlayer.isPlaying()) {
                 mediaPlayer.stop();
@@ -473,7 +501,7 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
                 builder.setTitle("Supprimer audio!");
                 builder.setMessage("Etes vous sure de vouloir supprimer ce fichier?");
                 builder.setCancelable(false);
-                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                builder.setPositiveButton("OUI", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //Update totalAdiya dahira
@@ -491,7 +519,7 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
                     }
                 });
 
-                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                builder.setNegativeButton("NON", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         startActivity(new Intent(ShowSongsActivity.this, ShowSongsActivity.class));
@@ -515,7 +543,7 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
             storageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    // File deleted successfully
+                    startActivity(new Intent(ShowSongsActivity.this, ShowSongsActivity.class));
                     Log.d(TAG, "onSuccess: deleted file");
                 }
             }).addOnFailureListener(new OnFailureListener() {
@@ -549,7 +577,10 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
 
         switch (item.getItemId()) {
             case R.id.icon_add:
-                startActivity(new Intent(this, AddAudioActivity.class));
+                if (dahira.getCurrentSizeStorage() < dahira.getDedicatedSizeStorage())
+                    startActivity(new Intent(this, AddAudioActivity.class));
+                else
+                    showAlertDialog(this, "Memoire insuffisante! Veuillez contacter +1 (320) 803-0902 via WhatSapp si vous avez besoin plus de memoire.");
                 break;
 
             case R.id.instructions:
@@ -557,6 +588,47 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
                 break;
         }
         return true;
+    }
+
+    public void getSizeStorage() {
+        FirebaseStorage storage = FirebaseStorage.getInstance(); // 1
+        StorageReference storageRef = storage.getReference();
+        StorageReference reference;
+
+        dahira.setCurrentSizeStorage(0);
+        for (final Song song : listSong) {
+            reference = storageRef.child("gallery").child("audios").child(dahira.getDahiraID()).child(song.getAudioID());
+            reference.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+                @Override
+                public void onSuccess(StorageMetadata storageMetadata) {
+                    dahira.setCurrentSizeStorage(dahira.getCurrentSizeStorage() + storageMetadata.getSizeBytes() / 1048576);
+                    textViewTitle.setText("Bienvenu dans le repertoire audio du dahira " + dahira.getDahiraName() + "\nMemoire disponible " + (dahira.getDedicatedSizeStorage() - dahira.getCurrentSizeStorage()) + " Mo.");
+                    Log.i("Size = ", String.valueOf(storageMetadata.getSizeBytes()));
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+
+                }
+            });
+        }
+
+        for (final Image image : listImage) {
+            reference = storageRef.child("gallery").child("picture").child(dahira.getDahiraID()).child(image.getImageName());
+            reference.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+                @Override
+                public void onSuccess(StorageMetadata storageMetadata) {
+                    dahira.setCurrentSizeStorage(dahira.getCurrentSizeStorage() + storageMetadata.getSizeBytes() / 1048576);
+                    textViewTitle.setText("Bienvenu dans le repertoire audio du dahira " + dahira.getDahiraName() + "\nMemoire disponible " + (dahira.getDedicatedSizeStorage() - dahira.getCurrentSizeStorage()) + " Mo.");
+                    Log.i("Size = ", String.valueOf(storageMetadata.getSizeBytes()));
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+
+                }
+            });
+        }
     }
 
 }

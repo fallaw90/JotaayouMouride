@@ -190,6 +190,10 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         editTextSass.setText(selectedUser.getListSass().get(indexSelectedUser));
         editTextSocial.setText(selectedUser.getListSocial().get(indexSelectedUser));
 
+        editTextAdiya.setEnabled(false);
+        editTextSass.setEnabled(false);
+        editTextSocial.setEnabled(false);
+
         //Select a commission
         setSpinner();
 
@@ -235,22 +239,11 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
 
         String name = editTextUserName.getText().toString().trim();
         String address = editTextAddress.getText().toString().trim();
-        String adiya = editTextAdiya.getText().toString().trim();
-        String sass = editTextSass.getText().toString().trim();
-        String social = editTextSocial.getText().toString().trim();
         String role = (String) radioRoleButton.getText();
 
-        adiya = adiya.replace(",", ".");
-        sass = sass.replace(",", ".");
-        social = social.replace(",", ".");
-
-        if (!hasValidationErrors(name, editTextUserName, address, editTextAddress,
-                adiya, editTextAdiya, sass, editTextSass, social, editTextSocial)) {
+        if (!hasValidationErrors(name, address)) {
             selectedUser.setUserName(name);
             selectedUser.setAddress(address);
-            selectedUser.getListAdiya().set(indexSelectedUser, adiya);
-            selectedUser.getListSass().set(indexSelectedUser, sass);
-            selectedUser.getListSocial().set(indexSelectedUser, social);
             selectedUser.getListCommissions().set(indexSelectedUser, commission);
             selectedUser.getListRoles().set(indexSelectedUser, role);
 
@@ -259,9 +252,6 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
                     .update("userName", selectedUser.getUserName(),
                             "address", selectedUser.getAddress(),
                             "listCommissions", selectedUser.getListCommissions(),
-                            "listAdiya", selectedUser.getListAdiya(),
-                            "listSass", selectedUser.getListSass(),
-                            "listSocial", selectedUser.getListSocial(),
                             "listRoles", selectedUser.getListRoles())
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
@@ -357,5 +347,22 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
                 break;
         }
         return true;
+    }
+
+    public boolean hasValidationErrors(String name, String address) {
+
+        if (name.isEmpty()) {
+            editTextUserName.setError("Ce champ est obligatoir!");
+            editTextUserName.requestFocus();
+            return true;
+        }
+
+        if (address.isEmpty()) {
+            editTextAddress.setError("Champs obligatoir!");
+            editTextAddress.requestFocus();
+            return true;
+        }
+
+        return false;
     }
 }

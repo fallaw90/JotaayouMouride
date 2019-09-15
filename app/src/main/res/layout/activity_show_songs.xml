@@ -24,6 +24,7 @@
             android:textColor="@color/black"
             android:layout_below="@+id/toolbar"
             android:layout_marginTop="@dimen/_15sdp"
+            android:textStyle="bold"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
 
         <TextView

@@ -12,11 +12,14 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fallntic.jotaayumouride.Adapter.SongAdapter;
+import com.fallntic.jotaayumouride.Model.Adiya;
 import com.fallntic.jotaayumouride.Model.Dahira;
 import com.fallntic.jotaayumouride.Model.Event;
 import com.fallntic.jotaayumouride.Model.Expense;
 import com.fallntic.jotaayumouride.Model.Image;
 import com.fallntic.jotaayumouride.Model.ObjNotification;
+import com.fallntic.jotaayumouride.Model.Sass;
+import com.fallntic.jotaayumouride.Model.Social;
 import com.fallntic.jotaayumouride.Model.Song;
 import com.fallntic.jotaayumouride.Model.UploadPdf;
 import com.fallntic.jotaayumouride.Model.User;
@@ -40,6 +43,7 @@ public class MyStaticVariables {
     public static final String TITLE_CONTRIBUTION_NOTIFICATION = "Cotisation ajouté.";
     public static String displayDahira;
     public static String displayEvent;
+    public static Boolean updateStorage = false;
 
     //Contains all songs that belong to one dahira
     public static List<Song> listSong;
@@ -54,6 +58,9 @@ public class MyStaticVariables {
     public static List<Song> listAudiosZikr;
 
     public static List<User> listUser;
+    public static Adiya adiya;
+    public static Sass sass;
+    public static Social social;
 
     //************* ProgressBar ************
     public static RelativeLayout relativeLayoutProgressBar, relativeLayoutData;

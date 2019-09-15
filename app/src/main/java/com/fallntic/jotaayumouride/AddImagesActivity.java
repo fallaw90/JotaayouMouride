@@ -39,8 +39,11 @@ import java.util.Map;
 import static com.fallntic.jotaayumouride.R.id.button_finish;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.uploadImages;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getSizeImagesStorage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listImage;
 
@@ -87,7 +90,7 @@ public class AddImagesActivity extends AppCompatActivity implements View.OnClick
     @Override
     public void onBackPressed() {
         finish();
-        startActivity(new Intent(this, ShowImagesActivity.class));
+        startActivity(new Intent(this, DahiraInfoActivity.class));
     }
 
     private void initViews(){
@@ -108,7 +111,7 @@ public class AddImagesActivity extends AppCompatActivity implements View.OnClick
         switch (v.getId()) {
             case button_finish:
                 finish();
-                startActivity(new Intent(this, ShowImagesActivity.class));
+                startActivity(new Intent(this, DahiraInfoActivity.class));
                 break;
         }
     }
@@ -168,10 +171,17 @@ public class AddImagesActivity extends AppCompatActivity implements View.OnClick
 
                 int totalItemsSelected = data.getClipData().getItemCount();
 
-                for (int i = 0; i < totalItemsSelected; i++) {
-                    Uri fileUri = data.getClipData().getItemAt(i).getUri();
+                if (totalItemsSelected <= 5) {
 
-                    uploadImageToFirebase(i, fileUri);
+                    for (int i = 0; i < totalItemsSelected; i++) {
+                        Uri fileUri = data.getClipData().getItemAt(i).getUri();
+
+                        uploadImageToFirebase(i, fileUri);
+                    }
+                } else {
+                    Intent intent = new Intent(AddImagesActivity.this, ShowImagesActivity.class);
+                    showAlertDialog(AddImagesActivity.this, "Maximum autorise 5", intent);
+
                 }
             }else if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK
                     && data != null && data.getData() != null) {
@@ -205,6 +215,7 @@ public class AddImagesActivity extends AppCompatActivity implements View.OnClick
                             public void onSuccess(Uri uri) {
                                 String imageID = dahira.getDahiraName() + System.currentTimeMillis();
                                 Image image = new Image(imageID, dahira.getDahiraID(), uri.toString(), fileName);
+                                getSizeImagesStorage(image);
                                 listImage.add(image);
                                 fileDoneList.remove(finalI);
                                 fileDoneList.add(finalI, "done");
@@ -221,6 +232,7 @@ public class AddImagesActivity extends AppCompatActivity implements View.OnClick
     }
 
     public String getFileName(Uri uri) {
+
         String result = null;
         if (uri.getScheme().equals("content")) {
             Cursor cursor = getContentResolver().query(uri, null, null,
@@ -235,6 +247,7 @@ public class AddImagesActivity extends AppCompatActivity implements View.OnClick
         }
         if (result == null) {
             result = uri.getPath();
+            toastMessage(AddImagesActivity.this, String.valueOf(result.length()));
             int cut = result.lastIndexOf('/');
             if (cut != -1) {
                 result = result.substring(cut + 1);

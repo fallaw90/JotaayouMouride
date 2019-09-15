@@ -40,7 +40,9 @@ import static com.fallntic.jotaayumouride.Utility.DataHolder.updateDocument;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.TITLE_EXPENSE_NOTIFICATION;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listExpenses;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.objNotification;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
@@ -58,7 +60,6 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
     private String mDate;
     private String note;
     private String typeOfExpense;
-    private String title;
 
     private RadioGroup radioRoleGroup;
     private RadioButton radioRoleButton;
@@ -161,63 +162,7 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
         super.onDestroy();
     }
 
-    public void saveExpense(final Context context) {
-        mDate = editTextDate.getText().toString().trim();
-        note = editTextNote.getText().toString().trim();
-        price = editTextPrice.getText().toString().trim();
-
-        // get selected radio button from radioGroup
-        int selectedId = radioRoleGroup.getCheckedRadioButtonId();
-        // find the radiobutton by returned id
-        radioRoleButton = findViewById(selectedId);
-        typeOfExpense = (String) radioRoleButton.getText();
-
-        if (!hasValidationErrors(mDate, editTextDate, note, editTextNote, price, editTextPrice)) {
-
-            final String expenseID = onlineUser.getUserName() + System.currentTimeMillis();
-            final Expense expense = new Expense(expenseID, onlineUser.getUserName(),
-                    mDate, note, price, typeOfExpense);
-
-            showProgressBar();
-            FirebaseFirestore.getInstance().collection("dahiras").
-                    document(dahira.getDahiraID())
-                    .collection("expenses")
-                    .document(expenseID)
-                    .set(expense)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            hideProgressBar();
-                            updateDahira(context, price, typeOfExpense, false);
-
-                            MyStaticVariables.objNotification = new ObjNotification(expenseID,
-                                    onlineUser.getUserID(), dahira.getDahiraID(),
-                                    MyStaticVariables.TITLE_EXPENSE_NOTIFICATION, note);
-
-                            sendNotificationToSpecificUsers(context, MyStaticVariables.objNotification);
-
-                            if (listExpenses == null)
-                                listExpenses = new ArrayList<>();
-
-                            listExpenses.add(expense);
-
-                            final Intent intent = new Intent(context, ShowExpenseActivity.class);
-                            showAlertDialog(context, "Depense enregistree.", intent);
-                            Log.d(TAG, "Expense saved.");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            hideProgressBar();
-                            toastMessage(context, "Erreur d'enregistrement de votre depense.");
-                            startActivity(new Intent(context, DahiraInfoActivity.class));
-                        }
-                    });
-        }
-    }
-
-    public static void updateDahira(Context context, String price, String typeOfExpense, boolean isExpenseDeleted) {
+    public static void updateDahira(Context context, String price, String typeOfExpense, boolean isExpenseDeleted, Expense expense) {
         double total;
         final double value = Double.parseDouble(price);
         typeOfExpense = typeOfExpense.toLowerCase();
@@ -232,9 +177,13 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
             else
                 total = Double.parseDouble(dahira.getTotalAdiya()) - value;
 
-            dahira.setTotalAdiya(Double.toString(total));
-            updateDocument(context, "dahiras", dahira.getDahiraID(),
-                    "totalAdiya", dahira.getTotalAdiya());
+            if (total >= 0) {
+                dahira.setTotalAdiya(Double.toString(total));
+                updateDocument(context, "dahiras", dahira.getDahiraID(), "totalAdiya", dahira.getTotalAdiya());
+            } else {
+                showAlertDialog(context, "Impossible d'effectuer cette depense. Vous n'avez pas " + value + " FCFA disponible dans votre caisse adiya");
+                return;
+            }
         } else if (typeOfExpense.equals("sass")) {
 
             if (!isDouble(dahira.getTotalSass()))
@@ -242,12 +191,19 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
 
             if (isExpenseDeleted)
                 total = Double.parseDouble(dahira.getTotalSass()) + value;
-            else
+            else {
                 total = Double.parseDouble(dahira.getTotalSass()) - value;
+            }
 
-            dahira.setTotalSass(Double.toString(total));
-            updateDocument(context, "dahiras", dahira.getDahiraID(),
-                    "totalSass", dahira.getTotalSass());
+            if (total >= 0) {
+                dahira.setTotalSass(Double.toString(total));
+                updateDocument(context, "dahiras", dahira.getDahiraID(), "totalSass", dahira.getTotalSass());
+            } else {
+                showAlertDialog(context, "Impossible d'effectuer cette depense. Vous n'avez pas " + value + " FCFA disponible dans votre caisse sass");
+                return;
+            }
+
+
         } else if (typeOfExpense.equals("social")) {
 
             if (!isDouble(dahira.getTotalSocial()))
@@ -258,9 +214,66 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
             else
                 total = Double.parseDouble(dahira.getTotalSocial()) - value;
 
-            dahira.setTotalSocial(Double.toString(total));
-            updateDocument(context, "dahiras", dahira.getDahiraID(),
-                    "totalSocial", dahira.getTotalSocial());
+            if (total >= 0) {
+                dahira.setTotalSocial(Double.toString(total));
+                updateDocument(context, "dahiras", dahira.getDahiraID(), "totalSocial", dahira.getTotalSocial());
+            } else {
+                showAlertDialog(context, "Impossible d'effectuer cette depense. Vous n'avez pas " + value + " FCFA dans votre caisse social");
+                return;
+            }
+        }
+
+        objNotification = new ObjNotification(expense.getExpenseID(), onlineUser.getUserID(), dahira.getDahiraID(), TITLE_EXPENSE_NOTIFICATION, expense.getNote());
+
+        sendNotificationToSpecificUsers(context, MyStaticVariables.objNotification);
+
+        if (listExpenses == null)
+            listExpenses = new ArrayList<>();
+
+        listExpenses.add(expense);
+
+        final Intent intent = new Intent(context, ShowExpenseActivity.class);
+        showAlertDialog(context, "Depense enregistree.", intent);
+        Log.d(TAG, "Expense saved.");
+    }
+
+    public void saveExpense(final Context context) {
+        mDate = editTextDate.getText().toString().trim();
+        note = editTextNote.getText().toString().trim();
+        price = editTextPrice.getText().toString().trim();
+
+        // get selected radio button from radioGroup
+        int selectedId = radioRoleGroup.getCheckedRadioButtonId();
+        // find the radiobutton by returned id
+        radioRoleButton = findViewById(selectedId);
+        typeOfExpense = (String) radioRoleButton.getText();
+
+        if (!hasValidationErrors(mDate, editTextDate, note, editTextNote, price, editTextPrice)) {
+
+            final String expenseID = onlineUser.getUserName() + System.currentTimeMillis();
+            final Expense expense = new Expense(expenseID, onlineUser.getUserName(), mDate, note, price, typeOfExpense);
+
+            showProgressBar();
+            FirebaseFirestore.getInstance().collection("dahiras").
+                    document(dahira.getDahiraID())
+                    .collection("expenses")
+                    .document(expenseID)
+                    .set(expense)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            hideProgressBar();
+                            updateDahira(context, price, typeOfExpense, false, expense);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            hideProgressBar();
+                            toastMessage(context, "Erreur d'enregistrement de votre depense.");
+                            startActivity(new Intent(context, DahiraInfoActivity.class));
+                        }
+                    });
         }
     }
 

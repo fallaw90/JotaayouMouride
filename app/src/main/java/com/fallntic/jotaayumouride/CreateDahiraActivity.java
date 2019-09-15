@@ -1,7 +1,6 @@
 package com.fallntic.jotaayumouride;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -9,7 +8,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -46,7 +44,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.hbb20.CountryCodePicker;
 import com.mikelau.countrypickerx.Country;
 import com.mikelau.countrypickerx.CountryPickerCallbacks;
@@ -313,19 +310,19 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         city = editTextCity.getText().toString().trim();
         siege = editTextSiege.getText().toString().trim();
 
-        if (totalAdiya == null || totalAdiya.equals("") || totalAdiya.isEmpty())
+        if (totalAdiya == null || totalAdiya.isEmpty())
             totalAdiya = "00";
-        else
+        else if (totalAdiya.contains(","))
             totalAdiya = totalAdiya.replace(",", ".");
 
-        if (totalSass == null || totalSass.equals("") || totalSass.isEmpty())
+        if (totalSass == null || totalSass.isEmpty())
             totalSass = "00";
-        else
+        else if (totalSass.contains(","))
             totalSass = totalSass.replace(",", ".");
 
-        if (totalSocial == null || totalSocial.equals("") || totalSocial.isEmpty())
+        if (totalSocial == null || totalSocial.isEmpty())
             totalSocial = "00";
-        else
+        else if (totalSocial.contains(","))
             totalSocial = totalSocial.replace(",", ".");
 
 
@@ -517,12 +514,6 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         resourceId for your customly available countries */
         }, false, 0);
         countryPicker.show();
-    }
-
-    public static String getCurrentCountryCode(Context context) {
-        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        String countryIso = telephonyManager.getSimCountryIso().toUpperCase();
-        return "+" + PhoneNumberUtil.getInstance().getCountryCodeForRegion(countryIso);
     }
 
     public boolean hasValidationErrors() {
