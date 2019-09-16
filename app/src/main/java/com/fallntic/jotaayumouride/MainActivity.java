@@ -46,7 +46,6 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firebaseAuth
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firebaseUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllEvent;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListEvents;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.objNotification;
 
 public class MainActivity extends AppCompatActivity {
@@ -155,15 +154,9 @@ public class MainActivity extends AppCompatActivity {
                                     context.startActivity(new Intent(context, ShowAnnouncementActivity.class));
 
                                 } else if (objNotification.getTitle().equals(TITLE_EVENT_NOTIFICATION)) {
-
-                                    if (onlineUser.getListDahiraID().contains(objNotification.getDahiraID())) {
-                                        displayEvent = "myEvents";
-                                        getMyEvents(context, dahira);
-                                    } else {
-                                        displayEvent = "allEvents";
-                                        getAllEvents(context);
-                                    }
-                                }else if (objNotification.getTitle().equals(TITLE_CONTRIBUTION_NOTIFICATION)){
+                                    displayEvent = "allEvents";
+                                    getAllEvents(context);
+                                } else if (objNotification.getTitle().equals(TITLE_CONTRIBUTION_NOTIFICATION)) {
                                     context.startActivity(new Intent(context, HomeActivity.class));
                                 }
                             } else {
@@ -209,45 +202,6 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "Error downloading events");
                 }
             });
-        }
-    }
-
-    public void getMyEvents(final Context context, Dahira dahira) {
-        if (myListEvents == null || myListEvents.size() <= 0) {
-            myListEvents = new ArrayList<>();
-
-            textView.setText("Chargement des evenements en cours ...");
-            firestore.collection("dahiras")
-                    .document(dahira.getDahiraID())
-                    .collection("myEvents")
-                    .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                @Override
-                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                    dismissProgressDialog();
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                            Event event = documentSnapshot.toObject(Event.class);
-                            myListEvents.add(event);
-                        }
-                    }
-                    if (objNotification != null) {
-                        displayEvent = "myEvents";
-                        finish();
-                        context.startActivity(new Intent(context, ShowEventActivity.class));
-                    } else {
-                        finish();
-                        context.startActivity(new Intent(context, HomeActivity.class));
-                    }
-                    Log.d(TAG, "Even downloaded");
-                }
-            })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            textView.setText("Erreur reseau reessayez plutard svp ...");
-                            Log.d(TAG, "Error downloading event");
-                        }
-                    });
         }
     }
 

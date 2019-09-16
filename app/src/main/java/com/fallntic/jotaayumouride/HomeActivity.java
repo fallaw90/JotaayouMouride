@@ -431,8 +431,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
                                 //Collections.sort(listAllEvent);
                                 Log.d(TAG, "Events downloaded.");
-                                context.startActivity(new Intent(context, ShowEventActivity.class));
-                            } else {
+                                if (displayEvent.equals("allEvents") && listAllEvent.size() > 0)
+                                    context.startActivity(new Intent(context, ShowEventActivity.class));
+                            } else if (displayEvent.equals("allEvents")) {
                                 showAlertDialog(context, "Il n'y a auccun evenement " +
                                         "disponible pour le moment.");
                             }
@@ -445,9 +446,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                     Log.d(TAG, "Error downloading events");
                 }
             });
-        } else if (!listAllEvent.isEmpty())
+        } else if (!listAllEvent.isEmpty() && displayEvent.equals("allEvents")) {
             context.startActivity(new Intent(context, ShowEventActivity.class));
-        else {
+        } else if (displayEvent.equals("allEvents")) {
             showAlertDialog(context, "Il n'y a auccun evenement " +
                     "disponible pour le moment.");
         }

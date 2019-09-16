@@ -221,7 +221,7 @@ public class ShowEventActivity extends AppCompatActivity implements View.OnClick
 
     public void removeEvent(final Event event) {
         showProgressBar();
-        db.collection("events").document(dahira.getDahiraID())
+        db.collection("dahiras").document(dahira.getDahiraID())
                 .collection("myEvents").document(event.getEventID())
                 .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {

@@ -47,6 +47,7 @@ import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.fallntic.jotaayumouride.HomeActivity.displayInterstitialAd;
+import static com.fallntic.jotaayumouride.HomeActivity.getAllEvents;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.actionSelected;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.deleteDocument;
@@ -301,7 +302,12 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                             Event event = documentSnapshot.toObject(Event.class);
                             myListEvents.add(event);
                         }
-                        context.startActivity(new Intent(context, ShowEventActivity.class));
+                        if (displayEvent.equals("myEvents") && myListEvents.size() > 0)
+                            context.startActivity(new Intent(context, ShowEventActivity.class));
+                        else if (myListEvents.size() <= 0) {
+                            showAlertDialog(context, "La liste des evenements est vide!");
+                        }
+
                         Log.d(TAG, "Even downloaded");
                     }
                 }
@@ -313,8 +319,11 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                             Log.d(TAG, "Error downloading event");
                         }
                     });
-        } else
+        } else if (displayEvent.equals("myEvents") && myListEvents.size() > 0)
             context.startActivity(new Intent(context, ShowEventActivity.class));
+        else if (myListEvents.size() <= 0) {
+            showAlertDialog(context, "La liste des evenements est vide!");
+        }
     }
 
     private void init() {
@@ -581,16 +590,16 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 break;
 
             case R.id.nav_addEvent:
+                displayEvent = "";
+                getMyEvents(this);
+                getAllEvents(this);
                 startActivity(new Intent(this, CreateEventActivity.class));
                 break;
 
             case R.id.nav_displayEvent:
-                if (myListEvents == null || myListEvents.size() <= 0)
-                    showAlertDialog(this, "La liste des evenements est vide!");
-                else {
-                    displayEvent = "myEvents";
-                    getMyEvents(this);
-                }
+                displayEvent = "myEvents";
+                getAllEvents(this);
+                getMyEvents(this);
                 break;
 
             case R.id.nav_photo:
