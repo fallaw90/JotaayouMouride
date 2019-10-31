@@ -186,15 +186,17 @@ public class ShowDahiraActivity extends AppCompatActivity implements View.OnClic
 
         init();
 
-        if (displayDahira.equals("searchDahira")) {
-            textViewTitle.setText("Dahiras trouves");
-            displayDahiras(listDahiraFound);
-        } else if (displayDahira.equals("myDahira")) {
-            textViewTitle.setText("Liste des dahiras dont vous etes membre. Cliquez sur un dahira pour continuer.");
-            displayDahiras(myListDahira);
-        } else if (displayDahira.equals("allDahira")) {
-            textViewTitle.setText("Liste des dahiras enregistre. Cliquez sur un dahira pour continuer.");
-            displayDahiras(listAllDahira);
+        if (displayDahira != null) {
+            if (displayDahira.equals("searchDahira")) {
+                textViewTitle.setText("Dahiras trouves");
+                displayDahiras(listDahiraFound);
+            } else if (displayDahira.equals("myDahira")) {
+                textViewTitle.setText("Liste des dahiras dont vous etes membre. Cliquez sur un dahira pour continuer.");
+                displayDahiras(myListDahira);
+            } else if (displayDahira.equals("allDahira")) {
+                textViewTitle.setText("Liste des dahiras enregistre. Cliquez sur un dahira pour continuer.");
+                displayDahiras(listAllDahira);
+            }
         }
 
     }

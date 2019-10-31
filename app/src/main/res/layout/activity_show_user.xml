@@ -23,7 +23,9 @@
             android:id="@+id/scrollView"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/toolbar">
+            android:layout_above="@+id/button_back"
+            android:layout_below="@+id/toolbar"
+            android:layout_marginBottom="@dimen/_5sdp">
 
             <RelativeLayout
                 android:id="@+id/relativeLayout_data"
@@ -34,10 +36,10 @@
                     android:id="@+id/textView_dahiraName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
                     android:gravity="center"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-                    android:textColor="@color/black" />
+                    android:layout_margin="@dimen/_5sdp"
+                    android:textColor="@color/black"
+                    android:textStyle="bold" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recyclerview_users"

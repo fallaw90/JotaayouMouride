@@ -24,7 +24,6 @@
             android:layout_marginTop="@dimen/_10sdp"
             android:gravity="center_vertical"
             android:textAlignment="center"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
             android:textColor="@color/black"
             android:textStyle="bold" />
 
@@ -44,7 +43,6 @@
             android:layout_centerInParent="true"
             android:gravity="center_vertical"
             android:textAlignment="center"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
             android:textColor="@color/red" />
 
         <androidx.recyclerview.widget.RecyclerView
@@ -52,6 +50,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@+id/textView_delete"
+            android:layout_above="@+id/button_back"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true">
 

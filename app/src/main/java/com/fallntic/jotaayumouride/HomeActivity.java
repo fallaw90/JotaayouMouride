@@ -456,13 +456,25 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
     public static void displayInterstitialAd(Context context) {
         if (onlineUser == null) {
-            loadInterstitialAd(context);
+            preparingInterstitialAd(context);
         } else if (!onlineUser.hasPaid()) {
-            loadInterstitialAd(context);
+            preparingInterstitialAd(context);
         }
     }
 
-    public static void loadInterstitialAd(Context context) {
+    public static void showInterstitialAd() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // If Ads are loaded, show Interstitial else show nothing.
+                if (interstitialAd.isLoaded()) {
+                    interstitialAd.show();
+                }
+            }
+        }, 5000);
+    }
+
+    public static void preparingInterstitialAd(final Context context) {
         AdRequest adRequest = new AdRequest.Builder().build();
 
         // Prepare the Interstitial Ad
@@ -475,9 +487,29 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         interstitialAd.setAdListener(new AdListener() {
             public void onAdLoaded() {
                 // Call displayInterstitialAd() function
-                displayInterstitialAd();
+                toastMessage(context, "Ad starting soon");
+                showInterstitialAd();
+            }
+
+            @Override
+            public void onAdOpened() {
+                super.onAdOpened();
+                if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                    mediaPlayer.pause();
+                }
+            }
+
+            @Override
+            public void onAdClosed() {
+                super.onAdClosed();
+                if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
+                    mediaPlayer.start();
+                }
+                showInterstitialAd();
             }
         });
+
+
     }
 
     public void initViewsProgressBar() {
@@ -531,13 +563,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public static void displayInterstitialAd() {
-        // If Ads are loaded, show Interstitial else show nothing.
-        if (interstitialAd.isLoaded()) {
-            interstitialAd.show();
-        }
-    }
-
     @Override
     public void onPause() {
         // This method should be called in the parent Activity's onPause() method.
@@ -551,18 +576,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onResume() {
         super.onResume();
-        // This method should be called in the parent Activity's onResume() method.
-        if (bannerAd != null) {
-            bannerAd.resume();
-        }
     }
 
     @Override
     public void onDestroy() {
-        // This method should be called in the parent Activity's onDestroy() method.
-        if (bannerAd != null) {
-            bannerAd.destroy();
-        }
         super.onDestroy();
     }
 
@@ -584,7 +601,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             return;
         }
 
-        if (firebaseAuth.getCurrentUser() != null) {
+        if (firebaseAuth != null && firebaseAuth.getCurrentUser() != null) {
             userID = firebaseAuth.getCurrentUser().getUid();
             setDrawerMenu();
             saveTokenID(userID);

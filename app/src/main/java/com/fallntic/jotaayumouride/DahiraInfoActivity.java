@@ -46,7 +46,6 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.fallntic.jotaayumouride.HomeActivity.displayInterstitialAd;
 import static com.fallntic.jotaayumouride.HomeActivity.getAllEvents;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.actionSelected;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
@@ -149,9 +148,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                             }
                             if (objNotification == null && listExpenses.size() > 0)
                                 context.startActivity(new Intent(context, ShowExpenseActivity.class));
-                            else if (listExpenses.isEmpty())
-                                showAlertDialog(context, "La liste des depenses de votre dahira est vide!");
-                            else if (objNotification != null) {
+                            else {
                                 context.startActivity(new Intent(context, ShowExpenseActivity.class));
                             }
                         }
@@ -397,7 +394,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         setDrawerMenu();
         //**************************************************************************
 
-        displayInterstitialAd(DahiraInfoActivity.this);
+        //displayInterstitialAd(DahiraInfoActivity.this);
 
     }
 
@@ -405,23 +402,25 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         Menu nav_Menu = navigationView.getMenu();
         nav_Menu.findItem(R.id.nav_setting).setTitle("Modifier mon dahira");
 
-        if (!onlineUser.getListDahiraID().contains(dahira.getDahiraID())) {
-            nav_Menu.findItem(R.id.nav_displayUsers).setVisible(false);
-            nav_Menu.findItem(R.id.nav_searchUser).setVisible(false);
-            nav_Menu.findItem(R.id.nav_addUser).setVisible(false);
-            nav_Menu.findItem(R.id.nav_displayAnnouncement).setVisible(false);
-            nav_Menu.findItem(R.id.nav_addAnnouncement).setVisible(false);
-            nav_Menu.findItem(R.id.nav_addExpense).setVisible(false);
-            nav_Menu.findItem(R.id.nav_displayExpenses).setVisible(false);
-            nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
-            nav_Menu.findItem(R.id.nav_setting).setVisible(false);
-            nav_Menu.findItem(R.id.nav_searchUser).setVisible(false);
-            nav_Menu.findItem(R.id.nav_removeDahira).setVisible(false);
-        } else if (!onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
-            nav_Menu.findItem(R.id.nav_setting).setVisible(false);
-            nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
-            nav_Menu.findItem(R.id.nav_addExpense).setVisible(false);
-            nav_Menu.findItem(R.id.nav_addUser).setVisible(false);
+        if (onlineUser != null) {
+            if (!onlineUser.getListDahiraID().contains(dahira.getDahiraID())) {
+                nav_Menu.findItem(R.id.nav_displayUsers).setVisible(false);
+                nav_Menu.findItem(R.id.nav_searchUser).setVisible(false);
+                nav_Menu.findItem(R.id.nav_addUser).setVisible(false);
+                nav_Menu.findItem(R.id.nav_displayAnnouncement).setVisible(false);
+                nav_Menu.findItem(R.id.nav_addAnnouncement).setVisible(false);
+                nav_Menu.findItem(R.id.nav_addExpense).setVisible(false);
+                nav_Menu.findItem(R.id.nav_displayExpenses).setVisible(false);
+                nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
+                nav_Menu.findItem(R.id.nav_setting).setVisible(false);
+                nav_Menu.findItem(R.id.nav_searchUser).setVisible(false);
+                nav_Menu.findItem(R.id.nav_removeDahira).setVisible(false);
+            } else if (onlineUser.getListRoles().size() > indexOnlineUser && !onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
+                nav_Menu.findItem(R.id.nav_setting).setVisible(false);
+                nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
+                nav_Menu.findItem(R.id.nav_addExpense).setVisible(false);
+                nav_Menu.findItem(R.id.nav_addUser).setVisible(false);
+            }
         }
 
         nav_Menu.findItem(R.id.nav_displayMyDahira).setVisible(false);

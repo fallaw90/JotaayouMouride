@@ -36,7 +36,7 @@ import java.util.Objects;
 
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
 import static com.fallntic.jotaayumouride.HomeActivity.displayInterstitialAd;
-import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
+import static com.fallntic.jotaayumouride.HomeActivity.preparingInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
@@ -99,7 +99,7 @@ public class PDFFragment extends Fragment {
             }
         });
 
-        loadInterstitialAd(getContext());
+        preparingInterstitialAd(getContext());
 
         return view;
     }

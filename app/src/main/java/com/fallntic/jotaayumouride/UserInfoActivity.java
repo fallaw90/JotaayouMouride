@@ -33,7 +33,6 @@ import com.google.firebase.storage.StorageReference;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.fallntic.jotaayumouride.HomeActivity.displayInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.actionSelected;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.call;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
@@ -123,7 +122,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
             linearLayoutSocial.setVisibility(View.GONE);
         }
 
-        displayInterstitialAd(this);
+        //displayInterstitialAd(this);
 
     }
 
@@ -381,6 +380,9 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
             nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
             nav_Menu.findItem(R.id.nav_finance).setVisible(false);
         }
+
+        if (selectedUser.getListRoles().get(indexSelectedUser).equals("Administrateur"))
+            nav_Menu.findItem(R.id.nav_setting).setVisible(false);
 
         nav_Menu.findItem(R.id.nav_removeDahira).setVisible(false);
         nav_Menu.findItem(R.id.nav_callDahira).setVisible(false);

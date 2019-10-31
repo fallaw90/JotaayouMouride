@@ -1,5 +1,6 @@
 package com.fallntic.jotaayumouride;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ import android.widget.RadioGroup;
 import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -122,15 +124,32 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
                 break;
 
             case R.id.button_delete:
-                selectedUser.getListDahiraID().remove(indexSelectedUser);
-                selectedUser.getListUpdatedDahiraID().remove(indexSelectedUser);
-                selectedUser.getListRoles().remove(indexSelectedUser);
-                selectedUser.getListCommissions().remove(indexSelectedUser);
-                selectedUser.getListAdiya().remove(indexSelectedUser);
-                selectedUser.getListSass().remove(indexSelectedUser);
-                selectedUser.getListSocial().remove(indexSelectedUser);
 
-                deleteUser();
+                AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.alertDialog);
+                builder.setTitle("Supprimer ce membre!");
+                builder.setMessage("Etes vous sure de vouloir supprimer " + selectedUser.getUserName() + " dans le dahira " + dahira.getDahiraName() + "?");
+                builder.setCancelable(false);
+                builder.setPositiveButton("OUI", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        selectedUser.getListDahiraID().remove(indexSelectedUser);
+                        selectedUser.getListUpdatedDahiraID().remove(indexSelectedUser);
+                        selectedUser.getListRoles().remove(indexSelectedUser);
+                        selectedUser.getListCommissions().remove(indexSelectedUser);
+                        selectedUser.getListAdiya().remove(indexSelectedUser);
+                        selectedUser.getListSass().remove(indexSelectedUser);
+                        selectedUser.getListSocial().remove(indexSelectedUser);
+                        deleteUser();
+                    }
+                });
+
+                builder.setNegativeButton("NON", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+                builder.show();
+
                 break;
         }
     }

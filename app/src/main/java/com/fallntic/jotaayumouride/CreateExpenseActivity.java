@@ -126,42 +126,6 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
         initViewsProgressBar();
     }
 
-    public  void initViewsProgressBar() {
-        relativeLayoutData = findViewById(R.id.relativeLayout_data);
-        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
-        progressBar = findViewById(R.id.progressBar);
-    }
-
-
-    private void displayViews() {
-        textViewTitle.setText("Ajouter une depense pour le dahira " + dahira.getDahiraName());
-        editTextDate.setText(getCurrentDate());
-    }
-
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.editText_date:
-                getDate(this, editTextDate);
-                break;
-
-            case R.id.button_save:
-                saveExpense(this);
-                break;
-
-            case R.id.button_cancel:
-                actionSelected = "";
-                finish();
-                break;
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        dismissProgressDialog();
-        super.onDestroy();
-    }
-
     public static void updateDahira(Context context, String price, String typeOfExpense, boolean isExpenseDeleted, Expense expense) {
         double total;
         final double value = Double.parseDouble(price);
@@ -224,17 +188,54 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
         }
 
         objNotification = new ObjNotification(expense.getExpenseID(), onlineUser.getUserID(), dahira.getDahiraID(), TITLE_EXPENSE_NOTIFICATION, expense.getNote());
-
         sendNotificationToSpecificUsers(context, MyStaticVariables.objNotification);
 
         if (listExpenses == null)
             listExpenses = new ArrayList<>();
 
-        listExpenses.add(expense);
-
         final Intent intent = new Intent(context, ShowExpenseActivity.class);
-        showAlertDialog(context, "Depense enregistree.", intent);
         Log.d(TAG, "Expense saved.");
+        if (!isExpenseDeleted) {
+            listExpenses.add(expense);
+            showAlertDialog(context, "Depense enregistree avec succes.", intent);
+        } else
+            showAlertDialog(context, "Depense suprimee avec succes.", intent);
+    }
+
+
+    private void displayViews() {
+        textViewTitle.setText("Ajouter une depense pour le dahira " + dahira.getDahiraName());
+        editTextDate.setText(getCurrentDate());
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.editText_date:
+                getDate(this, editTextDate);
+                break;
+
+            case R.id.button_save:
+                saveExpense(this);
+                break;
+
+            case R.id.button_cancel:
+                actionSelected = "";
+                finish();
+                break;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        dismissProgressDialog();
+        super.onDestroy();
+    }
+
+    public void initViewsProgressBar() {
+        relativeLayoutData = findViewById(R.id.relativeLayout_data);
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
     }
 
     public void saveExpense(final Context context) {
@@ -264,6 +265,8 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
                         public void onSuccess(Void aVoid) {
                             hideProgressBar();
                             updateDahira(context, price, typeOfExpense, false, expense);
+                            Intent intent = new Intent(CreateExpenseActivity.this, ShowExpenseActivity.class);
+                            showAlertDialog(context, "Depense enregistre avec succes.", intent);
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {

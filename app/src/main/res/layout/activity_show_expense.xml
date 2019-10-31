@@ -24,15 +24,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
+            android:textStyle="bold"
             android:textColor="@color/black" />
 
         <ScrollView
             android:id="@+id/scrollView"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginTop="@dimen/_15sdp"
-            android:layout_below="@+id/textView_title">
+            android:layout_above="@+id/button_back"
+            android:layout_below="@+id/textView_title"
+            android:layout_marginBottom="@dimen/_5sdp">
 
             <RelativeLayout
                 android:layout_width="match_parent"

@@ -130,10 +130,6 @@ public class ShowUserActivity extends AppCompatActivity implements View.OnClickL
 
         initViews();
 
-        //********************** Drawer Menu **************************
-        //setDrawerMenu();
-        //*************************************************************
-
         checkInternetConnection(this);
 
         textViewDahiraname.setText("Dahira " + dahira.getDahiraName() + "\nListe de tous les membres");
@@ -495,6 +491,5 @@ public class ShowUserActivity extends AppCompatActivity implements View.OnClickL
                     }
                 });
     }
-
 
 }

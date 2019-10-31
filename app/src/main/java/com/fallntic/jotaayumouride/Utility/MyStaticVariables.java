@@ -38,7 +38,7 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.convertDurat
 public class MyStaticVariables {
 
     public static final String TITLE_ANNOUNCEMENT_NOTIFICATION = "Nouvelle Annoncement.";
-    public static final String TITLE_EXPENSE_NOTIFICATION = "Nouvelle Dépense.";
+    public static String TITLE_EXPENSE_NOTIFICATION = "Dépense modifiée.";
     public static final String TITLE_EVENT_NOTIFICATION = "Nouveau événement.";
     public static final String TITLE_CONTRIBUTION_NOTIFICATION = "Cotisation ajouté.";
     public static String displayDahira;

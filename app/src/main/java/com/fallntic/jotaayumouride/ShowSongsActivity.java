@@ -114,7 +114,8 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
 
         checkInternetConnection(this);
 
-        if (onlineUser.getListDahiraID().contains(dahira.getDahiraID()) && onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
+        if (onlineUser != null && indexOnlineUser >= 0 && onlineUser.getListDahiraID().contains(dahira.getDahiraID()) && onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
+            enableSwipeToDelete();
             if (dahira.getDedicatedSizeStorage() <= 0)
                 updateStorageSize(dahira.getCurrentSizeStorage(), 200);
             else {
@@ -134,7 +135,7 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
 
 
         if (listSong == null || listSong.size() <= 0) {
-            if (onlineUser.getListDahiraID().contains(dahira.getDahiraID()) && onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
+            if (onlineUser.getListDahiraID().contains(dahira.getDahiraID()) && indexOnlineUser > -1 && onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
                 tv_empty.setText("Votre repertoire audio est vide. Cliquez sur l'icone (+) pour " +
                         "enregistrer ou ajouter un audio dans votre repertoire.");
             } else {
@@ -193,8 +194,6 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
                 createDialog();
             }
         });
-
-        enableSwipeToDelete();
 
         displayInterstitialAd(this);
 
@@ -602,7 +601,10 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
                 @Override
                 public void onSuccess(StorageMetadata storageMetadata) {
                     dahira.setCurrentSizeStorage(dahira.getCurrentSizeStorage() + storageMetadata.getSizeBytes() / 1048576);
-                    textViewTitle.setText("Bienvenu dans le repertoire audio du dahira " + dahira.getDahiraName() + "\nMemoire disponible " + (dahira.getDedicatedSizeStorage() - dahira.getCurrentSizeStorage()) + " Mo.");
+                    if (dahira.getCurrentSizeStorage() < dahira.getDedicatedSizeStorage())
+                        textViewTitle.setText("Bienvenu dans le repertoire audio du dahira " + dahira.getDahiraName() + "\nMemoire disponible " + (dahira.getDedicatedSizeStorage() - dahira.getCurrentSizeStorage()) + " Mo.");
+                    else
+                        textViewTitle.setText("Memoire insuffisante! Veuillez contacter +1 (320) 803-0902 via WhatSapp pour reserver plus de memoire.\"");
                     Log.i("Size = ", String.valueOf(storageMetadata.getSizeBytes()));
                 }
             }).addOnFailureListener(new OnFailureListener() {
@@ -619,7 +621,10 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
                 @Override
                 public void onSuccess(StorageMetadata storageMetadata) {
                     dahira.setCurrentSizeStorage(dahira.getCurrentSizeStorage() + storageMetadata.getSizeBytes() / 1048576);
-                    textViewTitle.setText("Bienvenu dans le repertoire audio du dahira " + dahira.getDahiraName() + "\nMemoire disponible " + (dahira.getDedicatedSizeStorage() - dahira.getCurrentSizeStorage()) + " Mo.");
+                    if (dahira.getCurrentSizeStorage() < dahira.getDedicatedSizeStorage())
+                        textViewTitle.setText("Bienvenu dans le repertoire audio du dahira " + dahira.getDahiraName() + "\nMemoire disponible " + (dahira.getDedicatedSizeStorage() - dahira.getCurrentSizeStorage()) + " Mo.");
+                    else
+                        textViewTitle.setText("Memoire insuffisante! Veuillez contacter +1 (320) 803-0902 via WhatSapp pour reserver plus de memoire.\"");
                     Log.i("Size = ", String.valueOf(storageMetadata.getSizeBytes()));
                 }
             }).addOnFailureListener(new OnFailureListener() {

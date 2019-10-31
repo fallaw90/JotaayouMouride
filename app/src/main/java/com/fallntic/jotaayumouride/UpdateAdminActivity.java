@@ -155,7 +155,10 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
     public void setSpinner() {
         spinnerCommission = findViewById(R.id.spinner_commission);
 
-        List<String> listCommissionDahira = dahira.getListCommissions();
+        List<String> listCommissionDahira = new ArrayList<>();
+        if (dahira != null && dahira.getListCommissions().size() > 0)
+            listCommissionDahira = dahira.getListCommissions();
+
         listCommissionDahira.add(0, "N/A");
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,

@@ -81,9 +81,6 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
 
         if (listImage != null && listImage != null && !listImage.isEmpty()) {
 
-            if (!onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur"))
-                textViewDelete.setVisibility(View.GONE);
-
             recyclerView.setHasFixedSize(true);
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -105,7 +102,12 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
             textViewDelete.setVisibility(View.GONE);
         }
 
-        enableSwipeToDelete(this);
+        if (onlineUser != null && indexOnlineUser > -1 && onlineUser.getListDahiraID().contains(dahira.getDahiraID()) &&
+                onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
+            enableSwipeToDelete(this);
+        } else {
+            textViewDelete.setVisibility(View.GONE);
+        }
 
         displayInterstitialAd(this);
 
@@ -263,7 +265,10 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
                 @Override
                 public void onSuccess(StorageMetadata storageMetadata) {
                     dahira.setCurrentSizeStorage(dahira.getCurrentSizeStorage() + storageMetadata.getSizeBytes() / 1048576);
-                    textViewTitle.setText("Repertoire photo du dahira " + dahira.getDahiraName() + "\nMemoire disponible " + (dahira.getDedicatedSizeStorage() - dahira.getCurrentSizeStorage()) + " Mo.");
+                    if (dahira.getCurrentSizeStorage() < dahira.getDedicatedSizeStorage())
+                        textViewTitle.setText("Repertoire photo du dahira " + dahira.getDahiraName() + "\nMemoire disponible " + (dahira.getDedicatedSizeStorage() - dahira.getCurrentSizeStorage()) + " Mo.");
+                    else
+                        textViewTitle.setText("Memoire insuffisante! Veuillez contacter +1 (320) 803-0902 via WhatSapp pour reserver plus de memoire.\"");
                     Log.i("Size = ", String.valueOf(storageMetadata.getSizeBytes()));
                 }
             }).addOnFailureListener(new OnFailureListener() {
@@ -280,7 +285,10 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
                 @Override
                 public void onSuccess(StorageMetadata storageMetadata) {
                     dahira.setCurrentSizeStorage(dahira.getCurrentSizeStorage() + storageMetadata.getSizeBytes() / 1048576);
-                    textViewTitle.setText("Repertoire photo du dahira " + dahira.getDahiraName() + "\nMemoire disponible " + (dahira.getDedicatedSizeStorage() - dahira.getCurrentSizeStorage()) + " Mo.");
+                    if (dahira.getCurrentSizeStorage() < dahira.getDedicatedSizeStorage())
+                        textViewTitle.setText("Repertoire photo du dahira " + dahira.getDahiraName() + "\nMemoire disponible " + (dahira.getDedicatedSizeStorage() - dahira.getCurrentSizeStorage()) + " Mo.");
+                    else
+                        textViewTitle.setText("Memoire insuffisante! Veuillez contacter +1 (320) 803-0902 via WhatSapp pour reserver plus de memoire.\"");
                     Log.i("Size = ", String.valueOf(storageMetadata.getSizeBytes()));
                 }
             }).addOnFailureListener(new OnFailureListener() {

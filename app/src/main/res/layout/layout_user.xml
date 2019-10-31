@@ -16,11 +16,12 @@
 
             <ImageView
                 android:id="@+id/imageView"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
+                android:layout_width="@dimen/_80sdp"
+                android:layout_height="@dimen/_80sdp"
                 android:layout_centerHorizontal="true"
-                android:layout_margin="10dp"
+                android:layout_gravity="center_vertical"
                 android:scaleType="centerCrop"
+                android:layout_margin="@dimen/_5sdp"
                 app:srcCompat="@drawable/profile_image" />
 
             <LinearLayout
@@ -35,8 +36,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Nom: Cheikh Fall"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
                     android:textColor="@color/black"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
                     android:textStyle="bold" />
 
                 <TextView

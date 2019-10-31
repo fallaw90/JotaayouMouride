@@ -53,7 +53,7 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayo
 public class ShowExpenseActivity extends AppCompatActivity implements View.OnClickListener {
     private final String TAG = "ShowExpenseActivity";
 
-    private TextView textViewTitle;
+    private TextView textViewTitle, textViewDelete;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private RecyclerView recyclerViewExpense;
 
@@ -102,6 +102,7 @@ public class ShowExpenseActivity extends AppCompatActivity implements View.OnCli
     private void initViews() {
         recyclerViewExpense = findViewById(R.id.recyclerview_expense);
         textViewTitle = findViewById(R.id.textView_title);
+        textViewDelete = findViewById(R.id.textView_deleteInstruction);
         coordinatorLayout = findViewById(R.id.coordinatorLayout);
         findViewById(R.id.button_back).setOnClickListener(this);
         initViewsProgressBar();
@@ -168,7 +169,8 @@ public class ShowExpenseActivity extends AppCompatActivity implements View.OnCli
 
             recyclerViewExpense.setAdapter(expenseAdapter);
             expenseAdapter.notifyDataSetChanged();
-        }
+        } else
+            textViewDelete.setText("Vous n'avez aucune depense enregistree.");
     }
 
     private void enableSwipeToDelete(final Context context) {
@@ -180,8 +182,8 @@ public class ShowExpenseActivity extends AppCompatActivity implements View.OnCli
                 final Expense expense = listExpenses.get(position);
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(ShowExpenseActivity.this, R.style.alertDialog);
-                builder.setTitle("Supprimer evenement!");
-                builder.setMessage("Etes vous sure de vouloir supprimer cet evenement?");
+                builder.setTitle("Supprimer cette depense!");
+                builder.setMessage("Etes vous sure de vouloir supprimer cette depense?");
                 builder.setCancelable(false);
                 builder.setPositiveButton("OUI", new DialogInterface.OnClickListener() {
                     @Override
