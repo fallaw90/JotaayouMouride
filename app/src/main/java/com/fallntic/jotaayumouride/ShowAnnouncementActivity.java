@@ -91,7 +91,7 @@ public class ShowAnnouncementActivity extends AppCompatActivity {
             textViewDelete.setVisibility(View.VISIBLE);
         }
 
-
+        HomeActivity.showInterstitialAd(this);
     }
 
     public void initialization() {

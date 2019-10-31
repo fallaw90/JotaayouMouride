@@ -33,6 +33,8 @@ public class InstructionsActivity extends AppCompatActivity {
                 startActivity(new Intent(InstructionsActivity.this, InstructionVideoActivity.class));
             }
         });
+
+        HomeActivity.showInterstitialAd(this);
     }
 
     @Override

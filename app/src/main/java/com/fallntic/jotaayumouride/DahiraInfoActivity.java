@@ -394,7 +394,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         setDrawerMenu();
         //**************************************************************************
 
-        //displayInterstitialAd(DahiraInfoActivity.this);
+        HomeActivity.showInterstitialAd(this);
 
     }
 
@@ -541,11 +541,13 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         switch (item.getItemId()) {
 
             case R.id.nav_home:
-                finish();
+                HomeActivity.preloadInterstitialAd(this);
                 startActivity(new Intent(this, HomeActivity.class));
+                finish();
                 break;
 
             case R.id.nav_displayUsers:
+                HomeActivity.preloadInterstitialAd(this);
                 actionSelected = "displayUsers";
                 getListUser(DahiraInfoActivity.this);
                 break;
@@ -563,11 +565,13 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 break;
 
             case R.id.nav_displayMyDahira:
+                HomeActivity.preloadInterstitialAd(this);
                 MyStaticVariables.displayDahira = "myDahira";
                 startActivity(new Intent(this, ShowDahiraActivity.class));
                 break;
 
             case R.id.nav_displayAllDahira:
+                HomeActivity.preloadInterstitialAd(this);
                 MyStaticVariables.displayDahira = "allDahira";
                 startActivity(new Intent(this, ShowDahiraActivity.class));
                 break;
@@ -577,6 +581,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 break;
 
             case R.id.nav_displayExpenses:
+                HomeActivity.preloadInterstitialAd(this);
                 getExistingExpenses(DahiraInfoActivity.this, dahira.getDahiraID());
                 break;
 
@@ -585,6 +590,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 break;
 
             case R.id.nav_displayAnnouncement:
+                HomeActivity.preloadInterstitialAd(this);
                 startActivity(new Intent(this, ShowAnnouncementActivity.class));
                 break;
 
@@ -596,20 +602,24 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 break;
 
             case R.id.nav_displayEvent:
+                HomeActivity.preloadInterstitialAd(this);
                 displayEvent = "myEvents";
                 getAllEvents(this);
                 getMyEvents(this);
                 break;
 
             case R.id.nav_photo:
+                HomeActivity.preloadInterstitialAd(this);
                 startActivity(new Intent(DahiraInfoActivity.this, ShowImagesActivity.class));
                 break;
 
             case R.id.nav_audio:
+                HomeActivity.preloadInterstitialAd(this);
                 startActivity(new Intent(DahiraInfoActivity.this, ShowSongsActivity.class));
                 break;
 
             case R.id.nav_video:
+                HomeActivity.preloadInterstitialAd(this);
                 showAlertDialog(this, "Cette page est en cours de contruction." +
                         "Revenez plutard SVP.");
                 break;

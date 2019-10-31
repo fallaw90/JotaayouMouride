@@ -77,6 +77,7 @@ public class ShowEventActivity extends AppCompatActivity implements View.OnClick
         checkInternetConnection(this);
 
         initViews();
+
         loadEvents(this);
     }
 

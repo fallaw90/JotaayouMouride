@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.HomeActivity.preparingInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.setMyAdapter;
@@ -73,7 +72,7 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
 
         initViewsMainKhassida();
 
-        preparingInterstitialAd(getContext());
+        HomeActivity.showInterstitialAd(getContext());
 
         return view;
     }

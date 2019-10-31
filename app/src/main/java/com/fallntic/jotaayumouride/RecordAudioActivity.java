@@ -54,7 +54,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import static com.fallntic.jotaayumouride.HomeActivity.displayInterstitialAd;
+import static com.fallntic.jotaayumouride.HomeActivity.preloadInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
@@ -114,7 +114,6 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
             getPermissionToRecordAudio();
         }
 
-        displayInterstitialAd(RecordAudioActivity.this);
     }
 
     private void initViews() {
@@ -389,14 +388,17 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
 
         switch (item.getItemId()) {
             case R.id.button_back:
-                if (dahira != null)
+                preloadInterstitialAd(this);
+                if (dahira != null) {
                     startActivity(new Intent(RecordAudioActivity.this, DahiraInfoActivity.class));
-                else
+                } else {
                     startActivity(new Intent(RecordAudioActivity.this, HomeActivity.class));
+                }
                 finish();
                 break;
 
             case R.id.instructions:
+                preloadInterstitialAd(this);
                 startActivity(new Intent(RecordAudioActivity.this, InstructionsActivity.class));
                 finish();
             default:

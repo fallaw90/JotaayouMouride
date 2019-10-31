@@ -37,7 +37,6 @@ import static com.fallntic.jotaayumouride.Adapter.ContributionAdapter.getListAmo
 import static com.fallntic.jotaayumouride.Adapter.ContributionAdapter.getListDate;
 import static com.fallntic.jotaayumouride.Adapter.ContributionAdapter.getListUserName;
 import static com.fallntic.jotaayumouride.AddContributionActivity.notifyUser;
-import static com.fallntic.jotaayumouride.HomeActivity.displayInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.boolAddToDahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.indexSelectedUser;
@@ -119,11 +118,11 @@ public class ShowContributionActivity extends AppCompatActivity {
 
         displayViews();
 
-
         showListContribution();
+
         enableSwipeToDeleteAndUndo();
 
-        displayInterstitialAd(this);
+        HomeActivity.showInterstitialAd(this);
 
     }
 

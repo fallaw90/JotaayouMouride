@@ -52,7 +52,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
-import static com.fallntic.jotaayumouride.HomeActivity.displayInterstitialAd;
 import static com.fallntic.jotaayumouride.MainActivity.TAG;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
@@ -460,7 +459,7 @@ public class MyStaticFunctions {
 
     public static void prepareSong(Context context, Song song) {
         //Load ads
-        displayInterstitialAd(context);
+        //displayInterstitialAd(context);
 
         String str_duration = song.getAudioDuration().replace(":", "");
         currentSongLength = Integer.parseInt(str_duration);
@@ -698,9 +697,6 @@ public class MyStaticFunctions {
     public static void downloadFile(Context context, String fileName, String url) {
 
         //Load ads
-        if (onlineUser != null && !onlineUser.hasPaid())
-            displayInterstitialAd(context);
-
         DownloadManager downloadmanager = (DownloadManager) context.
                 getSystemService(Context.DOWNLOAD_SERVICE);
         Uri uri = Uri.parse(url);

@@ -168,44 +168,35 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         viewPager.setAdapter(pageAdapter);
     }
 
-    public void changeTab() {
+    public static void showInterstitialAd(Context context) {
+        if (interstitialAd != null && interstitialAd.isLoaded() && (onlineUser == null || !onlineUser.hasPaid())) {
+            toastMessage(context, "Ad starting in 5 seconds!");
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    // If Ads are loaded, show Interstitial else show nothing.
+                    interstitialAd.show();
+                    interstitialAd.setAdListener(new AdListener() {
+                        @Override
+                        public void onAdOpened() {
+                            super.onAdOpened();
+                            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                                mediaPlayer.pause();
+                            }
+                        }
 
-        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-
-                setMediaPlayer();
-
-                viewPager.setCurrentItem(tab.getPosition());
-                if (tab.getPosition() == 0) {
-
-                    //toastMessage(HomeActivity.this, "Profile Fragment");
-
-                } else if (tab.getPosition() == 1) {
-
-                    //toastMessage(HomeActivity.this, "Khassida Fragment");
-
-
-                } else if (tab.getPosition() == 2) {
-                    //toastMessage(HomeActivity.this, "Wolofal Fragment");
-
-                } else {
-
-                    //toastMessage(HomeActivity.this, "Quran Fragment");
-
+                        @Override
+                        public void onAdClosed() {
+                            super.onAdClosed();
+                            if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
+                                mediaPlayer.start();
+                            }
+                            interstitialAd = null;
+                        }
+                    });
                 }
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-            }
-        });
+            }, 5000);
+        }
     }
 
     public void initViews() {
@@ -269,51 +260,15 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
+    public static void preloadInterstitialAd(final Context context) {
+        AdRequest adRequest = new AdRequest.Builder().build();
 
-            case R.id.nav_home:
-                startActivity(new Intent(this, HomeActivity.class));
-                break;
-            case R.id.nav_displayMyDahira:
-                MyStaticVariables.displayDahira = "myDahira";
-                getMyDahira(HomeActivity.this);
-                break;
+        // Prepare the Interstitial Ad
+        interstitialAd = new InterstitialAd(context);
+        // Insert the Ad Unit ID
+        interstitialAd.setAdUnitId("ca-app-pub-4572559956016262/4877581148");
 
-            case R.id.nav_addDahira:
-                startActivity(new Intent(this, CreateDahiraActivity.class));
-                break;
-
-            case R.id.nav_displayAllDahira:
-                MyStaticVariables.displayDahira = "allDahira";
-                getAllDahiras(this);
-                break;
-
-            case R.id.nav_displayAllEvent:
-                displayEvent = "allEvents";
-                getAllEvents(this);
-                break;
-
-            case R.id.nav_searchDahira:
-                displayDahira = "searchDahira";
-                getAllDahiras(this);
-                break;
-
-            case R.id.nav_setting:
-                startActivity(new Intent(this, SettingProfileActivity.class));
-                break;
-
-            case R.id.nav_logout:
-                toastMessage(this, "Logged out");
-                logout(this);
-                finish();
-                startActivity(new Intent(this, MainActivity.class));
-                break;
-        }
-
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
+        interstitialAd.loadAd(adRequest);
     }
 
     public void hideMenuItem() {
@@ -454,62 +409,98 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public static void displayInterstitialAd(Context context) {
-        if (onlineUser == null) {
-            preparingInterstitialAd(context);
-        } else if (!onlineUser.hasPaid()) {
-            preparingInterstitialAd(context);
-        }
-    }
+    public void changeTab() {
 
-    public static void showInterstitialAd() {
-        new Handler().postDelayed(new Runnable() {
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
-            public void run() {
-                // If Ads are loaded, show Interstitial else show nothing.
-                if (interstitialAd.isLoaded()) {
-                    interstitialAd.show();
-                }
-            }
-        }, 5000);
-    }
+            public void onTabSelected(TabLayout.Tab tab) {
 
-    public static void preparingInterstitialAd(final Context context) {
-        AdRequest adRequest = new AdRequest.Builder().build();
+                //preload Ad
+                preloadInterstitialAd(HomeActivity.this);
 
-        // Prepare the Interstitial Ad
-        interstitialAd = new InterstitialAd(context);
-        // Insert the Ad Unit ID
-        interstitialAd.setAdUnitId("ca-app-pub-4572559956016262/4877581148");
+                setMediaPlayer();
 
-        interstitialAd.loadAd(adRequest);
-        // Prepare an Interstitial Ad Listener
-        interstitialAd.setAdListener(new AdListener() {
-            public void onAdLoaded() {
-                // Call displayInterstitialAd() function
-                toastMessage(context, "Ad starting soon");
-                showInterstitialAd();
-            }
+                viewPager.setCurrentItem(tab.getPosition());
+                if (tab.getPosition() == 0) {
 
-            @Override
-            public void onAdOpened() {
-                super.onAdOpened();
-                if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-                    mediaPlayer.pause();
+                    //toastMessage(HomeActivity.this, "Profile Fragment");
+
+                } else if (tab.getPosition() == 1) {
+
+                    //toastMessage(HomeActivity.this, "Khassida Fragment");
+
+
+                } else if (tab.getPosition() == 2) {
+                    //toastMessage(HomeActivity.this, "Wolofal Fragment");
+
+                } else {
+
+                    //toastMessage(HomeActivity.this, "Quran Fragment");
+
                 }
             }
 
             @Override
-            public void onAdClosed() {
-                super.onAdClosed();
-                if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
-                    mediaPlayer.start();
-                }
-                showInterstitialAd();
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
             }
         });
+    }
 
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
 
+            case R.id.nav_home:
+                preloadInterstitialAd(this);
+                startActivity(new Intent(this, HomeActivity.class));
+                break;
+            case R.id.nav_displayMyDahira:
+                preloadInterstitialAd(this);
+                MyStaticVariables.displayDahira = "myDahira";
+                getMyDahira(HomeActivity.this);
+                break;
+
+            case R.id.nav_addDahira:
+                startActivity(new Intent(this, CreateDahiraActivity.class));
+                break;
+
+            case R.id.nav_displayAllDahira:
+                preloadInterstitialAd(this);
+                MyStaticVariables.displayDahira = "allDahira";
+                getAllDahiras(this);
+                break;
+
+            case R.id.nav_displayAllEvent:
+                preloadInterstitialAd(this);
+                displayEvent = "allEvents";
+                getAllEvents(this);
+                break;
+
+            case R.id.nav_searchDahira:
+                displayDahira = "searchDahira";
+                getAllDahiras(this);
+                break;
+
+            case R.id.nav_setting:
+                startActivity(new Intent(this, SettingProfileActivity.class));
+                break;
+
+            case R.id.nav_logout:
+                toastMessage(this, "Logged out");
+                logout(this);
+                finish();
+                startActivity(new Intent(this, MainActivity.class));
+                break;
+        }
+
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
     }
 
     public void initViewsProgressBar() {
@@ -621,10 +612,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             public void onInitializationComplete(InitializationStatus initializationStatus) {
             }
         });
-
-        //Load ads
-        if (onlineUser == null || !onlineUser.hasPaid())
-            displayInterstitialAd(HomeActivity.this);
     }
 
     @Override

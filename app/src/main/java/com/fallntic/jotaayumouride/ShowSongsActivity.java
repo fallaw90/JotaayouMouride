@@ -52,7 +52,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.HomeActivity.displayInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
@@ -195,8 +194,6 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
             }
         });
 
-        displayInterstitialAd(this);
-
     }
 
     @Override
@@ -281,8 +278,6 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
     }
 
     private void prepareSong(Song song) {
-
-        displayInterstitialAd(this);
 
         String str_duration = song.getAudioDuration().replace(":", "");
         currentSongLength = Integer.parseInt(str_duration);

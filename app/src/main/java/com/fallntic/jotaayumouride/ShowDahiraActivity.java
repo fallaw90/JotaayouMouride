@@ -199,6 +199,8 @@ public class ShowDahiraActivity extends AppCompatActivity implements View.OnClic
             }
         }
 
+        HomeActivity.showInterstitialAd(this);
+
     }
 
     @Override

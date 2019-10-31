@@ -122,8 +122,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
             linearLayoutSocial.setVisibility(View.GONE);
         }
 
-        //displayInterstitialAd(this);
-
+        HomeActivity.showInterstitialAd(this);
     }
 
     private void initViews() {
@@ -241,10 +240,12 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         switch (item.getItemId()) {
 
             case R.id.nav_home:
+                HomeActivity.preloadInterstitialAd(this);
                 startActivity(new Intent(this, HomeActivity.class));
                 break;
 
             case R.id.nav_displayUsers:
+                HomeActivity.preloadInterstitialAd(this);
                 startActivity(new Intent(this, ShowUserActivity.class));
                 break;
 
@@ -254,11 +255,13 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
                 break;
 
             case R.id.nav_displayMyDahira:
+                HomeActivity.preloadInterstitialAd(this);
                 MyStaticVariables.displayDahira = "myDahira";
                 startActivity(new Intent(this, ShowDahiraActivity.class));
                 break;
 
             case R.id.nav_displayAllDahira:
+                HomeActivity.preloadInterstitialAd(this);
                 MyStaticVariables.displayDahira = "allDahira";
                 startActivity(new Intent(this, ShowDahiraActivity.class));
                 break;
@@ -281,12 +284,14 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
                 break;
 
             case R.id.nav_displaySass:
+                HomeActivity.preloadInterstitialAd(this);
                 typeOfContribution = "sass";
                 getSass();
                 startActivity(new Intent(this, ShowContributionActivity.class));
                 break;
 
             case R.id.nav_displaySocial:
+                HomeActivity.preloadInterstitialAd(this);
                 typeOfContribution = "social";
                 getSocial();
                 startActivity(new Intent(this, ShowContributionActivity.class));
@@ -298,6 +303,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
                 break;
 
             case R.id.nav_displayEvent:
+                HomeActivity.preloadInterstitialAd(this);
                 if (myListEvents == null || myListEvents.size() <= 0)
                     showAlertDialog(this, "La liste de vos evenements est vide!");
                 else {
@@ -312,6 +318,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
                 break;
 
             case R.id.nav_displayExpenses:
+                HomeActivity.preloadInterstitialAd(this);
                 if (listExpenses == null) {
                     showAlertDialog(this, "La liste des depenses de votre dahira est vide!");
                 } else

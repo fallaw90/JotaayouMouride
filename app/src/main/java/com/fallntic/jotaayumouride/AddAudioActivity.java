@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-import static com.fallntic.jotaayumouride.HomeActivity.displayInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getSizeSongsStorage;
@@ -91,8 +90,6 @@ public class AddAudioActivity extends AppCompatActivity {
                 .child("gallery")
                 .child("audios")
                 .child(dahira.getDahiraID());
-
-        displayInterstitialAd(this);
     }
 
     @Override

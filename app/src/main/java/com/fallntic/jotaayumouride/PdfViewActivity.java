@@ -70,6 +70,7 @@ public class PdfViewActivity extends AppCompatActivity {
                 }
             }
         });
+
     }
 
     @Override
@@ -94,6 +95,8 @@ public class PdfViewActivity extends AppCompatActivity {
                 break;
 
             case R.id.instructions:
+                //Load ads
+                HomeActivity.preloadInterstitialAd(this);
                 startActivity(new Intent(this, InstructionsActivity.class));
                 break;
         }

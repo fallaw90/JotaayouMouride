@@ -13,8 +13,6 @@ import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
 
-import static com.fallntic.jotaayumouride.HomeActivity.displayInterstitialAd;
-import static com.fallntic.jotaayumouride.HomeActivity.preparingInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getListAudios;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.UpdateSongTime;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.fab_search;
@@ -51,10 +49,6 @@ public class QuranFragment extends Fragment implements View.OnClickListener {
         view = inflater.inflate(R.layout.fragment_quran, container, false);
 
         initViewsMainQuran();
-
-        displayInterstitialAd(getContext());
-
-        preparingInterstitialAd(getContext());
 
         return view;
     }

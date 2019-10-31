@@ -37,7 +37,6 @@ import com.google.firebase.storage.StorageReference;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.fallntic.jotaayumouride.HomeActivity.displayInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
@@ -109,8 +108,7 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
             textViewDelete.setVisibility(View.GONE);
         }
 
-        displayInterstitialAd(this);
-
+        HomeActivity.showInterstitialAd(this);
     }
 
     @Override
