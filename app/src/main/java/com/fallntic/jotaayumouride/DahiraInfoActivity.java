@@ -394,8 +394,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         setDrawerMenu();
         //**************************************************************************
 
-        HomeActivity.showInterstitialAd(this);
-
+        HomeActivity.loadBannerAd(this, this);
     }
 
     public void hideMenuItem() {
@@ -446,6 +445,25 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
     protected void onDestroy() {
         super.onDestroy();
         dismissProgressDialog();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.destroy();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.pause();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.resume();
+        }
     }
 
     public void removeDahiraFromUser() {
@@ -541,13 +559,11 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         switch (item.getItemId()) {
 
             case R.id.nav_home:
-                HomeActivity.preloadInterstitialAd(this);
                 startActivity(new Intent(this, HomeActivity.class));
                 finish();
                 break;
 
             case R.id.nav_displayUsers:
-                HomeActivity.preloadInterstitialAd(this);
                 actionSelected = "displayUsers";
                 getListUser(DahiraInfoActivity.this);
                 break;
@@ -565,13 +581,11 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 break;
 
             case R.id.nav_displayMyDahira:
-                HomeActivity.preloadInterstitialAd(this);
                 MyStaticVariables.displayDahira = "myDahira";
                 startActivity(new Intent(this, ShowDahiraActivity.class));
                 break;
 
             case R.id.nav_displayAllDahira:
-                HomeActivity.preloadInterstitialAd(this);
                 MyStaticVariables.displayDahira = "allDahira";
                 startActivity(new Intent(this, ShowDahiraActivity.class));
                 break;
@@ -581,7 +595,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 break;
 
             case R.id.nav_displayExpenses:
-                HomeActivity.preloadInterstitialAd(this);
+                HomeActivity.loadInterstitialAd(this);
                 getExistingExpenses(DahiraInfoActivity.this, dahira.getDahiraID());
                 break;
 
@@ -590,7 +604,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 break;
 
             case R.id.nav_displayAnnouncement:
-                HomeActivity.preloadInterstitialAd(this);
+                HomeActivity.loadInterstitialAd(this);
                 startActivity(new Intent(this, ShowAnnouncementActivity.class));
                 break;
 
@@ -602,24 +616,24 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 break;
 
             case R.id.nav_displayEvent:
-                HomeActivity.preloadInterstitialAd(this);
+                HomeActivity.loadInterstitialAd(this);
                 displayEvent = "myEvents";
                 getAllEvents(this);
                 getMyEvents(this);
                 break;
 
             case R.id.nav_photo:
-                HomeActivity.preloadInterstitialAd(this);
+                HomeActivity.loadInterstitialAd(this);
                 startActivity(new Intent(DahiraInfoActivity.this, ShowImagesActivity.class));
                 break;
 
             case R.id.nav_audio:
-                HomeActivity.preloadInterstitialAd(this);
+                HomeActivity.loadInterstitialAd(this);
                 startActivity(new Intent(DahiraInfoActivity.this, ShowSongsActivity.class));
                 break;
 
             case R.id.nav_video:
-                HomeActivity.preloadInterstitialAd(this);
+                HomeActivity.loadInterstitialAd(this);
                 showAlertDialog(this, "Cette page est en cours de contruction." +
                         "Revenez plutard SVP.");
                 break;

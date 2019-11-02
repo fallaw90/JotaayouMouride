@@ -84,7 +84,31 @@ public class AddImagesActivity extends AppCompatActivity implements View.OnClick
             }
         });
 
+        HomeActivity.loadBannerAd(this, this);
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.resume();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.pause();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.destroy();
+        }
     }
 
     @Override

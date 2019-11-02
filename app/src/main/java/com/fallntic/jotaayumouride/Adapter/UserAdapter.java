@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.fallntic.jotaayumouride.HomeActivity;
 import com.fallntic.jotaayumouride.Model.User;
 import com.fallntic.jotaayumouride.R;
 import com.fallntic.jotaayumouride.UserInfoActivity;
@@ -99,6 +100,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             adiya = null;
             sass = null;
             social = null;
+            HomeActivity.loadInterstitialAd(context);
             Intent intent = new Intent(context, UserInfoActivity.class);
             context.startActivity(intent);
         }

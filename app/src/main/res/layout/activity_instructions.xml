@@ -64,11 +64,12 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_margin="@dimen/_5sdp"
-                    android:background="@drawable/rounded_button_save"
-                    android:padding="@dimen/_7sdp"
                     android:text="Cliquez ici \n pour voir les instructions en video"
+                    android:layout_centerHorizontal="true"
+                    android:background="@drawable/rounded_button_solid"
+                    android:padding="@dimen/_10sdp"
                     android:textColor="@color/white"
-                    android:textStyle="bold" />
+                    android:textSize="@dimen/_12sdp" />
 
                 <TextView
                     android:layout_width="match_parent"

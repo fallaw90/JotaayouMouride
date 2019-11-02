@@ -71,6 +71,32 @@ public class PdfViewActivity extends AppCompatActivity {
             }
         });
 
+        HomeActivity.loadBannerAd(this, this);
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.destroy();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.pause();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.resume();
+        }
     }
 
     @Override
@@ -96,7 +122,7 @@ public class PdfViewActivity extends AppCompatActivity {
 
             case R.id.instructions:
                 //Load ads
-                HomeActivity.preloadInterstitialAd(this);
+                HomeActivity.loadInterstitialAd(this);
                 startActivity(new Intent(this, InstructionsActivity.class));
                 break;
         }

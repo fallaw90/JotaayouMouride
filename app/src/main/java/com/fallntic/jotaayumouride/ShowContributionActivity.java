@@ -122,7 +122,7 @@ public class ShowContributionActivity extends AppCompatActivity {
 
         enableSwipeToDeleteAndUndo();
 
-        HomeActivity.showInterstitialAd(this);
+        HomeActivity.loadBannerAd(this, this);
 
     }
 
@@ -358,4 +358,27 @@ public class ShowContributionActivity extends AppCompatActivity {
         contributionAdapter.notifyDataSetChanged();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.resume();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.pause();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.destroy();
+        }
+    }
 }

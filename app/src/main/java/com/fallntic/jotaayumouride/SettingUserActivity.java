@@ -225,7 +225,7 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
             buttonDelete.setVisibility(View.GONE);
         }
 
-        MyStaticFunctions.showImage(this, onlineUser.getImageUri(), imageView);
+        MyStaticFunctions.showImage(this, selectedUser.getImageUri(), imageView);
     }
 
     public void setSpinner() {

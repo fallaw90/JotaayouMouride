@@ -61,10 +61,13 @@
             android:layout_height="wrap_content"
             android:layout_margin="7dp"
             android:layout_weight="0.5"
-            android:background="@color/red"
             android:textAllCaps="false"
-            android:textColor="@color/colorAccent"
-            android:text="@string/btn_cancel" />
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/rounded_button_cancel"
+            android:padding="@dimen/_10sdp"
+            android:text="@string/btn_cancel"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_15sdp" />
 
         <Button
             android:id="@+id/button_dialogSearch"
@@ -72,10 +75,13 @@
             android:layout_height="wrap_content"
             android:layout_margin="7dp"
             android:layout_weight="0.5"
-            android:background="@color/green"
             android:textAllCaps="false"
-            android:textColor="@color/colorAccent"
-            android:text="@string/search" />
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/rounded_button_solid"
+            android:padding="@dimen/_10sdp"
+            android:text="@string/search"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_15sdp" />
 
     </LinearLayout>
 

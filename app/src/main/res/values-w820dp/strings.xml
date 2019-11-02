@@ -109,9 +109,10 @@
     <string name="add_admin_description">"Seuls un administrateur peut désigner un autre membre comme administrateur. Pour se faire, naviguez sur MENU, MES DAHIRAS, sélectionnez votre dahira, naviguez encore sur MENU, VOIR LES MEMBRES et cliquez sur le membre que tu veux designer comme administrateur. Dans la page personnelle de ce membre, naviguez sur MENU puis cliquez sur MODIFIER CE MEMBRE en bas du menu et faite la modification souhaitée (designer ce membre comme administrateur, supprimer ce membre ou bien l'attribuer à une commission)."</string>
     <string name="quit_modify_dahira_description">"Pour modifier ou se désabonner d'un dahira, naviguez sur MENU, MES DAHIRAS, sélectionnez votre dahira, naviguez encore sur MENU, sélection MODIFIER MON DAHIRA ou QUITTER CE DAHIRA en bas du menu et suivez les instructions."</string>
 
-    <string name="ad_app_id">ca-app-pub-4572559956016262~6999002555</string>
-    <string name="ad_banner_id">ca-app-pub-4572559956016262/7846277841</string>
-    <string name="ad_interstitial_id">ca-app-pub-4572559956016262/4877581148</string>
+    <string name="app_unit_id">ca-app-pub-4572559956016262~6999002555</string>
+    <string name="banner_unit_id">ca-app-pub-4572559956016262/3466259066</string>
+    <string name="interstitial_unit_id">ca-app-pub-4572559956016262/4877581148</string>
+    <string name="interstitial_test_id">ca-app-pub-3940256099942544/1033173712</string>
 
     <string-array name="country_array">
         <item>Senegal</item>

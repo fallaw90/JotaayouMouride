@@ -163,20 +163,26 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="7dp"
-                    android:background="@color/green"
                     android:text="Enregistrer evenement"
                     android:textAllCaps="false"
-                    android:textColor="@color/colorAccent" />
+                    android:layout_centerHorizontal="true"
+                    android:background="@drawable/rounded_button_solid"
+                    android:padding="@dimen/_10sdp"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_15sdp" />
 
                 <Button
                     android:id="@+id/button_cancel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="7dp"
-                    android:background="@color/gray"
                     android:text="@string/btn_cancel"
                     android:textAllCaps="false"
-                    android:textColor="@color/colorAccent" />
+                    android:layout_centerHorizontal="true"
+                    android:background="@drawable/rounded_button_cancel"
+                    android:padding="@dimen/_10sdp"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_15sdp" />
 
             </LinearLayout>
         </ScrollView>

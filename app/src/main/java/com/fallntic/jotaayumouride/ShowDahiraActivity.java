@@ -141,7 +141,26 @@ public class ShowDahiraActivity extends AppCompatActivity implements View.OnClic
     @Override
     protected void onDestroy() {
         actionSelected = "";
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.destroy();
+        }
         super.onDestroy();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.pause();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.resume();
+        }
     }
 
     @Override
@@ -199,8 +218,7 @@ public class ShowDahiraActivity extends AppCompatActivity implements View.OnClic
             }
         }
 
-        HomeActivity.showInterstitialAd(this);
-
+        HomeActivity.loadBannerAd(this, this);
     }
 
     @Override

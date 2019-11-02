@@ -79,6 +79,9 @@ public class ShowEventActivity extends AppCompatActivity implements View.OnClick
         initViews();
 
         loadEvents(this);
+
+
+        HomeActivity.loadBannerAd(this, this);
     }
 
     public static void sortEventByDate(ArrayList arrayList) {
@@ -127,8 +130,27 @@ public class ShowEventActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     protected void onDestroy() {
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.destroy();
+        }
         dismissProgressDialog();
         super.onDestroy();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.pause();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.resume();
+        }
     }
 
     @Override

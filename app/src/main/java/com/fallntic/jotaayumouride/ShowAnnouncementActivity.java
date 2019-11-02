@@ -91,7 +91,7 @@ public class ShowAnnouncementActivity extends AppCompatActivity {
             textViewDelete.setVisibility(View.VISIBLE);
         }
 
-        HomeActivity.showInterstitialAd(this);
+        HomeActivity.loadBannerAd(this, this);
     }
 
     public void initialization() {
@@ -117,8 +117,27 @@ public class ShowAnnouncementActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.destroy();
+        }
         dismissProgressDialog();
         super.onDestroy();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.pause();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.resume();
+        }
     }
 
     private void showListAnnouncements() {

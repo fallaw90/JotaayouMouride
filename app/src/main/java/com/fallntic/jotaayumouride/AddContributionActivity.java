@@ -70,6 +70,8 @@ public class AddContributionActivity extends AppCompatActivity implements View.O
         checkInternetConnection(this);
 
         initViews();
+
+        HomeActivity.loadBannerAd(this, this);
     }
 
     public static void saveContribution(final Context context, final String value, final String mDate) {
@@ -124,8 +126,27 @@ public class AddContributionActivity extends AppCompatActivity implements View.O
 
     @Override
     protected void onDestroy() {
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.destroy();
+        }
         dismissProgressDialog();
         super.onDestroy();
+    }
+
+    @Override
+    protected void onPause() {
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.pause();
+        }
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.resume();
+        }
     }
 
     public static void uploadContribution(final Context context, final String collectionName, Object data, final String notification_message) {

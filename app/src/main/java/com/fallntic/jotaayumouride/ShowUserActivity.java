@@ -63,6 +63,9 @@ public class ShowUserActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     protected void onDestroy() {
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.destroy();
+        }
         actionSelected = "";
         dismissProgressDialog();
         super.onDestroy();
@@ -141,6 +144,9 @@ public class ShowUserActivity extends AppCompatActivity implements View.OnClickL
             dialogSearchUser();
         } else if (actionSelected.equals("displayUsers"))
             showListUser();
+
+
+        HomeActivity.loadBannerAd(this, this);
     }
 
     private void showListUser() {
@@ -492,4 +498,19 @@ public class ShowUserActivity extends AppCompatActivity implements View.OnClickL
                 });
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.pause();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.resume();
+        }
+    }
 }

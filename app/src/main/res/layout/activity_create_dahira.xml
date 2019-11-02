@@ -16,14 +16,12 @@
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/toolbar">
+        android:layout_height="match_parent">
 
         <RelativeLayout
             android:id="@+id/relativeLayout_data"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/textView_labelLogo"
@@ -198,10 +196,12 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_margin="7dp"
-                    android:background="@color/green"
-                    android:padding="@dimen/_10sdp"
                     android:text="@string/addCommission"
                     android:textAllCaps="false"
+                    android:layout_centerHorizontal="true"
+                    android:background="@drawable/rounded_button_solid"
+                    android:padding="@dimen/_10sdp"
+                    android:textSize="@dimen/_15sdp"
                     android:textColor="@color/white" />
 
                 <TextView
@@ -282,20 +282,24 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="7dp"
-                        android:background="@color/gray"
                         android:text="@string/backButton"
                         android:textAllCaps="false"
+                        android:background="@drawable/rounded_button_cancel"
+                        android:padding="@dimen/_10sdp"
+                        android:textSize="@dimen/_15sdp"
                         android:textColor="@color/white" />
 
                     <Button
                         android:id="@+id/button_save"
-                        android:layout_width="wrap_content"
+                        android:layout_width="@dimen/_100sdp"
                         android:layout_height="wrap_content"
                         android:layout_margin="7dp"
-                        android:background="@color/green"
                         android:text="Suivant"
                         android:textAllCaps="false"
-                        android:textColor="@color/white" />
+                        android:background="@drawable/rounded_button_solid"
+                        android:padding="@dimen/_10sdp"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/_15sdp" />
 
                 </LinearLayout>
 

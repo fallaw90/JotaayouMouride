@@ -55,25 +55,43 @@
 
             <Button
                 android:id="@+id/button_save"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_above="@+id/button_cancel"
-                android:layout_margin="7dp"
-                android:background="@color/green"
+                android:layout_centerHorizontal="true"
                 android:text="Enregistrer annonce"
                 android:textAllCaps="false"
-                android:textColor="@color/colorAccent" />
+                android:layout_marginTop="@dimen/_10sdp"
+                android:background="@drawable/rounded_button_solid"
+                android:padding="@dimen/_10sdp"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_15sdp" />
 
             <Button
                 android:id="@+id/button_cancel"
-                android:layout_width="match_parent"
+                android:layout_width="@dimen/_150sdp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
+                android:layout_above="@+id/adView"
                 android:layout_margin="7dp"
-                android:background="@color/gray"
                 android:text="@string/btn_cancel"
                 android:textAllCaps="false"
-                android:textColor="@color/colorAccent" />
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/rounded_button_cancel"
+                android:padding="@dimen/_10sdp"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_15sdp" />
+
+            <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/adView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/button_back"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="5dp"
+                ads:adSize="BANNER"
+                ads:adUnitId="@string/banner_unit_id"></com.google.android.gms.ads.AdView>
+
         </RelativeLayout>
 
         <RelativeLayout

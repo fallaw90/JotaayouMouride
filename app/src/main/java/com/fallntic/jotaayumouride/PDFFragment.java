@@ -97,8 +97,6 @@ public class PDFFragment extends Fragment {
             }
         });
 
-        HomeActivity.showInterstitialAd(getContext());
-
         return view;
     }
 

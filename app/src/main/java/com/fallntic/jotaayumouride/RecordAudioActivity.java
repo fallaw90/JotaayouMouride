@@ -54,7 +54,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import static com.fallntic.jotaayumouride.HomeActivity.preloadInterstitialAd;
+import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
@@ -114,6 +114,7 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
             getPermissionToRecordAudio();
         }
 
+        HomeActivity.loadBannerAd(this, this);
     }
 
     private void initViews() {
@@ -388,7 +389,7 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
 
         switch (item.getItemId()) {
             case R.id.button_back:
-                preloadInterstitialAd(this);
+                loadInterstitialAd(this);
                 if (dahira != null) {
                     startActivity(new Intent(RecordAudioActivity.this, DahiraInfoActivity.class));
                 } else {
@@ -398,7 +399,7 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
                 break;
 
             case R.id.instructions:
-                preloadInterstitialAd(this);
+                loadInterstitialAd(this);
                 startActivity(new Intent(RecordAudioActivity.this, InstructionsActivity.class));
                 finish();
             default:
@@ -533,6 +534,30 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
         } catch (Exception e) {
             e.printStackTrace();
             return 0;
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.resume();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.pause();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.destroy();
         }
     }
 }

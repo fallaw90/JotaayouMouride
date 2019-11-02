@@ -56,8 +56,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
         loadUserInformation();
 
-        HomeActivity.showInterstitialAd(getContext());
-
         return this.view;
     }
 

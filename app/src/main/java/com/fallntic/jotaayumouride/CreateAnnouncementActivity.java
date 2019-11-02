@@ -74,6 +74,8 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
         initViews();
         textViewTitle.setText("Creer une annonce pour le dahira " + dahira.getDahiraName());
 
+        HomeActivity.loadBannerAd(this, this);
+
         hideSoftKeyboard();
     }
 
@@ -103,6 +105,9 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
     protected void onDestroy() {
         dismissProgressDialog();
         super.onDestroy();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.destroy();
+        }
     }
 
     @Override
@@ -122,6 +127,17 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
     @Override
     protected void onPause() {
         super.onPause();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.pause();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.resume();
+        }
     }
 
     @Override

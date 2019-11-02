@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.fallntic.jotaayumouride.DahiraInfoActivity.getExistingExpenses;
-import static com.fallntic.jotaayumouride.HomeActivity.preloadInterstitialAd;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
@@ -74,8 +73,6 @@ public class MainActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
         userID = firebaseAuth.getUid();
-
-        preloadInterstitialAd(this);
 
         if (firebaseUser != null) {
             createChannel();

@@ -72,8 +72,6 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
 
         initViewsMainKhassida();
 
-        HomeActivity.showInterstitialAd(getContext());
-
         return view;
     }
 

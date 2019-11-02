@@ -18,9 +18,10 @@
             android:layout_height="wrap_content" />
 
         <ScrollView
+            android:layout_height="match_parent"
             android:id="@+id/scrollView"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+            android:layout_above="@+id/textView_deleteInstruction"
             android:layout_below="@+id/toolbar">
 
             <RelativeLayout
@@ -71,17 +72,29 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/lin_label" />
 
-                <TextView
-                    android:id="@+id/textView_deleteInstruction"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:textColor="@color/red"
-                    android:layout_marginTop="@dimen/_20sdp"
-                    android:text="Glissez vers la gauche pour supprimer"
-                    android:layout_below="@+id/recyclerview_contribution"/>
-
             </RelativeLayout>
         </ScrollView>
+
+        <TextView
+            android:id="@+id/textView_deleteInstruction"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/adView"
+            android:layout_marginTop="@dimen/_20sdp"
+            android:layout_marginBottom="@dimen/_10sdp"
+            android:gravity="center"
+            android:text="Glissez vers la gauche pour supprimer"
+            android:textColor="@color/red" />
+
+        <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/adView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="@dimen/_5sdp"
+            ads:adSize="BANNER"
+            ads:adUnitId="@string/banner_unit_id"></com.google.android.gms.ads.AdView>
+
     </RelativeLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

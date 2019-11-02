@@ -78,7 +78,7 @@ public class ShowExpenseActivity extends AppCompatActivity implements View.OnCli
 
         enableSwipeToDelete(this);
 
-        HomeActivity.showInterstitialAd(this);
+        HomeActivity.loadBannerAd(this, this);
     }
 
     @Override
@@ -139,8 +139,27 @@ public class ShowExpenseActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     protected void onDestroy() {
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.destroy();
+        }
         DataHolder.dismissProgressDialog();
         super.onDestroy();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.resume();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.pause();
+        }
     }
 
     @Override

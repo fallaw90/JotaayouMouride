@@ -88,14 +88,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/lin_phoneNumber"
-                    android:layout_centerHorizontal="true"
                     android:layout_marginTop="@dimen/_20sdp"
-                    android:background="@color/green"
-                    android:padding="@dimen/_5sdp"
                     android:text="CONTINUER"
                     android:textAllCaps="false"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-                    android:textColor="@color/white" />
+                    android:layout_centerHorizontal="true"
+                    android:background="@drawable/rounded_button_solid"
+                    android:padding="@dimen/_10sdp"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_15sdp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/textView_signUpEmail"

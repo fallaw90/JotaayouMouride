@@ -90,6 +90,8 @@ public class AddAudioActivity extends AppCompatActivity {
                 .child("gallery")
                 .child("audios")
                 .child(dahira.getDahiraID());
+
+        HomeActivity.loadBannerAd(this, this);
     }
 
     @Override

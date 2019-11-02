@@ -194,6 +194,8 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
             }
         });
 
+        HomeActivity.loadBannerAd(this, this);
+
     }
 
     @Override
@@ -459,7 +461,28 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
         } catch (Exception e) {
             // already registered
         }
+
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.destroy();
+        }
+
         super.onDestroy();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.resume();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.pause();
+        }
     }
 
     public void releaseMediaPlayer() {

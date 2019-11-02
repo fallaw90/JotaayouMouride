@@ -203,11 +203,13 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_margin="7dp"
-                        android:background="@color/green"
-                        android:padding="@dimen/_7sdp"
                         android:text="@string/addCommission"
                         android:textAllCaps="false"
-                        android:textColor="@color/white" />
+                        android:layout_centerHorizontal="true"
+                        android:background="@drawable/rounded_button_solid"
+                        android:padding="@dimen/_10sdp"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/_15sdp" />
 
                     <TextView
                         android:id="@+id/textViewUpdateCommission"
@@ -343,20 +345,26 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="7dp"
-                        android:background="#7fa208"
                         android:text="@string/update"
                         android:textAllCaps="false"
-                        android:textColor="@color/colorAccent" />
+                        android:layout_centerHorizontal="true"
+                        android:background="@drawable/rounded_button_solid"
+                        android:padding="@dimen/_10sdp"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/_15sdp" />
 
                     <Button
                         android:id="@+id/button_back"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="7dp"
-                        android:background="@color/gray"
                         android:text="@string/backButton"
                         android:textAllCaps="false"
-                        android:textColor="@color/white" />
+                        android:layout_centerHorizontal="true"
+                        android:background="@drawable/rounded_button_cancel"
+                        android:padding="@dimen/_10sdp"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/_15sdp" />
 
                 </LinearLayout>
 

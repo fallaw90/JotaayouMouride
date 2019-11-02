@@ -95,7 +95,7 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="default_notification_channel_id">CH_01</string>
     <string name="rechercher">Rechercher</string>
-    <string name="ok">OK</string>
+    <string name="ok">Ok</string>
 
     <string name="about">"Jotaayou Mouride est une application Android qui vous permet d'écouter des Khassaid, Wolofal, le Coran, gérer les membres de vos dahiras ainsi que la situation financière de chaque dahira dont vous êtes membre. Via l'application Jotaayou Mouride, toute personne inscrite et ajoutée en tant que membre d'un dahira donne par un administrateur (le gestionnaire du dahira), a la possibilité de connaitre la somme de ses différentes cotisations (Adiya, Sass et Sociale) à tout moment et de consulter les dépenses et la somme disponible dans les caisses (Adiya, Sass et Social) de son dahira. L'application offre aussi la possibilité d'envoyer et de recevoir des annonces (vocales ou écrites) entre les membres appartenant au même dahira. D'autant plus, Jotaayou Mouride vous permet de publier vos évènements qui seront visibles pour toute personnes possédant un compte dans l'application. En fin, tous les dahiras auront leur propre répertoire (audio et photo) dans lequel, ils pourront sauvegarder leurs données  (NB: Seuls les membres désignes comme administrateur peuvent ajouter des audios ou photos dans ce répertoire )."</string>
     <string name="offline_used">"Vous pouvez utiliser l'application Jotaayou Mouride sans posséder un compte dans l'application. Mais la seule ressource qui sera disponible pour vous est d'écouter des sons religieux tels que les Khassaide et le Coran disponible dans la page de l'accueil."</string>
@@ -109,9 +109,10 @@
     <string name="add_admin_description">"Seuls un administrateur peut désigner un autre membre comme administrateur. Pour se faire, naviguez sur MENU, MES DAHIRAS, sélectionnez votre dahira, naviguez encore sur MENU, VOIR LES MEMBRES et cliquez sur le membre que tu veux designer comme administrateur. Dans la page personnelle de ce membre, naviguez sur MENU puis cliquez sur MODIFIER CE MEMBRE en bas du menu et faite la modification souhaitée (designer ce membre comme administrateur, supprimer ce membre ou bien l'attribuer à une commission)."</string>
     <string name="quit_modify_dahira_description">"Pour modifier ou se désabonner d'un dahira, naviguez sur MENU, MES DAHIRAS, sélectionnez votre dahira, naviguez encore sur MENU, sélection MODIFIER MON DAHIRA ou QUITTER CE DAHIRA en bas du menu et suivez les instructions."</string>
 
-    <string name="ad_app_id">ca-app-pub-4572559956016262~6999002555</string>
-    <string name="ad_banner_id">ca-app-pub-4572559956016262/7846277841</string>
-    <string name="ad_interstitial_id">ca-app-pub-4572559956016262/4877581148</string>
+    <string name="app_unit_id">ca-app-pub-4572559956016262~6999002555</string>
+    <string name="banner_unit_id">ca-app-pub-4572559956016262/3466259066</string>
+    <string name="interstitial_unit_id">ca-app-pub-4572559956016262/4877581148</string>
+    <string name="interstitial_test_id">ca-app-pub-3940256099942544/1033173712</string>
 
     <string-array name="country_array">
         <item>Senegal</item>

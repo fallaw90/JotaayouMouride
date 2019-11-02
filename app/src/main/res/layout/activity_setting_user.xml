@@ -241,20 +241,26 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="7dp"
-                        android:background="#7fa208"
                         android:text="@string/update"
                         android:textAllCaps="false"
-                        android:textColor="@color/colorAccent" />
+                        android:layout_centerHorizontal="true"
+                        android:background="@drawable/rounded_button_solid"
+                        android:padding="@dimen/_10sdp"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/_15sdp" />
 
                     <Button
                         android:id="@+id/button_cancel"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="7dp"
-                        android:background="#696969"
                         android:text="@string/cancel"
                         android:textAllCaps="false"
-                        android:textColor="@color/colorAccent" />
+                        android:layout_centerHorizontal="true"
+                        android:background="@drawable/rounded_button_cancel"
+                        android:padding="@dimen/_10sdp"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/_15sdp" />
 
                     <Button
                         android:id="@+id/button_delete"
@@ -264,7 +270,10 @@
                         android:background="#cf0b0b"
                         android:text="@string/delete"
                         android:textAllCaps="false"
-                        android:textColor="@color/colorAccent" />
+                        android:layout_centerHorizontal="true"
+                        android:padding="@dimen/_10sdp"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/_15sdp" />
 
                 </LinearLayout>
 

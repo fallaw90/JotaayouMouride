@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.fallntic.jotaayumouride.HomeActivity;
 import com.fallntic.jotaayumouride.Model.Dahira;
 import com.fallntic.jotaayumouride.R;
 
@@ -102,6 +103,7 @@ public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraView
                 indexOnlineUser = -1;
 
             getListSongs(context);
+            HomeActivity.loadInterstitialAd(context);
 
         }
     }

@@ -61,9 +61,12 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_margin="7dp"
-                    android:background="@color/green"
                     android:text="Login"
                     android:textAllCaps="false"
+                    android:layout_centerHorizontal="true"
+                    android:background="@drawable/rounded_button_solid"
+                    android:padding="@dimen/_10sdp"
+                    android:textSize="@dimen/_15sdp"
                     android:textColor="@color/white" />
 
                 <TextView

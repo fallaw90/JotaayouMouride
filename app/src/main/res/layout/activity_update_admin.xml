@@ -25,7 +25,7 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -186,10 +186,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="7dp"
-                        android:background="@color/green"
                         android:text="Terminer la creation de mon dahira"
                         android:textAllCaps="false"
-                        android:textColor="@color/white" />
+                        android:layout_centerHorizontal="true"
+                        android:background="@drawable/rounded_button_solid"
+                        android:padding="@dimen/_10sdp"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/_15sdp" />
 
 
                 </LinearLayout>

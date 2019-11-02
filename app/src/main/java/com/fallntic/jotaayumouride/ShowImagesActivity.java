@@ -108,7 +108,7 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
             textViewDelete.setVisibility(View.GONE);
         }
 
-        HomeActivity.showInterstitialAd(this);
+        HomeActivity.loadBannerAd(this, this);
     }
 
     @Override
@@ -298,4 +298,27 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.pause();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.resume();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (HomeActivity.bannerAd != null) {
+            HomeActivity.bannerAd.destroy();
+        }
+    }
 }
