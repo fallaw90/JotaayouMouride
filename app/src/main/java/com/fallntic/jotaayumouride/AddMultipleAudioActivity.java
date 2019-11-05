@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fallntic.jotaayumouride.Adapter.AddImagesAdapter;
+import com.fallntic.jotaayumouride.Model.Song;
 import com.fallntic.jotaayumouride.Model.UploadPdf;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -41,6 +42,7 @@ import java.util.Map;
 
 import static com.fallntic.jotaayumouride.R.id.button_finish;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listSong;
 
 public class AddMultipleAudioActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "AddMultipleAudioActivity";
@@ -174,7 +176,7 @@ public class AddMultipleAudioActivity extends AppCompatActivity implements View.
         recyclerViewImage.setAdapter(addImagesAdapter);
 
         Intent intent = new Intent();
-        intent.setType("application/pdf");
+        intent.setType("audio/*");
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(intent, "Choisir une image"), RESULT_LOAD_IMAGE);
@@ -252,38 +254,40 @@ public class AddMultipleAudioActivity extends AppCompatActivity implements View.
                     fileDoneList.add("uploading");
                     addImagesAdapter.notifyDataSetChanged();
 
-                    final StorageReference fileToUpload = mStorage.child("PDF")
-                            .child("Khassida").child(fileName);
+                    final StorageReference fileToUpload = mStorage.child("audios")
+                            .child("magal2019HTDKH").child(fileName);
 
 
-                    if (listPDF_Khassida == null)
-                        listPDF_Khassida = new ArrayList<>();
+                    if (listSong == null)
+                        listSong = new ArrayList<>();
 
                     final int finalI = i;
 
-                  uploadTask = (UploadTask) fileToUpload.putFile(fileUri)
-                          .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                            fileToUpload.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    uploadTask = (UploadTask) fileToUpload.putFile(fileUri)
+                            .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                 @Override
-                                public void onSuccess(Uri uri) {
+                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                                    UploadPdf pdf_file = new UploadPdf(fileName, uri.toString());
-                                    listPDF_Khassida.add(pdf_file);
-                                    fileDoneList.remove(finalI);
-                                    fileDoneList.add(finalI, "done");
-                                    addImagesAdapter.notifyDataSetChanged();
+                                    fileToUpload.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                        @Override
+                                        public void onSuccess(Uri uri) {
+                                            String id = System.currentTimeMillis() + "";
+                                            int millis = findSongDuration(uri);
+                                            String duration = getDurationFromMilli(millis);
+                                            Song song = new Song(id, fileName, duration, uri.toString());
+                                            listSong.add(song);
+                                            fileDoneList.remove(finalI);
+                                            fileDoneList.add(finalI, "done");
+                                            addImagesAdapter.notifyDataSetChanged();
+                                        }
+                                    });
+                                }
+                            }).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                                    saveUploadImages();
                                 }
                             });
-                        }
-                    }).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                              @Override
-                              public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                                  saveUploadImages();
-                              }
-                          });
                 }
             }
         }
@@ -291,11 +295,12 @@ public class AddMultipleAudioActivity extends AppCompatActivity implements View.
     }
 
     public void saveUploadImages() {
-        Map<String, Object> pdfMap = new HashMap<>();
-        pdfMap.put("documentID", "pdf_khassida");
-        pdfMap.put("listPDF_Khassida", listPDF_Khassida);
-        FirebaseFirestore.getInstance().collection("PDF")
-                .document("khassida").set(pdfMap)
+        Map<String, Object> songMap = new HashMap<>();
+
+        songMap.put("documentID", "magal2019HTDKH");
+        songMap.put("listSong", listSong);
+        FirebaseFirestore.getInstance().collection("audios")
+                .document("magal2019HTDKH").set(songMap)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @SuppressLint("LongLogTag")
                     @Override

@@ -52,6 +52,8 @@ public class MyStaticVariables {
     public static List<Song> listAudiosSerigneMoussaKa;
     public static List<Song> listAudiosHT;
     public static List<Song> listAudiosHTDK;
+    public static List<Song> listAudiosMagal2019HT;
+    public static List<Song> listAudiosMagal2019HTDK;
     public static List<Song> listAudiosAM;
     public static List<Song> listAudiosRadiass;
     public static List<Song> listAudiosMixedWolofal;

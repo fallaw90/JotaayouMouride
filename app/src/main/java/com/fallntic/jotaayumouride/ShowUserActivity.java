@@ -71,30 +71,6 @@ public class ShowUserActivity extends AppCompatActivity implements View.OnClickL
         super.onDestroy();
     }
 
-    public static boolean hasValidationErrorsSearch(String phoneNumber, EditText editTextPhoneNumber,
-                                                    String email, EditText editTextEmail) {
-
-        if (phoneNumber.isEmpty() && email.isEmpty()) {
-            editTextPhoneNumber.setError("Entrer un numero ou une adresse email");
-            editTextPhoneNumber.requestFocus();
-            return true;
-        }
-
-        if (!phoneNumber.isEmpty() && (!phoneNumber.contains("+"))) {
-            editTextPhoneNumber.setError("Inclure l'indicatif svp (exemple: +221771866656)");
-            editTextPhoneNumber.requestFocus();
-            return true;
-        }
-
-        if (!email.isEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            editTextEmail.setError("Adresse email incorrect");
-            editTextEmail.requestFocus();
-            return true;
-        }
-
-        return false;
-    }
-
     @Override
     public void onBackPressed() {
         actionSelected = "";

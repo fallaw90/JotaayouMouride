@@ -15,9 +15,9 @@
 
         <LinearLayout
             android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:layout_above="@+id/adView"
             android:layout_marginBottom="@dimen/_10sdp"
-            android:layout_height="match_parent"
             android:orientation="vertical">
 
             <include
@@ -83,7 +83,7 @@
             layout="@layout/layout_ads"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:tabSelectedTextColor="@color/green"/>
+            app:tabSelectedTextColor="@color/green" />
 
     </RelativeLayout>
 
@@ -92,6 +92,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -99,7 +100,7 @@
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:text="Patientez SVP ..."
-            android:textSize="@dimen/_20sdp"/>
+            android:textSize="@dimen/_20sdp" />
 
         <ProgressBar
             android:id="@+id/progressBar"
@@ -112,7 +113,7 @@
             android:indeterminateTint="@color/green"
             android:indeterminateTintMode="src_atop"
             android:progress="80"
-            android:progressDrawable="@drawable/circle"/>
+            android:progressDrawable="@drawable/circle" />
     </RelativeLayout>
 
     <com.google.android.material.navigation.NavigationView

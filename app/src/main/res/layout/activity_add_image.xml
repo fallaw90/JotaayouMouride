@@ -36,9 +36,9 @@
         android:layout_height="wrap_content"
         android:text="Terminer"
         android:textAllCaps="false"
-        android:layout_above="@+id/adView"
+        android:layout_below="@+id/recyclerview_image"
+        android:layout_marginTop="@dimen/_50sdp"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="10dp"
         android:background="@drawable/rounded_button_solid"
         android:padding="@dimen/_10sdp"
         android:textColor="@color/white"
@@ -48,11 +48,10 @@
         android:id="@+id/adView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/button_back"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="@dimen/_5sdp"
         ads:adSize="BANNER"
-        ads:adUnitId="@string/banner_unit_id"></com.google.android.gms.ads.AdView>
+        ads:adUnitId="@string/banner_unit_id" />
 
 </RelativeLayout>

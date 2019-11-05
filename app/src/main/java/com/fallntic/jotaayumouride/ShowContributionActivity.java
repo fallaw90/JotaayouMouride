@@ -252,6 +252,7 @@ public class ShowContributionActivity extends AppCompatActivity {
                 builder.setNegativeButton("NON", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        startActivity(new Intent(ShowContributionActivity.this, ShowContributionActivity.class));
                     }
                 });
                 builder.show();

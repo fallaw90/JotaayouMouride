@@ -8,8 +8,10 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.fallntic.jotaayumouride.Model.ListSongObject;
@@ -24,6 +26,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
@@ -37,6 +40,8 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_previous;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosAM;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosHT;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosHTDK;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosMagal2019HT;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosMagal2019HTDK;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosMixedWolofal;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosRadiass;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosSerigneMbayeDiakhate;
@@ -78,52 +83,13 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.ib_ht:
-                setLayoutMedia();
-                if (listAudiosHT == null)
-                    listAudiosHT = new ArrayList<>();
-                getListAudios(getContext(), listAudiosHT, "ht");
-                break;
 
-            case R.id.ib_htdk:
-                setLayoutMedia();
-                if (listAudiosHTDK == null)
-                    listAudiosHTDK = new ArrayList<>();
-                getListAudios(getContext(), listAudiosHTDK, "htdk");
-                break;
-            case R.id.ib_am:
-                setLayoutMedia();
-                if (listAudiosAM == null)
-                    listAudiosAM = new ArrayList<>();
-                getListAudios(getContext(), listAudiosAM, "am");
-                break;
-
-            case R.id.ib_radiass:
-                setLayoutMedia();
-                if (listAudiosRadiass == null)
-                    listAudiosRadiass = new ArrayList<>();
-                getListAudios(getContext(), listAudiosRadiass, "moustaphaGningue");
-                break;
-
-            case R.id.ib_smk:
-                if (listAudiosSerigneMoussaKa == null)
-                    listAudiosSerigneMoussaKa = new ArrayList<>();
-                setLayoutMedia();
-                MyStaticFunctions.getListAudios(getContext(), listAudiosSerigneMoussaKa, "audios", "serigneMoussaKa");
-                break;
-
-            case R.id.ib_smd:
-                setLayoutMedia();
-                if (listAudiosSerigneMbayeDiakhate == null)
-                    listAudiosSerigneMbayeDiakhate = new ArrayList<>();
-                MyStaticFunctions.getListAudios(getContext(), listAudiosSerigneMbayeDiakhate, "audios", "serigneMbayeDiakhate");
+            case R.id.iv_khassaide:
+                chooseKhassaide();
                 break;
 
             case R.id.iv_mixed:
-                setLayoutMedia();
-                if (listAudiosMixedWolofal == null)
-                    listAudiosMixedWolofal = new ArrayList<>();
-                MyStaticFunctions.getListAudios(getContext(), listAudiosMixedWolofal, "audios", "mixedWolofal");
+                chooseWolofal();
                 break;
 
             case R.id.iv_zikr:
@@ -172,12 +138,7 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
     }
 
     private void initViewsMainKhassida() {
-        view.findViewById(R.id.ib_ht).setOnClickListener(this);
-        view.findViewById(R.id.ib_htdk).setOnClickListener(this);
-        view.findViewById(R.id.ib_am).setOnClickListener(this);
-        view.findViewById(R.id.ib_radiass).setOnClickListener(this);
-        view.findViewById(R.id.ib_smk).setOnClickListener(this);
-        view.findViewById(R.id.ib_smd).setOnClickListener(this);
+        view.findViewById(R.id.iv_khassaide).setOnClickListener(this);
         view.findViewById(R.id.iv_mixed).setOnClickListener(this);
         view.findViewById(R.id.iv_zikr).setOnClickListener(this);
     }
@@ -254,5 +215,159 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
         if (isVisibleToUser) {
             setLayoutMainKhassida();
         }
+    }
+
+    private void chooseKourelMagal2019() {
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(Objects.requireNonNull(getContext()));
+        LayoutInflater inflater = getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.dialog_magal2019, null);
+        dialogBuilder.setView(dialogView);
+
+        Button buttonHT = dialogView.findViewById(R.id.button_ht);
+        Button buttonHTDKH = dialogView.findViewById(R.id.button_htdkh);
+
+        final AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.show();
+
+        buttonHT.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setLayoutMedia();
+                if (listAudiosMagal2019HT == null)
+                    listAudiosMagal2019HT = new ArrayList<>();
+                getListAudios(getContext(), listAudiosMagal2019HT, "magal2019HT");
+                alertDialog.dismiss();
+            }
+        });
+
+        buttonHTDKH.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setLayoutMedia();
+                if (listAudiosMagal2019HTDK == null)
+                    listAudiosMagal2019HTDK = new ArrayList<>();
+                getListAudios(getContext(), listAudiosMagal2019HTDK, "magal2019HTDKH");
+                alertDialog.dismiss();
+            }
+        });
+    }
+
+    private void chooseKhassaide() {
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(Objects.requireNonNull(getContext()));
+        LayoutInflater inflater = getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.dialog_audio_khassida, null);
+        dialogBuilder.setView(dialogView);
+
+        Button buttonMagal2019 = dialogView.findViewById(R.id.button_magal2019);
+        Button buttonHT = dialogView.findViewById(R.id.button_ht);
+        Button buttonHTDKH = dialogView.findViewById(R.id.button_htdkh);
+        Button buttonAhlouMinane = dialogView.findViewById(R.id.button_am);
+        Button buttonRadiass = dialogView.findViewById(R.id.button_radiass);
+
+        final AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.show();
+
+        buttonMagal2019.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                chooseKourelMagal2019();
+                alertDialog.dismiss();
+            }
+        });
+
+        buttonHT.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setLayoutMedia();
+                if (listAudiosHT == null)
+                    listAudiosHT = new ArrayList<>();
+                getListAudios(getContext(), listAudiosHT, "ht");
+                alertDialog.dismiss();
+            }
+        });
+
+        buttonHTDKH.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setLayoutMedia();
+                if (listAudiosHTDK == null)
+                    listAudiosHTDK = new ArrayList<>();
+                getListAudios(getContext(), listAudiosHTDK, "htdk");
+                alertDialog.dismiss();
+            }
+        });
+
+        buttonAhlouMinane.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setLayoutMedia();
+                if (listAudiosAM == null)
+                    listAudiosAM = new ArrayList<>();
+                getListAudios(getContext(), listAudiosAM, "am");
+                alertDialog.dismiss();
+            }
+        });
+
+        buttonRadiass.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setLayoutMedia();
+                if (listAudiosRadiass == null)
+                    listAudiosRadiass = new ArrayList<>();
+                getListAudios(getContext(), listAudiosRadiass, "moustaphaGningue");
+                alertDialog.dismiss();
+            }
+        });
+    }
+
+    private void chooseWolofal() {
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(Objects.requireNonNull(getContext()));
+        LayoutInflater inflater = getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.dialog_audio_wolofal, null);
+        dialogBuilder.setView(dialogView);
+
+        Button buttonSerigneMoussaKa = dialogView.findViewById(R.id.button_serigne_moussa_ka);
+        Button buttonSerigneMbayeDiakhate = dialogView.findViewById(R.id.button_serigne_mbaye_diakhate);
+        Button buttonMixedWolofal = dialogView.findViewById(R.id.button_mixed_wolofal);
+
+        final AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.show();
+
+        buttonSerigneMoussaKa.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setLayoutMedia();
+                if (listAudiosSerigneMoussaKa == null)
+                    listAudiosSerigneMoussaKa = new ArrayList<>();
+                setLayoutMedia();
+                MyStaticFunctions.getListAudios(getContext(), listAudiosSerigneMoussaKa, "audios", "serigneMoussaKa");
+                alertDialog.dismiss();
+            }
+        });
+
+        buttonSerigneMbayeDiakhate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setLayoutMedia();
+                if (listAudiosSerigneMbayeDiakhate == null)
+                    listAudiosSerigneMbayeDiakhate = new ArrayList<>();
+                MyStaticFunctions.getListAudios(getContext(), listAudiosSerigneMbayeDiakhate, "audios", "serigneMbayeDiakhate");
+                alertDialog.dismiss();
+            }
+        });
+
+        buttonMixedWolofal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setLayoutMedia();
+                if (listAudiosMixedWolofal == null)
+                    listAudiosMixedWolofal = new ArrayList<>();
+                MyStaticFunctions.getListAudios(getContext(), listAudiosMixedWolofal, "audios", "mixedWolofal");
+                alertDialog.dismiss();
+            }
+        });
     }
 }

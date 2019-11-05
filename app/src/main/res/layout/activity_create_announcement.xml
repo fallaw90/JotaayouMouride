@@ -33,9 +33,11 @@
                 android:textColor="@color/red" />
 
             <RelativeLayout
-                android:layout_width="match_parent"
+                android:id="@+id/rel_editText_note"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true">
+                android:layout_below="@+id/textView_title"
+                android:layout_width="match_parent"
+                android:layout_marginTop="@dimen/_20sdp">
 
                 <EditText
                     android:id="@+id/editText_note"
@@ -57,11 +59,11 @@
                 android:id="@+id/button_save"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_above="@+id/button_cancel"
+                android:layout_below="@+id/rel_editText_note"
                 android:layout_centerHorizontal="true"
                 android:text="Enregistrer annonce"
                 android:textAllCaps="false"
-                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_20sdp"
                 android:background="@drawable/rounded_button_solid"
                 android:padding="@dimen/_10sdp"
                 android:textColor="@color/white"
@@ -71,9 +73,9 @@
                 android:id="@+id/button_cancel"
                 android:layout_width="@dimen/_150sdp"
                 android:layout_height="wrap_content"
-                android:layout_above="@+id/adView"
                 android:layout_margin="7dp"
                 android:text="@string/btn_cancel"
+                android:layout_below="@+id/button_save"
                 android:textAllCaps="false"
                 android:layout_centerHorizontal="true"
                 android:background="@drawable/rounded_button_cancel"
@@ -85,12 +87,11 @@
                 android:id="@+id/adView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_above="@+id/button_back"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
                 android:layout_marginBottom="5dp"
                 ads:adSize="BANNER"
-                ads:adUnitId="@string/banner_unit_id"></com.google.android.gms.ads.AdView>
+                ads:adUnitId="@string/banner_unit_id" />
 
         </RelativeLayout>
 
