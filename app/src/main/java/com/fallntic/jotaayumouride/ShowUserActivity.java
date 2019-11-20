@@ -368,8 +368,10 @@ public class ShowUserActivity extends AppCompatActivity implements View.OnClickL
         search_user = menu.findItem(R.id.search_user);
 
         search_user.setVisible(true);
-        if (onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
-            iconAdd.setVisible(true);
+        if (onlineUser != null && onlineUser.getListRoles() != null && onlineUser.getListRoles().size() > indexOnlineUser) {
+            if (onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
+                iconAdd.setVisible(true);
+            }
         }
         return true;
     }

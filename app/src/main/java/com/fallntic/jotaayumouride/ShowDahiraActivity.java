@@ -171,7 +171,7 @@ public class ShowDahiraActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void displayDahiras(List<Dahira> listDahira) {
-        if (listDahira.size() > 0) {
+        if (listDahira != null && listDahira.size() > 0) {
             Collections.sort(listDahira);
             //Attach adapter to recyclerView
             recyclerViewDahira.setHasFixedSize(true);
@@ -180,6 +180,8 @@ public class ShowDahiraActivity extends AppCompatActivity implements View.OnClic
             dahiraAdapter = new DahiraAdapter(this, listDahira);
             recyclerViewDahira.setAdapter(dahiraAdapter);
             dahiraAdapter.notifyDataSetChanged();
+        } else {
+            startActivity(new Intent(this, HomeActivity.class));
         }
     }
 

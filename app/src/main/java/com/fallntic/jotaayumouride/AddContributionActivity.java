@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -70,6 +71,8 @@ public class AddContributionActivity extends AppCompatActivity implements View.O
         checkInternetConnection(this);
 
         initViews();
+
+        hideSoftKeyboard();
 
         HomeActivity.loadBannerAd(this, this);
     }
@@ -280,5 +283,9 @@ public class AddContributionActivity extends AppCompatActivity implements View.O
         }
 
         return false;
+    }
+
+    public void hideSoftKeyboard() {
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 }

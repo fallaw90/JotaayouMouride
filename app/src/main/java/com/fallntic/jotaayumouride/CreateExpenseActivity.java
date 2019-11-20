@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -80,6 +81,8 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
         displayViews();
 
         checkInternetConnection(this);
+
+        hideSoftKeyboard();
 
     }
 
@@ -305,6 +308,10 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
         }
 
         return false;
+    }
+
+    public void hideSoftKeyboard() {
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
 }

@@ -20,7 +20,9 @@ import com.fallntic.jotaayumouride.Utility.MyStaticFunctions;
 import java.util.List;
 
 import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.indexSelectedUser;
+import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.DataHolder.selectedUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.adiya;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.sass;
@@ -51,12 +53,18 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
         int indexRole = user.getListDahiraID().indexOf(dahira.getDahiraID());
 
-
         holder.textViewUserName.setText(user.getUserName());
-        holder.textViewAddress.setText(user.getAddress());
-        holder.textViewUserPhoneNumber.setText(user.getUserPhoneNumber());
 
-        if (indexRole >= 0) {
+        if (indexOnlineUser < onlineUser.getListRoles().size() &&
+                onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
+            holder.textViewAddress.setText(user.getAddress());
+            holder.textViewUserPhoneNumber.setText(user.getUserPhoneNumber());
+        } else {
+            holder.textViewAddress.setVisibility(View.GONE);
+            holder.textViewUserPhoneNumber.setVisibility(View.GONE);
+        }
+
+        if (indexRole >= 0 && user.getListRoles().size() > indexRole) {
             String role = user.getListRoles().get(indexRole);
             if (role.equals("Administrateur"))
                 holder.textViewRole.setText(role);
@@ -95,14 +103,17 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
         @Override
         public void onClick(View v) {
-            selectedUser = listUsers.get(getAdapterPosition());
-            indexSelectedUser = selectedUser.getListDahiraID().indexOf(dahira.getDahiraID());
-            adiya = null;
-            sass = null;
-            social = null;
-            HomeActivity.loadInterstitialAd(context);
-            Intent intent = new Intent(context, UserInfoActivity.class);
-            context.startActivity(intent);
+            if (indexOnlineUser < onlineUser.getListRoles().size() &&
+                    onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
+                selectedUser = listUsers.get(getAdapterPosition());
+                indexSelectedUser = selectedUser.getListDahiraID().indexOf(dahira.getDahiraID());
+                adiya = null;
+                sass = null;
+                social = null;
+                HomeActivity.loadInterstitialAd(context);
+                Intent intent = new Intent(context, UserInfoActivity.class);
+                context.startActivity(intent);
+            }
         }
     }
 }

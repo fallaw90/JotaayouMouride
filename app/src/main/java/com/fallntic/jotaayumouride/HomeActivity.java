@@ -14,7 +14,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -204,7 +203,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         itemLogin = menu.findItem(R.id.login);
         itemLogo = menu.findItem(R.id.logo);
 
-        if (firebaseAuth.getCurrentUser() == null) {
+        if (firebaseAuth == null || firebaseAuth.getCurrentUser() == null) {
             itemLogin.setVisible(true);
         } else {
             itemLogo.setVisible(true);
@@ -423,7 +422,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onAdLoaded() {
                 super.onAdLoaded();
-                Toast.makeText(context, "Ad starting in 5 seconds!", Toast.LENGTH_SHORT).show();
                 showInterstitialAd();
             }
         });

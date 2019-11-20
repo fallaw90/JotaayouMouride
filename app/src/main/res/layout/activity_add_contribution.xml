@@ -15,7 +15,9 @@
     <ScrollView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_below="@+id/toolbar">
+        android:layout_above="@+id/adView"
+        android:layout_below="@+id/toolbar"
+        android:layout_marginBottom="@dimen/_10sdp">
 
         <RelativeLayout
             android:layout_width="wrap_content"
@@ -42,7 +44,7 @@
                     android:id="@+id/editText_date"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/_15sdp"
+                    android:layout_margin="@dimen/_10sdp"
                     android:background="@drawable/edittext_background"
                     android:focusable="false"
                     android:fontFamily="sans-serif"
@@ -56,7 +58,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/editText_date"
-                    android:layout_marginTop="@dimen/_15sdp"
+                    android:layout_margin="@dimen/_10sdp"
                     android:background="@drawable/edittext_background"
                     android:focusable="true"
                     android:fontFamily="sans-serif"
@@ -71,7 +73,7 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/editText_amount"
-                    android:layout_marginTop="@dimen/_15sdp"
+                    android:layout_marginTop="@dimen/_10sdp"
                     android:weightSum="1">
 
                     <RadioButton
@@ -79,7 +81,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="@dimen/_15sdp"
                         android:buttonTint="@color/black"
                         android:checked="true"
                         android:text="adiya"

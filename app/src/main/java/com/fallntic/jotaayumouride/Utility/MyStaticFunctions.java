@@ -471,8 +471,10 @@ public class MyStaticFunctions {
         mediaPlayer.reset();
 
         try {
-            mediaPlayer.setDataSource(song.getAudioUri());
-            mediaPlayer.prepareAsync();
+            if (mediaPlayer != null) {
+                mediaPlayer.setDataSource(song.getAudioUri());
+                mediaPlayer.prepareAsync();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
