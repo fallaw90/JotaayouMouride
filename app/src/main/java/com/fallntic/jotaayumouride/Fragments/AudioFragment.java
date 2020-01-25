@@ -118,7 +118,6 @@ public class AudioFragment extends Fragment implements View.OnClickListener, Pla
     //************* Notification Music ********************
     NotificationManager notificationManager;
     List<Track> tracks;
-    boolean isPlaying = false;
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -129,7 +128,7 @@ public class AudioFragment extends Fragment implements View.OnClickListener, Pla
                     onTrackPrevious();
                     break;
                 case CreateNotificationMusic.ACTION_PLAY:
-                    if (isPlaying) {
+                    if (mediaPlayer != null && mediaPlayer.isPlaying()) {
                         onTrackPause();
                     } else {
                         onTrackPlay();
@@ -547,11 +546,6 @@ public class AudioFragment extends Fragment implements View.OnClickListener, Pla
             public void onPrepared(MediaPlayer mp) {
                 //Lancer la chanson
                 togglePlay(context, mp);
-                if (isPlaying) {
-                    onTrackPause();
-                } else {
-                    onTrackPlay();
-                }
             }
         });
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -600,13 +594,13 @@ public class AudioFragment extends Fragment implements View.OnClickListener, Pla
         if (mp != null && mp.isPlaying()) {
             mp.stop();
             mp.reset();
-            isPlaying = false;
+            onTrackPause();
         } else {
             pb_loader.setVisibility(View.GONE);
             tb_title.setVisibility(View.GONE);
             if (mp != null) {
                 mp.start();
-                isPlaying = true;
+                onTrackPlay();
             }
             iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_pause));
 
@@ -622,6 +616,7 @@ public class AudioFragment extends Fragment implements View.OnClickListener, Pla
                 if (mediaPlayer != null && mediaPlayer.isPlaying()) {
                     iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_play));
                     mediaPlayer.pause();
+                    onTrackPause();
                 } else {
                     if (firstLaunch) {
                         Song song = listSong.get(0);
@@ -634,7 +629,7 @@ public class AudioFragment extends Fragment implements View.OnClickListener, Pla
                         firstLaunch = false;
                     }
                     iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_pause));
-                    isPlaying = true;
+                    onTrackPlay();
                 }
             }
         });
@@ -655,10 +650,10 @@ public class AudioFragment extends Fragment implements View.OnClickListener, Pla
                         changeSelectedSong(listSong.size() - 1);
                         prepareSong(context, listSong.get(listSong.size() - 1));
                     }
-                    if (isPlaying) {
-                        onTrackPause();
-                    } else {
+                    if (mediaPlayer != null && mediaPlayer.isPlaying()) {
                         onTrackPlay();
+                    } else {
+                        onTrackPause();
                     }
                 }
             }
@@ -724,8 +719,6 @@ public class AudioFragment extends Fragment implements View.OnClickListener, Pla
         }
     }
 
-    //******************* Notification Music ****************
-
     public void pushNext(final Context context, final List<Song> listSong) {
         iv_next.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -741,15 +734,16 @@ public class AudioFragment extends Fragment implements View.OnClickListener, Pla
                         prepareSong(context, listSong.get(0));
                     }
                 }
-                if (isPlaying) {
-                    onTrackPause();
-                } else {
+                if (mediaPlayer != null && mediaPlayer.isPlaying()) {
                     onTrackPlay();
+                } else {
+                    onTrackPause();
                 }
             }
         });
     }
 
+    //******************************** Notification Music ***********************************
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -793,7 +787,6 @@ public class AudioFragment extends Fragment implements View.OnClickListener, Pla
     public void onTrackPlay() {
         CreateNotificationMusic.createNotification(getContext(), tracks.get(currentIndex),
                 R.drawable.ic_pause_black_24dp, currentIndex, tracks.size() - 1);
-        isPlaying = true;
 
     }
 
@@ -802,7 +795,6 @@ public class AudioFragment extends Fragment implements View.OnClickListener, Pla
 
         CreateNotificationMusic.createNotification(getContext(), tracks.get(currentIndex),
                 R.drawable.ic_play_arrow_black_24dp, currentIndex, tracks.size() - 1);
-        isPlaying = false;
     }
 
     @Override
