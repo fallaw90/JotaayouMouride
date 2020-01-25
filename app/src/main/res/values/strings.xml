@@ -183,4 +183,10 @@
     <string name="title_activity_home">HomeActivity</string>
     <string name="tab_text_1">Tab 1</string>
     <string name="tab_text_2">Tab 2</string>
+    <string name="retour_a_la_page_precedente">Retour a la page precedente</string>
+    <string name="patientez_svp">Patientez SVP ...</string>
+    <string name="titre_du_song">Titre du song</string>
+    <string name="selectioner_un_song">Selectioner un song</string>
+    <string name="aucun_fichier_selectionn">Aucun fichier selectionné</string>
+    <string name="enregistrer">Enregistrer</string>
 </resources>

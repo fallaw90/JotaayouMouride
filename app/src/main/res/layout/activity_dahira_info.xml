@@ -23,12 +23,13 @@
             android:id="@+id/scrollView"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
+            android:layout_above="@+id/button_back"
             android:layout_below="@+id/toolbar">
 
             <RelativeLayout
                 android:id="@+id/relativeLayout_data"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/_10sdp"
                 android:layout_marginRight="@dimen/_10sdp">
 
@@ -41,7 +42,6 @@
                         android:id="@+id/imageView"
                         android:layout_width="150dp"
                         android:layout_height="150dp"
-                        android:layout_centerHorizontal="true"
                         android:layout_gravity="center"
                         android:layout_margin="@dimen/_15sdp"
                         android:scaleType="centerCrop"
@@ -130,7 +130,7 @@
                 android:layout_above="@+id/progressBar"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
-                android:text="Patientez SVP ..."
+                android:text="@string/patientez_svp"
                 android:textSize="@dimen/_20sdp" />
 
             <ProgressBar
@@ -152,7 +152,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@+id/adView"
-            android:text="Retour a la page precedente"
+            android:text="@string/retour_a_la_page_precedente"
             android:textAllCaps="false"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="10dp"
@@ -169,7 +169,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="@dimen/_5sdp"
             ads:adSize="BANNER"
-            ads:adUnitId="@string/banner_unit_id"></com.google.android.gms.ads.AdView>
+            ads:adUnitId="@string/banner_unit_id" />
 
     </RelativeLayout>
 

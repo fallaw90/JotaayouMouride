@@ -29,11 +29,9 @@
         android:layout_below="@+id/textView_titleLayoutUploadSong"
         android:layout_marginTop="@dimen/_20sdp"
         android:autofillHints="Titre son"
-        android:textColor="@color/black"
         android:hint="@string/titre_du_song"
-        android:textColorHighlight="@color/green"
-        tools:ignore="TextFields"
-        tools:targetApi="o" />
+        android:textColor="@color/black"
+        android:textColorHighlight="@color/green" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -64,9 +62,9 @@
                 android:id="@+id/button_upload"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:onClick="openAudioFile"
                 android:layout_margin="@dimen/_5sdp"
                 android:background="@drawable/rounded_button_save"
+                android:onClick="openAudioFile"
                 android:padding="@dimen/_7sdp"
                 android:text="@string/selectioner_un_song"
                 android:textColor="@color/white"
@@ -88,15 +86,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/adView"
-        android:onClick="uploadAudioToFirebase"
-        android:text="@string/enregistrer"
-        android:textStyle="bold"
         android:layout_centerHorizontal="true"
         android:layout_margin="@dimen/_10sdp"
         android:background="@drawable/rounded_button_solid"
+        android:onClick="uploadAudioToFirebase"
         android:padding="@dimen/_10sdp"
+        android:text="@string/enregistrer"
         android:textColor="@color/white"
-        android:textSize="@dimen/_15sdp" />
+        android:textSize="@dimen/_15sdp"
+        android:textStyle="bold" />
 
     <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
         android:id="@+id/adView"

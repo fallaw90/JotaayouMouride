@@ -88,6 +88,9 @@
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="@string/app_unit_id" />
+
+        <receiver android:name=".Services.NotificationActionService" />
+        <service android:name=".Services.OnClearFromRecentService" />
     </application>
 
 </manifest>

@@ -118,6 +118,55 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     public static InterstitialAd interstitialAd;
     public static AdRequest adRequest;
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_home);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        initViews();
+
+        textViewMarquee.setSelected(true);
+        getMarqueeText();
+
+        //startActivity(new Intent(this, AddMultipleAudioActivity.class));
+        //startActivity(new Intent(this, ImageAdvertisementActivity.class));
+
+        if (!isConnected(this)) {
+            toastMessage(this, "Verifier votre connexion SVP.");
+            return;
+        }
+
+        if (firebaseAuth != null && firebaseAuth.getCurrentUser() != null) {
+            userID = firebaseAuth.getCurrentUser().getUid();
+            setDrawerMenu();
+            saveTokenID(userID);
+            setupOnlineViewPager(viewPager);
+            getDahiraToUpdate();
+            textViewNavUserName.setText(onlineUser.getUserName());
+            textViewNavEmail.setText(onlineUser.getEmail());
+        } else {
+            toolbar.setLogo(R.mipmap.logo);
+            setupOfflineViewPager(viewPager);
+        }
+
+        changeTab();
+
+        //****************************** adMob ***********************************
+        // Initialize the Mobile Ads SDK.
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+                loadInterstitialAd(HomeActivity.this);
+            }
+        });
+
+        loadBannerAd(this, this);
+    }
+
     public static void getMyDahira(final Context context) {
         showProgressBar();
         if (MyStaticVariables.myListDahira == null || myListDahira.isEmpty()) {
@@ -663,55 +712,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         super.onDestroy();
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-        toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        initViews();
-
-        textViewMarquee.setSelected(true);
-        getMarqueeText();
-
-        //startActivity(new Intent(this, AddMultipleAudioActivity.class));
-        //startActivity(new Intent(this, ImageAdvertisementActivity.class));
-
-        if (!isConnected(this)) {
-            toastMessage(this, "Verifier votre connexion SVP.");
-            return;
-        }
-
-        if (firebaseAuth != null && firebaseAuth.getCurrentUser() != null) {
-            userID = firebaseAuth.getCurrentUser().getUid();
-            setDrawerMenu();
-            saveTokenID(userID);
-            setupOnlineViewPager(viewPager);
-            getDahiraToUpdate();
-            textViewNavUserName.setText(onlineUser.getUserName());
-            textViewNavEmail.setText(onlineUser.getEmail());
-        } else {
-            toolbar.setLogo(R.mipmap.logo);
-            setupOfflineViewPager(viewPager);
-        }
-
-        changeTab();
-
-        //****************************** adMob ***********************************
-        // Initialize the Mobile Ads SDK.
-        MobileAds.initialize(this, new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
-                loadInterstitialAd(HomeActivity.this);
-            }
-        });
-
-        loadBannerAd(this, this);
-    }
-
     private void getMarqueeText() {
         if (marqueeAd == null) {
             firestore.collection("advertisements").document("marquee_text").get()
@@ -741,4 +741,5 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             textViewMarquee.setText(marqueeAd);
         }
     }
+
 }

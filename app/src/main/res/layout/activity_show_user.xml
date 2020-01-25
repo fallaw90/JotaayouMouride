@@ -54,7 +54,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@+id/adView"
-            android:text="Retour a la page precedente"
+            android:text="@string/retour_a_la_page_precedente"
             android:textAllCaps="false"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="@dimen/_10sdp"
@@ -71,7 +71,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="@dimen/_5sdp"
             ads:adSize="BANNER"
-            ads:adUnitId="@string/banner_unit_id"></com.google.android.gms.ads.AdView>
+            ads:adUnitId="@string/banner_unit_id" />
 
     </RelativeLayout>
 

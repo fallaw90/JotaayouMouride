@@ -2,12 +2,18 @@ package com.fallntic.jotaayumouride.Fragments;
 
 import android.annotation.SuppressLint;
 import android.app.DownloadManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -31,9 +37,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fallntic.jotaayumouride.Adapter.SongAdapter;
+import com.fallntic.jotaayumouride.Interfaces.Playable;
 import com.fallntic.jotaayumouride.Model.ListSongObject;
 import com.fallntic.jotaayumouride.Model.Song;
+import com.fallntic.jotaayumouride.Notifications.CreateNotificationMusic;
+import com.fallntic.jotaayumouride.Notifications.Track;
 import com.fallntic.jotaayumouride.R;
+import com.fallntic.jotaayumouride.Services.OnClearFromRecentService;
 import com.fallntic.jotaayumouride.Utility.MyStaticFunctions;
 import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -69,7 +79,7 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayo
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
 
 
-public class AudioFragment extends Fragment implements View.OnClickListener {
+public class AudioFragment extends Fragment implements View.OnClickListener, Playable {
 
     private static final String TAG = "AudioFragment";
     private View view;
@@ -105,8 +115,32 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
         }
     };
 
-    //********************Notification Music*************************
+    //************* Notification Music ********************
+    NotificationManager notificationManager;
+    List<Track> tracks;
+    boolean isPlaying = false;
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getExtras().getString("actionname");
 
+            switch (action) {
+                case CreateNotificationMusic.ACTION_PREVIUOS:
+                    onTrackPrevious();
+                    break;
+                case CreateNotificationMusic.ACTION_PLAY:
+                    if (isPlaying) {
+                        onTrackPause();
+                    } else {
+                        onTrackPlay();
+                    }
+                    break;
+                case CreateNotificationMusic.ACTION_NEXT:
+                    onTrackNext();
+                    break;
+            }
+        }
+    };
 
     @SuppressLint("RestrictedApi")
     @Override
@@ -115,14 +149,9 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
 
         view = inflater.inflate(R.layout.fragment_audio, container, false);
 
-        return view;
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
         initViewsMainKhassida();
+
+        return view;
     }
 
     @Override
@@ -218,38 +247,14 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
         initViewsProgressBar();
     }
 
-    private void getListAudios(final Context context, final List<Song> listSong, String documentID) {
-        //Retrieve all songs from FirebaseFirestore
-        if (listSong.isEmpty()) {
-            showProgressBar();
-            MyStaticVariables.collectionReference = MyStaticVariables.firestore.collection("audios");
-            MyStaticVariables.collectionReference.whereEqualTo("documentID", documentID).get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            hideProgressBar();
-                            ListSongObject listSongObject = null;
-                            if (!queryDocumentSnapshots.isEmpty()) {
-                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
-                                for (DocumentSnapshot documentSnapshot : list) {
-                                    listSongObject = documentSnapshot.toObject(ListSongObject.class);
-                                    listSong.addAll(listSongObject.getListSong());
-                                    break;
-                                }
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
-                                Collections.sort(listSong);
-                                setMyAdapter(context, listSong);
-                            }
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    hideProgressBar();
-                    toastMessage(context, "Erreur de telechargement du repertoire audio.");
-                }
-            });
-        } else {
-            setMyAdapter(context, listSong);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createChannel();
+            getContext().registerReceiver(broadcastReceiver, new IntentFilter("TRACKS_TRACKS"));
+            getContext().startService(new Intent(getContext(), OnClearFromRecentService.class));
         }
     }
 
@@ -421,81 +426,41 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
         });
     }
 
-
     //*********************************** SET ADAPTER *************************************
 
-    public void setMyAdapter(final Context context, final List<Song> listSong) {
-
-        if (myHandler == null)
-            myHandler = new Handler();
-        if (mediaPlayer == null)
-            mediaPlayer = new MediaPlayer();
-
-        //Requête récupérant les chansons
-        recycler.setLayoutManager(new LinearLayoutManager(context));
-        mAdapter = new SongAdapter(context, listSong, new SongAdapter.RecyclerItemClickListener() {
-
-            @Override
-            public void onClickListener(Song song, int position) {
-                if (mediaPlayer == null) {
-                    mediaPlayer = new MediaPlayer();
+    private void getListAudios(final Context context, final List<Song> listSong, String documentID) {
+        //Retrieve all songs from FirebaseFirestore
+        if (listSong.isEmpty()) {
+            showProgressBar();
+            MyStaticVariables.collectionReference = MyStaticVariables.firestore.collection("audios");
+            MyStaticVariables.collectionReference.whereEqualTo("documentID", documentID).get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            hideProgressBar();
+                            ListSongObject listSongObject = null;
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                                for (DocumentSnapshot documentSnapshot : list) {
+                                    listSongObject = documentSnapshot.toObject(ListSongObject.class);
+                                    listSong.addAll(listSongObject.getListSong());
+                                    break;
+                                }
+                                Collections.sort(listSong);
+                                popluateTracks(listSong);
+                                setMyAdapter(context, listSong);
+                            }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    hideProgressBar();
+                    toastMessage(context, "Erreur de telechargement du repertoire audio.");
                 }
-                firstLaunch = false;
-                changeSelectedSong(position);
-                prepareSong(context, song);
-            }
-
-            @Override
-            public boolean onLongClickListener(Song song, int position) {
-                downloadFile(context, song.getAudioTitle(), song.getAudioUri());
-                toastMessage(context, "Telechargement en cours ...");
-                return true;
-            }
-        });
-        recycler.setAdapter(mAdapter);
-
-
-        //Initialisation du media player
-        mediaPlayer = new MediaPlayer();
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                //Lancer la chanson
-                togglePlay(context, mp);
-            }
-        });
-        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                if (currentIndex + 1 < listSong.size()) {
-                    Song next = listSong.get(currentIndex + 1);
-                    changeSelectedSong(currentIndex + 1);
-                    prepareSong(context, next);
-                } else {
-                    Song next = listSong.get(0);
-                    changeSelectedSong(0);
-                    prepareSong(context, next);
-                }
-            }
-        });
-
-
-        //Gestion de la seekbar
-        handleSeekbar();
-
-        //Controle de la chanson
-        pushPlay(context, listSong);
-        pushPrevious(context, listSong);
-        pushNext(context, listSong);
-
-        //Gestion du click sur le bouton rechercher
-        fab_search.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                searchSong(context, listSong);
-            }
-        });
+            });
+        } else {
+            setMyAdapter(context, listSong);
+        }
     }
 
     public void handleSeekbar() {
@@ -543,22 +508,84 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    public void togglePlay(Context context, MediaPlayer mp) {
-        seekBar.setMax(mediaPlayer.getDuration());
-        if (mp != null && mp.isPlaying()) {
-            mp.stop();
-            mp.reset();
-        } else {
-            pb_loader.setVisibility(View.GONE);
-            tb_title.setVisibility(View.GONE);
-            if (mp != null) {
-                mp.start();
-            }
-            iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_pause));
+    public void setMyAdapter(final Context context, final List<Song> listSong) {
 
-            seekBar.setProgress(mediaPlayer.getCurrentPosition());
-            myHandler.postDelayed(UpdateSongTime, 100);
-        }
+        if (myHandler == null)
+            myHandler = new Handler();
+        if (mediaPlayer == null)
+            mediaPlayer = new MediaPlayer();
+
+        //Requête récupérant les chansons
+        recycler.setLayoutManager(new LinearLayoutManager(context));
+        mAdapter = new SongAdapter(context, listSong, new SongAdapter.RecyclerItemClickListener() {
+
+            @Override
+            public void onClickListener(Song song, int position) {
+                if (mediaPlayer == null) {
+                    mediaPlayer = new MediaPlayer();
+                }
+                firstLaunch = false;
+                changeSelectedSong(position);
+                prepareSong(context, song);
+            }
+
+            @Override
+            public boolean onLongClickListener(Song song, int position) {
+                downloadFile(context, song.getAudioTitle(), song.getAudioUri());
+                toastMessage(context, "Telechargement en cours ...");
+                return true;
+            }
+        });
+        recycler.setAdapter(mAdapter);
+
+
+        //Initialisation du media player
+        mediaPlayer = new MediaPlayer();
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                //Lancer la chanson
+                togglePlay(context, mp);
+                if (isPlaying) {
+                    onTrackPause();
+                } else {
+                    onTrackPlay();
+                }
+            }
+        });
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                if (currentIndex + 1 < listSong.size()) {
+                    Song next = listSong.get(currentIndex + 1);
+                    changeSelectedSong(currentIndex + 1);
+
+                    prepareSong(context, next);
+                } else {
+                    Song next = listSong.get(0);
+                    changeSelectedSong(0);
+                    prepareSong(context, next);
+                }
+            }
+        });
+
+
+        //Gestion de la seekbar
+        handleSeekbar();
+
+        //Controle de la chanson
+        pushPlay(context, listSong);
+        pushPrevious(context, listSong);
+        pushNext(context, listSong);
+
+        //Gestion du click sur le bouton rechercher
+        fab_search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchSong(context, listSong);
+            }
+        });
     }
 
     public void changeSelectedSong(int index) {
@@ -566,6 +593,26 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
         currentIndex = index;
         mAdapter.setSelectedPosition(currentIndex);
         mAdapter.notifyItemChanged(currentIndex);
+    }
+
+    public void togglePlay(Context context, MediaPlayer mp) {
+        seekBar.setMax(mediaPlayer.getDuration());
+        if (mp != null && mp.isPlaying()) {
+            mp.stop();
+            mp.reset();
+            isPlaying = false;
+        } else {
+            pb_loader.setVisibility(View.GONE);
+            tb_title.setVisibility(View.GONE);
+            if (mp != null) {
+                mp.start();
+                isPlaying = true;
+            }
+            iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_pause));
+
+            seekBar.setProgress(mediaPlayer.getCurrentPosition());
+            myHandler.postDelayed(UpdateSongTime, 100);
+        }
     }
 
     public void pushPlay(final Context context, final List<Song> listSong) {
@@ -587,13 +634,13 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
                         firstLaunch = false;
                     }
                     iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_pause));
+                    isPlaying = true;
                 }
             }
         });
     }
 
     public void pushPrevious(final Context context, final List<Song> listSong) {
-
         iv_previous.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -608,25 +655,10 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
                         changeSelectedSong(listSong.size() - 1);
                         prepareSong(context, listSong.get(listSong.size() - 1));
                     }
-                }
-            }
-        });
-    }
-
-    public void pushNext(final Context context, final List<Song> listSong) {
-        iv_next.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                firstLaunch = false;
-                if (mediaPlayer != null) {
-
-                    if (currentIndex + 1 < listSong.size()) {
-                        Song next = listSong.get(currentIndex + 1);
-                        changeSelectedSong(currentIndex + 1);
-                        prepareSong(context, next);
+                    if (isPlaying) {
+                        onTrackPause();
                     } else {
-                        changeSelectedSong(0);
-                        prepareSong(context, listSong.get(0));
+                        onTrackPlay();
                     }
                 }
             }
@@ -690,5 +722,94 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
         if (downloadmanager != null) {
             downloadmanager.enqueue(request);
         }
+    }
+
+    //******************* Notification Music ****************
+
+    public void pushNext(final Context context, final List<Song> listSong) {
+        iv_next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                firstLaunch = false;
+                if (mediaPlayer != null) {
+                    if (currentIndex + 1 < listSong.size()) {
+                        Song next = listSong.get(currentIndex + 1);
+                        changeSelectedSong(currentIndex + 1);
+                        prepareSong(context, next);
+                    } else {
+                        changeSelectedSong(0);
+                        prepareSong(context, listSong.get(0));
+                    }
+                }
+                if (isPlaying) {
+                    onTrackPause();
+                } else {
+                    onTrackPlay();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        //**********Notification Music********
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationManager.cancelAll();
+        }
+
+        getContext().unregisterReceiver(broadcastReceiver);
+    }
+
+    private void createChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(CreateNotificationMusic.CHANNEL_ID,
+                    "KOD Dev", NotificationManager.IMPORTANCE_LOW);
+
+            notificationManager = getContext().getSystemService(NotificationManager.class);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+            }
+        }
+    }
+
+    //populate list with tracks
+    private void popluateTracks(List<Song> listSong) {
+        tracks = new ArrayList<>();
+        for (Song song : listSong) {
+            tracks.add(new Track(song.getAudioTitle(), "", R.mipmap.logo));
+        }
+    }
+
+    @Override
+    public void onTrackPrevious() {
+        CreateNotificationMusic.createNotification(getContext(), tracks.get(currentIndex),
+                R.drawable.ic_pause_black_24dp, currentIndex, tracks.size() - 1);
+
+    }
+
+    @Override
+    public void onTrackPlay() {
+        CreateNotificationMusic.createNotification(getContext(), tracks.get(currentIndex),
+                R.drawable.ic_pause_black_24dp, currentIndex, tracks.size() - 1);
+        isPlaying = true;
+
+    }
+
+    @Override
+    public void onTrackPause() {
+
+        CreateNotificationMusic.createNotification(getContext(), tracks.get(currentIndex),
+                R.drawable.ic_play_arrow_black_24dp, currentIndex, tracks.size() - 1);
+        isPlaying = false;
+    }
+
+    @Override
+    public void onTrackNext() {
+
+        CreateNotificationMusic.createNotification(getContext(), tracks.get(currentIndex),
+                R.drawable.ic_pause_black_24dp, currentIndex, tracks.size() - 1);
+
     }
 }

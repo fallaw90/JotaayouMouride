@@ -48,7 +48,7 @@
                         android:id="@+id/textView_dahiraName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="5dp"
+                        android:layout_marginEnd="5dp"
                         android:textAlignment="center"
                         android:textColor="@color/black"
                         android:textSize="@dimen/_20sdp" />
@@ -65,7 +65,7 @@
                             android:id="@+id/textView_labelUserName"
                             android:layout_width="155dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/userName"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -74,7 +74,7 @@
                             android:id="@+id/textView_userName"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
 
@@ -91,7 +91,7 @@
                             android:id="@+id/textView_labelPhoneNumber"
                             android:layout_width="155dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/updatePhoneNumber"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -100,7 +100,7 @@
                             android:id="@+id/textView_phoneNumber"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
                     </LinearLayout>
@@ -117,7 +117,7 @@
                             android:id="@+id/textView_labelEmail"
                             android:layout_width="155dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/email"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -126,7 +126,7 @@
                             android:id="@+id/textView_email"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
                     </LinearLayout>
@@ -143,7 +143,7 @@
                             android:id="@+id/textView_labelAddress"
                             android:layout_width="155dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/address"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -152,7 +152,7 @@
                             android:id="@+id/textView_address"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
                     </LinearLayout>
@@ -170,7 +170,7 @@
                             android:id="@+id/textView_labelTotalAdiya"
                             android:layout_width="155dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/adiyaVerse"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -179,7 +179,7 @@
                             android:id="@+id/totalAdiya"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
                     </LinearLayout>
@@ -197,7 +197,7 @@
                             android:id="@+id/textView_labelTotalSass"
                             android:layout_width="155dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/sassVerse"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -206,7 +206,7 @@
                             android:id="@+id/totalSass"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
                     </LinearLayout>
@@ -224,7 +224,7 @@
                             android:id="@+id/textView_labelTotalSocial"
                             android:layout_width="155dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/socialVerse"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -233,7 +233,7 @@
                             android:id="@+id/totalSocial"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
                     </LinearLayout>
@@ -250,7 +250,7 @@
                             android:id="@+id/textView_labelCommission"
                             android:layout_width="155dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/commission"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -259,7 +259,7 @@
                             android:id="@+id/textView_commission"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
                     </LinearLayout>
@@ -268,7 +268,7 @@
                         android:id="@+id/textView_role"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="5dp"
+                        android:layout_marginEnd="5dp"
                         android:textAlignment="center"
                         android:textColor="@color/red"
                         android:textSize="@dimen/_15sdp" />
@@ -280,7 +280,6 @@
                         android:layout_marginTop="20dp"
                         android:text="@string/backButton"
                         android:textAllCaps="false"
-                        android:layout_centerHorizontal="true"
                         android:background="@drawable/rounded_button_cancel"
                         android:padding="@dimen/_10sdp"
                         android:textColor="@color/white"
