@@ -1,5 +1,7 @@
 package com.fallntic.jotaayumouride.Services;
 
+import androidx.annotation.NonNull;
+
 import com.fallntic.jotaayumouride.Model.ObjNotification;
 import com.fallntic.jotaayumouride.Notifications.FirebaseNotificationHelper;
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -15,7 +17,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     String dahiraID;
 
     @Override
-    public void onMessageReceived(RemoteMessage remoteMessage) {
+    public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
 
         if (remoteMessage.getNotification() != null && objNotification != null) {

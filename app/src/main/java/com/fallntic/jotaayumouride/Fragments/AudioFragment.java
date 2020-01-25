@@ -41,7 +41,6 @@ import com.fallntic.jotaayumouride.Interfaces.Playable;
 import com.fallntic.jotaayumouride.Model.ListSongObject;
 import com.fallntic.jotaayumouride.Model.Song;
 import com.fallntic.jotaayumouride.Notifications.CreateNotificationMusic;
-import com.fallntic.jotaayumouride.Notifications.Track;
 import com.fallntic.jotaayumouride.R;
 import com.fallntic.jotaayumouride.Services.OnClearFromRecentService;
 import com.fallntic.jotaayumouride.Utility.MyStaticFunctions;
@@ -116,27 +115,27 @@ public class AudioFragment extends Fragment implements View.OnClickListener, Pla
     };
 
     //************* Notification Music ********************
-    NotificationManager notificationManager;
-    List<Track> tracks;
-    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+    private NotificationManager notificationManager;
+    private List<Song> listTracks = new ArrayList<>();
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String action = intent.getExtras().getString("actionname");
-
-            switch (action) {
-                case CreateNotificationMusic.ACTION_PREVIUOS:
-                    onTrackPrevious();
-                    break;
-                case CreateNotificationMusic.ACTION_PLAY:
-                    if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-                        onTrackPause();
-                    } else {
-                        onTrackPlay();
-                    }
-                    break;
-                case CreateNotificationMusic.ACTION_NEXT:
-                    onTrackNext();
-                    break;
+            String action = Objects.requireNonNull(intent.getExtras()).getString("actionname");
+            if (action != null) {
+                switch (action) {
+                    case CreateNotificationMusic.ACTION_PREVIUOS:
+                        //toastMessage(getContext(), "CreateNotificationMusic.ACTION_PREVIUOS");
+                        pushPrevious();
+                        break;
+                    case CreateNotificationMusic.ACTION_PLAY:
+                        //toastMessage(getContext(), "CreateNotificationMusic.ACTION_PLAY");
+                        pushPlay();
+                        break;
+                    case CreateNotificationMusic.ACTION_NEXT:
+                        //toastMessage(getContext(), "CreateNotificationMusic.ACTION_NEXT");
+                        pushNext();
+                        break;
+                }
             }
         }
     };
@@ -252,7 +251,7 @@ public class AudioFragment extends Fragment implements View.OnClickListener, Pla
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createChannel();
-            getContext().registerReceiver(broadcastReceiver, new IntentFilter("TRACKS_TRACKS"));
+            Objects.requireNonNull(getContext()).registerReceiver(broadcastReceiver, new IntentFilter("TRACKS_TRACKS"));
             getContext().startService(new Intent(getContext(), OnClearFromRecentService.class));
         }
     }
@@ -429,6 +428,9 @@ public class AudioFragment extends Fragment implements View.OnClickListener, Pla
 
     private void getListAudios(final Context context, final List<Song> listSong, String documentID) {
         //Retrieve all songs from FirebaseFirestore
+        if (listTracks == null || listTracks.size() > 0) {
+            listTracks = new ArrayList<>();
+        }
         if (listSong.isEmpty()) {
             showProgressBar();
             MyStaticVariables.collectionReference = MyStaticVariables.firestore.collection("audios");
@@ -446,7 +448,7 @@ public class AudioFragment extends Fragment implements View.OnClickListener, Pla
                                     break;
                                 }
                                 Collections.sort(listSong);
-                                popluateTracks(listSong);
+                                listTracks.addAll(listSong);
                                 setMyAdapter(context, listSong);
                             }
                         }
@@ -458,7 +460,8 @@ public class AudioFragment extends Fragment implements View.OnClickListener, Pla
                 }
             });
         } else {
-            setMyAdapter(context, listSong);
+            listTracks.addAll(listSong);
+            setMyAdapter(context, listTracks);
         }
     }
 
@@ -650,11 +653,6 @@ public class AudioFragment extends Fragment implements View.OnClickListener, Pla
                         changeSelectedSong(listSong.size() - 1);
                         prepareSong(context, listSong.get(listSong.size() - 1));
                     }
-                    if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-                        onTrackPlay();
-                    } else {
-                        onTrackPause();
-                    }
                 }
             }
         });
@@ -768,40 +766,81 @@ public class AudioFragment extends Fragment implements View.OnClickListener, Pla
         }
     }
 
-    //populate list with tracks
-    private void popluateTracks(List<Song> listSong) {
-        tracks = new ArrayList<>();
-        for (Song song : listSong) {
-            tracks.add(new Track(song.getAudioTitle(), "", R.mipmap.logo));
-        }
-    }
-
     @Override
     public void onTrackPrevious() {
-        CreateNotificationMusic.createNotification(getContext(), tracks.get(currentIndex),
-                R.drawable.ic_pause_black_24dp, currentIndex, tracks.size() - 1);
+        CreateNotificationMusic.createNotification(getContext(), listTracks.get(currentIndex),
+                R.drawable.ic_pause_black_24dp, currentIndex, listTracks.size() - 1);
 
     }
 
     @Override
     public void onTrackPlay() {
-        CreateNotificationMusic.createNotification(getContext(), tracks.get(currentIndex),
-                R.drawable.ic_pause_black_24dp, currentIndex, tracks.size() - 1);
-
+        CreateNotificationMusic.createNotification(getContext(), listTracks.get(currentIndex),
+                R.drawable.ic_pause_black_24dp, currentIndex, listTracks.size() - 1);
     }
 
     @Override
     public void onTrackPause() {
 
-        CreateNotificationMusic.createNotification(getContext(), tracks.get(currentIndex),
-                R.drawable.ic_play_arrow_black_24dp, currentIndex, tracks.size() - 1);
+        CreateNotificationMusic.createNotification(getContext(), listTracks.get(currentIndex),
+                R.drawable.ic_play_arrow_black_24dp, currentIndex, listTracks.size() - 1);
     }
 
     @Override
     public void onTrackNext() {
 
-        CreateNotificationMusic.createNotification(getContext(), tracks.get(currentIndex),
-                R.drawable.ic_pause_black_24dp, currentIndex, tracks.size() - 1);
+        CreateNotificationMusic.createNotification(getContext(), listTracks.get(currentIndex),
+                R.drawable.ic_pause_black_24dp, currentIndex, listTracks.size() - 1);
 
+    }
+
+    public void pushNext() {
+        if (mediaPlayer != null) {
+            if (currentIndex + 1 < listTracks.size()) {
+                Song next = listTracks.get(currentIndex + 1);
+                changeSelectedSong(currentIndex + 1);
+                prepareSong(getContext(), next);
+            } else {
+                changeSelectedSong(0);
+                prepareSong(getContext(), listTracks.get(0));
+            }
+            onTrackNext();
+        }
+    }
+
+    public void pushPrevious() {
+        if (mediaPlayer != null) {
+
+            if (currentIndex - 1 >= 0) {
+                Song previous = listTracks.get(currentIndex - 1);
+                changeSelectedSong(currentIndex - 1);
+                prepareSong(getContext(), previous);
+            } else {
+                changeSelectedSong(listTracks.size() - 1);
+                prepareSong(getContext(), listTracks.get(listTracks.size() - 1));
+            }
+        }
+        onTrackPrevious();
+    }
+
+    public void pushPlay() {
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            iv_play.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.selector_play));
+            mediaPlayer.pause();
+            onTrackPause();
+        } else {
+            if (firstLaunch) {
+                Song song = listTracks.get(0);
+                changeSelectedSong(0);
+                prepareSong(getContext(), song);
+            } else {
+                if (mediaPlayer != null) {
+                    mediaPlayer.start();
+                }
+                firstLaunch = false;
+            }
+            iv_play.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.selector_pause));
+            onTrackPlay();
+        }
     }
 }

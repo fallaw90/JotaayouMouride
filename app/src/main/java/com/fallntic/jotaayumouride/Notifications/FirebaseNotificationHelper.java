@@ -1,5 +1,6 @@
 package com.fallntic.jotaayumouride.Notifications;
 
+import android.annotation.SuppressLint;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -11,6 +12,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
@@ -28,6 +30,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -40,12 +43,13 @@ import static com.fallntic.jotaayumouride.MainActivity.CHANNEL_ID;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
 
+@SuppressLint("Registered")
 public class FirebaseNotificationHelper extends IntentService {
     public static final String TAG = "FirebaseNotificationHelper";
 
 
     public static FirebaseAuth mAuth = FirebaseAuth.getInstance();
-    public static String userID = mAuth.getCurrentUser().getUid();
+    public static String userID = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
     public static String dahiraID;
 
     public FirebaseNotificationHelper(String name) {
@@ -62,17 +66,20 @@ public class FirebaseNotificationHelper extends IntentService {
         Api api = retrofit.create(Api.class);
         retrofit2.Call<ResponseBody> call = api.sendNotification(user.getTokenID(), objNotification.getTitle(), objNotification.getMessage());
         call.enqueue(new Callback<ResponseBody>() {
+            @SuppressLint("LongLogTag")
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                 try {
-                    Log.d(TAG, response.body().string());
+                    if (response.body() != null) {
+                        Log.d(TAG, response.body().string());
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
 
             }
         });
@@ -129,7 +136,7 @@ public class FirebaseNotificationHelper extends IntentService {
 
                                 User user = documentSnapshot.toObject(User.class);
 
-                                if (user.getListDahiraID().contains(dahira.getDahiraID())) {
+                                if (user != null && user.getListDahiraID().contains(dahira.getDahiraID())) {
                                     sendNotification(context, user, objNotification);
                                 }
 
@@ -150,13 +157,16 @@ public class FirebaseNotificationHelper extends IntentService {
                             List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
                             for (DocumentSnapshot documentSnapshot : list) {
                                 User user = documentSnapshot.toObject(User.class);
-                                sendNotification(context, user, objNotification);
+                                if (user != null) {
+                                    sendNotification(context, user, objNotification);
+                                }
                             }
                         }
                     }
                 });
     }
 
+    @SuppressLint("LongLogTag")
     @Override
     public void onHandleIntent(Intent intent) {
         Log.i(TAG, "ENTERED onHandleIntent");

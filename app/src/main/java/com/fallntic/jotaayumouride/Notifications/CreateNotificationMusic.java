@@ -12,6 +12,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.fallntic.jotaayumouride.Model.Song;
 import com.fallntic.jotaayumouride.R;
 import com.fallntic.jotaayumouride.Services.NotificationActionService;
 
@@ -25,7 +26,7 @@ public class CreateNotificationMusic {
 
     public static Notification notification;
 
-    public static void createNotification(Context context, Track track, int playbutton, int pos, int size) {
+    public static void createNotification(Context context, Song song, int playbutton, int pos, int size) {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
@@ -68,8 +69,8 @@ public class CreateNotificationMusic {
             //create notification
             notification = new NotificationCompat.Builder(context, CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_music_note)
-                    .setContentTitle(track.getTitle())
-                    .setContentText(track.getArtist())
+                    .setContentTitle(song.getAudioTitle())
+                    .setContentText("")
                     .setLargeIcon(icon)
                     .setOnlyAlertOnce(true)//show notification for only first time
                     .setShowWhen(false)
