@@ -36,7 +36,6 @@ import androidx.core.content.ContextCompat;
 
 import com.fallntic.jotaayumouride.Model.ObjNotification;
 import com.fallntic.jotaayumouride.Model.Song;
-import com.fallntic.jotaayumouride.Utility.DataHolder;
 import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -53,13 +52,13 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.Notifications.FirebaseNotificationHelper.sendNotificationToSpecificUsers;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
-import static com.fallntic.jotaayumouride.Utility.NotificationHelper.sendNotificationToSpecificUsers;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
 
 public class RecordAudioActivity extends AppCompatActivity implements View.OnClickListener {
     private final String TAG = "RecordAudioActivity";
@@ -98,8 +97,11 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
 
         /** setting up the toolbar  **/
         toolbar = findViewById(R.id.toolbar);
-        toolbar.setLogo(R.mipmap.logo);
+        //toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
+
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.logo);
 
         //initializingViews
         initViews();
@@ -253,7 +255,7 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
         }
 
         filePath = root.getAbsolutePath() + "/JotaayouMouride/Audios/" +
-                (DataHolder.onlineUser.getUserName() + System.currentTimeMillis() + ".mp3");
+                (MyStaticVariables.onlineUser.getUserName() + System.currentTimeMillis() + ".mp3");
 
         Log.d("filename", filePath);
         mRecorder.setOutputFile(filePath);
@@ -388,20 +390,22 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                startActivity(new Intent(this, HomeActivity.class));
+                break;
+
             case R.id.button_back:
-                loadInterstitialAd(this);
-                if (dahira != null) {
+                finish();
+                if (dahira != null && dahira.getDahiraID() != null && !dahira.getDahiraID().equals("")) {
                     startActivity(new Intent(RecordAudioActivity.this, DahiraInfoActivity.class));
                 } else {
                     startActivity(new Intent(RecordAudioActivity.this, HomeActivity.class));
                 }
-                finish();
                 break;
 
             case R.id.instructions:
-                loadInterstitialAd(this);
                 startActivity(new Intent(RecordAudioActivity.this, InstructionsActivity.class));
-                finish();
             default:
                 return super.onOptionsItemSelected(item);
 
@@ -434,7 +438,7 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
 
             final String finalDurationTxt = durationTxt;
 
-            final String songID = DataHolder.onlineUser.getUserName() + System.currentTimeMillis();
+            final String songID = MyStaticVariables.onlineUser.getUserName() + System.currentTimeMillis();
 
 
             final StorageReference storageReference = this.storageReference.child("announcements")
@@ -450,7 +454,7 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
                                 @Override
                                 public void onSuccess(Uri uri) {
 
-                                    Song song = new Song(songID, DataHolder.onlineUser.getUserName(),
+                                    Song song = new Song(songID, MyStaticVariables.onlineUser.getUserName(),
                                             finalDurationTxt, uri.toString());
 
                                     collectionReference.document(songID).set(song)

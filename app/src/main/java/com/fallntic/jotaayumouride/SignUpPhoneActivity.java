@@ -10,6 +10,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -42,15 +45,16 @@ import com.mikelau.countrypickerx.CountryPickerDialog;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Utility.DataHolder.createNewCollection;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.showProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.userID;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.createNewCollection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.saveProfileImage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressDialog;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.userID;
 
 public class SignUpPhoneActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -97,11 +101,8 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //***************** Set logo **********************
-        getSupportActionBar().setLogo(R.mipmap.logo);
-        getSupportActionBar().setDisplayUseLogoEnabled(true);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.logo);
 
         checkInternetConnection(this);
 
@@ -138,12 +139,6 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
     protected void onDestroy() {
         dismissProgressDialog();
         super.onDestroy();
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
     }
 
     @Override
@@ -343,5 +338,35 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
         resourceId for your customly available countries */
         }, false, 0);
         countryPicker.show();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+
+        MenuItem iconBack;
+        iconBack = menu.findItem(R.id.icon_back);
+        iconBack.setVisible(true);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case android.R.id.home:
+
+            case R.id.icon_back:
+                finish();
+                startActivity(new Intent(this, HomeActivity.class));
+                break;
+
+            case R.id.instructions:
+                startActivity(new Intent(this, InstructionsActivity.class));
+                break;
+        }
+        finish();
+        return true;
     }
 }

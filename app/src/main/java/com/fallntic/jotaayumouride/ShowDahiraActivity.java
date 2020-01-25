@@ -26,10 +26,11 @@ import com.hbb20.CountryCodePicker;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Utility.DataHolder.actionSelected;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.actionSelected;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayDahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllDahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listDahiraFound;
@@ -200,8 +201,12 @@ public class ShowDahiraActivity extends AppCompatActivity implements View.OnClic
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setLogo(R.mipmap.logo);
+        //toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
+
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.logo);
+
 
         checkInternetConnection(this);
 
@@ -240,9 +245,15 @@ public class ShowDahiraActivity extends AppCompatActivity implements View.OnClic
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                startActivity(new Intent(this, HomeActivity.class));
+                break;
+
             case R.id.search_dahira:
                 dialogSearchDahira(this);
                 break;
+
             case R.id.icon_add:
                 startActivity(new Intent(this, CreateDahiraActivity.class));
                 break;

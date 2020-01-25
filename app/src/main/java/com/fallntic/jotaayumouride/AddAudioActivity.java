@@ -38,10 +38,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getSizeSongsStorage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.updateStorageSize;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
 
 
 public class AddAudioActivity extends AppCompatActivity {

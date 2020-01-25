@@ -31,25 +31,26 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static androidx.constraintlayout.widget.Constraints.TAG;
 import static com.fallntic.jotaayumouride.Adapter.ContributionAdapter.getListAmount;
 import static com.fallntic.jotaayumouride.Adapter.ContributionAdapter.getListDate;
 import static com.fallntic.jotaayumouride.Adapter.ContributionAdapter.getListUserName;
 import static com.fallntic.jotaayumouride.AddContributionActivity.notifyUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.boolAddToDahira;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.indexSelectedUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.selectedUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.showProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.typeOfContribution;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.updateDocument;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressDialog;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.updateDocument;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.adiya;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.boolAddToDahira;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.indexSelectedUser;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.sass;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.selectedUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.social;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.typeOfContribution;
 
 public class ShowContributionActivity extends AppCompatActivity {
 
@@ -109,8 +110,11 @@ public class ShowContributionActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         toolbar = findViewById(R.id.toolbar);
-        toolbar.setLogo(R.mipmap.logo);
+        //toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
+
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.logo);
 
         initViews();
 
@@ -278,6 +282,11 @@ public class ShowContributionActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                startActivity(new Intent(this, HomeActivity.class));
+                break;
+
             case R.id.icon_back:
                 finish();
                 startActivity(new Intent(this, UserInfoActivity.class));

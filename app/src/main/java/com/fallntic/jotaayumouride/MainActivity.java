@@ -31,22 +31,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.fallntic.jotaayumouride.DahiraInfoActivity.getExistingExpenses;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.userID;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.TITLE_ANNOUNCEMENT_NOTIFICATION;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.TITLE_CONTRIBUTION_NOTIFICATION;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.TITLE_EVENT_NOTIFICATION;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.TITLE_EXPENSE_NOTIFICATION;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firebaseAuth;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firebaseUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.indexOnlineUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllEvent;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.objNotification;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.userID;
 
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "MainActivity";

@@ -1,6 +1,6 @@
 package com.fallntic.jotaayumouride;
 
-import android.app.ProgressDialog;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -10,7 +10,6 @@ import android.view.MenuItem;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.ProgressBar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -19,13 +18,20 @@ import com.fallntic.jotaayumouride.Model.UploadPdf;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Objects;
+
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
 
 public class PdfViewActivity extends AppCompatActivity {
     WebView webview;
-    ProgressBar progressbar;
     UploadPdf pdf_file;
     String url;
 
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,15 +39,17 @@ public class PdfViewActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setLogo(R.mipmap.logo);
+        //toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
+
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.logo);
 
         Intent intent = getIntent();
         pdf_file = (UploadPdf) intent.getSerializableExtra("pdf_file");
 
-        final ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Loading Data...");
-        progressDialog.setCancelable(false);
+        initViews();
+
         webview = findViewById(R.id.web_view);
         webview.requestFocus();
         webview.getSettings().setJavaScriptEnabled(true);
@@ -63,16 +71,27 @@ public class PdfViewActivity extends AppCompatActivity {
         webview.setWebChromeClient(new WebChromeClient() {
             public void onProgressChanged(WebView view, int progress) {
                 if (progress < 100) {
-                    progressDialog.show();
+                    showProgressBar();
                 }
-                if (progress == 100) {
-                    progressDialog.dismiss();
+                if (progress >= 100) {
+                    hideProgressBar();
                 }
             }
         });
 
         HomeActivity.loadBannerAd(this, this);
 
+    }
+
+    private void initViews() {
+
+        initViewsProgressBar();
+    }
+
+    private void initViewsProgressBar() {
+        relativeLayoutData = findViewById(R.id.relativeLayout_data);
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
     }
 
     @Override
@@ -116,6 +135,11 @@ public class PdfViewActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                startActivity(new Intent(this, HomeActivity.class));
+                break;
+
             case R.id.icon_back:
                 finish();
                 break;

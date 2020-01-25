@@ -28,6 +28,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.fallntic.jotaayumouride.Interfaces.DrawerMenu;
 import com.fallntic.jotaayumouride.Model.Event;
 import com.fallntic.jotaayumouride.Model.Expense;
 import com.fallntic.jotaayumouride.Model.User;
@@ -47,28 +48,28 @@ import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.fallntic.jotaayumouride.HomeActivity.getAllEvents;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.actionSelected;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.deleteDocument;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.logout;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.showProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.deleteDocument;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.logout;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showImage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressDialog;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.actionSelected;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayDahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.indexOnlineUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listExpenses;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListDahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListEvents;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.objNotification;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
@@ -232,6 +233,12 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
             return true;
 
         switch (item.getItemId()) {
+
+            case R.id.logo:
+                finish();
+                startActivity(new Intent(this, HomeActivity.class));
+                break;
+
             case R.id.instructions:
                 startActivity(new Intent(this, InstructionsActivity.class));
                 break;

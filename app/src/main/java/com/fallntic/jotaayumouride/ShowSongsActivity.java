@@ -52,17 +52,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.convertDuration;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.downloadFile;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.updateStorageSize;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.indexOnlineUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listImage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listSong;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.updateStorage;
 
 
@@ -105,8 +105,11 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         toolbar = findViewById(R.id.toolbar);
-        toolbar.setLogo(R.mipmap.logo);
+        //toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
+
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.logo);
 
         //Initialisation des vues
         initializeViews();
@@ -466,6 +469,14 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
             HomeActivity.bannerAd.destroy();
         }
 
+        if (mediaPlayer != null) {
+
+            if (mediaPlayer.isPlaying())
+                mediaPlayer.stop();
+
+            mediaPlayer.release();
+        }
+
         super.onDestroy();
     }
 
@@ -593,6 +604,12 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
+
+            case android.R.id.home:
+                finish();
+                startActivity(new Intent(this, HomeActivity.class));
+                break;
+
             case R.id.icon_add:
                 if (dahira.getCurrentSizeStorage() < dahira.getDedicatedSizeStorage())
                     startActivity(new Intent(this, AddAudioActivity.class));

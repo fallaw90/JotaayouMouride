@@ -25,23 +25,25 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.getCurrentDate;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.getDate;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.getTime;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
+import java.util.Objects;
+
+import static com.fallntic.jotaayumouride.Notifications.FirebaseNotificationHelper.sendNotificationToAllUsers;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getCurrentDate;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getDate;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getTime;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListEvents;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
-import static com.fallntic.jotaayumouride.Utility.NotificationHelper.sendNotificationToAllUsers;
 
 public class CreateEventActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -104,7 +106,9 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setLogo(R.mipmap.logo);
+        //toolbar.setLogo(R.mipmap.logo);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.logo);
 
         checkInternetConnection(this);
 
@@ -132,6 +136,11 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                startActivity(new Intent(this, HomeActivity.class));
+                break;
+
             case R.id.icon_back:
                 finish();
                 startActivity(new Intent(this, DahiraInfoActivity.class));

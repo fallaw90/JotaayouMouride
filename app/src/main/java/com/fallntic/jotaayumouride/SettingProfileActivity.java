@@ -1,7 +1,6 @@
 package com.fallntic.jotaayumouride;
 
 import android.Manifest;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -32,15 +31,16 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
+import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.saveProfileImage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firebaseStorage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
@@ -49,16 +49,12 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.storageRefer
 public class SettingProfileActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "UpdateUserActivity";
 
-    private ProgressDialog progressDialog;
-
     private EditText editTextUserName;
     private EditText editTextAddress;
 
     private ImageView imageView;
     private Uri imageUri;
     private final int PICK_IMAGE_REQUEST = 71;
-    private UploadTask uploadTask;
-    private boolean imageSaved = true, userSaved = true;
 
 
     @Override
@@ -69,15 +65,18 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setSubtitle("Parametres");
-        toolbar.setLogo(R.mipmap.logo);
+        //toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
+
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.logo);
 
         checkInternetConnection(this);
 
         firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
 
-        progressDialog = new ProgressDialog(this);
+        checkPermission();
 
         initViews();
         displayViews();
@@ -119,11 +118,18 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.imageView:
-                checkPermission();
-                chooseImage();
+                if (onlineUser != null && onlineUser.getUserID() != null && !onlineUser.getUserID().equals("")) {
+                    chooseImage();
+                } else {
+                    toastMessage(this, "Une erreur est survenue, merci de reessayer plus tard");
+                }
                 break;
             case R.id.button_update:
-                updateData();
+                if (onlineUser != null && onlineUser.getUserID() != null && !onlineUser.getUserID().equals("")) {
+                    updateData();
+                } else {
+                    toastMessage(this, "Une erreur est survenue, merci de reessayer plus tard");
+                }
                 break;
         }
     }
@@ -131,14 +137,15 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
     private void chooseImage() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
-        startActivityForResult(intent, 101);
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 101 && resultCode == RESULT_OK && data.getData() != null) {
+        showProgressBar();
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data.getData() != null) {
             final Uri fileUri = data.getData();
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), fileUri);
@@ -156,9 +163,17 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
                             fileToUpload.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override
                                 public void onSuccess(Uri uri) {
+                                    hideProgressBar();
                                     saveProfileImage(SettingProfileActivity.this, uri.toString());
                                 }
                             });
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            hideProgressBar();
+                            toastMessage(SettingProfileActivity.this, "Une erreur est survenue, merci de reessayer plus tard");
                         }
                     });
         }
@@ -188,8 +203,8 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
 
             showProgressBar();
             firestore.collection("users").document(onlineUser.getUserID())
-                    .update("userName", onlineUser.getUserName(),
-                            "address", onlineUser.getAddress(),
+                    .update("userName", name,
+                            "address", address,
                             "imageUri", onlineUser.getImageUri())
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
@@ -249,6 +264,11 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                startActivity(new Intent(this, HomeActivity.class));
+                break;
+
             case R.id.icon_back:
                 finish();
                 break;

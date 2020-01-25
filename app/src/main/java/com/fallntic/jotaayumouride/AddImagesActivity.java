@@ -37,15 +37,15 @@ import java.util.List;
 import java.util.Map;
 
 import static com.fallntic.jotaayumouride.R.id.button_finish;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.uploadImages;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getSizeImagesStorage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listImage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.uploadImages;
 
 public class AddImagesActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "AddImagesActivity";

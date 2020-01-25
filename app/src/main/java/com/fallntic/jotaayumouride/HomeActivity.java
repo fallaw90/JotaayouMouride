@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -22,9 +23,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import com.fallntic.jotaayumouride.Adapter.PageAdapter;
+import com.fallntic.jotaayumouride.Fragments.AboutFragment;
+import com.fallntic.jotaayumouride.Fragments.AudioFragment;
+import com.fallntic.jotaayumouride.Fragments.PDFFragment;
+import com.fallntic.jotaayumouride.Fragments.ProfileFragment;
+import com.fallntic.jotaayumouride.Fragments.PubFragment;
+import com.fallntic.jotaayumouride.Fragments.QuranFragment;
 import com.fallntic.jotaayumouride.Model.Dahira;
 import com.fallntic.jotaayumouride.Model.Event;
 import com.fallntic.jotaayumouride.Utility.MyStaticFunctions;
@@ -55,20 +63,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.fallntic.jotaayumouride.ShowDahiraActivity.dialogSearchDahira;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.logout;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.isConnected;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.logout;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.setMediaPlayer;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayDahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firebaseAuth;
@@ -78,6 +86,7 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllEvent
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mediaPlayer;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myHandler;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListDahira;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
@@ -100,7 +109,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private CircleImageView navImageView;
     private TextView textViewNavUserName;
     private TextView textViewNavEmail;
-
+    private static String marqueeAd;
+    private TextView textViewMarquee;
     private String userID;
     private String dahiraToUpdate;
 
@@ -149,108 +159,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private void setupOnlineViewPager(ViewPager viewPager) {
-        pageAdapter.addFragment(new ProfileFragment(), "Profile", 0);
-        pageAdapter.addFragment(new AudioFragment(), "Audios", 1);
-        pageAdapter.addFragment(new PDFFragment(), "Khassida PDF", 2);
-        pageAdapter.addFragment(new QuranFragment(), "Quran", 3);
-        tabLayout.getTabAt(0).setText("Mon Profil");
-        viewPager.setOffscreenPageLimit(4);
-        viewPager.setAdapter(pageAdapter);
-    }
-
-    private void setupOfflineViewPager(ViewPager viewPager) {
-        pageAdapter.addFragment(new AboutFragment(), "About", 0);
-        pageAdapter.addFragment(new AudioFragment(), "Audios", 1);
-        pageAdapter.addFragment(new PDFFragment(), "Khassida PDF", 2);
-        pageAdapter.addFragment(new QuranFragment(), "Quran", 3);
-        tabLayout.getTabAt(0).setText("About");
-
-        viewPager.setOffscreenPageLimit(4);
-        viewPager.setAdapter(pageAdapter);
-    }
-
-    public void initViews() {
-        tabLayout = findViewById(R.id.tablayout);
-        tabKourel = findViewById(R.id.tab_kourel);
-        tabWolofal = findViewById(R.id.tab_wolofal);
-        tabQuran = findViewById(R.id.tab_quran);
-        viewPager = findViewById(R.id.viewPager);
-        drawerLayout = findViewById(R.id.drawer_layout);
-        navigationView = findViewById(R.id.nav_view);
-        navHeader = navigationView.getHeaderView(0);
-        navImageView = navHeader.findViewById(R.id.nav_imageView);
-        textViewNavUserName = navHeader.findViewById(R.id.textView_navUserName);
-        textViewNavEmail = navHeader.findViewById(R.id.textView_navEmail);
-        toggle = new ActionBarDrawerToggle(this, drawerLayout,
-                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-
-        pageAdapter = new PageAdapter(getSupportFragmentManager());
-        if (myHandler == null)
-            myHandler = new Handler();
-        if (mediaPlayer == null)
-            mediaPlayer = new MediaPlayer();
-
-        initViewsProgressBar();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-
-        MenuItem itemLogin, itemLogo;
-        itemLogin = menu.findItem(R.id.login);
-        itemLogo = menu.findItem(R.id.logo);
-
-        if (firebaseAuth == null || firebaseAuth.getCurrentUser() == null) {
-            itemLogin.setVisible(true);
-        } else {
-            itemLogo.setVisible(true);
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (toggle.onOptionsItemSelected(item))
-            return true;
-
-        switch (item.getItemId()) {
-            case R.id.login:
-                startActivity(new Intent(this, LoginPhoneActivity.class));
-                break;
-
-            case R.id.instructions:
-                startActivity(new Intent(this, InstructionsActivity.class));
-                break;
-        }
-
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
-    }
-
-    public void hideMenuItem() {
-        Menu nav_Menu = navigationView.getMenu();
-        nav_Menu.findItem(R.id.nav_setting).setTitle("Modifier mon profil");
-
-        nav_Menu.findItem(R.id.nav_displayUsers).setVisible(false);
-        nav_Menu.findItem(R.id.nav_addUser).setVisible(false);
-        nav_Menu.findItem(R.id.nav_searchUser).setVisible(false);
-
-        nav_Menu.findItem(R.id.nav_finance).setVisible(false);
-        nav_Menu.findItem(R.id.nav_gallery).setVisible(false);
-        nav_Menu.findItem(R.id.nav_contact).setVisible(false);
-
-        nav_Menu.findItem(R.id.nav_addAnnouncement).setVisible(false);
-        nav_Menu.findItem(R.id.nav_displayAnnouncement).setVisible(false);
-        nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
-        nav_Menu.findItem(R.id.nav_displayEvent).setVisible(false);
-        nav_Menu.findItem(R.id.nav_removeDahira).setVisible(false);
-
-    }
-
     public static void getAllDahiras(final Context context) {
         showProgressBar();
         if (MyStaticVariables.listAllDahira == null || listAllDahira.isEmpty()) {
@@ -264,8 +172,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                                 List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
                                 for (DocumentSnapshot documentSnapshot : list) {
                                     Dahira dahira = documentSnapshot.toObject(Dahira.class);
-                                    dahira.setDahiraID(documentSnapshot.getId());
-                                    MyStaticVariables.listAllDahira.add(dahira);
+                                    if (dahira != null) {
+                                        dahira.setDahiraID(documentSnapshot.getId());
+                                        MyStaticVariables.listAllDahira.add(dahira);
+                                    }
                                 }
                             }
                             if (listAllDahira.isEmpty()) {
@@ -290,6 +200,115 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             dialogSearchDahira(context);
         } else
             context.startActivity(new Intent(context, ShowDahiraActivity.class));
+    }
+
+    private void setupOnlineViewPager(ViewPager viewPager) {
+        pageAdapter.addFragment(new PubFragment(), "Info", 0);
+        pageAdapter.addFragment(new ProfileFragment(), "Profile", 1);
+        pageAdapter.addFragment(new AudioFragment(), "Audios", 2);
+        pageAdapter.addFragment(new PDFFragment(), "Khassida PDF", 3);
+        pageAdapter.addFragment(new QuranFragment(), "Quran", 4);
+        Objects.requireNonNull(tabLayout.getTabAt(1)).setText("Profil");
+        viewPager.setOffscreenPageLimit(4);
+        viewPager.setAdapter(pageAdapter);
+    }
+
+    private void setupOfflineViewPager(ViewPager viewPager) {
+        pageAdapter.addFragment(new PubFragment(), "Info", 0);
+        pageAdapter.addFragment(new AboutFragment(), "About", 1);
+        pageAdapter.addFragment(new AudioFragment(), "Audios", 2);
+        pageAdapter.addFragment(new PDFFragment(), "Khassida PDF", 3);
+        pageAdapter.addFragment(new QuranFragment(), "Quran", 4);
+        Objects.requireNonNull(tabLayout.getTabAt(1)).setText("About");
+
+        viewPager.setOffscreenPageLimit(4);
+        viewPager.setAdapter(pageAdapter);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+
+        MenuItem itemLogin, itemLogo;
+        itemLogin = menu.findItem(R.id.login);
+        itemLogo = menu.findItem(R.id.logo);
+
+        if (firebaseAuth == null || firebaseAuth.getCurrentUser() == null) {
+            itemLogin.setVisible(true);
+        } else {
+            itemLogo.setVisible(true);
+        }
+
+        return true;
+    }
+
+    public void initViews() {
+        textViewMarquee = findViewById(R.id.marquee_text);
+        tabLayout = findViewById(R.id.tablayout);
+        tabKourel = findViewById(R.id.tab_kourel);
+        tabWolofal = findViewById(R.id.tab_wolofal);
+        tabQuran = findViewById(R.id.tab_quran);
+        viewPager = findViewById(R.id.viewPager);
+        drawerLayout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
+        navHeader = navigationView.getHeaderView(0);
+        navImageView = navHeader.findViewById(R.id.nav_imageView);
+        textViewNavUserName = navHeader.findViewById(R.id.textView_navUserName);
+        textViewNavEmail = navHeader.findViewById(R.id.textView_navEmail);
+        toggle = new ActionBarDrawerToggle(this, drawerLayout,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+
+        pageAdapter = new PageAdapter(getSupportFragmentManager());
+        if (myHandler == null)
+            myHandler = new Handler();
+        if (mediaPlayer == null)
+            mediaPlayer = new MediaPlayer();
+
+        initViewsProgressBar();
+    }
+
+    public void hideMenuItem() {
+        Menu nav_Menu = navigationView.getMenu();
+        nav_Menu.findItem(R.id.nav_setting).setTitle("Modifier mon profil");
+
+        nav_Menu.findItem(R.id.nav_displayUsers).setVisible(false);
+        nav_Menu.findItem(R.id.nav_addUser).setVisible(false);
+        nav_Menu.findItem(R.id.nav_searchUser).setVisible(false);
+
+        nav_Menu.findItem(R.id.nav_finance).setVisible(false);
+        nav_Menu.findItem(R.id.nav_gallery).setVisible(false);
+        nav_Menu.findItem(R.id.nav_contact).setVisible(false);
+
+        nav_Menu.findItem(R.id.nav_addAnnouncement).setVisible(false);
+        nav_Menu.findItem(R.id.nav_displayAnnouncement).setVisible(false);
+        nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
+        nav_Menu.findItem(R.id.nav_displayEvent).setVisible(false);
+        nav_Menu.findItem(R.id.nav_removeDahira).setVisible(false);
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (toggle.onOptionsItemSelected(item))
+            return true;
+
+        switch (item.getItemId()) {
+            case R.id.logo:
+                startActivity(new Intent(this, HomeActivity.class));
+                break;
+
+            case R.id.login:
+                startActivity(new Intent(this, LoginPhoneActivity.class));
+                break;
+
+            case R.id.instructions:
+                startActivity(new Intent(this, InstructionsActivity.class));
+                break;
+        }
+
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
     }
 
     public void saveTokenID(final String userID) {
@@ -376,23 +395,25 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
 
-                setMediaPlayer();
-
                 viewPager.setCurrentItem(tab.getPosition());
                 if (tab.getPosition() == 0) {
 
-                    //toastMessage(HomeActivity.this, "Profile Fragment");
+                    //toastMessage(HomeActivity.this, "Evenements Fragment");
 
                 } else if (tab.getPosition() == 1) {
-
-                    //toastMessage(HomeActivity.this, "Khassida Fragment");
+                    setMediaPlayer();
+                    //toastMessage(HomeActivity.this, "About/Profile Fragment");
 
 
                 } else if (tab.getPosition() == 2) {
+                    //toastMessage(HomeActivity.this, "Khassida Fragment");
+
+                } else if (tab.getPosition() == 3) {
+                    setMediaPlayer();
                     //toastMessage(HomeActivity.this, "Wolofal Fragment");
 
                 } else {
-
+                    setMediaPlayer();
                     //toastMessage(HomeActivity.this, "Quran Fragment");
 
                 }
@@ -602,10 +623,43 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
+    public void onAttachFragment(@NonNull Fragment fragment) {
+        super.onAttachFragment(fragment);
+
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) textViewMarquee.getLayoutParams();
+        params.height = getResources().getDimensionPixelSize(R.dimen.textView_height);
+        params.width = getResources().getDimensionPixelSize(R.dimen.textView_width);
+        textViewMarquee.setLayoutParams(params);
+    }
+
+    @Override
     public void onDestroy() {
         if (bannerAd != null) {
             bannerAd.destroy();
         }
+
+        if (mediaPlayer != null) {
+            try {
+                if (mediaPlayer.isPlaying())
+                    mediaPlayer.stop();
+                mediaPlayer.release();
+            } catch (Exception ignored) {
+            }
+        }
+
+        MyStaticVariables.listSong = null;
+        MyStaticVariables.listAudiosQuran = null;
+        MyStaticVariables.listAudiosSerigneMbayeDiakhate = null;
+        MyStaticVariables.listAudiosSerigneMoussaKa = null;
+        MyStaticVariables.listAudiosHT = null;
+        MyStaticVariables.listAudiosHTDK = null;
+        MyStaticVariables.listAudiosMagal2019HT = null;
+        MyStaticVariables.listAudiosMagal2019HTDK = null;
+        MyStaticVariables.listAudiosAM = null;
+        MyStaticVariables.listAudiosRadiass = null;
+        MyStaticVariables.listAudiosMixedWolofal = null;
+        MyStaticVariables.listAudiosZikr = null;
+
         super.onDestroy();
     }
 
@@ -620,7 +674,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
         initViews();
 
+        textViewMarquee.setSelected(true);
+        getMarqueeText();
+
         //startActivity(new Intent(this, AddMultipleAudioActivity.class));
+        //startActivity(new Intent(this, ImageAdvertisementActivity.class));
 
         if (!isConnected(this)) {
             toastMessage(this, "Verifier votre connexion SVP.");
@@ -652,5 +710,35 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         });
 
         loadBannerAd(this, this);
+    }
+
+    private void getMarqueeText() {
+        if (marqueeAd == null) {
+            firestore.collection("advertisements").document("marquee_text").get()
+                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot document = task.getResult();
+                                if (document != null) {
+                                    marqueeAd = document.getString("text");
+                                    textViewMarquee.setText(marqueeAd);
+                                } else {
+                                    Log.d("LOGGER", "No such document");
+                                }
+                            } else {
+                                Log.d("LOGGER", "get failed with ", task.getException());
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            toastMessage(HomeActivity.this, "Error charging pubs!");
+                        }
+                    });
+        } else {
+            textViewMarquee.setText(marqueeAd);
+        }
     }
 }

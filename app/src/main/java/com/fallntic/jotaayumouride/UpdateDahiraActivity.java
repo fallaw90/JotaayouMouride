@@ -44,14 +44,15 @@ import com.mikelau.countrypickerx.CountryPickerDialog;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.saveLogoDahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showImage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
@@ -109,8 +110,8 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
         toolbar.setSubtitle("Modifier votre dahira");
         setSupportActionBar(toolbar);
         //***************** Set logo **********************
-        getSupportActionBar().setLogo(R.mipmap.logo);
-        getSupportActionBar().setDisplayUseLogoEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.logo);
 
         checkInternetConnection(this);
 
@@ -207,8 +208,17 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                startActivity(new Intent(this, HomeActivity.class));
+                break;
+
             case R.id.icon_back:
                 finish();
+                break;
+
+            case R.id.instructions:
+                startActivity(new Intent(this, InstructionsActivity.class));
                 break;
         }
         return true;

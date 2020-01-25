@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
@@ -21,17 +22,19 @@ import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
-import static com.fallntic.jotaayumouride.Utility.DataHolder.actionSelected;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
+import java.util.Objects;
+
+import static com.fallntic.jotaayumouride.Notifications.FirebaseNotificationHelper.sendNotificationToSpecificUsers;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.actionSelected;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
-import static com.fallntic.jotaayumouride.Utility.NotificationHelper.sendNotificationToSpecificUsers;
 
 public class CreateAnnouncementActivity extends AppCompatActivity implements View.OnClickListener {
     public static final String TAG = "CreateAnnouncementActivity";
@@ -63,11 +66,12 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         toolbar = findViewById(R.id.toolbar);
-        toolbar.setSubtitle("Ajouter une annonce");
         setSupportActionBar(toolbar);
+
         //***************** Set logo **********************
-        getSupportActionBar().setLogo(R.mipmap.logo);
-        getSupportActionBar().setDisplayUseLogoEnabled(true);
+        //getSupportActionBar().setLogo(R.mipmap.logo);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.logo);
 
         checkInternetConnection(this);
 
@@ -193,5 +197,16 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
 
     public void hideSoftKeyboard() {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                startActivity(new Intent(this, HomeActivity.class));
+                break;
+        }
+        return true;
     }
 }

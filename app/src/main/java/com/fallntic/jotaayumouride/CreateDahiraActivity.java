@@ -36,7 +36,7 @@ import androidx.core.content.ContextCompat;
 
 import com.fallntic.jotaayumouride.Adapter.CommissionListAdapter;
 import com.fallntic.jotaayumouride.Model.Dahira;
-import com.fallntic.jotaayumouride.Utility.DataHolder;
+import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -52,18 +52,19 @@ import com.mikelau.countrypickerx.CountryPickerDialog;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dahiraID;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.isDouble;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.isDouble;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.saveLogoDahira;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahiraID;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListDahira;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
 
 public class CreateDahiraActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -131,8 +132,11 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         toolbar = findViewById(R.id.toolbar);
-        toolbar.setLogo(R.mipmap.logo);
+        //toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
+
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.logo);
 
         initViews();
 
@@ -173,6 +177,7 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
+            case android.R.id.home:
             case R.id.icon_back:
                 finish();
                 startActivity(new Intent(this, HomeActivity.class));
@@ -337,7 +342,7 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
                 myListDahira = new ArrayList<>();
 
             showProgressBar();
-            db.collection("dahiras").document(DataHolder.dahiraID).set(dahira)
+            db.collection("dahiras").document(MyStaticVariables.dahiraID).set(dahira)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
@@ -362,7 +367,7 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
     private void updateUserListDahiraID() {
         onlineUser.getListDahiraID().add(dahiraID);
         showProgressBar();
-        db.collection("users").document(DataHolder.onlineUser.getUserID())
+        db.collection("users").document(MyStaticVariables.onlineUser.getUserID())
                 .update("listDahiraID", onlineUser.getListDahiraID())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

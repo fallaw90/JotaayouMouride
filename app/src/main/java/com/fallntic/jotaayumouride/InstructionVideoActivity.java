@@ -1,5 +1,6 @@
 package com.fallntic.jotaayumouride;
 
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.Menu;
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.fallntic.jotaayumouride.Adapter.VideoAdapter;
 import com.fallntic.jotaayumouride.Model.YouTubeVideos;
 
+import java.util.Objects;
 import java.util.Vector;
 
 public class InstructionVideoActivity extends AppCompatActivity {
@@ -29,20 +31,22 @@ public class InstructionVideoActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setLogo(R.mipmap.logo);
+        //toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
+
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.logo);
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        youtubeVideos.add(new YouTubeVideos("<iframe width=\"350\" height=\"300\" src=\"https://www.youtube.com/embed/tmfeKCkzhMU\" frameborder=\"0\" allowfullscreen></iframe>"));
-        youtubeVideos.add(new YouTubeVideos("<iframe width=\"350\" height=\"300\" src=\"https://www.youtube.com/embed/5s-foVIejZQ\" frameborder=\"0\" allowfullscreen></iframe>"));
-        youtubeVideos.add(new YouTubeVideos("<iframe width=\"350\" height=\"300\" src=\"https://www.youtube.com/embed/C-K3lBTN6ao\" frameborder=\"0\" allowfullscreen></iframe>"));
-        youtubeVideos.add(new YouTubeVideos("<iframe width=\"350\" height=\"300\" src=\"https://www.youtube.com/embed/mxmrVZ0snOQ\" frameborder=\"0\" allowfullscreen></iframe>"));
+        youtubeVideos.add(new YouTubeVideos("<iframe scrolling=\"no\" width=\"100%\" height=\"100%\" src=\"https://www.youtube.com/embed/tmfeKCkzhMU\" frameborder=\"1\" allowfullscreen></iframe>"));
+        youtubeVideos.add(new YouTubeVideos("<iframe scrolling=\"no\" width=\"100%\" height=\"100%\" src=\"https://www.youtube.com/embed/5s-foVIejZQ\" frameborder=\"1\" allowfullscreen></iframe>"));
+        youtubeVideos.add(new YouTubeVideos("<iframe scrolling=\"no\" width=\"100%\" height=\"100%\" src=\"https://www.youtube.com/embed/C-K3lBTN6ao\" frameborder=\"1\" allowfullscreen></iframe>"));
+        youtubeVideos.add(new YouTubeVideos("<iframe scrolling=\"no\" width=\"100%\" height=\"100%\" src=\"https://www.youtube.com/embed/mxmrVZ0snOQ\" frameborder=\"1\" allowfullscreen></iframe>"));
 
         VideoAdapter videoAdapter = new VideoAdapter(youtubeVideos);
-
         recyclerView.setAdapter(videoAdapter);
     }
 
@@ -64,6 +68,12 @@ public class InstructionVideoActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
+
+            case android.R.id.home:
+                finish();
+                startActivity(new Intent(this, HomeActivity.class));
+                break;
+
             case R.id.icon_back:
                 finish();
                 break;

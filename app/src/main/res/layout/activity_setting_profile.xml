@@ -92,7 +92,7 @@
                             android:id="@+id/textView_commission"
                             android:layout_width="135dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/address"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -119,7 +119,6 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/adView"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
         android:layout_marginBottom="@dimen/_10sdp"
         android:background="@drawable/rounded_button_solid"
         android:padding="@dimen/_10sdp"
@@ -136,7 +135,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="@dimen/_5sdp"
         ads:adSize="BANNER"
-        ads:adUnitId="@string/banner_unit_id"></com.google.android.gms.ads.AdView>
+        ads:adUnitId="@string/banner_unit_id" />
 
     <RelativeLayout
         android:id="@+id/relativeLayout_progressBar"

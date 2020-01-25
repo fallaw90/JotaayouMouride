@@ -13,11 +13,11 @@ import com.fallntic.jotaayumouride.R;
 
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.typeOfContribution;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.adiya;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.sass;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.social;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.typeOfContribution;
 
 public class ContributionAdapter extends RecyclerView.Adapter<ContributionAdapter.ContributionViewHolder> {
 

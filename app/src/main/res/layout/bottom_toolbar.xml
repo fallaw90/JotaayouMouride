@@ -79,7 +79,10 @@
         <SeekBar
             android:id="@+id/seekbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:progressTint="@color/white"
+            android:secondaryProgressTint="@color/green"
+            android:thumbTint="@color/white" />
 
 
     </LinearLayout>

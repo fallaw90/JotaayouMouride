@@ -23,7 +23,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.fallntic.jotaayumouride.Adapter.ExpenseAdapter;
 import com.fallntic.jotaayumouride.Model.Expense;
-import com.fallntic.jotaayumouride.Utility.DataHolder;
+import com.fallntic.jotaayumouride.Utility.MyStaticFunctions;
+import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
 import com.fallntic.jotaayumouride.Utility.SwipeToDeleteCallback;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -36,11 +37,12 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listExpenses;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.objNotification;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
@@ -65,14 +67,17 @@ public class ShowExpenseActivity extends AppCompatActivity implements View.OnCli
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setLogo(R.mipmap.logo);
+        //toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
+
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.logo);
 
         checkInternetConnection(this);
 
         initViews();
 
-        textViewTitle.setText("Liste des depense du dahira " + DataHolder.dahira.getDahiraName());
+        textViewTitle.setText("Liste des depense du dahira " + MyStaticVariables.dahira.getDahiraName());
 
         showListExpenses(listExpenses);
 
@@ -126,6 +131,11 @@ public class ShowExpenseActivity extends AppCompatActivity implements View.OnCli
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                startActivity(new Intent(this, HomeActivity.class));
+                break;
+
             case R.id.icon_add:
                 startActivity(new Intent(this, CreateExpenseActivity.class));
                 break;
@@ -142,7 +152,7 @@ public class ShowExpenseActivity extends AppCompatActivity implements View.OnCli
         if (HomeActivity.bannerAd != null) {
             HomeActivity.bannerAd.destroy();
         }
-        DataHolder.dismissProgressDialog();
+        MyStaticFunctions.dismissProgressDialog();
         super.onDestroy();
     }
 

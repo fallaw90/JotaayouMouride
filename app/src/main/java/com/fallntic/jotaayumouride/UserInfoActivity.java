@@ -33,26 +33,26 @@ import com.google.firebase.storage.StorageReference;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.fallntic.jotaayumouride.Utility.DataHolder.actionSelected;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.call;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.getCurrentDate;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.indexSelectedUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.logout;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.selectedUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.typeOfContribution;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.call;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getCurrentDate;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.logout;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.actionSelected;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.adiya;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.indexOnlineUser;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.indexSelectedUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listExpenses;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListEvents;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.sass;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.selectedUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.social;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.typeOfContribution;
 
 public class UserInfoActivity extends AppCompatActivity implements View.OnClickListener,
         NavigationView.OnNavigationItemSelectedListener {
@@ -224,6 +224,11 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
             return true;
 
         switch (item.getItemId()) {
+            case R.id.logo:
+                finish();
+                startActivity(new Intent(this, HomeActivity.class));
+                break;
+
             case R.id.instructions:
                 startActivity(new Intent(this, InstructionsActivity.class));
                 break;

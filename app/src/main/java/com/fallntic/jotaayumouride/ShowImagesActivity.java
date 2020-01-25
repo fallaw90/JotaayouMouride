@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fallntic.jotaayumouride.Adapter.ImageAdapter;
+import com.fallntic.jotaayumouride.Interfaces.CustomItemClickListener;
 import com.fallntic.jotaayumouride.Model.Image;
 import com.fallntic.jotaayumouride.Model.Song;
 import com.fallntic.jotaayumouride.Utility.PhotoFullPopupWindow;
@@ -36,15 +37,16 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.updateStorageSize;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firebaseStorage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.indexOnlineUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listImage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listSong;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
 
 public class ShowImagesActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "ShowImagesActivity";
@@ -63,9 +65,11 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setLogo(R.mipmap.logo);
+        //toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
 
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.logo);
 
         initViews();
         if (onlineUser.getListDahiraID().contains(dahira.getDahiraID()) && onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
@@ -157,6 +161,11 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                startActivity(new Intent(this, HomeActivity.class));
+                break;
+
             case R.id.icon_add:
                 if (dahira.getCurrentSizeStorage() < dahira.getDedicatedSizeStorage())
                     startActivity(new Intent(this, AddImagesActivity.class));

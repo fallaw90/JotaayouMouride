@@ -28,16 +28,42 @@
                 app:tabSelectedTextColor="@color/green"
                 app:tabTextColor="@android:color/black" />
 
+            <TextView
+                android:id="@+id/marquee_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:ellipsize="marquee"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:paddingTop="@dimen/_3sdp"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
+                android:textAlignment="center"
+                android:textColor="@color/red"
+                android:textSize="@dimen/_15sdp"
+                android:textStyle="bold" />
+
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tablayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                app:tabGravity="fill"
+                app:tabIndicatorHeight="5dp"
+                app:tabMode="scrollable">
+
+                <com.google.android.material.tabs.TabItem
+                    android:id="@+id/tab_event"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Info" />
 
                 <com.google.android.material.tabs.TabItem
                     android:id="@+id/tab_profile"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Mon Profile" />
+                    android:text="Profile" />
 
                 <com.google.android.material.tabs.TabItem
                     android:id="@+id/tab_kourel"
@@ -76,7 +102,8 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="@dimen/_10sdp"
             ads:adSize="BANNER"
-            ads:adUnitId="@string/banner_unit_id"></com.google.android.gms.ads.AdView>
+            ads:adUnitId="@string/banner_unit_id"
+            tools:ignore="UnknownIdInLayout" />
 
         <include
             android:id="@+id/toolbar"

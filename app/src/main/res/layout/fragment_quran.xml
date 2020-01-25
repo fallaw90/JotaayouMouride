@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/_10sdp"
     android:orientation="vertical"
-    tools:context=".QuranFragment">
+    tools:context=".Fragments.QuranFragment">
 
     <ImageView
         android:id="@+id/ib_sudais"

@@ -19,13 +19,13 @@ import com.fallntic.jotaayumouride.Utility.MyStaticFunctions;
 
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.indexSelectedUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.selectedUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.adiya;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.indexOnlineUser;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.indexSelectedUser;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.sass;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.selectedUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.social;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {

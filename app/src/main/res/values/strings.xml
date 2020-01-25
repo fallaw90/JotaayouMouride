@@ -97,7 +97,62 @@
     <string name="rechercher">Rechercher</string>
     <string name="ok">Ok</string>
 
-    <string name="about">"Jotaayou Mouride est une application Android qui vous permet d'écouter des Khassaid, Wolofal, le Coran, gérer les membres de vos dahiras ainsi que la situation financière de chaque dahira dont vous êtes membre. Via l'application Jotaayou Mouride, toute personne inscrite et ajoutée en tant que membre d'un dahira donne par un administrateur (le gestionnaire du dahira), a la possibilité de connaitre la somme de ses différentes cotisations (Adiya, Sass et Sociale) à tout moment et de consulter les dépenses et la somme disponible dans les caisses (Adiya, Sass et Social) de son dahira. L'application offre aussi la possibilité d'envoyer et de recevoir des annonces (vocales ou écrites) entre les membres appartenant au même dahira. D'autant plus, Jotaayou Mouride vous permet de publier vos évènements qui seront visibles pour toute personnes possédant un compte dans l'application. En fin, tous les dahiras auront leur propre répertoire (audio et photo) dans lequel, ils pourront sauvegarder leurs données  (NB: Seuls les membres désignes comme administrateur peuvent ajouter des audios ou photos dans ce répertoire )."</string>
+    <string name="about">
+        <![CDATA[
+            <html>
+                <body>
+                    <p>
+                        <strong>Jotaayou Mouride</strong> est une application Android qui vous permet d\'écouter des Khassaid, Wolofal, le Coran,
+                        gérer les membres de vos dahiras ainsi que la situation financière de chaque dahira dont vous êtes membre.<br>
+                    </p>
+                    <p>
+                        L\'application Jotaayou Mouride offre un acces a trois niveuax pour ses utilisateurs:
+                    </p>
+                    <p>
+                        <strong>1- Pour un dministrateur (le gestionnaire du dahira), vous pouvez:</strong>
+                        <ul>
+                            <li>Enregistrer votre dahira dans l\'application</li>
+                            <li>Ajouter tous les membres dans le dahira que vous venez de créer</li>
+                            <li>Communiquer des annonces pour les membres spécifique de votre dahira</li>
+                            <li>Publier vos événements qui seront visibles pour toutes personnes inscrites dans l\'application</li>
+                            <li>Enregistrer les cotisations de vos membres en ligne (adiya, sass et sociale)</li>
+                            <li>Enregistrer les dépenses de votre dahira en ligne</li>
+                            <li>Ajouter ou supprimer des photos ou audios dans vos répértoires photo et audio</li>
+                        </ul>
+                    </p>
+                    <p>
+                        <strong>2- Pour un membre simple (non administrateur), vous pouvez:</strong><br>
+                            <li>Consulter vos cotisations (adiya, sass et sociale)</li>
+                            <li>Communiquer avec les membres de votre dahira par message vocal ou écrit</li>
+                            <li>Consulter les répértoires photo et audio de votre dahira</li>
+                            <li>Voir les membres de votre dahira (seuls photo et nom seront visible)</li>
+                            <li>Voir tous les événements publiés dans l\'application</li>
+                            <li>Voir toutes les dépenses de votre dahira a tout moment en ligne</li>
+                            <li>Et en fin, écouter ou télécharger diverses séléctions de khassida et lire des khassida en pdf</li>
+                    </p>
+                    <p>
+                        <strong>3- Pour un utilisateur non inscrit, vous pouvez:</strong><br>
+                            <li>Ecouter des khassaid</li>
+                            <li>Ecouter et télécharger le Coran</li>
+                            <li>Ecouter et télécharger des khassaid audio</li>
+                            <li>Lire et télécharger des khassaid en PDF</li>
+                            <li>Consulter les répértoires audio et photo des dahira</li>
+                            <li>Voir tous les événements publiés dans l\'application</li>
+                    </p>
+                    <p>
+                        <strong><em>Pour la protéction des informations privées des membres, seuls les administrateurs et le membre concerné pour avoir acces aux informations personelles de ce dernier.
+                        Le numéro téléphone du membre, ses cotisations et son adresse seront seulement disponible pour lui et son l\'administrateur.</em></strong>
+                    </p>
+                </body>
+        </html>
+        ]]>
+    </string>
+
+    <string-array name="advertisements">
+        <item>Publicités</item>
+        <item>Publicités</item>
+    </string-array>
+
     <string name="offline_used">"Vous pouvez utiliser l'application Jotaayou Mouride sans posséder un compte dans l'application. Mais la seule ressource qui sera disponible pour vous est d'écouter des sons religieux tels que les Khassaide et le Coran disponible dans la page de l'accueil."</string>
     <string name="login_sign_in_description">“Rien n’est plus simple que de s\'inscrire dans cette application. Juste cliquez sur SE CONNECTER en haut a votre droit. Entrez votre numéro de téléphone, attendez le code de validation, entrez votre code et continuez. A la page suivante, suivez les instructions et enregistrez vos informations personnelle."</string>
     <string name="create_dahira_description">"Si vous êtes administrateur de votre dahira c'est à dire le gestionnaire de votre dahira, vous devez d’abord créer votre dahira et l'enregistrer dans l'application. Pour se faire, naviguez sur le menu en haut a votre gauche et cliquez sur CREER UN NOUVEAU DAHIRA. Dans la page suivante, choisissez un logo de votre dahira si disponible, sinon vous pouvez utiliser le logo déjà propose. Remplir le formulaire et cliquez sur SUIVANT. Dans la page suivante, complétez le second formulaire si nécessaire et cliquez sur TERMINER LA CREEATION DE MON DAHIRA. C'est fini yeahhhh! Votre dahira est désormais disponible dans la base de données. Congratulations!"</string>

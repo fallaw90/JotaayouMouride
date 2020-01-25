@@ -27,27 +27,28 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Utility.DataHolder.actionSelected;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.getCurrentDate;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.getDate;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.isDouble;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.updateDocument;
+import static com.fallntic.jotaayumouride.Notifications.FirebaseNotificationHelper.sendNotificationToSpecificUsers;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getCurrentDate;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getDate;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.isDouble;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.updateDocument;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.TITLE_EXPENSE_NOTIFICATION;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.actionSelected;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listExpenses;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.objNotification;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
-import static com.fallntic.jotaayumouride.Utility.NotificationHelper.sendNotificationToSpecificUsers;
 
 public class CreateExpenseActivity extends AppCompatActivity implements View.OnClickListener {
     public static final String TAG = "CreateExpenseActivity";
@@ -73,8 +74,11 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         toolbar = findViewById(R.id.toolbar);
-        toolbar.setLogo(R.mipmap.logo);
+        //toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
+
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.logo);
 
         initViews();
 
@@ -103,6 +107,11 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                startActivity(new Intent(this, HomeActivity.class));
+                break;
+
             case R.id.icon_back:
                 finish();
                 startActivity(new Intent(this, DahiraInfoActivity.class));

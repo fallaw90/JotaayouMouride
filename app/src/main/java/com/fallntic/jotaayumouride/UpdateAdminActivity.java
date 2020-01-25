@@ -27,20 +27,21 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.isDouble;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.progressDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.isDouble;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.indexOnlineUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListDahira;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressDialog;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
 
@@ -69,8 +70,8 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
         toolbar.setSubtitle("Mettre a jour votre profile");
         setSupportActionBar(toolbar);
         //***************** Set logo **********************
-        getSupportActionBar().setLogo(R.mipmap.logo);
-        getSupportActionBar().setDisplayUseLogoEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.logo);
 
         checkInternetConnection(this);
 
@@ -91,7 +92,7 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void displayViews() {
-        textViewDahiraName.setText("Enregistrez vous en tant que membre du dahira " + dahira.getDahiraName() + " que vous venez de creer pour terminer la creation de votre dahira.");
+        textViewDahiraName.setText("Completez votre inscription du dahira " + dahira.getDahiraName() + " pour terminer.");
         editTextUserName.setText(onlineUser.getUserName());
     }
 

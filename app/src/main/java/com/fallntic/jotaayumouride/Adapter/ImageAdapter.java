@@ -9,7 +9,7 @@ import android.widget.ImageView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fallntic.jotaayumouride.CustomItemClickListener;
+import com.fallntic.jotaayumouride.Interfaces.CustomItemClickListener;
 import com.fallntic.jotaayumouride.Model.Image;
 import com.fallntic.jotaayumouride.R;
 import com.fallntic.jotaayumouride.Utility.GlideApp;

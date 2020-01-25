@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.transition.TransitionManager;
 
@@ -21,12 +22,9 @@ import com.fallntic.jotaayumouride.R;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Created by Manish on 10/8/2017.
- */
 
 public class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private final String TAG = "AnnouncementAdapter";
+    private static final String TAG = "AnnouncementAdapter";
     private final int TEXT_ANNOUNCEMENT = 1;
     private final int AUDIO_ANNOUNCEMENT = 2;
     boolean samePosition = false;
@@ -58,8 +56,9 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         return -1;
     }
 
+    @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(final ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, int viewType) {
         RecyclerView.ViewHolder holder = null;
         View view;
 
@@ -79,7 +78,7 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     }
 
     @Override
-    public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof AnnouncementAudioViewHolder) {
             setUpData(holder, position);
         }
@@ -115,7 +114,7 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         Log.d(TAG, "onBindViewHolder invoked: " + position);
     }
 
-    public void setTextAnnouncement(RecyclerView.ViewHolder holder, int position) {
+    private void setTextAnnouncement(RecyclerView.ViewHolder holder, int position) {
 
         if (listAnnouncement.get(position) instanceof Announcement) {
 
@@ -154,7 +153,7 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             }
         };
 
-        public AnnouncementAudioViewHolder(View itemView) {
+        AnnouncementAudioViewHolder(View itemView) {
             super(itemView);
 
             imageViewPlay = itemView.findViewById(R.id.imageViewPlay);
@@ -202,7 +201,7 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             });
         }
 
-        public void manageSeekBar(AnnouncementAudioViewHolder holder) {
+        void manageSeekBar(AnnouncementAudioViewHolder holder) {
             holder.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -284,7 +283,7 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         TextView textViewtDate;
         TextView textViewNote;
 
-        public AnnouncementTextViewHolder(View itemView) {
+        AnnouncementTextViewHolder(View itemView) {
             super(itemView);
             textViewUserName = itemView.findViewById(R.id.textView_userName);
             textViewtDate = itemView.findViewById(R.id.textView_date);

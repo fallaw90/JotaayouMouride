@@ -25,25 +25,27 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import static com.fallntic.jotaayumouride.Utility.DataHolder.boolAddToDahira;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.getCurrentDate;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.getDate;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.indexSelectedUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.isDouble;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.selectedUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.showProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.typeOfContribution;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.updateDocument;
+import java.util.Objects;
+
+import static com.fallntic.jotaayumouride.Notifications.FirebaseNotificationHelper.sendNotification;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getCurrentDate;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getDate;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.isDouble;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressDialog;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.updateDocument;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.adiya;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.boolAddToDahira;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.indexSelectedUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.objNotification;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.sass;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.selectedUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.social;
-import static com.fallntic.jotaayumouride.Utility.NotificationHelper.sendNotification;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.typeOfContribution;
 
 public class AddContributionActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "AddContributionActivity";
@@ -65,8 +67,11 @@ public class AddContributionActivity extends AppCompatActivity implements View.O
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setLogo(R.mipmap.logo);
+        //toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
+
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.logo);
 
         checkInternetConnection(this);
 
@@ -199,6 +204,11 @@ public class AddContributionActivity extends AppCompatActivity implements View.O
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                startActivity(new Intent(this, HomeActivity.class));
+                break;
+
             case R.id.icon_back:
                 finish();
                 startActivity(new Intent(this, DahiraInfoActivity.class));

@@ -16,13 +16,13 @@ import com.fallntic.jotaayumouride.R;
 
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.Utility.DataHolder.dahira;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.indexOnlineUser;
-import static com.fallntic.jotaayumouride.Utility.DataHolder.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getListSongs;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showImage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.indexOnlineUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listImage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listSong;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
 
 public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraViewHolder> {
     public static final String TAG = "DahiraAdapter";
