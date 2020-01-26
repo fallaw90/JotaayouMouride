@@ -78,6 +78,7 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDia
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.stopCurrentPlayingMediaPlayer;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.broadcastReceiverMediaPlayer;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayDahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent;
@@ -89,6 +90,7 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllEvent
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mediaPlayer;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myHandler;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListDahira;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.notificationManagerMediaPlayer;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
@@ -302,6 +304,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         tabWolofal = findViewById(R.id.tab_wolofal);
         tabQuran = findViewById(R.id.tab_quran);
         viewPager = findViewById(R.id.viewPager);
+
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
         navHeader = navigationView.getHeaderView(0);
@@ -310,6 +313,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         textViewNavEmail = navHeader.findViewById(R.id.textView_navEmail);
         toggle = new ActionBarDrawerToggle(this, drawerLayout,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+
+        if (onlineUser == null) {
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        }
 
         pageAdapter = new PageAdapter(getSupportFragmentManager());
         if (myHandler == null)
@@ -569,15 +576,15 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
 
                 } else if (tab.getPosition() == 2) {
-                    //toastMessage(HomeActivity.this, "Khassida Fragment");
+
 
                 } else if (tab.getPosition() == 3) {
                     //stopCurrentPlayingMediaPlayer();
                     //toastMessage(HomeActivity.this, "Wolofal Fragment");
 
+                } else if (tab.getPosition() == 4) {
+
                 } else {
-                    //stopCurrentPlayingMediaPlayer();
-                    //toastMessage(HomeActivity.this, "Quran Fragment");
 
                 }
             }
@@ -707,6 +714,19 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         MyStaticVariables.listAudiosRadiass = null;
         MyStaticVariables.listAudiosMixedWolofal = null;
         MyStaticVariables.listAudiosZikr = null;
+
+        //**********Notification Music********
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationManagerMediaPlayer.cancelAll();
+        }
+        if (broadcastReceiverMediaPlayer != null) {
+            try {
+                unregisterReceiver(broadcastReceiverMediaPlayer);
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            }
+        }
+
 
         super.onDestroy();
     }

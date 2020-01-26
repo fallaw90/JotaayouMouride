@@ -240,7 +240,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        //send notification.
+                        //send notificationMediaPlayer.
                        saveToEventCollection(context, event);
                     }
                 })
@@ -263,7 +263,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                     @Override
                     public void onSuccess(Void aVoid) {
                         hideProgressBar();
-                        //send notification.
+                        //send notificationMediaPlayer.
                         MyStaticVariables.objNotification = new ObjNotification(event.getEventID(),
                                 onlineUser.getUserID(), dahira.getDahiraID(),
                                 MyStaticVariables.TITLE_EVENT_NOTIFICATION, note);

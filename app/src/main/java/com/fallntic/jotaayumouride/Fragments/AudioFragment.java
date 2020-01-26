@@ -26,8 +26,9 @@ import java.util.Objects;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.createChannel;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getListAudios;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.stopCurrentPlayingMediaPlayer;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.broadcastReceiver;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.broadcastReceiverMediaPlayer;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.fab_search;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.isTabAudioOpened;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_next;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_play;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_previous;
@@ -37,13 +38,14 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosHT
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosMagal2019HT;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosMagal2019HTDK;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosMixedWolofal;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosQuran;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosRadiass;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosSerigneMbayeDiakhate;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosSerigneMoussaKa;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosZikr;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listTracks;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mediaPlayer;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myHandler;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.notificationManager;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.pb_loader;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.pb_main_loader;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
@@ -51,6 +53,7 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.recycler;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.seekBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.songChosen;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tb_title;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.toolbar_bottom;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tv_duration;
@@ -87,6 +90,7 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
                 setLayoutMedia();
                 if (listAudiosZikr == null)
                     listAudiosZikr = new ArrayList<>();
+                songChosen = "zikr";
                 getListAudios(getContext(), listAudiosZikr, "zikr");
                 break;
 
@@ -96,15 +100,70 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+
+        if (isVisibleToUser) {
+            if (listTracks != null && listAudiosQuran != null && songChosen != null) {
+                if (listTracks.size() == listAudiosQuran.size() && isTabAudioOpened) {
+                    stopCurrentPlayingMediaPlayer();
+                    setLayoutMedia();
+                    refreshPlayList();
+                }
+            }
+        }
+    }
+
+    private void refreshPlayList() {
+        switch (songChosen) {
+            case "zikr":
+                getListAudios(getContext(), listAudiosZikr, "zikr");
+                break;
+            case "magal2019HT":
+                getListAudios(getContext(), listAudiosMagal2019HT, "magal2019HT");
+                break;
+            case "magal2019HTDKH":
+                getListAudios(getContext(), listAudiosMagal2019HTDK, "magal2019HTDKH");
+                break;
+            case "ht":
+                getListAudios(getContext(), listAudiosHT, "ht");
+                break;
+            case "htdk":
+                getListAudios(getContext(), listAudiosHTDK, "htdk");
+                break;
+            case "ahlouMinan":
+                getListAudios(getContext(), listAudiosAM, "ahlouMinan");
+                break;
+            case "moustaphaGningue":
+                getListAudios(getContext(), listAudiosRadiass, "moustaphaGningue");
+                break;
+            case "serigneMoussaKa":
+                getListAudios(getContext(), listAudiosSerigneMoussaKa, "serigneMoussaKa");
+                break;
+            case "serigneMbayeDiakhate":
+                getListAudios(getContext(), listAudiosSerigneMbayeDiakhate, "serigneMbayeDiakhate");
+                break;
+            case "mixedWolofal":
+                getListAudios(getContext(), listAudiosMixedWolofal, "mixedWolofal");
+                break;
+            default:
+                setMainInitialFragmentLayout();
+                break;
+        }
+    }
+
     private void setLayoutMedia() {
-        LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.view = inflater.inflate(R.layout.layout_media, null);
+        LayoutInflater inflater = (LayoutInflater) Objects.requireNonNull(getActivity()).getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        if (inflater != null) {
+            this.view = inflater.inflate(R.layout.layout_media, null);
+        }
         ViewGroup rootView = (ViewGroup) getView();
         rootView.removeAllViews();
         rootView.addView(this.view);
         initViewsMedia();
-
         stopCurrentPlayingMediaPlayer();
+        isTabAudioOpened = true;
     }
 
     private void setMainInitialFragmentLayout() {
@@ -114,6 +173,8 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
         rootView.removeAllViews();
         rootView.addView(this.view);
         initViewsMainKhassida();
+        songChosen = null;
+        isTabAudioOpened = false;
     }
 
     private void initViewsMainKhassida() {
@@ -153,9 +214,11 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createChannel(getContext());
-            Objects.requireNonNull(getContext()).registerReceiver(broadcastReceiver, new IntentFilter("TRACKS_TRACKS"));
+            Objects.requireNonNull(getContext()).registerReceiver(broadcastReceiverMediaPlayer, new IntentFilter("TRACKS_TRACKS"));
             getContext().startService(new Intent(getContext(), OnClearFromRecentService.class));
         }
+
+
     }
 
     public void initViewsProgressBar() {
@@ -183,6 +246,7 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
                 setLayoutMedia();
                 if (listAudiosMagal2019HT == null)
                     listAudiosMagal2019HT = new ArrayList<>();
+                songChosen = "magal2019HT";
                 getListAudios(getContext(), listAudiosMagal2019HT, "magal2019HT");
                 alertDialog.dismiss();
             }
@@ -194,6 +258,7 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
                 setLayoutMedia();
                 if (listAudiosMagal2019HTDK == null)
                     listAudiosMagal2019HTDK = new ArrayList<>();
+                songChosen = "magal2019HTDKH";
                 getListAudios(getContext(), listAudiosMagal2019HTDK, "magal2019HTDKH");
                 alertDialog.dismiss();
             }
@@ -230,6 +295,7 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
                 setLayoutMedia();
                 if (listAudiosHT == null)
                     listAudiosHT = new ArrayList<>();
+                songChosen = "ht";
                 getListAudios(getContext(), listAudiosHT, "ht");
                 alertDialog.dismiss();
             }
@@ -241,6 +307,7 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
                 setLayoutMedia();
                 if (listAudiosHTDK == null)
                     listAudiosHTDK = new ArrayList<>();
+                songChosen = "htdk";
                 getListAudios(getContext(), listAudiosHTDK, "htdk");
                 alertDialog.dismiss();
             }
@@ -252,6 +319,7 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
                 setLayoutMedia();
                 if (listAudiosAM == null)
                     listAudiosAM = new ArrayList<>();
+                songChosen = "ahlouMinan";
                 getListAudios(getContext(), listAudiosAM, "ahlouMinan");
                 alertDialog.dismiss();
             }
@@ -263,6 +331,7 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
                 setLayoutMedia();
                 if (listAudiosRadiass == null)
                     listAudiosRadiass = new ArrayList<>();
+                songChosen = "moustaphaGningue";
                 getListAudios(getContext(), listAudiosRadiass, "moustaphaGningue");
                 alertDialog.dismiss();
             }
@@ -290,6 +359,7 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
                 if (listAudiosSerigneMoussaKa == null)
                     listAudiosSerigneMoussaKa = new ArrayList<>();
                 setLayoutMedia();
+                songChosen = "serigneMoussaKa";
                 getListAudios(getContext(), listAudiosSerigneMoussaKa, "serigneMoussaKa");
                 alertDialog.dismiss();
             }
@@ -301,6 +371,7 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
                 setLayoutMedia();
                 if (listAudiosSerigneMbayeDiakhate == null)
                     listAudiosSerigneMbayeDiakhate = new ArrayList<>();
+                songChosen = "serigneMbayeDiakhate";
                 getListAudios(getContext(), listAudiosSerigneMbayeDiakhate, "serigneMbayeDiakhate");
                 alertDialog.dismiss();
             }
@@ -312,22 +383,10 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
                 setLayoutMedia();
                 if (listAudiosMixedWolofal == null)
                     listAudiosMixedWolofal = new ArrayList<>();
+                songChosen = "mixedWolofal";
                 getListAudios(getContext(), listAudiosMixedWolofal, "mixedWolofal");
                 alertDialog.dismiss();
             }
         });
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        //**********Notification Music********
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notificationManager.cancelAll();
-        }
-
-        if (broadcastReceiver != null)
-            Objects.requireNonNull(getContext()).unregisterReceiver(broadcastReceiver);
     }
 }

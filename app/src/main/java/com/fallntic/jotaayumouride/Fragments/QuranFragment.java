@@ -37,8 +37,9 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.setMyAdapter
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.stopCurrentPlayingMediaPlayer;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.broadcastReceiver;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.broadcastReceiverMediaPlayer;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.fab_search;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.isTabQuranOpened;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_next;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_play;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_previous;
@@ -46,7 +47,6 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosQu
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listTracks;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mediaPlayer;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myHandler;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.notificationManager;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.pb_loader;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.pb_main_loader;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
@@ -84,7 +84,7 @@ public class QuranFragment extends Fragment implements View.OnClickListener {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createChannel(getContext());
-            Objects.requireNonNull(getContext()).registerReceiver(broadcastReceiver, new IntentFilter("TRACKS_TRACKS"));
+            Objects.requireNonNull(getContext()).registerReceiver(broadcastReceiverMediaPlayer, new IntentFilter("TRACKS_TRACKS"));
             getContext().startService(new Intent(getContext(), OnClearFromRecentService.class));
         }
     }
@@ -105,6 +105,21 @@ public class QuranFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+
+        if (isVisibleToUser) {
+            if (listTracks != null && listAudiosQuran != null) {
+                if (listTracks.size() != listAudiosQuran.size() && isTabQuranOpened) {
+                    stopCurrentPlayingMediaPlayer();
+                    setLayoutMedia();
+                    getListAudios(getContext(), listAudiosQuran, "sudais");
+                }
+            }
+        }
+    }
+
     private void setLayoutMedia() {
         LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.view = inflater.inflate(R.layout.layout_media, null);
@@ -112,8 +127,8 @@ public class QuranFragment extends Fragment implements View.OnClickListener {
         rootView.removeAllViews();
         rootView.addView(this.view);
         initViewsMedia();
-
         stopCurrentPlayingMediaPlayer();
+        isTabQuranOpened = true;
     }
 
     private void setLayoutMainQuran() {
@@ -123,6 +138,7 @@ public class QuranFragment extends Fragment implements View.OnClickListener {
         rootView.removeAllViews();
         rootView.addView(this.view);
         initViewsMainQuran();
+        isTabQuranOpened = false;
     }
 
     private void initViewsMainQuran() {
@@ -199,19 +215,5 @@ public class QuranFragment extends Fragment implements View.OnClickListener {
             listTracks.addAll(listSong);
             setMyAdapter(context, listTracks);
         }
-    }
-
-    //******************************** Notification Music ***********************************
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        //**********Notification Music********
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notificationManager.cancelAll();
-        }
-
-        if (broadcastReceiver != null)
-            Objects.requireNonNull(getContext()).unregisterReceiver(broadcastReceiver);
     }
 }

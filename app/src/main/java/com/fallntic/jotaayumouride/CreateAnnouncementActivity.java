@@ -169,7 +169,7 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
                 @Override
                 public void onSuccess(Void aVoid) {
                     hideProgressBar();
-                    //send notification.
+                    //send notificationMediaPlayer.
                     MyStaticVariables.objNotification = new ObjNotification(announcementID,
                             onlineUser.getUserID(), dahira.getDahiraID(), MyStaticVariables.TITLE_ANNOUNCEMENT_NOTIFICATION, note);
 

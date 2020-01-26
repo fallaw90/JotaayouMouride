@@ -144,10 +144,13 @@ public class MyStaticVariables {
     };
 
     //************* Notification Music ********************
-    public static Notification notification;
-    public static NotificationManager notificationManager;
+    public static boolean isTabQuranOpened = false;
+    public static boolean isTabAudioOpened = false;
+    public static String songChosen;
+    public static Notification notificationMediaPlayer;
+    public static NotificationManager notificationManagerMediaPlayer;
     public static List<Song> listTracks = new ArrayList<>();
-    public static BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+    public static BroadcastReceiver broadcastReceiverMediaPlayer = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = Objects.requireNonNull(intent.getExtras()).getString("actionname");
@@ -170,15 +173,15 @@ public class MyStaticVariables {
         }
     };
 
-    public static String dahiraID;
-    public static String userID;
+    public static String dahiraID = null;
+    public static String userID = null;
     public static String actionSelected = "";
     public static String typeOfContribution = "";
     public static UploadImage uploadImages = null;
     public static boolean boolAddToDahira;
-    public static User onlineUser = new User();
-    public static User selectedUser = new User();
-    public static Dahira dahira = new Dahira();
+    public static User onlineUser = null;
+    public static User selectedUser = null;
+    public static Dahira dahira = null;
     public static int indexOnlineUser = -1;
     public static int indexSelectedUser = -1;
     public static ProgressDialog progressDialog;

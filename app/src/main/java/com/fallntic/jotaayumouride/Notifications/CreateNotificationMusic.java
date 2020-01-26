@@ -15,11 +15,11 @@ import com.fallntic.jotaayumouride.Model.Song;
 import com.fallntic.jotaayumouride.R;
 import com.fallntic.jotaayumouride.Services.NotificationActionService;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.notification;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.notificationMediaPlayer;
 
 public class CreateNotificationMusic {
 
-    public static final String CHANNEL_ID = "channel1";
+    public static final String NOTIFICATION_MP_ID = "mediaPlayer";
 
     public static final String ACTION_PREVIUOS = "actionprevious";
     public static final String ACTION_PLAY = "actionplay";
@@ -65,13 +65,13 @@ public class CreateNotificationMusic {
                 drw_next = R.drawable.ic_skip_next_black_24dp;
             }
 
-            //create notification
-            notification = new NotificationCompat.Builder(context, CHANNEL_ID)
+            //create notificationMediaPlayer
+            notificationMediaPlayer = new NotificationCompat.Builder(context, NOTIFICATION_MP_ID)
                     .setSmallIcon(R.drawable.ic_music_note)
                     .setContentTitle(song.getAudioTitle())
                     .setContentText("")
                     .setLargeIcon(icon)
-                    .setOnlyAlertOnce(true)//show notification for only first time
+                    .setOnlyAlertOnce(true)//show notificationMediaPlayer for only first time
                     .setShowWhen(false)
                     .setOngoing(true)
                     .addAction(drw_previous, "Previous", pendingIntentPrevious)
@@ -84,7 +84,7 @@ public class CreateNotificationMusic {
                     .setGroup("group_notification")
                     .build();
 
-            notificationManagerCompat.notify(1, notification);
+            notificationManagerCompat.notify(1, notificationMediaPlayer);
         }
     }
 }

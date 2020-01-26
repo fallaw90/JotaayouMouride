@@ -462,7 +462,7 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
                                                 @Override
                                                 public void onSuccess(Void aVoid) {
                                                     progressBar.setVisibility(View.GONE);
-                                                    //send notification.
+                                                    //send notificationMediaPlayer.
                                                     final String announcementID = onlineUser.getUserName() + System.currentTimeMillis();
                                                     MyStaticVariables.objNotification = new ObjNotification(announcementID,
                                                             onlineUser.getUserID(), dahira.getDahiraID(), MyStaticVariables.TITLE_ANNOUNCEMENT_NOTIFICATION,

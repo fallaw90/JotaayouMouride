@@ -75,6 +75,7 @@ import java.util.Objects;
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
 import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
 import static com.fallntic.jotaayumouride.MainActivity.TAG;
+import static com.fallntic.jotaayumouride.Notifications.CreateNotificationMusic.NOTIFICATION_MP_ID;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.UpdateSongTime;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.collectionReference;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.currentIndex;
@@ -108,7 +109,7 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mediaPlayer;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myHandler;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListDahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListEvents;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.notificationManager;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.notificationManagerMediaPlayer;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.pb_loader;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.recycler;
@@ -713,10 +714,13 @@ public class MyStaticFunctions {
     }
 
     public static void stopCurrentPlayingMediaPlayer() {
-        //startTime = 0;
         firstLaunch = true;
-        //currentIndex = 0;
+        currentIndex = 0;
         try {
+            if (notificationManagerMediaPlayer != null) {
+                notificationManagerMediaPlayer.cancelAll();
+            }
+
             if (mediaPlayer != null && mediaPlayer.isPlaying()) {
                 mediaPlayer.stop();
                 mediaPlayer.release();
@@ -1140,11 +1144,11 @@ public class MyStaticFunctions {
     //***************************** Interface Playable functions for Notification Media ******************************
     public static void createChannel(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(CreateNotificationMusic.CHANNEL_ID,
+            NotificationChannel channel = new NotificationChannel(NOTIFICATION_MP_ID,
                     "KOD Dev", NotificationManager.IMPORTANCE_LOW);
-            notificationManager = context.getSystemService(NotificationManager.class);
-            if (notificationManager != null) {
-                notificationManager.createNotificationChannel(channel);
+            notificationManagerMediaPlayer = context.getSystemService(NotificationManager.class);
+            if (notificationManagerMediaPlayer != null) {
+                notificationManagerMediaPlayer.createNotificationChannel(channel);
             }
         }
     }

@@ -46,7 +46,7 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.setMyAdapter
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.stopCurrentPlayingMediaPlayer;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.updateStorageSize;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.broadcastReceiver;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.broadcastReceiverMediaPlayer;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.fab_search;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.indexOnlineUser;
@@ -57,7 +57,7 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listImage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listSong;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listTracks;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mAdapter;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.notificationManager;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.notificationManagerMediaPlayer;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.pb_loader;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.pb_main_loader;
@@ -99,7 +99,7 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createChannel(this);
-            registerReceiver(broadcastReceiver, new IntentFilter("TRACKS_TRACKS"));
+            registerReceiver(broadcastReceiverMediaPlayer, new IntentFilter("TRACKS_TRACKS"));
             startService(new Intent(this, OnClearFromRecentService.class));
         }
 
@@ -362,10 +362,14 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
 
         //**********Notification Music********
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notificationManager.cancelAll();
+            notificationManagerMediaPlayer.cancelAll();
         }
-
-        if (broadcastReceiver != null)
-            unregisterReceiver(broadcastReceiver);
+        if (broadcastReceiverMediaPlayer != null) {
+            try {
+                unregisterReceiver(broadcastReceiverMediaPlayer);
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
