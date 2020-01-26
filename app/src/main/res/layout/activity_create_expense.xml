@@ -81,7 +81,6 @@
                     android:textAlignment="center" />
 
                 <TextView
-                    android:id="@+id/textView_deduction"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -98,7 +97,6 @@
                     android:weightSum="1">
 
                     <RadioButton
-                        android:id="@+id/adiya"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -109,7 +107,6 @@
                         android:textSize="20dp" />
 
                     <RadioButton
-                        android:id="@+id/sass"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -121,7 +118,6 @@
                         android:textSize="20dp" />
 
                     <RadioButton
-                        android:id="@+id/social"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"

@@ -51,7 +51,7 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.userID;
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "MainActivity";
 
-    public static final String CHANNEL_ID = "jotaayou_mouride";
+    public static final String CHANNEL_FIREBASE = "jotaayou_mouride";
     public static final String CHANNEL_Name = "Jotaayou Mouride";
     public static final String CHANNEL_DESC = "Jotaayou Mouride Notifications";
 
@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void createChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_Name,
+            NotificationChannel channel = new NotificationChannel(CHANNEL_FIREBASE, CHANNEL_Name,
                     NotificationManager.IMPORTANCE_HIGH);
             channel.setDescription(CHANNEL_DESC);
             NotificationManager manager = getSystemService(NotificationManager.class);

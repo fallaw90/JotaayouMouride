@@ -39,7 +39,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static com.fallntic.jotaayumouride.MainActivity.CHANNEL_ID;
+import static com.fallntic.jotaayumouride.MainActivity.CHANNEL_FIREBASE;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
 
@@ -101,7 +101,7 @@ public class FirebaseNotificationHelper extends IntentService {
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         Bitmap largeIcon = BitmapFactory.decodeResource(Resources.getSystem(), R.drawable.logo_dahira);
-        Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
+        Notification notification = new NotificationCompat.Builder(context, CHANNEL_FIREBASE)
                 .setSmallIcon(R.drawable.ic_announcement)
                 .setContentTitle(objNotification.getTitle())
                 .setContentText(objNotification.getMessage())
@@ -111,7 +111,7 @@ public class FirebaseNotificationHelper extends IntentService {
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setColor(Color.GREEN)
                 .setContentIntent(pendingIntent)
-                .setAutoCancel(true)
+                .setGroup("group_notification")
                 .build();
 
         NotificationManagerCompat mNotificationMgr = NotificationManagerCompat.from(context);

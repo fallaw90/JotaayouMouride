@@ -48,20 +48,17 @@
         android:visibility="gone" />
 
     <RelativeLayout
-        android:id="@+id/relativeLayout_upload"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/progressBar"
         android:layout_marginTop="@dimen/_20sdp">
 
         <LinearLayout
-            android:id="@+id/linearLayout_upload"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/button_upload"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="openAudioFile"

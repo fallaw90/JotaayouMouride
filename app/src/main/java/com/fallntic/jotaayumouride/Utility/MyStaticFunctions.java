@@ -1,9 +1,12 @@
 package com.fallntic.jotaayumouride.Utility;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.DownloadManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -44,6 +47,7 @@ import com.fallntic.jotaayumouride.Model.Image;
 import com.fallntic.jotaayumouride.Model.ListImageObject;
 import com.fallntic.jotaayumouride.Model.ListSongObject;
 import com.fallntic.jotaayumouride.Model.Song;
+import com.fallntic.jotaayumouride.Notifications.CreateNotificationMusic;
 import com.fallntic.jotaayumouride.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -97,12 +101,14 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listDahiraFo
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listExpenses;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listImage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listSong;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listTracks;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mAdapter;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mediaPlayer;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myHandler;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListDahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListEvents;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.notificationManager;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.pb_loader;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.recycler;
@@ -397,6 +403,89 @@ public class MyStaticFunctions {
     }
 
     //***************************** Mmedia Player *******************************************
+    public static void getListAudios(final Context context, final List<Song> listSong, String documentID) {
+        //Retrieve all songs from FirebaseFirestore
+        listTracks = new ArrayList<>();
+        if (listSong.isEmpty()) {
+            showProgressBar();
+            MyStaticVariables.collectionReference = MyStaticVariables.firestore.collection("audios");
+            MyStaticVariables.collectionReference.whereEqualTo("documentID", documentID).get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            hideProgressBar();
+                            ListSongObject listSongObject = null;
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                                for (DocumentSnapshot documentSnapshot : list) {
+                                    listSongObject = documentSnapshot.toObject(ListSongObject.class);
+                                    listSong.addAll(listSongObject.getListSong());
+                                    break;
+                                }
+                                Collections.sort(listSong);
+                                listTracks.addAll(listSong);
+                                setMyAdapter(context, listSong);
+                            }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    hideProgressBar();
+                    toastMessage(context, "Erreur de telechargement du repertoire audio.");
+                }
+            });
+        } else {
+            listTracks.addAll(listSong);
+            setMyAdapter(context, listTracks);
+        }
+    }
+
+    public static void handleSeekbar() {
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (mediaPlayer != null && fromUser) {
+                    mediaPlayer.seekTo(progress);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+    }
+
+    public static void prepareSong(Context context, Song song) {
+
+        String str_duration = song.getAudioDuration().replace(":", "");
+        currentSongLength = Integer.parseInt(str_duration);
+        pb_loader.setVisibility(View.VISIBLE);
+        tb_title.setVisibility(View.GONE);
+        iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_play));
+        tb_title.setText(song.getAudioTitle());
+        tv_time.setText(song.getAudioDuration());
+        mediaPlayer.reset();
+
+        try {
+            if (mediaPlayer != null) {
+                if (mediaPlayer.isPlaying()) {
+                    mediaPlayer.stop();
+                    mediaPlayer.reset();
+                    onTrackPause(context);
+                }
+                mediaPlayer.setDataSource(song.getAudioUri());
+                mediaPlayer.prepareAsync();
+                loadInterstitialAd(context);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void setMyAdapter(final Context context, final List<Song> listSong) {
 
         if (myHandler == null)
@@ -404,16 +493,12 @@ public class MyStaticFunctions {
         if (mediaPlayer == null)
             mediaPlayer = new MediaPlayer();
 
-
         //Requête récupérant les chansons
         recycler.setLayoutManager(new LinearLayoutManager(context));
         mAdapter = new SongAdapter(context, listSong, new SongAdapter.RecyclerItemClickListener() {
 
             @Override
             public void onClickListener(Song song, int position) {
-                if (mediaPlayer == null) {
-                    mediaPlayer = new MediaPlayer();
-                }
                 firstLaunch = false;
                 changeSelectedSong(position);
                 prepareSong(context, song);
@@ -445,6 +530,7 @@ public class MyStaticFunctions {
                 if (currentIndex + 1 < listSong.size()) {
                     Song next = listSong.get(currentIndex + 1);
                     changeSelectedSong(currentIndex + 1);
+
                     prepareSong(context, next);
                 } else {
                     Song next = listSong.get(0);
@@ -472,49 +558,11 @@ public class MyStaticFunctions {
         });
     }
 
-    public static void handleSeekbar() {
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (mediaPlayer != null && fromUser) {
-                    mediaPlayer.seekTo(progress);
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-            }
-        });
-    }
-
-    public static void prepareSong(Context context, Song song) {
-
-        String str_duration = song.getAudioDuration().replace(":", "");
-        currentSongLength = Integer.parseInt(str_duration);
-        pb_loader.setVisibility(View.GONE);
-        tb_title.setVisibility(View.GONE);
-        iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_play));
-        tb_title.setText(song.getAudioTitle());
-        tv_time.setText(song.getAudioDuration());
-        mediaPlayer.reset();
-
-        try {
-            if (mediaPlayer != null) {
-                if (mediaPlayer.isPlaying()) {
-                    mediaPlayer.stop();
-                    mediaPlayer.reset();
-                }
-                mediaPlayer.setDataSource(song.getAudioUri());
-                mediaPlayer.prepareAsync();
-                loadInterstitialAd(context);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public static void changeSelectedSong(int index) {
+        mAdapter.notifyItemChanged(mAdapter.getSelectedPosition());
+        currentIndex = index;
+        mAdapter.setSelectedPosition(currentIndex);
+        mAdapter.notifyItemChanged(currentIndex);
     }
 
     public static void togglePlay(Context context, MediaPlayer mp) {
@@ -522,22 +570,20 @@ public class MyStaticFunctions {
         if (mp != null && mp.isPlaying()) {
             mp.stop();
             mp.reset();
+            onTrackPause(context);
         } else {
             pb_loader.setVisibility(View.GONE);
-            tb_title.setVisibility(View.GONE);
-            mp.start();
+            tb_title.setVisibility(View.VISIBLE);
+            if (mp != null) {
+                mp.start();
+                onTrackPlay(context);
+                firstLaunch = false;
+            }
             iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_pause));
 
             seekBar.setProgress(mediaPlayer.getCurrentPosition());
             myHandler.postDelayed(UpdateSongTime, 100);
         }
-    }
-
-    public static void changeSelectedSong(int index) {
-        mAdapter.notifyItemChanged(mAdapter.getSelectedPosition());
-        currentIndex = index;
-        mAdapter.setSelectedPosition(currentIndex);
-        mAdapter.notifyItemChanged(currentIndex);
     }
 
     public static void pushPlay(final Context context, final List<Song> listSong) {
@@ -547,29 +593,31 @@ public class MyStaticFunctions {
                 if (mediaPlayer != null && mediaPlayer.isPlaying()) {
                     iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_play));
                     mediaPlayer.pause();
+                    onTrackPause(context);
                 } else {
                     if (firstLaunch) {
                         Song song = listSong.get(0);
                         changeSelectedSong(0);
                         prepareSong(context, song);
                     } else {
-                        mediaPlayer.start();
+                        if (mediaPlayer != null) {
+                            mediaPlayer.start();
+                        }
                         firstLaunch = false;
                     }
                     iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_pause));
+                    onTrackPlay(context);
                 }
             }
         });
     }
 
     public static void pushPrevious(final Context context, final List<Song> listSong) {
-
         iv_previous.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 firstLaunch = false;
                 if (mediaPlayer != null) {
-
                     if (currentIndex - 1 >= 0) {
                         Song previous = listSong.get(currentIndex - 1);
                         changeSelectedSong(currentIndex - 1);
@@ -578,41 +626,16 @@ public class MyStaticFunctions {
                         changeSelectedSong(listSong.size() - 1);
                         prepareSong(context, listSong.get(listSong.size() - 1));
                     }
-
                 }
             }
         });
-
-    }
-
-    public static void pushNext(final Context context, final List<Song> listSong) {
-
-        iv_next.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                firstLaunch = false;
-                if (mediaPlayer != null) {
-
-                    if (currentIndex + 1 < listSong.size()) {
-                        Song next = listSong.get(currentIndex + 1);
-                        changeSelectedSong(currentIndex + 1);
-                        prepareSong(context, next);
-                    } else {
-                        changeSelectedSong(0);
-                        prepareSong(context, listSong.get(0));
-                    }
-
-                }
-            }
-        });
-
     }
 
     public static void searchSong(final Context context, final List<Song> listSong) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        final View view = inflater.inflate(R.layout.dialog_search_song, null);
+        @SuppressLint("InflateParams") final View view = Objects.requireNonNull(inflater).inflate(R.layout.dialog_search_song, null);
         builder.setTitle(R.string.rechercher);
         builder.setView(view);
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -637,6 +660,9 @@ public class MyStaticFunctions {
                         }
                     }
                     if (listSongFound.size() > 0) {
+                        stopCurrentPlayingMediaPlayer();
+                        listTracks = new ArrayList<>();
+                        listTracks.addAll(listSongFound);
                         setMyAdapter(context, listSongFound);
                     } else {
                         Toast.makeText(context, "Song non trouve", Toast.LENGTH_SHORT).show();
@@ -651,90 +677,9 @@ public class MyStaticFunctions {
         AlertDialog dialog = builder.create();
         dialog.show();
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.BLACK);
-
-    }
-
-    public static void setMediaPlayer() {
-
-        //startTime = 0;
-        firstLaunch = true;
-        //currentIndex = 0;
-
-        try {
-            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
-                mediaPlayer.release();
-            }
-
-            if (mediaPlayer == null)
-                mediaPlayer = new MediaPlayer();
-
-            if (myHandler == null)
-                myHandler = new Handler();
-
-            myHandler.removeCallbacks(UpdateSongTime);
-
-        } catch (Exception ignored) {
-        }
-    }
-
-    public static String convertDuration(long duration) {
-        long minutes = (duration / 1000) / 60;
-        long seconds = (duration / 1000) % 60;
-        String converted = String.format("%d:%02d", minutes, seconds);
-        return converted;
-    }
-
-    public static String formatDuration(int seconds) {
-        int p1 = seconds % 60;
-        int p2 = seconds / 60;
-        int p3 = p2 % 60;
-        p2 = p2 / 60;
-
-        if (p2 > 0)
-            return p2 + ":" + p3 + ":" + p1;
-        else
-            return p3 + ":" + p1;
-    }
-
-    public static void getListAudios(final Context context, final List<Song> listSong, String collection, String documentID) {
-        //Retrieve all songs from FirebaseFirestore
-        if (listSong.isEmpty()) {
-            showProgressBar();
-            MyStaticVariables.collectionReference = MyStaticVariables.firestore.collection(collection);
-            MyStaticVariables.collectionReference.whereEqualTo("documentID", documentID).get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            ListSongObject listSongObject = null;
-                            if (!queryDocumentSnapshots.isEmpty()) {
-                                hideProgressBar();
-                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
-                                for (DocumentSnapshot documentSnapshot : list) {
-                                    listSongObject = documentSnapshot.toObject(ListSongObject.class);
-                                    listSong.addAll(listSongObject.getListSong());
-                                    break;
-                                }
-
-                                Collections.sort(listSong);
-                                setMyAdapter(context, listSong);
-                            }
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    hideProgressBar();
-                    toastMessage(context, "Erreur de telechargement du repertoire audio.");
-                }
-            });
-        } else {
-            setMyAdapter(context, listSong);
-        }
     }
 
     public static void downloadFile(Context context, String fileName, String url) {
-
-        //Load ads
         DownloadManager downloadmanager = (DownloadManager) context.
                 getSystemService(Context.DOWNLOAD_SERVICE);
         Uri uri = Uri.parse(url);
@@ -748,12 +693,58 @@ public class MyStaticFunctions {
         }
     }
 
+    public static void pushNext(final Context context, final List<Song> listSong) {
+        iv_next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                firstLaunch = false;
+                if (mediaPlayer != null) {
+                    if (currentIndex + 1 < listSong.size()) {
+                        Song next = listSong.get(currentIndex + 1);
+                        changeSelectedSong(currentIndex + 1);
+                        prepareSong(context, next);
+                    } else {
+                        changeSelectedSong(0);
+                        prepareSong(context, listSong.get(0));
+                    }
+                }
+            }
+        });
+    }
+
+    public static void stopCurrentPlayingMediaPlayer() {
+        //startTime = 0;
+        firstLaunch = true;
+        //currentIndex = 0;
+        try {
+            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+                mediaPlayer.release();
+            }
+
+            if (mediaPlayer == null)
+                mediaPlayer = new MediaPlayer();
+
+            if (myHandler == null)
+                myHandler = new Handler();
+            else
+                myHandler.removeCallbacks(UpdateSongTime);
+
+        } catch (Exception ignored) {
+        }
+    }
+
+    public static String convertDuration(long duration) {
+        long minutes = (duration / 1000) / 60;
+        long seconds = (duration / 1000) % 60;
+        return String.format("%d:%02d", minutes, seconds);
+    }
+
+    //*******************Moved Functions ******************************
     public static void toastMessage(Context context, String message) {
         Toast.makeText(context, message, Toast.LENGTH_LONG).show();
     }
 
-
-    //*******************Moved Functions ******************************
     public static void showProgressDialog(Context context, String str) {
         dismissProgressDialog();
         MyStaticVariables.progressDialog = new ProgressDialog(context);
@@ -971,14 +962,8 @@ public class MyStaticFunctions {
         boolean validatePrefix;
         switch (prefix) {
             case "70":
-                validatePrefix = true;
-                break;
             case "76":
-                validatePrefix = true;
-                break;
             case "77":
-                validatePrefix = true;
-                break;
             case "78":
                 validatePrefix = true;
                 break;
@@ -1042,7 +1027,6 @@ public class MyStaticFunctions {
         Calendar calendar = Calendar.getInstance();
         int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
         int currentMinute = calendar.get(Calendar.MINUTE);
-
         timePickerDialog = new TimePickerDialog(context, android.R.style.Theme_Holo_Light_Dialog_NoActionBar,
                 new TimePickerDialog.OnTimeSetListener() {
                     @Override
@@ -1129,6 +1113,7 @@ public class MyStaticFunctions {
     }
 
     public static void call(Context context, Activity activity, String phoneNumber) {
+        Intent callIntent = null, chooser = null;
         try {
             if (Build.VERSION.SDK_INT > 22) {
                 if (ActivityCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
@@ -1136,17 +1121,104 @@ public class MyStaticFunctions {
                     return;
                 }
 
-                Intent callIntent = new Intent(Intent.ACTION_CALL);
+                callIntent = new Intent(Intent.ACTION_CALL);
                 callIntent.setData(Uri.parse("tel:" + phoneNumber));
-                context.startActivity(callIntent);
+                chooser = Intent.createChooser(callIntent, "Lancer l'appel");
+                context.startActivity(chooser);
 
             } else {
-                Intent callIntent = new Intent(Intent.ACTION_CALL);
+                callIntent = new Intent(Intent.ACTION_CALL);
                 callIntent.setData(Uri.parse("tel:" + phoneNumber));
-                context.startActivity(callIntent);
+                chooser = Intent.createChooser(callIntent, "Lancer l'appel");
+                context.startActivity(chooser);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
+        }
+    }
+
+    //***************************** Interface Playable functions for Notification Media ******************************
+    public static void createChannel(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(CreateNotificationMusic.CHANNEL_ID,
+                    "KOD Dev", NotificationManager.IMPORTANCE_LOW);
+            notificationManager = context.getSystemService(NotificationManager.class);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+            }
+        }
+    }
+
+    public static void onTrackPrevious(Context context) {
+        CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
+                R.drawable.ic_pause_black_24dp, currentIndex, listTracks.size() - 1);
+    }
+
+    public static void onTrackPlay(Context context) {
+        CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
+                R.drawable.ic_pause_black_24dp, currentIndex, listTracks.size() - 1);
+    }
+
+    public static void onTrackPause(Context context) {
+        CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
+                R.drawable.ic_play_arrow_black_24dp, currentIndex, listTracks.size() - 1);
+    }
+
+    public static void onTrackNext(Context context) {
+
+        CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
+                R.drawable.ic_pause_black_24dp, currentIndex, listTracks.size() - 1);
+
+    }
+
+    public static void pushNext(Context context) {
+        firstLaunch = false;
+        if (mediaPlayer != null) {
+            if (currentIndex + 1 < listTracks.size()) {
+                Song next = listTracks.get(currentIndex + 1);
+                changeSelectedSong(currentIndex + 1);
+                prepareSong(context, next);
+            } else {
+                changeSelectedSong(0);
+                prepareSong(context, listTracks.get(0));
+            }
+            onTrackNext(context);
+        }
+    }
+
+    public static void pushPrevious(Context context) {
+        if (mediaPlayer != null) {
+            if (currentIndex - 1 >= 0) {
+                Song previous = listTracks.get(currentIndex - 1);
+                changeSelectedSong(currentIndex - 1);
+                prepareSong(context, previous);
+            } else {
+                changeSelectedSong(listTracks.size() - 1);
+                prepareSong(context, listTracks.get(listTracks.size() - 1));
+            }
+        }
+        firstLaunch = false;
+        onTrackPrevious(context);
+    }
+
+    public static void pushPlay(Context context) {
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_play));
+            mediaPlayer.pause();
+            onTrackPause(context);
+        } else {
+            if (firstLaunch) {
+                Song song = listSong.get(0);
+                changeSelectedSong(0);
+                prepareSong(context, song);
+            } else {
+                if (mediaPlayer != null) {
+                    mediaPlayer.start();
+                }
+                firstLaunch = false;
+            }
+            iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_pause));
+            onTrackPlay(context);
         }
     }
 }

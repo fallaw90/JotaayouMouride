@@ -87,26 +87,29 @@
     <RelativeLayout
         android:id="@+id/relativeLayout_progressBar"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:visibility="gone">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/textView_progressBar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/progressBar"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
             android:text="Patientez SVP ..."
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="@dimen/_100sdp"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:visibility="visible"
             android:textSize="@dimen/_20sdp" />
 
         <ProgressBar
             android:id="@+id/progressBar"
             style="?android:progressBarStyleLarge"
-            android:layout_width="@dimen/_100sdp"
+            android:layout_width="match_parent"
             android:layout_height="@dimen/_100sdp"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
+            android:layout_below="@id/textView_progressBar"
             android:indeterminate="true"
+            android:layout_gravity="center_vertical"
             android:indeterminateTint="@color/green"
             android:indeterminateTintMode="src_atop"
             android:progress="80"

@@ -1,6 +1,11 @@
 package com.fallntic.jotaayumouride.Utility;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.widget.ImageView;
@@ -26,6 +31,7 @@ import com.fallntic.jotaayumouride.Model.Song;
 import com.fallntic.jotaayumouride.Model.UploadImage;
 import com.fallntic.jotaayumouride.Model.UploadPdf;
 import com.fallntic.jotaayumouride.Model.User;
+import com.fallntic.jotaayumouride.Notifications.CreateNotificationMusic;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -34,9 +40,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.convertDuration;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.pushNext;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.pushPlay;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.pushPrevious;
 
 public class MyStaticVariables {
 
@@ -110,7 +120,7 @@ public class MyStaticVariables {
     public static ProgressBar pb_loader, pb_main_loader;
     public static long currentSongLength;
     public static FloatingActionButton fab_search;
-    public static boolean isPlaying = false;
+    public static boolean isMediaPlayerPaused = false;
     public static double startTime = 0;
     public static MediaPlayer mediaPlayer = new MediaPlayer();
     public static TextView tv_time;
@@ -133,6 +143,33 @@ public class MyStaticVariables {
         }
     };
 
+    //************* Notification Music ********************
+    public static Notification notification;
+    public static NotificationManager notificationManager;
+    public static List<Song> listTracks = new ArrayList<>();
+    public static BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = Objects.requireNonNull(intent.getExtras()).getString("actionname");
+            if (action != null) {
+                switch (action) {
+                    case CreateNotificationMusic.ACTION_PREVIUOS:
+                        //toastMessage(getContext(), "CreateNotificationMusic.ACTION_PREVIUOS");
+                        pushPrevious(context);
+                        break;
+                    case CreateNotificationMusic.ACTION_PLAY:
+                        //toastMessage(getContext(), "CreateNotificationMusic.ACTION_PLAY");
+                        pushPlay(context);
+                        break;
+                    case CreateNotificationMusic.ACTION_NEXT:
+                        //toastMessage(getContext(), "CreateNotificationMusic.ACTION_NEXT");
+                        pushNext(context);
+                        break;
+                }
+            }
+        }
+    };
+
     public static String dahiraID;
     public static String userID;
     public static String actionSelected = "";
@@ -145,4 +182,11 @@ public class MyStaticVariables {
     public static int indexOnlineUser = -1;
     public static int indexSelectedUser = -1;
     public static ProgressDialog progressDialog;
+
+    public static String convertDuration(long duration) {
+        long minutes = (duration / 1000) / 60;
+        long seconds = (duration / 1000) % 60;
+        String converted = String.format("%d:%02d", minutes, seconds);
+        return converted;
+    }
 }

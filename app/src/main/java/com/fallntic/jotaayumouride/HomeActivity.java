@@ -72,15 +72,18 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.dismissProgr
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.isConnected;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.logout;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.setMediaPlayer;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.onTrackPause;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.onTrackPlay;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.stopCurrentPlayingMediaPlayer;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayDahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firebaseAuth;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.isMediaPlayerPaused;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllDahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllEvent;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mediaPlayer;
@@ -437,48 +440,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public void changeTab() {
-
-        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-
-                viewPager.setCurrentItem(tab.getPosition());
-                if (tab.getPosition() == 0) {
-
-                    //toastMessage(HomeActivity.this, "Evenements Fragment");
-
-                } else if (tab.getPosition() == 1) {
-                    setMediaPlayer();
-                    //toastMessage(HomeActivity.this, "About/Profile Fragment");
-
-
-                } else if (tab.getPosition() == 2) {
-                    //toastMessage(HomeActivity.this, "Khassida Fragment");
-
-                } else if (tab.getPosition() == 3) {
-                    setMediaPlayer();
-                    //toastMessage(HomeActivity.this, "Wolofal Fragment");
-
-                } else {
-                    setMediaPlayer();
-                    //toastMessage(HomeActivity.this, "Quran Fragment");
-
-                }
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-            }
-        });
-    }
-
     public static void loadInterstitialAd(final Context context) {
 
         // Prepare the Interstitial Ad
@@ -492,9 +453,41 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onAdLoaded() {
                 super.onAdLoaded();
-                showInterstitialAd();
+                showInterstitialAd(context);
             }
         });
+    }
+
+    public static void showInterstitialAd(final Context context) {
+        if (interstitialAd.isLoaded() && (onlineUser == null || !onlineUser.hasPaid())) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    // If Ads are loaded, show Interstitial else show nothing.
+                    interstitialAd.show();
+                    interstitialAd.setAdListener(new AdListener() {
+                        @Override
+                        public void onAdOpened() {
+                            super.onAdOpened();
+                            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                                onTrackPause(context);
+                                isMediaPlayerPaused = true;
+                            }
+                        }
+
+                        @Override
+                        public void onAdClosed() {
+                            super.onAdClosed();
+                            if (mediaPlayer != null && isMediaPlayerPaused) {
+                                mediaPlayer.start();
+                                onTrackPlay(context);
+                                isMediaPlayerPaused = false;
+                            }
+                        }
+                    });
+                }
+            }, 5000);
+        }
     }
 
     public void initViewsProgressBar() {
@@ -558,33 +551,46 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         super.onPause();
     }
 
-    public static void showInterstitialAd() {
-        if (interstitialAd.isLoaded() && (onlineUser == null || !onlineUser.hasPaid())) {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    // If Ads are loaded, show Interstitial else show nothing.
-                    interstitialAd.show();
-                    interstitialAd.setAdListener(new AdListener() {
-                        @Override
-                        public void onAdOpened() {
-                            super.onAdOpened();
-                            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-                                mediaPlayer.pause();
-                            }
-                        }
+    public void changeTab() {
 
-                        @Override
-                        public void onAdClosed() {
-                            super.onAdClosed();
-                            if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
-                                mediaPlayer.start();
-                            }
-                        }
-                    });
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+
+                viewPager.setCurrentItem(tab.getPosition());
+                if (tab.getPosition() == 0) {
+
+                    //toastMessage(HomeActivity.this, "Evenements Fragment");
+
+                } else if (tab.getPosition() == 1) {
+                    //stopCurrentPlayingMediaPlayer();
+                    //toastMessage(HomeActivity.this, "About/Profile Fragment");
+
+
+                } else if (tab.getPosition() == 2) {
+                    //toastMessage(HomeActivity.this, "Khassida Fragment");
+
+                } else if (tab.getPosition() == 3) {
+                    //stopCurrentPlayingMediaPlayer();
+                    //toastMessage(HomeActivity.this, "Wolofal Fragment");
+
+                } else {
+                    //stopCurrentPlayingMediaPlayer();
+                    //toastMessage(HomeActivity.this, "Quran Fragment");
+
                 }
-            }, 5000);
-        }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+            }
+        });
     }
 
     public static void loadBannerAd(Activity activity, Context context) {
@@ -687,14 +693,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             bannerAd.destroy();
         }
 
-        if (mediaPlayer != null) {
-            try {
-                if (mediaPlayer.isPlaying())
-                    mediaPlayer.stop();
-                mediaPlayer.release();
-            } catch (Exception ignored) {
-            }
-        }
+        stopCurrentPlayingMediaPlayer();
 
         MyStaticVariables.listSong = null;
         MyStaticVariables.listAudiosQuran = null;

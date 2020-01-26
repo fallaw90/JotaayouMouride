@@ -40,7 +40,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.hbb20.CountryCodePicker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,11 +89,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
     private CircleImageView navImageView;
     private TextView textViewNavUserName;
     private TextView textViewNavEmail;
-    private String displayLibrary;
-
     private boolean isDahiraEmpty = true;
-
-    CountryCodePicker ccp;
 
     public static void getListUser(final Context context) {
         if (listUser == null) {

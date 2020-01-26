@@ -133,9 +133,7 @@
         </menu>
     </item>
 
-    <item
-        android:id="@+id/nav_account"
-        android:title="Mon compte">
+    <item android:title="Mon compte">
         <menu>
             <item
                 android:id="@+id/nav_setting"

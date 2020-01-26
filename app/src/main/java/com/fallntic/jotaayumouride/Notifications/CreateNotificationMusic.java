@@ -1,6 +1,5 @@
 package com.fallntic.jotaayumouride.Notifications;
 
-import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -16,6 +15,8 @@ import com.fallntic.jotaayumouride.Model.Song;
 import com.fallntic.jotaayumouride.R;
 import com.fallntic.jotaayumouride.Services.NotificationActionService;
 
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.notification;
+
 public class CreateNotificationMusic {
 
     public static final String CHANNEL_ID = "channel1";
@@ -23,8 +24,6 @@ public class CreateNotificationMusic {
     public static final String ACTION_PREVIUOS = "actionprevious";
     public static final String ACTION_PLAY = "actionplay";
     public static final String ACTION_NEXT = "actionnext";
-
-    public static Notification notification;
 
     public static void createNotification(Context context, Song song, int playbutton, int pos, int size) {
 
@@ -74,6 +73,7 @@ public class CreateNotificationMusic {
                     .setLargeIcon(icon)
                     .setOnlyAlertOnce(true)//show notification for only first time
                     .setShowWhen(false)
+                    .setOngoing(true)
                     .addAction(drw_previous, "Previous", pendingIntentPrevious)
                     .addAction(playbutton, "Play", pendingIntentPlay)
                     .addAction(drw_next, "Next", pendingIntentNext)
@@ -81,10 +81,10 @@ public class CreateNotificationMusic {
                             .setShowActionsInCompactView(0, 1, 2)
                             .setMediaSession(mediaSessionCompat.getSessionToken()))
                     .setPriority(NotificationCompat.PRIORITY_LOW)
+                    .setGroup("group_notification")
                     .build();
 
             notificationManagerCompat.notify(1, notification);
-
         }
     }
 }
