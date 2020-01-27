@@ -158,6 +158,7 @@ public class MyStaticVariables {
     public static Notification notificationMediaPlayer;
     public static NotificationManager notificationManagerMediaPlayer;
     public static List<Song> listTracks = new ArrayList<>();
+
     public static BroadcastReceiver broadcastReceiverMediaPlayer = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
