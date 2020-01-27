@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.res.AssetManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -80,8 +81,8 @@ public class MainActivity extends AppCompatActivity {
             getOnlineUser(this, userID, objNotification);
 
         } else {
-            finish();
             startActivity(new Intent(this, HomeActivity.class));
+            finish();
         }
     }
 
@@ -91,7 +92,9 @@ public class MainActivity extends AppCompatActivity {
                     NotificationManager.IMPORTANCE_HIGH);
             channel.setDescription(CHANNEL_DESC);
             NotificationManager manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(channel);
+            if (manager != null) {
+                manager.createNotificationChannel(channel);
+            }
         }
     }
 
@@ -110,12 +113,12 @@ public class MainActivity extends AppCompatActivity {
                             onlineUser = documentSnapshot.toObject(User.class);
                         }
                         if (onlineUser != null) {
-                            textView.setText("Bienvenu " + onlineUser.getUserName());
+                            textView.setText("Bienvenue " + onlineUser.getUserName());
                             if (objNotification != null) {
                                 getDahira(context, objNotification.getDahiraID());
                             } else {
-                                finish();
                                 context.startActivity(new Intent(context, HomeActivity.class));
+                                finish();
                             }
                         } else {
                             context.startActivity(new Intent(context, SignUpPhoneActivity.class));
@@ -160,8 +163,8 @@ public class MainActivity extends AppCompatActivity {
                                     context.startActivity(new Intent(context, HomeActivity.class));
                                 }
                             } else {
-                                finish();
                                 context.startActivity(new Intent(context, HomeActivity.class));
+                                finish();
                             }
                             Log.d(TAG, "Dahira downloaded");
                         }
@@ -185,11 +188,11 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 if (objNotification != null) {
                                     displayEvent = "allEvents";
-                                    finish();
                                     context.startActivity(new Intent(context, ShowEventActivity.class));
-                                } else {
                                     finish();
+                                } else {
                                     context.startActivity(new Intent(context, HomeActivity.class));
+                                    finish();
                                 }
 
                                 Log.d(TAG, "Events downloaded.");
@@ -199,10 +202,16 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(@NonNull Exception e) {
                     context.startActivity(new Intent(context, HomeActivity.class));
+                    finish();
                     Log.d(TAG, "Error downloading events");
                 }
             });
         }
+    }
+
+    @Override
+    public AssetManager getAssets() {
+        return getResources().getAssets();
     }
 
 }

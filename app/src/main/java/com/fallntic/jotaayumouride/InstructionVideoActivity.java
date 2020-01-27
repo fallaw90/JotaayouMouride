@@ -70,8 +70,8 @@ public class InstructionVideoActivity extends AppCompatActivity {
         switch (item.getItemId()) {
 
             case android.R.id.home:
-                finish();
                 startActivity(new Intent(this, HomeActivity.class));
+                finish();
                 break;
 
             case R.id.icon_back:

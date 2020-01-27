@@ -96,8 +96,8 @@ public class AddAudioActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        finish();
         startActivity(new Intent(this, DahiraInfoActivity.class));
+        finish();
         return true;
     }
 

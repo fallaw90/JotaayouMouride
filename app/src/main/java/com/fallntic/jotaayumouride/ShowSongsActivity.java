@@ -291,7 +291,6 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
                 startActivity(new Intent(this, HomeActivity.class));
                 break;
 

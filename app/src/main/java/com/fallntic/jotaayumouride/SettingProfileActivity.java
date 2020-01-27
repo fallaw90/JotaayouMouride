@@ -222,8 +222,8 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
                             System.out.println("Error update data");
                         }
                     });
-
             startActivity(new Intent(SettingProfileActivity.this, HomeActivity.class));
+            finish();
         }
     }
 
@@ -265,8 +265,8 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
 
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
                 startActivity(new Intent(this, HomeActivity.class));
+                finish();
                 break;
 
             case R.id.icon_back:

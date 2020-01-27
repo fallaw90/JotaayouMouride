@@ -162,17 +162,16 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public void onBackPressed() {
-        finish();
         startActivity(new Intent(this, ShowDahiraActivity.class));
-
+        finish();
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button_back:
-                finish();
                 startActivity(new Intent(this, ShowDahiraActivity.class));
+                finish();
                 break;
         }
     }
@@ -230,7 +229,6 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         switch (item.getItemId()) {
 
             case R.id.logo:
-                finish();
                 startActivity(new Intent(this, HomeActivity.class));
                 break;
 

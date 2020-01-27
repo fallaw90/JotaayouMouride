@@ -20,7 +20,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -78,6 +77,7 @@ import static com.fallntic.jotaayumouride.MainActivity.TAG;
 import static com.fallntic.jotaayumouride.Notifications.CreateNotificationMusic.NOTIFICATION_MP_ID;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.UpdateSongTime;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.collectionReference;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.counterHAonPause;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.currentIndex;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.currentSongLength;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
@@ -86,6 +86,8 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.fab_search;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firstLaunch;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.isNotificationMPUsed;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.isPlaying;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_next;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_play;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_previous;
@@ -117,6 +119,7 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayo
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.seekBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tb_title;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.testVal;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tv_time;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.updateStorage;
 
@@ -489,11 +492,6 @@ public class MyStaticFunctions {
 
     public static void setMyAdapter(final Context context, final List<Song> listSong) {
 
-        if (myHandler == null)
-            myHandler = new Handler();
-        if (mediaPlayer == null)
-            mediaPlayer = new MediaPlayer();
-
         //Requête récupérant les chansons
         recycler.setLayoutManager(new LinearLayoutManager(context));
         mAdapter = new SongAdapter(context, listSong, new SongAdapter.RecyclerItemClickListener() {
@@ -514,8 +512,6 @@ public class MyStaticFunctions {
         });
         recycler.setAdapter(mAdapter);
 
-
-        //Initialisation du media player
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
@@ -567,23 +563,24 @@ public class MyStaticFunctions {
     }
 
     public static void togglePlay(Context context, MediaPlayer mp) {
-        seekBar.setMax(mediaPlayer.getDuration());
-        if (mp != null && mp.isPlaying()) {
-            mp.stop();
-            mp.reset();
-            onTrackPause(context);
-        } else {
-            pb_loader.setVisibility(View.GONE);
-            tb_title.setVisibility(View.VISIBLE);
-            if (mp != null) {
+        if (mp != null) {
+            if (mp.isPlaying()) {
+                mp.stop();
+                mp.reset();
+                isPlaying = false;
+                onTrackPause(context);
+            } else {
+                seekBar.setMax(mp.getDuration());
+                pb_loader.setVisibility(View.GONE);
+                tb_title.setVisibility(View.VISIBLE);
                 mp.start();
-                onTrackPlay(context);
+                isPlaying = true;
                 firstLaunch = false;
+                iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_pause));
+                seekBar.setProgress(mp.getCurrentPosition());
+                myHandler.postDelayed(UpdateSongTime, 100);
+                onTrackPlay(context);
             }
-            iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_pause));
-
-            seekBar.setProgress(mediaPlayer.getCurrentPosition());
-            myHandler.postDelayed(UpdateSongTime, 100);
         }
     }
 
@@ -594,6 +591,7 @@ public class MyStaticFunctions {
                 if (mediaPlayer != null && mediaPlayer.isPlaying()) {
                     iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_play));
                     mediaPlayer.pause();
+                    isPlaying = false;
                     onTrackPause(context);
                 } else {
                     if (firstLaunch) {
@@ -603,11 +601,31 @@ public class MyStaticFunctions {
                     } else {
                         if (mediaPlayer != null) {
                             mediaPlayer.start();
+                            isPlaying = true;
                         }
                         firstLaunch = false;
                     }
                     iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_pause));
                     onTrackPlay(context);
+                }
+            }
+        });
+    }
+
+    public static void pushNext(final Context context, final List<Song> listSong) {
+        iv_next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                firstLaunch = false;
+                if (mediaPlayer != null) {
+                    if (currentIndex + 1 < listSong.size()) {
+                        Song next = listSong.get(currentIndex + 1);
+                        changeSelectedSong(currentIndex + 1);
+                        prepareSong(context, next);
+                    } else {
+                        changeSelectedSong(0);
+                        prepareSong(context, listSong.get(0));
+                    }
                 }
             }
         });
@@ -631,6 +649,120 @@ public class MyStaticFunctions {
             }
         });
     }
+
+    //***************************** Notification Media ******************************
+    public static void createChannel(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(NOTIFICATION_MP_ID,
+                    "KOD Dev", NotificationManager.IMPORTANCE_LOW);
+            notificationManagerMediaPlayer = context.getSystemService(NotificationManager.class);
+            if (notificationManagerMediaPlayer != null) {
+                notificationManagerMediaPlayer.createNotificationChannel(channel);
+            }
+        }
+    }
+
+    public static void onTrackPrevious(Context context) {
+        CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
+                R.drawable.ic_pause_black_24dp, currentIndex, listTracks.size() - 1);
+    }
+
+    public static void onTrackPlay(Context context) {
+        CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
+                R.drawable.ic_pause_black_24dp, currentIndex, listTracks.size() - 1);
+    }
+
+    public static void onTrackPause(Context context) {
+        CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
+                R.drawable.ic_play_arrow_black_24dp, currentIndex, listTracks.size() - 1);
+    }
+
+    public static void onTrackNext(Context context) {
+
+        CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
+                R.drawable.ic_pause_black_24dp, currentIndex, listTracks.size() - 1);
+
+    }
+
+    public static void pushNext(Context context) {
+        testVal++;
+        if (mediaPlayer != null) {
+            if (testVal == 1) {
+                if (currentIndex + 1 < listTracks.size()) {
+                    Song next = listTracks.get(currentIndex + 1);
+                    changeSelectedSong(currentIndex + 1);
+                    prepareSong(context, next);
+                } else {
+                    changeSelectedSong(0);
+                    prepareSong(context, listTracks.get(0));
+                }
+                onTrackNext(context);
+            }
+        }
+        if (testVal > 1) {
+            testVal = 0;
+        }
+    }
+
+    public static void pushPrevious(Context context) {
+        testVal++;
+        if (mediaPlayer != null) {
+            if (testVal == 1) {
+                if (currentIndex - 1 >= 0) {
+                    Song previous = listTracks.get(currentIndex - 1);
+                    changeSelectedSong(currentIndex - 1);
+                    prepareSong(context, previous);
+                } else {
+                    changeSelectedSong(listTracks.size() - 1);
+                    prepareSong(context, listTracks.get(listTracks.size() - 1));
+                }
+                onTrackPrevious(context);
+            }
+        }
+        if (testVal > 1) {
+            testVal = 0;
+        }
+    }
+
+    public static void pushPlay(Context context, MediaPlayer mediaPlayer) {
+        testVal++;
+        if (mediaPlayer != null) {
+            if (isPlaying) {
+                if (isNotificationMPUsed && counterHAonPause == 0) {
+                    mediaPlayer.pause();
+                    isPlaying = false;
+                    onTrackPause(context);
+                    iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_play));
+                }
+
+                if (counterHAonPause > 0 && testVal == 1) {
+                    mediaPlayer.pause();
+                    isPlaying = false;
+                    onTrackPause(context);
+                    iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_play));
+                }
+
+            } else {
+                if (isNotificationMPUsed && counterHAonPause == 0) {
+                    mediaPlayer.start();
+                    isPlaying = true;
+                    onTrackPlay(context);
+                    iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_pause));
+                }
+                if (counterHAonPause > 0 && testVal == 1) {
+                    mediaPlayer.start();
+                    isPlaying = true;
+                    onTrackPlay(context);
+                    iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_pause));
+                }
+            }
+        }
+        if (testVal > 1) {
+            testVal = 0;
+        }
+    }
+
+    //***********************************************************************************************
 
     public static void searchSong(final Context context, final List<Song> listSong) {
 
@@ -694,25 +826,6 @@ public class MyStaticFunctions {
         }
     }
 
-    public static void pushNext(final Context context, final List<Song> listSong) {
-        iv_next.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                firstLaunch = false;
-                if (mediaPlayer != null) {
-                    if (currentIndex + 1 < listSong.size()) {
-                        Song next = listSong.get(currentIndex + 1);
-                        changeSelectedSong(currentIndex + 1);
-                        prepareSong(context, next);
-                    } else {
-                        changeSelectedSong(0);
-                        prepareSong(context, listSong.get(0));
-                    }
-                }
-            }
-        });
-    }
-
     public static void stopCurrentPlayingMediaPlayer() {
         firstLaunch = true;
         currentIndex = 0;
@@ -724,14 +837,10 @@ public class MyStaticFunctions {
             if (mediaPlayer != null && mediaPlayer.isPlaying()) {
                 mediaPlayer.stop();
                 mediaPlayer.release();
+                isPlaying = false;
             }
 
-            if (mediaPlayer == null)
-                mediaPlayer = new MediaPlayer();
-
-            if (myHandler == null)
-                myHandler = new Handler();
-            else
+            if (myHandler != null)
                 myHandler.removeCallbacks(UpdateSongTime);
 
         } catch (Exception ignored) {
@@ -1141,88 +1250,4 @@ public class MyStaticFunctions {
         }
     }
 
-    //***************************** Interface Playable functions for Notification Media ******************************
-    public static void createChannel(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(NOTIFICATION_MP_ID,
-                    "KOD Dev", NotificationManager.IMPORTANCE_LOW);
-            notificationManagerMediaPlayer = context.getSystemService(NotificationManager.class);
-            if (notificationManagerMediaPlayer != null) {
-                notificationManagerMediaPlayer.createNotificationChannel(channel);
-            }
-        }
-    }
-
-    public static void onTrackPrevious(Context context) {
-        CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
-                R.drawable.ic_pause_black_24dp, currentIndex, listTracks.size() - 1);
-    }
-
-    public static void onTrackPlay(Context context) {
-        CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
-                R.drawable.ic_pause_black_24dp, currentIndex, listTracks.size() - 1);
-    }
-
-    public static void onTrackPause(Context context) {
-        CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
-                R.drawable.ic_play_arrow_black_24dp, currentIndex, listTracks.size() - 1);
-    }
-
-    public static void onTrackNext(Context context) {
-
-        CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
-                R.drawable.ic_pause_black_24dp, currentIndex, listTracks.size() - 1);
-
-    }
-
-    public static void pushNext(Context context) {
-        firstLaunch = false;
-        if (mediaPlayer != null) {
-            if (currentIndex + 1 < listTracks.size()) {
-                Song next = listTracks.get(currentIndex + 1);
-                changeSelectedSong(currentIndex + 1);
-                prepareSong(context, next);
-            } else {
-                changeSelectedSong(0);
-                prepareSong(context, listTracks.get(0));
-            }
-            onTrackNext(context);
-        }
-    }
-
-    public static void pushPrevious(Context context) {
-        if (mediaPlayer != null) {
-            if (currentIndex - 1 >= 0) {
-                Song previous = listTracks.get(currentIndex - 1);
-                changeSelectedSong(currentIndex - 1);
-                prepareSong(context, previous);
-            } else {
-                changeSelectedSong(listTracks.size() - 1);
-                prepareSong(context, listTracks.get(listTracks.size() - 1));
-            }
-        }
-        firstLaunch = false;
-        onTrackPrevious(context);
-    }
-
-    public static void pushPlay(Context context) {
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_play));
-            mediaPlayer.pause();
-            onTrackPause(context);
-        } else {
-            if (firstLaunch) {
-                Song song = listSong.get(0);
-                changeSelectedSong(0);
-                prepareSong(context, song);
-            } else {
-                if (mediaPlayer != null) {
-                    mediaPlayer.start();
-                }
-                firstLaunch = false;
-            }
-            iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_pause));
-            onTrackPlay(context);
-        }
-    }
 }

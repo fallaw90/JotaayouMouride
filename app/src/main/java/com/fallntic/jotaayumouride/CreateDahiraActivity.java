@@ -179,8 +179,8 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         switch (item.getItemId()) {
             case android.R.id.home:
             case R.id.icon_back:
-                finish();
                 startActivity(new Intent(this, HomeActivity.class));
+                finish();
                 break;
 
             case R.id.instructions:

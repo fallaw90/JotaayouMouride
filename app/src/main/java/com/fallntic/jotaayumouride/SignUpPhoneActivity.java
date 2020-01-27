@@ -358,7 +358,6 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
             case android.R.id.home:
 
             case R.id.icon_back:
-                finish();
                 startActivity(new Intent(this, HomeActivity.class));
                 break;
 

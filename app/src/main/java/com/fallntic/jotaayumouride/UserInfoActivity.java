@@ -225,7 +225,6 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
 
         switch (item.getItemId()) {
             case R.id.logo:
-                finish();
                 startActivity(new Intent(this, HomeActivity.class));
                 break;
 
@@ -341,8 +340,8 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
             case R.id.nav_logout:
                 toastMessage(this, "Logged out");
                 logout(this);
-                finish();
                 startActivity(new Intent(this, MainActivity.class));
+                finish();
                 break;
 
             case R.id.nav_setting:

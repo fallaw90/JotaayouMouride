@@ -122,13 +122,14 @@ public class ShowEventActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public void onBackPressed() {
-        finish();
         if (displayEvent.equals("allEvents") || objNotification != null){
             objNotification = null;
-            startActivity(new Intent(ShowEventActivity.this, HomeActivity.class));
+            startActivity(new Intent(this, HomeActivity.class));
+            finish();
         }
         if (displayEvent.equals("myEvents") ){
             startActivity(new Intent(ShowEventActivity.this, DahiraInfoActivity.class));
+            finish();
         }
     }
 

@@ -115,8 +115,11 @@ public class ShowAnnouncementActivity extends AppCompatActivity {
         if (objNotification != null) {
             objNotification = null;
             startActivity(new Intent(ShowAnnouncementActivity.this, HomeActivity.class));
-        } else
+            finish();
+        } else {
             startActivity(new Intent(ShowAnnouncementActivity.this, DahiraInfoActivity.class));
+            finish();
+        }
     }
 
     @Override
@@ -228,8 +231,8 @@ public class ShowAnnouncementActivity extends AppCompatActivity {
 
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
                 startActivity(new Intent(this, HomeActivity.class));
+                finish();
                 break;
 
             case R.id.icon_add:

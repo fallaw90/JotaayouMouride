@@ -139,6 +139,7 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
     public void onBackPressed() {
         updateStorageSize(dahira.getCurrentSizeStorage());
         startActivity(new Intent(this, DahiraInfoActivity.class));
+        finish();
     }
 
     @Override
@@ -162,8 +163,8 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
 
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
                 startActivity(new Intent(this, HomeActivity.class));
+                finish();
                 break;
 
             case R.id.icon_add:

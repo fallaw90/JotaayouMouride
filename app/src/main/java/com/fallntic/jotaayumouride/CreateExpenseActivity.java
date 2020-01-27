@@ -108,13 +108,13 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
 
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
                 startActivity(new Intent(this, HomeActivity.class));
+                finish();
                 break;
 
             case R.id.icon_back:
-                finish();
                 startActivity(new Intent(this, DahiraInfoActivity.class));
+                finish();
                 break;
 
             case R.id.instructions:

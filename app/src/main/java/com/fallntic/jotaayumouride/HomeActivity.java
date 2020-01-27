@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,7 +22,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import com.fallntic.jotaayumouride.Adapter.PageAdapter;
@@ -72,29 +70,29 @@ import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.dismissProgr
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.isConnected;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.logout;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.onTrackPause;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.onTrackPlay;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.stopCurrentPlayingMediaPlayer;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.broadcastReceiverMediaPlayer;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.counterHAonPause;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.counterHAonResume;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayDahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firebaseAuth;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.isMediaPlayerPaused;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllDahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllEvent;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mediaPlayer;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myHandler;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListDahira;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.notificationManagerMediaPlayer;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
 import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.wasHAonResume;
+import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.wasHAonStop;
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = "HomeActivity";
@@ -123,53 +121,32 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     public static InterstitialAd interstitialAd;
     public static AdRequest adRequest;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    public static void showInterstitialAd(final Context context) {
+        if (interstitialAd.isLoaded() && (onlineUser == null || !onlineUser.hasPaid())) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    // If Ads are loaded, show Interstitial else show nothing.
+                    interstitialAd.show();
+                    interstitialAd.setAdListener(new AdListener() {
+                        @Override
+                        public void onAdOpened() {
+                            super.onAdOpened();
+                            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                            }
+                        }
 
-        toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        initViews();
-
-        textViewMarquee.setSelected(true);
-        getMarqueeText();
-
-        //startActivity(new Intent(this, AddMultipleAudioActivity.class));
-        //startActivity(new Intent(this, ImageAdvertisementActivity.class));
-
-        if (!isConnected(this)) {
-            toastMessage(this, "Verifier votre connexion SVP.");
-            return;
+                        @Override
+                        public void onAdClosed() {
+                            super.onAdClosed();
+                            if (mediaPlayer != null) {
+                                mediaPlayer.start();
+                            }
+                        }
+                    });
+                }
+            }, 5000);
         }
-
-        if (firebaseAuth != null && firebaseAuth.getCurrentUser() != null) {
-            userID = firebaseAuth.getCurrentUser().getUid();
-            setDrawerMenu();
-            saveTokenID(userID);
-            setupOnlineViewPager(viewPager);
-            getDahiraToUpdate();
-            textViewNavUserName.setText(onlineUser.getUserName());
-            textViewNavEmail.setText(onlineUser.getEmail());
-        } else {
-            toolbar.setLogo(R.mipmap.logo);
-            setupOfflineViewPager(viewPager);
-        }
-
-        changeTab();
-
-        //****************************** adMob ***********************************
-        // Initialize the Mobile Ads SDK.
-        MobileAds.initialize(this, new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
-                loadInterstitialAd(HomeActivity.this);
-            }
-        });
-
-        loadBannerAd(this, this);
     }
 
     public static void getMyDahira(final Context context) {
@@ -319,10 +296,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         }
 
         pageAdapter = new PageAdapter(getSupportFragmentManager());
-        if (myHandler == null)
-            myHandler = new Handler();
-        if (mediaPlayer == null)
-            mediaPlayer = new MediaPlayer();
 
         initViewsProgressBar();
     }
@@ -353,9 +326,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             return true;
 
         switch (item.getItemId()) {
-            case R.id.logo:
-                startActivity(new Intent(this, HomeActivity.class));
-                break;
 
             case R.id.login:
                 startActivity(new Intent(this, LoginPhoneActivity.class));
@@ -465,36 +435,50 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-    public static void showInterstitialAd(final Context context) {
-        if (interstitialAd.isLoaded() && (onlineUser == null || !onlineUser.hasPaid())) {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    // If Ads are loaded, show Interstitial else show nothing.
-                    interstitialAd.show();
-                    interstitialAd.setAdListener(new AdListener() {
-                        @Override
-                        public void onAdOpened() {
-                            super.onAdOpened();
-                            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-                                onTrackPause(context);
-                                isMediaPlayerPaused = true;
-                            }
-                        }
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_home);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-                        @Override
-                        public void onAdClosed() {
-                            super.onAdClosed();
-                            if (mediaPlayer != null && isMediaPlayerPaused) {
-                                mediaPlayer.start();
-                                onTrackPlay(context);
-                                isMediaPlayerPaused = false;
-                            }
-                        }
-                    });
-                }
-            }, 5000);
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        initViews();
+
+        if (!isConnected(this)) {
+            toastMessage(this, "Verifier votre connexion SVP.");
+            return;
         }
+
+        textViewMarquee.setSelected(true);
+        getMarqueeText();
+
+        if (firebaseAuth != null && firebaseAuth.getCurrentUser() != null) {
+            userID = firebaseAuth.getCurrentUser().getUid();
+            setDrawerMenu();
+            saveTokenID(userID);
+            setupOnlineViewPager(viewPager);
+            getDahiraToUpdate();
+            textViewNavUserName.setText(onlineUser.getUserName());
+            textViewNavEmail.setText(onlineUser.getEmail());
+        } else {
+            toolbar.setLogo(R.mipmap.logo);
+            setupOfflineViewPager(viewPager);
+        }
+        resizeMarqueeText();
+        changeTab();
+
+        //****************************** adMob ***********************************
+        // Initialize the Mobile Ads SDK.
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+                loadInterstitialAd(HomeActivity.this);
+            }
+        });
+
+        loadBannerAd(this, this);
     }
 
     public void initViewsProgressBar() {
@@ -555,7 +539,24 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             bannerAd.pause();
         }
 
+        counterHAonPause++;
+        //toastMessage(this, "HomeActivity onPause");
         super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (bannerAd != null) {
+            bannerAd.resume();
+        }
+
+        if (wasHAonStop) {
+            counterHAonResume++;
+        }
+
+        wasHAonResume = true;
+        //toastMessage(this, "HomeActivity onResume");
     }
 
     public void changeTab() {
@@ -647,8 +648,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_logout:
                 toastMessage(this, "Logged out");
                 logout(this);
-                finish();
                 startActivity(new Intent(this, MainActivity.class));
+                finish();
                 break;
         }
 
@@ -669,30 +670,15 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        if (onlineUser.getImageUri() != null)
+        if (onlineUser.getImageUri() != null) {
             MyStaticFunctions.showImage(this, onlineUser.getImageUri(), navImageView);
-        navigationView.setCheckedItem(R.id.nav_home);
+        }
+        if (navigationView != null)
+            navigationView.setCheckedItem(R.id.nav_home);
 
         hideMenuItem();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (bannerAd != null) {
-            bannerAd.resume();
-        }
-    }
-
-    @Override
-    public void onAttachFragment(@NonNull Fragment fragment) {
-        super.onAttachFragment(fragment);
-
-        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) textViewMarquee.getLayoutParams();
-        params.height = getResources().getDimensionPixelSize(R.dimen.textView_height);
-        params.width = getResources().getDimensionPixelSize(R.dimen.textView_width);
-        textViewMarquee.setLayoutParams(params);
-    }
 
     @Override
     public void onDestroy() {
@@ -702,7 +688,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
         stopCurrentPlayingMediaPlayer();
 
-        MyStaticVariables.listSong = null;
         MyStaticVariables.listAudiosQuran = null;
         MyStaticVariables.listAudiosSerigneMbayeDiakhate = null;
         MyStaticVariables.listAudiosSerigneMoussaKa = null;
@@ -716,19 +701,28 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         MyStaticVariables.listAudiosZikr = null;
 
         //**********Notification Music********
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notificationManagerMediaPlayer.cancelAll();
-        }
         if (broadcastReceiverMediaPlayer != null) {
             try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    notificationManagerMediaPlayer.cancelAll();
+                }
                 unregisterReceiver(broadcastReceiverMediaPlayer);
             } catch (IllegalArgumentException e) {
                 e.printStackTrace();
             }
         }
 
-
+        //toastMessage(this, "HomeActivity Destroyed");
         super.onDestroy();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        //toastMessage(this, "HomeActivity onStop");
+
+
+        wasHAonStop = true;
     }
 
     private void getMarqueeText() {
@@ -741,7 +735,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                                 DocumentSnapshot document = task.getResult();
                                 if (document != null) {
                                     marqueeAd = document.getString("text");
-                                    textViewMarquee.setText(marqueeAd);
+                                    if (textViewMarquee != null) {
+                                        textViewMarquee.setText(marqueeAd);
+                                        textViewMarquee.setVisibility(View.VISIBLE);
+                                    }
                                 } else {
                                     Log.d("LOGGER", "No such document");
                                 }
@@ -757,7 +754,19 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                         }
                     });
         } else {
-            textViewMarquee.setText(marqueeAd);
+            if (textViewMarquee != null) {
+                textViewMarquee.setText(marqueeAd);
+                textViewMarquee.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+    private void resizeMarqueeText() {
+        if (textViewMarquee != null) {
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) textViewMarquee.getLayoutParams();
+            params.height = getResources().getDimensionPixelSize(R.dimen.textView_height);
+            params.width = getResources().getDimensionPixelSize(R.dimen.textView_width);
+            textViewMarquee.setLayoutParams(params);
         }
     }
 

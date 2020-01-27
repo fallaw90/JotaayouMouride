@@ -21,7 +21,7 @@ public class CreateNotificationMusic {
 
     public static final String NOTIFICATION_MP_ID = "mediaPlayer";
 
-    public static final String ACTION_PREVIUOS = "actionprevious";
+    public static final String ACTION_PREVIOUS = "actionprevious";
     public static final String ACTION_PLAY = "actionplay";
     public static final String ACTION_NEXT = "actionnext";
 
@@ -41,7 +41,7 @@ public class CreateNotificationMusic {
                 drw_previous = 0;
             } else {
                 Intent intentPrevious = new Intent(context, NotificationActionService.class)
-                        .setAction(ACTION_PREVIUOS);
+                        .setAction(ACTION_PREVIOUS);
                 pendingIntentPrevious = PendingIntent.getBroadcast(context, 0,
                         intentPrevious, PendingIntent.FLAG_UPDATE_CURRENT);
                 drw_previous = R.drawable.ic_skip_previous_black_24dp;

@@ -43,6 +43,7 @@
                 android:textAlignment="center"
                 android:textColor="@color/red"
                 android:textSize="@dimen/_15sdp"
+                android:visibility="gone"
                 android:textStyle="bold" />
 
             <com.google.android.material.tabs.TabLayout

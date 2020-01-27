@@ -238,7 +238,6 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                     //Save user info on the FireBase database
                     saveUser();
                     if (isRegistrationSuccessful()) {
-                        finish();
                         Intent intent = new Intent(SignUpActivity.this, HomeActivity.class);
                         startActivity(intent);
                     }
@@ -527,13 +526,12 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
 
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
                 startActivity(new Intent(this, HomeActivity.class));
                 break;
 
             case R.id.icon_back:
-                finish();
                 startActivity(new Intent(this, LoginActivity.class));
+                finish();
                 break;
         }
         return true;

@@ -90,12 +90,13 @@ public class ShowExpenseActivity extends AppCompatActivity implements View.OnCli
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button_back:
-                finish();
                 if (objNotification != null) {
                     objNotification = null;
                     startActivity(new Intent(this, HomeActivity.class));
+                    finish();
                 } else {
                     startActivity(new Intent(this, DahiraInfoActivity.class));
+                    finish();
                 }
                 break;
         }
@@ -132,8 +133,8 @@ public class ShowExpenseActivity extends AppCompatActivity implements View.OnCli
 
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
                 startActivity(new Intent(this, HomeActivity.class));
+                finish();
                 break;
 
             case R.id.icon_add:

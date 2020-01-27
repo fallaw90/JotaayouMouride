@@ -203,8 +203,8 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
                 startActivity(new Intent(this, HomeActivity.class));
+                finish();
                 break;
         }
         return true;

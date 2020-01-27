@@ -124,25 +124,6 @@ public class AddMultipleAudioActivity extends AppCompatActivity implements View.
         findViewById(button_finish).setOnClickListener(this);
     }
 
-    public static void updateDocument(final String collectionName, String documentID, Map<String, Object> songMap) {
-        FirebaseFirestore.getInstance().collection(collectionName).document(documentID)
-                .update(songMap)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @SuppressLint("LongLogTag")
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, collectionName + " updated");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @SuppressLint("LongLogTag")
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "Error updated " + collectionName);
-                    }
-                });
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -182,25 +163,6 @@ public class AddMultipleAudioActivity extends AppCompatActivity implements View.
         startActivityForResult(Intent.createChooser(intent, "Choisir une image"), RESULT_LOAD_IMAGE);
     }
 
-    public static void createNewCollection(final String collectionName, String documentName, Object data) {
-        FirebaseFirestore.getInstance().collection(collectionName).document(documentName)
-                .set(data)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @SuppressLint("LongLogTag")
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "New collection " + collectionName + " set successfully");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @SuppressLint("LongLogTag")
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "Error initContributions function line 351");
-                    }
-                });
-    }
-
     public String getFileName(Uri uri) {
         String result = null;
         if (uri.getScheme().equals("content")) {
@@ -230,6 +192,7 @@ public class AddMultipleAudioActivity extends AppCompatActivity implements View.
         switch (v.getId()) {
             case button_finish:
                 startActivity(new Intent(this, HomeActivity.class));
+                finish();
                 break;
         }
     }

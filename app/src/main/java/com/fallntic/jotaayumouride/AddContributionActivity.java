@@ -205,13 +205,13 @@ public class AddContributionActivity extends AppCompatActivity implements View.O
 
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
                 startActivity(new Intent(this, HomeActivity.class));
+                finish();
                 break;
 
             case R.id.icon_back:
-                finish();
                 startActivity(new Intent(this, DahiraInfoActivity.class));
+                finish();
                 break;
 
             case R.id.instructions:

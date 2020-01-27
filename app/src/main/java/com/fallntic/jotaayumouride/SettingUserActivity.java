@@ -362,8 +362,8 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
 
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
                 startActivity(new Intent(this, HomeActivity.class));
+                finish();
                 break;
 
             case R.id.icon_back:

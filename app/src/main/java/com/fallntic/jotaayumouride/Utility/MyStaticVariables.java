@@ -120,7 +120,7 @@ public class MyStaticVariables {
     public static ProgressBar pb_loader, pb_main_loader;
     public static long currentSongLength;
     public static FloatingActionButton fab_search;
-    public static boolean isMediaPlayerPaused = false;
+    public static boolean isPlaying = false;
     public static double startTime = 0;
     public static MediaPlayer mediaPlayer = new MediaPlayer();
     public static TextView tv_time;
@@ -144,6 +144,14 @@ public class MyStaticVariables {
     };
 
     //************* Notification Music ********************
+    public static int testVal = 0;
+    public static int counterNotificationMPUsed = 0;
+    public static int counterHAonPause = 0;
+    public static int counterHAonResume = 0;
+    public static boolean backToHA = false;
+    public static boolean isNotificationMPUsed = false;
+    public static boolean wasHAonStop = false;
+    public static boolean wasHAonResume = false;
     public static boolean isTabQuranOpened = false;
     public static boolean isTabAudioOpened = false;
     public static String songChosen;
@@ -156,16 +164,19 @@ public class MyStaticVariables {
             String action = Objects.requireNonNull(intent.getExtras()).getString("actionname");
             if (action != null) {
                 switch (action) {
-                    case CreateNotificationMusic.ACTION_PREVIUOS:
-                        //toastMessage(getContext(), "CreateNotificationMusic.ACTION_PREVIUOS");
+                    case CreateNotificationMusic.ACTION_PREVIOUS:
+                        //toastMessage(context, "CreateNotificationMusic.ACTION_PREVIOUS");
                         pushPrevious(context);
                         break;
                     case CreateNotificationMusic.ACTION_PLAY:
-                        //toastMessage(getContext(), "CreateNotificationMusic.ACTION_PLAY");
-                        pushPlay(context);
+                        if (counterHAonPause == 0) {
+                            isNotificationMPUsed = true;
+                            counterNotificationMPUsed++;
+                        }
+                        pushPlay(context, MyStaticVariables.mediaPlayer);
                         break;
                     case CreateNotificationMusic.ACTION_NEXT:
-                        //toastMessage(getContext(), "CreateNotificationMusic.ACTION_NEXT");
+                        //toastMessage(context, "CreateNotificationMusic.ACTION_NEXT");
                         pushNext(context);
                         break;
                 }

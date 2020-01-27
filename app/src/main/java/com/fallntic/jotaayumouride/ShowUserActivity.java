@@ -75,8 +75,8 @@ public class ShowUserActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void onBackPressed() {
         actionSelected = "";
-        finish();
         startActivity(new Intent(this, DahiraInfoActivity.class));
+        finish();
     }
 
     private void initViews() {
@@ -91,9 +91,9 @@ public class ShowUserActivity extends AppCompatActivity implements View.OnClickL
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button_back:
-                finish();
                 actionSelected = "";
                 startActivity(new Intent(this, DahiraInfoActivity.class));
+                finish();
                 break;
         }
     }
@@ -384,7 +384,6 @@ public class ShowUserActivity extends AppCompatActivity implements View.OnClickL
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
                 startActivity(new Intent(this, HomeActivity.class));
                 break;
 

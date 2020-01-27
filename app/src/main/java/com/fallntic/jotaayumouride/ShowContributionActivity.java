@@ -100,7 +100,7 @@ public class ShowContributionActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         startActivity(new Intent(this, UserInfoActivity.class));
-        super.onBackPressed();
+        finish();
     }
 
     @Override
@@ -283,13 +283,13 @@ public class ShowContributionActivity extends AppCompatActivity {
 
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
                 startActivity(new Intent(this, HomeActivity.class));
+                finish();
                 break;
 
             case R.id.icon_back:
-                finish();
                 startActivity(new Intent(this, UserInfoActivity.class));
+                finish();
                 break;
 
             case R.id.instructions:

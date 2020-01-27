@@ -155,10 +155,13 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
     @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();
-        if (dahira != null)
+        if (dahira != null) {
             startActivity(new Intent(RecordAudioActivity.this, DahiraInfoActivity.class));
-        else
-            startActivity(new Intent(RecordAudioActivity.this, HomeActivity.class));
+            finish();
+        } else {
+            startActivity(new Intent(this, HomeActivity.class));
+            finish();
+        }
         return true;
     }
 

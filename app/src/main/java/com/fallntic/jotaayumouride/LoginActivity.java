@@ -87,13 +87,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
                 startActivity(new Intent(this, HomeActivity.class));
+                finish();
                 break;
 
             case R.id.icon_back:
-                finish();
                 startActivity(new Intent(this, LoginPhoneActivity.class));
+                finish();
                 break;
 
             case R.id.instructions:
@@ -126,8 +126,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         if (isConnected(this)) {
             if (mAuth.getCurrentUser() != null) {
-                finish();
                 startActivity(new Intent(this, HomeActivity.class));
+                finish();
             }
         } else {
             logout(this );

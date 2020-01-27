@@ -80,8 +80,8 @@ public class ShowDahiraActivity extends AppCompatActivity implements View.OnClic
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button_back:
-                finish();
                 startActivity(new Intent(this, HomeActivity.class));
+                finish();
                 break;
         }
     }
@@ -166,9 +166,8 @@ public class ShowDahiraActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        finish();
         startActivity(new Intent(this, HomeActivity.class));
+        finish();
     }
 
     private void displayDahiras(List<Dahira> listDahira) {
@@ -246,8 +245,8 @@ public class ShowDahiraActivity extends AppCompatActivity implements View.OnClic
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
                 startActivity(new Intent(this, HomeActivity.class));
+                finish();
                 break;
 
             case R.id.search_dahira:

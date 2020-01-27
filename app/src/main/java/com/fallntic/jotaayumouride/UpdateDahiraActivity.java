@@ -209,7 +209,6 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
                 startActivity(new Intent(this, HomeActivity.class));
                 break;
 
@@ -239,8 +238,8 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
                 updateData();
                 break;
             case R.id.button_back:
-                finish();
                 startActivity(new Intent(UpdateDahiraActivity.this, DahiraInfoActivity.class));
+                finish();
                 break;
         }
     }
@@ -329,8 +328,8 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
                 @Override
                 public void onFailure(@NonNull Exception e) {
                     toastMessage(UpdateDahiraActivity.this, "Erreur enregistrement");
-                    finish();
                     startActivity(new Intent(UpdateDahiraActivity.this, DahiraInfoActivity.class));
+                    finish();
                 }
             });
         }
