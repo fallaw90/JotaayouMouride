@@ -1,10 +1,12 @@
 package com.fallntic.jotaayumouride;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -67,7 +69,6 @@ import java.util.Objects;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.fallntic.jotaayumouride.ShowDahiraActivity.dialogSearchDahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.isConnected;
 import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.logout;
@@ -118,6 +119,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private String userID;
     private String dahiraToUpdate;
 
+    private static Boolean dahiraUptated = false, tokenSaved = false;
     public static AdView bannerAd;
     public static InterstitialAd interstitialAd;
     public static AdRequest adRequest;
@@ -150,8 +152,29 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public static void getMyDahira(final Context context) {
-        showProgressBar();
+    public static void loadInterstitialAd(final Context context) {
+
+        new Handler().postDelayed(new Runnable() {
+            public void run() {
+                // Prepare the Interstitial Ad
+                interstitialAd = new InterstitialAd(context);
+
+                // Insert the Ad Unit ID
+                interstitialAd.setAdUnitId(context.getString(R.string.interstitial_unit_id));
+                AdRequest adRequest = new AdRequest.Builder().build();
+                interstitialAd.loadAd(adRequest);
+                interstitialAd.setAdListener(new AdListener() {
+                    @Override
+                    public void onAdLoaded() {
+                        super.onAdLoaded();
+                        showInterstitialAd(context);
+                    }
+                });
+            }
+        }, 2000);
+    }
+
+    public void getMyDahira() {
         if (MyStaticVariables.myListDahira == null || myListDahira.isEmpty()) {
             myListDahira = new ArrayList<>();
             firestore.collection("dahiras").get()
@@ -163,75 +186,20 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                                 List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
                                 for (DocumentSnapshot documentSnapshot : list) {
                                     Dahira dahira = documentSnapshot.toObject(Dahira.class);
-                                    if (onlineUser.getListDahiraID().contains(dahira.getDahiraID())) {
+                                    if (dahira != null && onlineUser.getListDahiraID().contains(dahira.getDahiraID())) {
                                         myListDahira.add(dahira);
                                     }
                                 }
                             }
-                            if (myListDahira.isEmpty()) {
-                                Intent intent = new Intent(context, HomeActivity.class);
-                                showAlertDialog(context, "Vous n'etes membre d'un " +
-                                        " aucun dahira pour le moment. Contactez l'administrateur de votre dahira " +
-                                        "pour qu'il vous ajouter en tant que membre. Ou bien, creer un dahira si vous etes " +
-                                        "administrateur.", intent);
-                            } else {
-                                context.startActivity(new Intent(context, ShowDahiraActivity.class));
-                            }
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            hideProgressBar();
-                            toastMessage(context, "Error charging dahira!");
+                            //toastMessage(context, "Error charging dahira!");
                         }
                     });
-        } else {
-            context.startActivity(new Intent(context, ShowDahiraActivity.class));
         }
-    }
-
-    public static void getAllDahiras(final Context context) {
-        showProgressBar();
-        if (MyStaticVariables.listAllDahira == null || listAllDahira.isEmpty()) {
-            listAllDahira = new ArrayList<>();
-            firestore.collection("dahiras").get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            hideProgressBar();
-                            if (!queryDocumentSnapshots.isEmpty()) {
-                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
-                                for (DocumentSnapshot documentSnapshot : list) {
-                                    Dahira dahira = documentSnapshot.toObject(Dahira.class);
-                                    if (dahira != null) {
-                                        dahira.setDahiraID(documentSnapshot.getId());
-                                        MyStaticVariables.listAllDahira.add(dahira);
-                                    }
-                                }
-                            }
-                            if (listAllDahira.isEmpty()) {
-                                showAlertDialog(context, "Auccun dahira" +
-                                        " n'est enregistre dans le platforme pour le moment. " +
-                                        "Merci de creer votre dahira si vous etes administrateur.");
-                            } else if (displayDahira.equals("allDahira")) {
-                                context.startActivity(new Intent(context, ShowDahiraActivity.class));
-                            } else if (displayDahira.equals("searchDahira")) {
-                                dialogSearchDahira(context);
-                            }
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            hideProgressBar();
-                            toastMessage(context, "Error charging dahira!");
-                        }
-                    });
-        } else if (displayDahira.equals("searchDahira")) {
-            dialogSearchDahira(context);
-        } else
-            context.startActivity(new Intent(context, ShowDahiraActivity.class));
     }
 
     private void setupOnlineViewPager(ViewPager viewPager) {
@@ -341,37 +309,32 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    public void saveTokenID(final String userID) {
-
-        FirebaseMessaging.getInstance().subscribeToTopic("JotaayouMouride");
-
-        FirebaseInstanceId.getInstance().getInstanceId()
-                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
-                        if (!task.isSuccessful()) {
-                            Log.w(TAG, "getInstanceId failed", task.getException());
-                            return;
-                        }
-                        // Get new Instance ID token
-                        String token_id = task.getResult().getToken();
-
-                        Map<String, Object> tokenMap = new HashMap<>();
-                        tokenMap.put("tokenID", token_id);
-                        //toastMessage(ProfileActivity.this, token_id);
-
-                        FirebaseFirestore.getInstance().collection("users")
-                                .document(userID).update(tokenMap)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        dismissProgressDialog();
+    public void getAllDahiras() {
+        if (MyStaticVariables.listAllDahira == null || listAllDahira.isEmpty()) {
+            listAllDahira = new ArrayList<>();
+            firestore.collection("dahiras").get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                                for (DocumentSnapshot documentSnapshot : list) {
+                                    Dahira dahira = documentSnapshot.toObject(Dahira.class);
+                                    if (dahira != null) {
+                                        dahira.setDahiraID(documentSnapshot.getId());
+                                        MyStaticVariables.listAllDahira.add(dahira);
                                     }
-                                });
-                        // Log and toast
-                        Log.d(TAG, token_id);
-                    }
-                });
+                                }
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            //toastMessage(context, "Error charging dahira!");
+                        }
+                    });
+        }
     }
 
     public static void getAllEvents(final Context context) {
@@ -418,22 +381,37 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public static void loadInterstitialAd(final Context context) {
+    public void saveTokenID(final String userID) {
+        if (!tokenSaved) {
+            FirebaseMessaging.getInstance().subscribeToTopic("JotaayouMouride");
+            FirebaseInstanceId.getInstance().getInstanceId()
+                    .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                            if (!task.isSuccessful()) {
+                                Log.w(TAG, "getInstanceId failed", task.getException());
+                                return;
+                            }
+                            // Get new Instance ID token
+                            String token_id = task.getResult().getToken();
+                            Map<String, Object> tokenMap = new HashMap<>();
+                            tokenMap.put("tokenID", token_id);
+                            //toastMessage(ProfileActivity.this, token_id);
 
-        // Prepare the Interstitial Ad
-        interstitialAd = new InterstitialAd(context);
-
-        // Insert the Ad Unit ID
-        interstitialAd.setAdUnitId(context.getString(R.string.interstitial_unit_id));
-        AdRequest adRequest = new AdRequest.Builder().build();
-        interstitialAd.loadAd(adRequest);
-        interstitialAd.setAdListener(new AdListener() {
-            @Override
-            public void onAdLoaded() {
-                super.onAdLoaded();
-                showInterstitialAd(context);
-            }
-        });
+                            FirebaseFirestore.getInstance().collection("users")
+                                    .document(userID).update(tokenMap)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            tokenSaved = true;
+                                            //toastMessage(HomeActivity.this, "ttoken saved");
+                                        }
+                                    });
+                            // Log and toast
+                            Log.d(TAG, token_id);
+                        }
+                    });
+        }
     }
 
     @Override
@@ -452,15 +430,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             return;
         }
 
-        textViewMarquee.setSelected(true);
-        getMarqueeText();
-
         if (onlineUser != null && firebaseAuth != null && firebaseAuth.getCurrentUser() != null) {
             userID = firebaseAuth.getCurrentUser().getUid();
+            new MyTask().execute();
             setDrawerMenu();
-            saveTokenID(userID);
             setupOnlineViewPager(viewPager);
-            getDahiraToUpdate();
             textViewNavUserName.setText(onlineUser.getUserName());
             textViewNavEmail.setText(onlineUser.getEmail());
         } else {
@@ -474,11 +448,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
             @Override
             public void onInitializationComplete(InitializationStatus initializationStatus) {
-                loadInterstitialAd(HomeActivity.this);
+
             }
         });
 
-        loadBannerAd(this, this);
     }
 
     public void initViewsProgressBar() {
@@ -618,7 +591,14 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.nav_displayMyDahira:
                 MyStaticVariables.displayDahira = "myDahira";
-                getMyDahira(HomeActivity.this);
+                if (myListDahira == null || myListDahira.isEmpty()) {
+                    showAlertDialog(this, "Vous n'etes membre d'un " +
+                            " aucun dahira pour le moment. Contactez l'administrateur de votre dahira " +
+                            "pour qu'il vous ajoute en tant que membre. Ou bien, creer un dahira si vous etes " +
+                            "administrateur.");
+                } else {
+                    startActivity(new Intent(this, ShowDahiraActivity.class));
+                }
                 break;
 
             case R.id.nav_addDahira:
@@ -627,7 +607,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
             case R.id.nav_displayAllDahira:
                 MyStaticVariables.displayDahira = "allDahira";
-                getAllDahiras(this);
+                if (listAllDahira == null || listAllDahira.isEmpty()) {
+                    showAlertDialog(this, "Aucun dahira disponible pour le moment");
+                } else {
+                    startActivity(new Intent(this, ShowDahiraActivity.class));
+                }
                 break;
 
             case R.id.nav_displayAllEvent:
@@ -638,7 +622,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
             case R.id.nav_searchDahira:
                 displayDahira = "searchDahira";
-                getAllDahiras(this);
+                dialogSearchDahira(this);
                 break;
 
             case R.id.nav_setting:
@@ -736,6 +720,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                                 if (document != null) {
                                     marqueeAd = document.getString("text");
                                     if (textViewMarquee != null && marqueeAd != null && !marqueeAd.equals("")) {
+                                        textViewMarquee.setSelected(true);
                                         textViewMarquee.setText(marqueeAd);
                                         textViewMarquee.setVisibility(View.VISIBLE);
                                         resizeMarqueeText();
@@ -768,6 +753,26 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             params.height = getResources().getDimensionPixelSize(R.dimen.textView_height);
             params.width = getResources().getDimensionPixelSize(R.dimen.textView_width);
             textViewMarquee.setLayoutParams(params);
+        }
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    class MyTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected void onPreExecute() {
+            loadInterstitialAd(HomeActivity.this);
+            loadBannerAd(HomeActivity.this, HomeActivity.this);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            getMarqueeText();
+            saveTokenID(userID);
+            getDahiraToUpdate();
+            getMyDahira();
+            getAllDahiras();
+            return null;
         }
     }
 

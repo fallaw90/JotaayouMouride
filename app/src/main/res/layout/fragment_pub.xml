@@ -3,13 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".Fragments.PubFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!--<com.tomer.fadingtextview.FadingTextView
+        <com.tomer.fadingtextview.FadingTextView
             android:id="@+id/textView_pub"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -19,9 +20,9 @@
             android:textSize="@dimen/_20sdp"
             android:textStyle="bold"
             app:texts="@array/advertisements"
-            app:timeout="1000" />-->
+            app:timeout="1000" />
 
-        <TextView
+        <!--<TextView
             android:id="@+id/textView_pub"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -30,12 +31,12 @@
             android:textAlignment="center"
             android:textColor="#031803"
             android:textSize="@dimen/_20sdp"
-            android:textStyle="bold" />
+            android:textStyle="bold" />-->
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerview_pub"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_below="@+id/textView_pub"
             android:layout_marginTop="@dimen/_10sdp" />
 
