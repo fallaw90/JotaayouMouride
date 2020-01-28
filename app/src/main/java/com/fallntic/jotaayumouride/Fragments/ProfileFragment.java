@@ -59,7 +59,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
         init();
 
-        if (onlineUser.getEmail() == null || onlineUser.getEmail().equals("")) {
+        if (onlineUser != null && onlineUser.getEmail() == null || onlineUser.getEmail().equals("")) {
             textViewLabeEmail.setVisibility(View.GONE);
             textViewEmail.setVisibility(View.GONE);
         }

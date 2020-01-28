@@ -1,6 +1,7 @@
 package com.fallntic.jotaayumouride;
 
 import android.app.Activity;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -454,7 +455,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         textViewMarquee.setSelected(true);
         getMarqueeText();
 
-        if (firebaseAuth != null && firebaseAuth.getCurrentUser() != null) {
+        if (onlineUser != null && firebaseAuth != null && firebaseAuth.getCurrentUser() != null) {
             userID = firebaseAuth.getCurrentUser().getUid();
             setDrawerMenu();
             saveTokenID(userID);
@@ -466,7 +467,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             toolbar.setLogo(R.mipmap.logo);
             setupOfflineViewPager(viewPager);
         }
-        resizeMarqueeText();
         changeTab();
 
         //****************************** adMob ***********************************
@@ -668,9 +668,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
-        if (onlineUser.getImageUri() != null) {
+        if (onlineUser != null && onlineUser.getImageUri() != null) {
             MyStaticFunctions.showImage(this, onlineUser.getImageUri(), navImageView);
         }
         if (navigationView != null)
@@ -682,6 +682,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
+
         if (bannerAd != null) {
             bannerAd.destroy();
         }
@@ -704,6 +706,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         if (broadcastReceiverMediaPlayer != null) {
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    notificationManagerMediaPlayer = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                     notificationManagerMediaPlayer.cancelAll();
                 }
                 unregisterReceiver(broadcastReceiverMediaPlayer);
@@ -711,9 +714,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 e.printStackTrace();
             }
         }
-
-        //toastMessage(this, "HomeActivity Destroyed");
-        super.onDestroy();
     }
 
     @Override
@@ -735,9 +735,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                                 DocumentSnapshot document = task.getResult();
                                 if (document != null) {
                                     marqueeAd = document.getString("text");
-                                    if (textViewMarquee != null) {
+                                    if (textViewMarquee != null && marqueeAd != null && !marqueeAd.equals("")) {
                                         textViewMarquee.setText(marqueeAd);
                                         textViewMarquee.setVisibility(View.VISIBLE);
+                                        resizeMarqueeText();
                                     }
                                 } else {
                                     Log.d("LOGGER", "No such document");

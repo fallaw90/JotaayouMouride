@@ -481,6 +481,7 @@ public class MyStaticFunctions {
                     mediaPlayer.reset();
                     onTrackPause(context);
                 }
+                mediaPlayer = new MediaPlayer();
                 mediaPlayer.setDataSource(song.getAudioUri());
                 mediaPlayer.prepareAsync();
                 loadInterstitialAd(context);
@@ -663,25 +664,31 @@ public class MyStaticFunctions {
     }
 
     public static void onTrackPrevious(Context context) {
-        CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
-                R.drawable.ic_pause_black_24dp, currentIndex, listTracks.size() - 1);
+        if (currentIndex < listTracks.size()) {
+            CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
+                    R.drawable.ic_pause_black_24dp, currentIndex, listTracks.size() - 1);
+        }
     }
 
     public static void onTrackPlay(Context context) {
-        CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
-                R.drawable.ic_pause_black_24dp, currentIndex, listTracks.size() - 1);
+        if (currentIndex < listTracks.size()) {
+            CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
+                    R.drawable.ic_pause_black_24dp, currentIndex, listTracks.size() - 1);
+        }
     }
 
     public static void onTrackPause(Context context) {
-        CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
-                R.drawable.ic_play_arrow_black_24dp, currentIndex, listTracks.size() - 1);
+        if (currentIndex < listTracks.size()) {
+            CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
+                    R.drawable.ic_play_arrow_black_24dp, currentIndex, listTracks.size() - 1);
+        }
     }
 
     public static void onTrackNext(Context context) {
-
-        CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
-                R.drawable.ic_pause_black_24dp, currentIndex, listTracks.size() - 1);
-
+        if (currentIndex < listTracks.size()) {
+            CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
+                    R.drawable.ic_pause_black_24dp, currentIndex, listTracks.size() - 1);
+        }
     }
 
     public static void pushNext(Context context) {

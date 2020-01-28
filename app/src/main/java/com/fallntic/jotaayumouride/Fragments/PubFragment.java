@@ -33,7 +33,6 @@ public class PubFragment extends Fragment {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private RecyclerView recyclerViewPubImage;
-    private PubImageAdapter pubImageAdapter;
     private View view;
 
     public PubFragment() {
@@ -68,7 +67,7 @@ public class PubFragment extends Fragment {
         recyclerViewPubImage.setHasFixedSize(true);
         recyclerViewPubImage.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerViewPubImage.setVisibility(View.VISIBLE);
-        pubImageAdapter = new PubImageAdapter(getContext(), listPubImage);
+        PubImageAdapter pubImageAdapter = new PubImageAdapter(getContext(), listPubImage);
         recyclerViewPubImage.setAdapter(pubImageAdapter);
     }
 
