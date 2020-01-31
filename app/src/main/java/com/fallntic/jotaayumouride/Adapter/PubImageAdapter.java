@@ -1,4 +1,4 @@
-package com.fallntic.jotaayumouride.Adapter;
+package com.fallntic.jotaayumouride.adapter;
 
 import android.content.Context;
 import android.text.Html;
@@ -11,17 +11,18 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fallntic.jotaayumouride.Model.PubImage;
 import com.fallntic.jotaayumouride.R;
+import com.fallntic.jotaayumouride.model.PubImage;
 
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showImage;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showImage;
 
+@SuppressWarnings("unused")
 public class PubImageAdapter extends RecyclerView.Adapter<PubImageAdapter.DahiraViewHolder> {
     public static final String TAG = "DahiraAdapter";
-    private Context context;
-    private List<PubImage> listPub;
+    private final Context context;
+    private final List<PubImage> listPub;
 
     private ImageView imageView;
 
@@ -42,10 +43,11 @@ public class PubImageAdapter extends RecyclerView.Adapter<PubImageAdapter.Dahira
     public void onBindViewHolder(@NonNull DahiraViewHolder holder, int position) {
         PubImage pubImage = listPub.get(position);
 
-        holder.textViewTitle.setText(pubImage.getTitle());
-        holder.textViewDescription.setText(Html.fromHtml(pubImage.getDescription()));
-
-        showImage(context, pubImage.getImage_uri(), imageView);
+        if (holder.textViewDescription != null && holder.textViewTitle != null && imageView != null) {
+            holder.textViewTitle.setText(pubImage.getTitle());
+            holder.textViewDescription.setText(Html.fromHtml(pubImage.getDescription()));
+            showImage(context, pubImage.getImage_uri(), imageView);
+        }
     }
 
     @Override
@@ -55,10 +57,10 @@ public class PubImageAdapter extends RecyclerView.Adapter<PubImageAdapter.Dahira
 
     class DahiraViewHolder extends RecyclerView.ViewHolder {
 
-        TextView textViewTitle;
-        TextView textViewDescription;
+        final TextView textViewTitle;
+        final TextView textViewDescription;
 
-        public DahiraViewHolder(View itemView) {
+        DahiraViewHolder(View itemView) {
             super(itemView);
 
             textViewTitle = itemView.findViewById(R.id.textView_title);

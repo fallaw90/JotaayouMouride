@@ -1,5 +1,6 @@
-package com.fallntic.jotaayumouride.Interfaces;
+package com.fallntic.jotaayumouride.interfaces;
 
+@SuppressWarnings("unused")
 public interface DrawerMenu {
 
     void setDrawerMenu();

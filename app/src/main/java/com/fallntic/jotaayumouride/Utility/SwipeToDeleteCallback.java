@@ -1,4 +1,4 @@
-package com.fallntic.jotaayumouride.Utility;
+package com.fallntic.jotaayumouride.utility;
 
 
 import android.content.Context;
@@ -18,25 +18,25 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.fallntic.jotaayumouride.R;
 
+import java.util.Objects;
+
 abstract public class SwipeToDeleteCallback extends ItemTouchHelper.Callback {
 
-    Context mContext;
-    private Paint mClearPaint;
-    private ColorDrawable mBackground;
-    private int backgroundColor;
-    private Drawable deleteDrawable;
-    private int intrinsicWidth;
-    private int intrinsicHeight;
+    private final Paint mClearPaint;
+    private final ColorDrawable mBackground;
+    private final int backgroundColor;
+    private final Drawable deleteDrawable;
+    private final int intrinsicWidth;
+    private final int intrinsicHeight;
 
 
     public SwipeToDeleteCallback(Context context) {
-        mContext = context;
         mBackground = new ColorDrawable();
         backgroundColor = Color.parseColor("#b80f0a");
         mClearPaint = new Paint();
         mClearPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-        deleteDrawable = ContextCompat.getDrawable(mContext, R.drawable.ic_delete);
-        intrinsicWidth = deleteDrawable.getIntrinsicWidth();
+        deleteDrawable = ContextCompat.getDrawable(context, R.drawable.ic_delete);
+        intrinsicWidth = Objects.requireNonNull(deleteDrawable).getIntrinsicWidth();
         intrinsicHeight = deleteDrawable.getIntrinsicHeight();
 
 
@@ -72,7 +72,7 @@ abstract public class SwipeToDeleteCallback extends ItemTouchHelper.Callback {
             clearCanvas(c, itemView.getRight() + dX, (float) itemView.getTop(),
                     (float) itemView.getRight(), (float) itemView.getBottom());
 
-            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, false);
             return;
         }
 

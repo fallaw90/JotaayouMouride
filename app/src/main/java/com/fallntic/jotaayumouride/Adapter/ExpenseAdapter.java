@@ -1,5 +1,6 @@
-package com.fallntic.jotaayumouride.Adapter;
+package com.fallntic.jotaayumouride.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,16 +10,17 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fallntic.jotaayumouride.Model.Expense;
 import com.fallntic.jotaayumouride.R;
+import com.fallntic.jotaayumouride.model.Expense;
 
 import java.util.List;
 
 
+@SuppressWarnings("ALL")
 public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseViewHolder> {
 
-    private Context context;
-    private List<Expense> listExpense;
+    private final Context context;
+    private final List<Expense> listExpense;
 
     public ExpenseAdapter(Context context, List<Expense> listExpense) {
         this.context = context;
@@ -33,6 +35,7 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
         );
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull ExpenseViewHolder holder, int position) {
 
@@ -58,18 +61,19 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
         notifyItemRemoved(position);
     }
 
+    @SuppressWarnings("unused")
     public Expense getExpense(int position) {
         return listExpense.get(position);
     }
 
     class ExpenseViewHolder extends RecyclerView.ViewHolder {
-        TextView textViewUserName;
-        TextView textViewtDate;
-        TextView textViewNote;
-        TextView textViewPrice;
-        TextView textViewTypeOfExpense;
+        final TextView textViewUserName;
+        final TextView textViewtDate;
+        final TextView textViewNote;
+        final TextView textViewPrice;
+        final TextView textViewTypeOfExpense;
 
-        public ExpenseViewHolder(View itemView) {
+        ExpenseViewHolder(View itemView) {
             super(itemView);
             textViewUserName = itemView.findViewById(R.id.textView_userName);
             textViewtDate = itemView.findViewById(R.id.textView_date);

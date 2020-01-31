@@ -1,7 +1,8 @@
-package com.fallntic.jotaayumouride.Model;
+package com.fallntic.jotaayumouride.model;
 
 import java.io.Serializable;
 
+@SuppressWarnings("ALL")
 public class Event implements Serializable, Comparable<Event> {
 
     private String eventID;
@@ -25,6 +26,7 @@ public class Event implements Serializable, Comparable<Event> {
         this.endTime = endTime;
     }
 
+    @SuppressWarnings("unused")
     public Event() {
     }
 
@@ -94,7 +96,6 @@ public class Event implements Serializable, Comparable<Event> {
 
     @Override
     public int compareTo(Event event) {
-        int i = this.date.compareTo(event.getDate());
-        return i;
+        return this.date.compareTo(event.getDate());
     }
 }

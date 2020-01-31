@@ -34,9 +34,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
-import com.fallntic.jotaayumouride.Model.ObjNotification;
-import com.fallntic.jotaayumouride.Model.Song;
-import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
+import com.fallntic.jotaayumouride.model.ObjNotification;
+import com.fallntic.jotaayumouride.model.Song;
+import com.fallntic.jotaayumouride.utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
@@ -54,17 +54,16 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Notifications.FirebaseNotificationHelper.sendNotificationToSpecificUsers;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.notifications.FirebaseNotificationHelper.sendNotificationToSpecificUsers;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
 
+@SuppressWarnings("ResultOfMethodCallIgnored")
 public class RecordAudioActivity extends AppCompatActivity implements View.OnClickListener {
-    private final String TAG = "RecordAudioActivity";
 
-    private int RECORD_AUDIO_REQUEST_CODE = 123;
-    private Toolbar toolbar;
+    private final int RECORD_AUDIO_REQUEST_CODE = 123;
     private Chronometer chronometer;
     private ImageView imageViewRecord, imageViewPlay, imageViewStop;
     private SeekBar seekBar;
@@ -73,8 +72,8 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
     private MediaPlayer mPlayer;
     private String filePath = null;
     private int lastProgress = 0;
-    private Handler mHandler = new Handler();
-    Runnable runnable = new Runnable() {
+    private final Handler mHandler = new Handler();
+    private final Runnable runnable = new Runnable() {
         @Override
         public void run() {
             seekUpdation();
@@ -83,8 +82,6 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
     private boolean isPlaying = false;
     private Button buttonCancel, buttonSend;
     private ProgressBar progressBar;
-    private StorageReference mStorage;
-    private FirebaseFirestore firestore;
     private CollectionReference collectionReference;
     private StorageTask storageTask;
     private StorageReference storageReference;
@@ -95,8 +92,8 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
         setContentView(R.layout.activity_record_audio);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        /** setting up the toolbar  **/
-        toolbar = findViewById(R.id.toolbar);
+        /* setting up the toolbar  **/
+        Toolbar toolbar = findViewById(R.id.toolbar);
         //toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
 
@@ -116,7 +113,7 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
             getPermissionToRecordAudio();
         }
 
-        HomeActivity.loadBannerAd(this, this);
+        HomeActivity.loadBannerAd(this);
     }
 
     private void initViews() {
@@ -141,12 +138,12 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
 
 
         //Init FirebaseFireStore
-        firestore = FirebaseFirestore.getInstance();
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         collectionReference = firestore.collection("announcements")
                 .document(dahira.getDahiraID()).collection("audios");
 
         //Init FirebaseStorage
-        mStorage = FirebaseStorage.getInstance().getReference()
+        storageReference = FirebaseStorage.getInstance().getReference()
                 .child("announcements")
                 .child(dahira.getDahiraID())
                 .child("audios");
@@ -166,7 +163,7 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
-    public void getPermissionToRecordAudio() {
+    private void getPermissionToRecordAudio() {
         // 1) Use the support library version ContextCompat.checkSelfPermission(...) to avoid
         // checking the build version since Context.checkSelfPermission(...) is only available
         // in Marshmallow
@@ -192,6 +189,7 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
     }
 
     // Callback with the request from calling requestPermissions(...)
+    @SuppressWarnings("StatementWithEmptyBody")
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -229,7 +227,7 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
                 stopPlaying();
             }
         } else if (view == buttonSend) {
-            uploadAudioToFirebase(view);
+            uploadAudioToFirebase();
         } else if (view == buttonCancel) {
             finish();
         }
@@ -249,8 +247,8 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        /**In the lines below, we create a directory named JotaayouMouride/Audios
-         * in the phone storage and the audios are being stored in the Audios folder **/
+        /*In the lines below, we create a directory named JotaayouMouride/Audios
+          in the phone storage and the audios are being stored in the Audios folder **/
         File root = android.os.Environment.getExternalStorageDirectory();
         File file = new File(root.getAbsolutePath() + "/JotaayouMouride/Audios");
         if (!file.exists()) {
@@ -317,6 +315,7 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
 
     private void startPlaying() {
         mPlayer = new MediaPlayer();
+        String TAG = "RecordAudioActivity";
         Log.d(TAG, "In startPlaying filePath = " + filePath);
         try {
             mPlayer.setDataSource(filePath);
@@ -334,7 +333,7 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
         seekUpdation();
         chronometer.start();
 
-        /** once the audio is complete, timer is stopped here**/
+        /* once the audio is complete, timer is stopped here**/
         mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
@@ -344,7 +343,7 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
             }
         });
 
-        /** moving the track as per the seekBar's position**/
+        /* moving the track as per the seekBar's position**/
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -416,7 +415,7 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
         return true;
     }
 
-    public void uploadAudioToFirebase(View v) {
+    private void uploadAudioToFirebase() {
         if (storageTask != null && storageTask.isInProgress()) {
             toastMessage(RecordAudioActivity.this, "Un telechargement est deja en cours");
         } else {
@@ -424,7 +423,7 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    public void uploadFile() {
+    private void uploadFile() {
         if (filePath != null) {
 
             String durationTxt;
@@ -433,9 +432,6 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
             final Uri audioUri = Uri.fromFile(new File(filePath));
 
             int durationInMillis = findSongDuration(audioUri);
-            if (durationInMillis == 0) {
-                durationTxt = "NA";
-            }
 
             durationTxt = getDurationFromMilli(durationInMillis);
 
@@ -471,7 +467,7 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
                                                             onlineUser.getUserID(), dahira.getDahiraID(), MyStaticVariables.TITLE_ANNOUNCEMENT_NOTIFICATION,
                                                             "Vous avez une nouvelle annonce de la part du dahira " + dahira.getDahiraName());
 
-                                                    sendNotificationToSpecificUsers(RecordAudioActivity.this, MyStaticVariables.objNotification);
+                                                    sendNotificationToSpecificUsers(MyStaticVariables.objNotification);
 
                                                     AlertDialog.Builder builder = new AlertDialog.
                                                             Builder(RecordAudioActivity.this, R.style.alertDialog);
@@ -504,7 +500,7 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
                     })
                     .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                         @Override
-                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                        public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
                             progressBar.setVisibility(View.VISIBLE);
                             double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
                             progressBar.setProgress((int) progress);
@@ -518,14 +514,13 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
 
         Date date = new Date(durationInMillis);
         SimpleDateFormat simpleDate = new SimpleDateFormat("mm:ss", Locale.getDefault());
-        String myTime = simpleDate.format(date);
 
-        return myTime;
+        return simpleDate.format(date);
     }
 
     private int findSongDuration(Uri audioUri) {
 
-        int timeInMilliSec = 0;
+        int timeInMilliSec;
 
         try {
 

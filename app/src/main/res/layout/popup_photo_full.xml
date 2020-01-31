@@ -16,11 +16,12 @@
         android:id="@+id/ib_close"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:background="@null"
         android:elevation="5dp"
         android:padding="3dp"
         android:src="@android:drawable/ic_menu_close_clear_cancel"
+        android:contentDescription="@string/photo"
         app:srcCompat="@android:drawable/ic_menu_close_clear_cancel" />
 
     <ProgressBar

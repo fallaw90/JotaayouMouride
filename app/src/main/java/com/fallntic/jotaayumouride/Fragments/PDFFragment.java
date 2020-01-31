@@ -1,4 +1,4 @@
-package com.fallntic.jotaayumouride.Fragments;
+package com.fallntic.jotaayumouride.fragments;
 
 import android.annotation.SuppressLint;
 import android.app.DownloadManager;
@@ -22,11 +22,11 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.fallntic.jotaayumouride.HomeActivity;
-import com.fallntic.jotaayumouride.Model.ListPDFObject;
-import com.fallntic.jotaayumouride.Model.UploadPdf;
 import com.fallntic.jotaayumouride.PdfViewActivity;
 import com.fallntic.jotaayumouride.R;
-import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
+import com.fallntic.jotaayumouride.model.ListPDFObject;
+import com.fallntic.jotaayumouride.model.UploadPdf;
+import com.fallntic.jotaayumouride.utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
@@ -40,12 +40,13 @@ import java.util.Objects;
 
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
 import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listUploadPDF;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listUploadPDF;
 
 
+@SuppressWarnings("ALL")
 public class PDFFragment extends Fragment {
 
     private static final String TAG = "PDFFragment";
@@ -62,7 +63,7 @@ public class PDFFragment extends Fragment {
 
     private UploadPdf pdf_file;
     private long downloadID;
-    private BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
+    private final BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             //Fetching the download id received with the broadcast
@@ -83,15 +84,14 @@ public class PDFFragment extends Fragment {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_pdf, container, false);
 
+        listView = view.findViewById(R.id.listView);
+
         return view;
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        //uploadList = new ArrayList<>();
-        listView = view.findViewById(R.id.listView);
 
         if (listUploadPDF == null) {
             listUploadPDF = new ArrayList<>();
@@ -106,7 +106,6 @@ public class PDFFragment extends Fragment {
                 //getting the upload
                 pdf_file = listUploadPDF.get(i);
                 openPDF(getContext(), pdf_file);
-
                 loadInterstitialAd(getContext());
             }
         });
@@ -119,32 +118,38 @@ public class PDFFragment extends Fragment {
             MyStaticVariables.collectionReference = MyStaticVariables.firestore.collection("PDF");
             MyStaticVariables.collectionReference.whereEqualTo("documentID", "pdf_khassida").get()
                     .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @SuppressWarnings("LoopStatementThatDoesntLoop")
                         @Override
                         public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                             ListPDFObject listPDFObject = null;
                             if (!queryDocumentSnapshots.isEmpty()) {
                                 hideProgressBar();
                                 List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                                //noinspection LoopStatementThatDoesntLoop
                                 for (DocumentSnapshot documentSnapshot : list) {
                                     listPDFObject = documentSnapshot.toObject(ListPDFObject.class);
-                                    listPDF.addAll(listPDFObject.getListPDF_Khassida());
+                                    if (listPDFObject != null) {
+                                        listPDF.addAll(listPDFObject.getListPDF_Khassida());
+                                    }
                                     break;
                                 }
 
-                                Collections.sort(listPDF);
+                                if (listPDF != null) {
+                                    Collections.sort(listPDF);
 
-                                uploads = new String[listPDF.size()];
-                                for (int i = 0; i < uploads.length; i++) {
-                                    uploads[i] = i + 1 + " - " + listPDF.get(i).getName();
-                                }
+                                    uploads = new String[listPDF.size()];
+                                    for (int i = 0; i < uploads.length; i++) {
+                                        uploads[i] = i + 1 + " - " + listPDF.get(i).getName();
+                                    }
 
-                                //displaying it to list
-                                if (uploads.length > 0) {
-                                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, uploads);
-                                    listView.setAdapter(adapter);
-                                } else {
-                                    startActivity(new Intent(getContext(), HomeActivity.class));
-                                    toastMessage(getContext(), "Reessayez SVP!");
+                                    //displaying it to list
+                                    if (uploads != null && uploads.length > 0) {
+                                        ArrayAdapter<String> adapter = new ArrayAdapter<String>(Objects.requireNonNull(getContext()), android.R.layout.simple_list_item_1, uploads);
+                                        listView.setAdapter(adapter);
+                                    } else {
+                                        startActivity(new Intent(getContext(), HomeActivity.class));
+                                        toastMessage(getContext(), "Reessayez SVP!");
+                                    }
                                 }
                             }
                         }

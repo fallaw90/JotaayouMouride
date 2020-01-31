@@ -1,4 +1,4 @@
-package com.fallntic.jotaayumouride.Fragments;
+package com.fallntic.jotaayumouride.fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -18,49 +18,50 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.fallntic.jotaayumouride.R;
-import com.fallntic.jotaayumouride.Services.OnClearFromRecentService;
+import com.fallntic.jotaayumouride.services.OnClearFromRecentService;
 
 import java.util.ArrayList;
 import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.createChannel;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getListAudios;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.stopCurrentPlayingMediaPlayer;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.broadcastReceiverMediaPlayer;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.fab_search;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.isTabAudioOpened;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_next;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_play;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_previous;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosAM;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosHT;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosHTDK;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosMagal2019HT;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosMagal2019HTDK;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosMixedWolofal;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosQuran;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosRadiass;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosSerigneMbayeDiakhate;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosSerigneMoussaKa;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosZikr;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listTracks;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mediaPlayer;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myHandler;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.pb_loader;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.pb_main_loader;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.recycler;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.seekBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.songChosen;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tb_title;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.toolbar_bottom;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tv_duration;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tv_empty;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tv_time;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.createChannel;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.getListAudios;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.stopCurrentPlayingMediaPlayer;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.broadcastReceiverMediaPlayer;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.fab_search;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.isTabAudioOpened;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.iv_next;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.iv_play;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.iv_previous;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosAM;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosHT;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosHTDK;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosMagal2019HT;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosMagal2019HTDK;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosMixedWolofal;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosQuran;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosRadiass;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosSerigneMbayeDiakhate;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosSerigneMoussaKa;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosZikr;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listTracks;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.mediaPlayer;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.myHandler;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.pb_loader;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.pb_main_loader;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.recycler;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.seekBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.songChosen;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tb_title;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.toolbar_bottom;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_duration;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_empty;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_time;
 
 
+@SuppressWarnings("ALL")
 public class AudioFragment extends Fragment implements View.OnClickListener {
     private static final String TAG = "AudioFragment";
     private View view;

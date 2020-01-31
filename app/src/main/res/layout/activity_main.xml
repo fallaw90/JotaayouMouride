@@ -23,7 +23,7 @@
             android:id="@+id/textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Patientez SVP ..."
+            android:text="@string/patientez_svp"
             android:textAlignment="center"
             android:textColor="@color/colorPrimaryDark"
             android:textSize="@dimen/_20sdp" />
@@ -35,7 +35,8 @@
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:layout_marginTop="@dimen/_10sdp"
-            android:src="@drawable/logo_web"  />
+            android:contentDescription="@string/photo"
+            android:src="@drawable/logo_web" />
     </RelativeLayout>
 
 </RelativeLayout>

@@ -1,5 +1,6 @@
 package com.fallntic.jotaayumouride;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -19,9 +20,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.fallntic.jotaayumouride.Model.Expense;
-import com.fallntic.jotaayumouride.Model.ObjNotification;
-import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
+import com.fallntic.jotaayumouride.model.Expense;
+import com.fallntic.jotaayumouride.model.ObjNotification;
+import com.fallntic.jotaayumouride.utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -29,29 +30,29 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Notifications.FirebaseNotificationHelper.sendNotificationToSpecificUsers;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getCurrentDate;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getDate;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.isDouble;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.updateDocument;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.TITLE_EXPENSE_NOTIFICATION;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.actionSelected;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listExpenses;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.objNotification;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.notifications.FirebaseNotificationHelper.sendNotificationToSpecificUsers;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.getCurrentDate;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.getDate;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.isDouble;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showAlertDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.updateDocument;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.TITLE_EXPENSE_NOTIFICATION;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.actionSelected;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listExpenses;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.objNotification;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutProgressBar;
 
 public class CreateExpenseActivity extends AppCompatActivity implements View.OnClickListener {
-    public static final String TAG = "CreateExpenseActivity";
+    private static final String TAG = "CreateExpenseActivity";
 
     private TextView textViewTitle;
     private EditText editTextDate;
@@ -59,35 +60,88 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
     private EditText editTextPrice;
 
     private String price;
-    private String mDate;
-    private String note;
     private String typeOfExpense;
 
     private RadioGroup radioRoleGroup;
-    private RadioButton radioRoleButton;
-    private Toolbar toolbar;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_expense);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    public static void updateDahira(Context context, String price, String typeOfExpense, boolean isExpenseDeleted, Expense expense) {
+        double total;
+        final double value = Double.parseDouble(price);
+        typeOfExpense = typeOfExpense.toLowerCase();
 
-        toolbar = findViewById(R.id.toolbar);
-        //toolbar.setLogo(R.mipmap.logo);
-        setSupportActionBar(toolbar);
+        switch (typeOfExpense) {
+            case "adiya":
 
-        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.logo);
+                if (isDouble(dahira.getTotalAdiya()))
+                    dahira.setTotalAdiya("0");
 
-        initViews();
+                if (isExpenseDeleted)
+                    total = Double.parseDouble(dahira.getTotalAdiya()) + value;
+                else
+                    total = Double.parseDouble(dahira.getTotalAdiya()) - value;
 
-        displayViews();
+                if (total >= 0) {
+                    dahira.setTotalAdiya(Double.toString(total));
+                    updateDocument(context, "dahiras", dahira.getDahiraID(), "totalAdiya", dahira.getTotalAdiya());
+                } else {
+                    showAlertDialog(context, "Impossible d'effectuer cette depense. Vous n'avez pas " + value + " FCFA disponible dans votre caisse adiya");
+                    return;
+                }
+                break;
+            case "sass":
 
-        checkInternetConnection(this);
+                if (isDouble(dahira.getTotalSass()))
+                    dahira.setTotalSass("0");
 
-        hideSoftKeyboard();
+                if (isExpenseDeleted)
+                    total = Double.parseDouble(dahira.getTotalSass()) + value;
+                else {
+                    total = Double.parseDouble(dahira.getTotalSass()) - value;
+                }
 
+                if (total >= 0) {
+                    dahira.setTotalSass(Double.toString(total));
+                    updateDocument(context, "dahiras", dahira.getDahiraID(), "totalSass", dahira.getTotalSass());
+                } else {
+                    showAlertDialog(context, "Impossible d'effectuer cette depense. Vous n'avez pas " + value + " FCFA disponible dans votre caisse sass");
+                    return;
+                }
+
+
+                break;
+            case "social":
+
+                if (isDouble(dahira.getTotalSocial()))
+                    dahira.setTotalSocial("0");
+
+                if (isExpenseDeleted)
+                    total = Double.parseDouble(dahira.getTotalSocial()) + value;
+                else
+                    total = Double.parseDouble(dahira.getTotalSocial()) - value;
+
+                if (total >= 0) {
+                    dahira.setTotalSocial(Double.toString(total));
+                    updateDocument(context, "dahiras", dahira.getDahiraID(), "totalSocial", dahira.getTotalSocial());
+                } else {
+                    showAlertDialog(context, "Impossible d'effectuer cette depense. Vous n'avez pas " + value + " FCFA dans votre caisse social");
+                    return;
+                }
+                break;
+        }
+
+        objNotification = new ObjNotification(expense.getExpenseID(), onlineUser.getUserID(), dahira.getDahiraID(), TITLE_EXPENSE_NOTIFICATION, expense.getNote());
+        sendNotificationToSpecificUsers(MyStaticVariables.objNotification);
+
+        if (listExpenses == null)
+            listExpenses = new ArrayList<>();
+
+        final Intent intent = new Intent(context, ShowExpenseActivity.class);
+        Log.d(TAG, "Expense saved.");
+        if (!isExpenseDeleted) {
+            listExpenses.add(expense);
+            showAlertDialog(context, "Depense enregistree avec succes.", intent);
+        } else
+            showAlertDialog(context, "Depense suprimee avec succes.", intent);
     }
 
     @Override
@@ -138,86 +192,54 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
         initViewsProgressBar();
     }
 
-    public static void updateDahira(Context context, String price, String typeOfExpense, boolean isExpenseDeleted, Expense expense) {
-        double total;
-        final double value = Double.parseDouble(price);
-        typeOfExpense = typeOfExpense.toLowerCase();
-
-        if (typeOfExpense.equals("adiya")) {
-
-            if (!isDouble(dahira.getTotalAdiya()))
-                dahira.setTotalAdiya("0");
-
-            if (isExpenseDeleted)
-                total = Double.parseDouble(dahira.getTotalAdiya()) + value;
-            else
-                total = Double.parseDouble(dahira.getTotalAdiya()) - value;
-
-            if (total >= 0) {
-                dahira.setTotalAdiya(Double.toString(total));
-                updateDocument(context, "dahiras", dahira.getDahiraID(), "totalAdiya", dahira.getTotalAdiya());
-            } else {
-                showAlertDialog(context, "Impossible d'effectuer cette depense. Vous n'avez pas " + value + " FCFA disponible dans votre caisse adiya");
-                return;
-            }
-        } else if (typeOfExpense.equals("sass")) {
-
-            if (!isDouble(dahira.getTotalSass()))
-                dahira.setTotalSass("0");
-
-            if (isExpenseDeleted)
-                total = Double.parseDouble(dahira.getTotalSass()) + value;
-            else {
-                total = Double.parseDouble(dahira.getTotalSass()) - value;
-            }
-
-            if (total >= 0) {
-                dahira.setTotalSass(Double.toString(total));
-                updateDocument(context, "dahiras", dahira.getDahiraID(), "totalSass", dahira.getTotalSass());
-            } else {
-                showAlertDialog(context, "Impossible d'effectuer cette depense. Vous n'avez pas " + value + " FCFA disponible dans votre caisse sass");
-                return;
-            }
-
-
-        } else if (typeOfExpense.equals("social")) {
-
-            if (!isDouble(dahira.getTotalSocial()))
-                dahira.setTotalSocial("0");
-
-            if (isExpenseDeleted)
-                total = Double.parseDouble(dahira.getTotalSocial()) + value;
-            else
-                total = Double.parseDouble(dahira.getTotalSocial()) - value;
-
-            if (total >= 0) {
-                dahira.setTotalSocial(Double.toString(total));
-                updateDocument(context, "dahiras", dahira.getDahiraID(), "totalSocial", dahira.getTotalSocial());
-            } else {
-                showAlertDialog(context, "Impossible d'effectuer cette depense. Vous n'avez pas " + value + " FCFA dans votre caisse social");
-                return;
-            }
+    private static boolean hasValidationErrors(String mDate, EditText editTextDate,
+                                               String note, EditText editTextNote,
+                                               String price, EditText editTextPrice) {
+        if (mDate.isEmpty()) {
+            editTextDate.setError("Entrez une date");
+            editTextDate.requestFocus();
+            return true;
+        }
+        if (note.isEmpty()) {
+            editTextNote.setError("Details de votre depense SVP!");
+            editTextNote.requestFocus();
+            return true;
         }
 
-        objNotification = new ObjNotification(expense.getExpenseID(), onlineUser.getUserID(), dahira.getDahiraID(), TITLE_EXPENSE_NOTIFICATION, expense.getNote());
-        sendNotificationToSpecificUsers(context, MyStaticVariables.objNotification);
+        if (price.isEmpty()) {
+            editTextPrice.setError("Entrez le prix total");
+            editTextPrice.requestFocus();
+            return true;
+        } else if (isDouble(price)) {
+            editTextPrice.setError("Prix incorrect!");
+            editTextPrice.requestFocus();
+            return true;
+        }
 
-        if (listExpenses == null)
-            listExpenses = new ArrayList<>();
-
-        final Intent intent = new Intent(context, ShowExpenseActivity.class);
-        Log.d(TAG, "Expense saved.");
-        if (!isExpenseDeleted) {
-            listExpenses.add(expense);
-            showAlertDialog(context, "Depense enregistree avec succes.", intent);
-        } else
-            showAlertDialog(context, "Depense suprimee avec succes.", intent);
+        return false;
     }
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_create_expense);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-    private void displayViews() {
-        textViewTitle.setText("Ajouter une depense pour le dahira " + dahira.getDahiraName());
-        editTextDate.setText(getCurrentDate());
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        //toolbar.setLogo(R.mipmap.logo);
+        setSupportActionBar(toolbar);
+
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.logo);
+
+        initViews();
+
+        displayViews();
+
+        checkInternetConnection(this);
+
+        hideSoftKeyboard();
+
     }
 
     @Override
@@ -244,27 +266,33 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
         super.onDestroy();
     }
 
-    public void initViewsProgressBar() {
+    @SuppressLint("SetTextI18n")
+    private void displayViews() {
+        textViewTitle.setText("Ajouter une depense pour le dahira " + dahira.getDahiraName());
+        editTextDate.setText(getCurrentDate());
+    }
+
+    private void initViewsProgressBar() {
         relativeLayoutData = findViewById(R.id.relativeLayout_data);
         relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
         progressBar = findViewById(R.id.progressBar);
     }
 
-    public void saveExpense(final Context context) {
-        mDate = editTextDate.getText().toString().trim();
-        note = editTextNote.getText().toString().trim();
+    private void saveExpense(final Context context) {
+        String date = editTextDate.getText().toString().trim();
+        String note = editTextNote.getText().toString().trim();
         price = editTextPrice.getText().toString().trim();
 
         // get selected radio button from radioGroup
         int selectedId = radioRoleGroup.getCheckedRadioButtonId();
         // find the radiobutton by returned id
-        radioRoleButton = findViewById(selectedId);
+        RadioButton radioRoleButton = findViewById(selectedId);
         typeOfExpense = (String) radioRoleButton.getText();
 
-        if (!hasValidationErrors(mDate, editTextDate, note, editTextNote, price, editTextPrice)) {
+        if (!hasValidationErrors(date, editTextDate, note, editTextNote, price, editTextPrice)) {
 
             final String expenseID = onlineUser.getUserName() + System.currentTimeMillis();
-            final Expense expense = new Expense(expenseID, onlineUser.getUserName(), mDate, note, price, typeOfExpense);
+            final Expense expense = new Expense(expenseID, onlineUser.getUserName(), date, note, price, typeOfExpense);
 
             showProgressBar();
             FirebaseFirestore.getInstance().collection("dahiras").
@@ -292,34 +320,7 @@ public class CreateExpenseActivity extends AppCompatActivity implements View.OnC
         }
     }
 
-    public static boolean hasValidationErrors(String mDate, EditText editTextDate,
-                                              String note, EditText editTextNote,
-                                              String price, EditText editTextPrice) {
-        if (mDate.isEmpty()) {
-            editTextDate.setError("Entrez une date");
-            editTextDate.requestFocus();
-            return true;
-        }
-        if (note.isEmpty()) {
-            editTextNote.setError("Details de votre depense SVP!");
-            editTextNote.requestFocus();
-            return true;
-        }
-
-        if (price.isEmpty()) {
-            editTextPrice.setError("Entrez le prix total");
-            editTextPrice.requestFocus();
-            return true;
-        } else if (!isDouble(price)) {
-            editTextPrice.setError("Prix incorrect!");
-            editTextPrice.requestFocus();
-            return true;
-        }
-
-        return false;
-    }
-
-    public void hideSoftKeyboard() {
+    private void hideSoftKeyboard() {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 

@@ -1,5 +1,6 @@
 package com.fallntic.jotaayumouride;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -21,8 +22,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.fallntic.jotaayumouride.Model.Song;
-import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
+import com.fallntic.jotaayumouride.model.Song;
+import com.fallntic.jotaayumouride.utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
@@ -37,13 +38,15 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getSizeSongsStorage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.updateStorageSize;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.getSizeSongsStorage;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.updateStorageSize;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.dahira;
 
 
+@SuppressWarnings("ALL")
 public class AddAudioActivity extends AppCompatActivity {
 
     private EditText editTextTitle;
@@ -51,7 +54,6 @@ public class AddAudioActivity extends AppCompatActivity {
 
     private Uri audioUri;
 
-    private FirebaseFirestore firestore;
     private CollectionReference collectionReference;
 
     private StorageReference mStorage;
@@ -63,6 +65,7 @@ public class AddAudioActivity extends AppCompatActivity {
     private String uploadID;
     private TextView textView_titleLayout;
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,7 +77,7 @@ public class AddAudioActivity extends AppCompatActivity {
         toolbar.setSubtitle("Repertoire Song");
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         initView();
@@ -82,7 +85,7 @@ public class AddAudioActivity extends AppCompatActivity {
         textView_titleLayout.setText("Enregistrer un audio dans le repertoire du dahira " +
                 dahira.getDahiraName());
 
-        firestore = FirebaseFirestore.getInstance();
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         collectionReference = firestore.collection("dahiras")
                 .document(dahira.getDahiraID()).collection("audios");
 
@@ -91,7 +94,7 @@ public class AddAudioActivity extends AppCompatActivity {
                 .child("audios")
                 .child(dahira.getDahiraID());
 
-        HomeActivity.loadBannerAd(this, this);
+        HomeActivity.loadBannerAd(this);
     }
 
     @Override
@@ -107,7 +110,7 @@ public class AddAudioActivity extends AppCompatActivity {
         startActivity(new Intent(this, DahiraInfoActivity.class));
     }
 
-    public void initView() {
+    private void initView() {
         editTextTitle = findViewById(R.id.editText_titleSong);
         textViewSelectedFile = findViewById(R.id.textView_selectedFile);
         textView_titleLayout = findViewById(R.id.textView_titleLayoutUploadSong);
@@ -115,7 +118,7 @@ public class AddAudioActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
     }
 
-    public void openAudioFile(View v) {
+    public void openAudioFile() {
 
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
@@ -127,7 +130,7 @@ public class AddAudioActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 101 && resultCode == RESULT_OK && data.getData() != null) {
+        if (requestCode == 101 && resultCode == RESULT_OK && Objects.requireNonNull(data).getData() != null) {
 
             audioUri = data.getData();
             String fileName = getFileName(audioUri);
@@ -135,23 +138,20 @@ public class AddAudioActivity extends AppCompatActivity {
         }
     }
 
-    public String getFileName(Uri uri) {
+    private String getFileName(Uri uri) {
 
         String result = null;
-        if (audioUri.getScheme().equals("content")) {
-            Cursor cursor = getContentResolver().query(uri, null, null,
-                    null, null);
-            try {
+        if (Objects.requireNonNull(audioUri.getScheme()).equals("content")) {
+            try (Cursor cursor = getContentResolver().query(uri, null, null,
+                    null, null)) {
                 if (cursor != null && cursor.moveToFirst()) {
                     result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
                 }
-            } finally {
-                cursor.close();
             }
 
             if (result == null) {
                 result = uri.getPath();
-                int cut = result.lastIndexOf('/');
+                int cut = Objects.requireNonNull(result).lastIndexOf('/');
 
                 if (cut != -1) {
                     result = result.substring(cut + 1);
@@ -163,21 +163,7 @@ public class AddAudioActivity extends AppCompatActivity {
         return result;
     }
 
-    public void uploadAudioToFirebase(View v) {
-
-        if (textViewSelectedFile.getText().toString().equals("Pas de fichier selectionné")) {
-            toastMessage(AddAudioActivity.this, "Sélectionnez un fichier SVP!");
-        } else {
-
-            if (uploadTask != null && uploadTask.isInProgress()) {
-                toastMessage(AddAudioActivity.this, "Un telechargement est deja en cours");
-            } else {
-                uploadFile();
-            }
-        }
-    }
-
-    public void uploadFile() {
+    private void uploadFile() {
 
         if (audioUri != null) {
             String durationTxt;
@@ -187,10 +173,6 @@ public class AddAudioActivity extends AppCompatActivity {
             final StorageReference storageReference = mStorage.child(uploadID);
 
             int durationInMillis = findSongDuration(audioUri);
-
-            if (durationInMillis == 0) {
-                durationTxt = "NA";
-            }
 
             durationTxt = getDurationFromMilli(durationInMillis);
 
@@ -254,7 +236,7 @@ public class AddAudioActivity extends AppCompatActivity {
                     })
                     .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                         @Override
-                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                        public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
                             progressBar.setVisibility(View.VISIBLE);
                             double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
                             progressBar.setProgress((int) progress);
@@ -270,14 +252,13 @@ public class AddAudioActivity extends AppCompatActivity {
 
         Date date = new Date(durationInMillis);
         SimpleDateFormat simpleDate = new SimpleDateFormat("mm:ss", Locale.getDefault());
-        String myTime = simpleDate.format(date);
 
-        return myTime;
+        return simpleDate.format(date);
     }
 
     private int findSongDuration(Uri audioUri) {
 
-        int timeInMilliSec = 0;
+        int timeInMilliSec;
 
         try {
 
@@ -304,4 +285,42 @@ public class AddAudioActivity extends AppCompatActivity {
         return mime.getExtensionFromMimeType(contentResolver.getType(audioUri));
     }
 
+    public void uploadAudioToFirebase() {
+        if (textViewSelectedFile.getText().toString().equals("Pas de fichier selectionné")) {
+            toastMessage(AddAudioActivity.this, "Sélectionnez un fichier SVP!");
+        } else {
+
+            if (uploadTask != null && uploadTask.isInProgress()) {
+                toastMessage(AddAudioActivity.this, "Un telechargement est deja en cours");
+            } else {
+                uploadFile();
+            }
+        }
+    }
+
+    public void uploadAudioToFirebase(View view) {
+        if (textViewSelectedFile.getText().toString().equals("Pas de fichier selectionné")) {
+            toastMessage(AddAudioActivity.this, "Sélectionnez un fichier SVP!");
+        } else {
+
+            if (uploadTask != null && uploadTask.isInProgress()) {
+                toastMessage(AddAudioActivity.this, "Un telechargement est deja en cours");
+            } else {
+                uploadFile();
+            }
+        }
+    }
+
+    public void openAudioFile(View view) {
+        if (textViewSelectedFile.getText().toString().equals("Pas de fichier selectionné")) {
+            toastMessage(AddAudioActivity.this, "Sélectionnez un fichier SVP!");
+        } else {
+
+            if (uploadTask != null && uploadTask.isInProgress()) {
+                toastMessage(AddAudioActivity.this, "Un telechargement est deja en cours");
+            } else {
+                uploadFile();
+            }
+        }
+    }
 }

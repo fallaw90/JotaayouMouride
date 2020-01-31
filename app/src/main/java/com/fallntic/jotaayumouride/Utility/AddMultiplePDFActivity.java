@@ -1,10 +1,9 @@
-package com.fallntic.jotaayumouride.Utility;
+package com.fallntic.jotaayumouride.utility;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
-import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
@@ -20,10 +19,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fallntic.jotaayumouride.Adapter.AddImagesAdapter;
 import com.fallntic.jotaayumouride.HomeActivity;
-import com.fallntic.jotaayumouride.Model.UploadPdf;
 import com.fallntic.jotaayumouride.R;
+import com.fallntic.jotaayumouride.adapter.AddImagesAdapter;
+import com.fallntic.jotaayumouride.model.UploadPdf;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -33,70 +32,28 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.fallntic.jotaayumouride.R.id.button_finish;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
 
+@SuppressWarnings("ALL")
 public class AddMultiplePDFActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "AddMultipleAudioActivity";
 
     private static final int RESULT_LOAD_IMAGE = 1;
-    UploadTask uploadTask;
     private RecyclerView recyclerViewImage;
     private List<String> fileNameList;
-    private List<String> listDuration;
     private List<String> fileDoneList;
     private List<UploadPdf> listPDF_Khassida;
-    private UploadPdf uploadPdf;
     private AddImagesAdapter addImagesAdapter;
 
     private StorageReference mStorage;
     private Toolbar toolbar;
-
-    public static void updateDocument(final String collectionName, String documentID, Map<String, Object> songMap) {
-        FirebaseFirestore.getInstance().collection(collectionName).document(documentID)
-                .update(songMap)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @SuppressLint("LongLogTag")
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, collectionName + " updated");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @SuppressLint("LongLogTag")
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "Error updated " + collectionName);
-                    }
-                });
-    }
-
-    public static void createNewCollection(final String collectionName, String documentName, Object data) {
-        FirebaseFirestore.getInstance().collection(collectionName).document(documentName)
-                .set(data)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @SuppressLint("LongLogTag")
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "New collection " + collectionName + " set successfully");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @SuppressLint("LongLogTag")
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "Error initContributions function line 351");
-                    }
-                });
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,7 +77,7 @@ public class AddMultiplePDFActivity extends AppCompatActivity implements View.On
             }
         });
 
-        HomeActivity.loadBannerAd(this, this);
+        HomeActivity.loadBannerAd(this);
 
     }
 
@@ -153,7 +110,7 @@ public class AddMultiplePDFActivity extends AppCompatActivity implements View.On
         toolbar.setSubtitle("Repertoire photo");
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         recyclerViewImage = findViewById(R.id.recyclerview_image);
@@ -165,25 +122,19 @@ public class AddMultiplePDFActivity extends AppCompatActivity implements View.On
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
 
-        MenuItem iconAdd;
-        iconAdd = menu.findItem(R.id.icon_add);
-
-
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        switch (item.getItemId()) {
-            case R.id.icon_add:
-                uploadMultipleImages();
-                break;
+        if (item.getItemId() == R.id.icon_add) {
+            uploadMultipleImages();
         }
         return true;
     }
 
-    protected void uploadMultipleImages() {
+    private void uploadMultipleImages() {
         fileNameList = new ArrayList<>();
         fileDoneList = new ArrayList<>();
         addImagesAdapter = new AddImagesAdapter(fileNameList, fileDoneList);
@@ -199,22 +150,19 @@ public class AddMultiplePDFActivity extends AppCompatActivity implements View.On
         startActivityForResult(Intent.createChooser(intent, "Choisir une image"), RESULT_LOAD_IMAGE);
     }
 
-    public String getFileName(Uri uri) {
+    private String getFileName(Uri uri) {
         String result = null;
-        if (uri.getScheme().equals("content")) {
-            Cursor cursor = getContentResolver().query(uri, null, null,
-                    null, null);
-            try {
+        if (Objects.requireNonNull(uri.getScheme()).equals("content")) {
+            try (Cursor cursor = getContentResolver().query(uri, null, null,
+                    null, null)) {
                 if (cursor != null && cursor.moveToFirst()) {
                     result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
                 }
-            } finally {
-                cursor.close();
             }
         }
         if (result == null) {
             result = uri.getPath();
-            int cut = result.lastIndexOf('/');
+            int cut = Objects.requireNonNull(result).lastIndexOf('/');
             if (cut != -1) {
                 result = result.substring(cut + 1);
             }
@@ -225,10 +173,8 @@ public class AddMultiplePDFActivity extends AppCompatActivity implements View.On
     @Override
     public void onClick(View v) {
 
-        switch (v.getId()) {
-            case button_finish:
-                startActivity(new Intent(this, HomeActivity.class));
-                break;
+        if (v.getId() == button_finish) {
+            startActivity(new Intent(this, HomeActivity.class));
         }
     }
 
@@ -261,7 +207,7 @@ public class AddMultiplePDFActivity extends AppCompatActivity implements View.On
 
                     final int finalI = i;
 
-                    uploadTask = (UploadTask) fileToUpload.putFile(fileUri)
+                    UploadTask uploadTask = (UploadTask) fileToUpload.putFile(fileUri)
                             .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                 @Override
                                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -290,7 +236,7 @@ public class AddMultiplePDFActivity extends AppCompatActivity implements View.On
 
     }
 
-    public void saveUploadImages() {
+    private void saveUploadImages() {
         Map<String, Object> pdfMap = new HashMap<>();
         pdfMap.put("documentID", "pdf_khassida");
         pdfMap.put("listPDF_Khassida", listPDF_Khassida);
@@ -310,36 +256,6 @@ public class AddMultiplePDFActivity extends AppCompatActivity implements View.On
                         Log.d(TAG, "Error downloading image name");
                     }
                 });
-    }
-
-    private String getDurationFromMilli(int durationInMillis) {
-
-        Date date = new Date(durationInMillis);
-        SimpleDateFormat simpleDate = new SimpleDateFormat("mm:ss", Locale.getDefault());
-        String myTime = simpleDate.format(date);
-
-        return myTime;
-    }
-
-    private int findSongDuration(Uri audioUri) {
-
-        int timeInMilliSec = 0;
-
-        try {
-
-            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-            retriever.setDataSource(this, audioUri);
-            String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-            timeInMilliSec = Integer.parseInt(time);
-
-            retriever.release();
-
-            return timeInMilliSec;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
     }
 
 }

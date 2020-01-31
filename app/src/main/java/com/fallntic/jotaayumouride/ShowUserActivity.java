@@ -22,9 +22,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fallntic.jotaayumouride.Adapter.UserAdapter;
-import com.fallntic.jotaayumouride.Model.User;
-import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
+import com.fallntic.jotaayumouride.adapter.UserAdapter;
+import com.fallntic.jotaayumouride.model.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -38,26 +37,25 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.DahiraInfoActivity.getListUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.call;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.actionSelected;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.indexOnlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.selectedUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.call;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showAlertDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.actionSelected;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.indexOnlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.selectedUser;
 
+@SuppressWarnings("ALL")
 public class ShowUserActivity extends AppCompatActivity implements View.OnClickListener {
 
     private TextView textViewDahiraname;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private RecyclerView recyclerViewUser;
-    private UserAdapter userAdapter;
 
 
     public static ScrollView scrollView;
@@ -89,12 +87,10 @@ public class ShowUserActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.button_back:
-                actionSelected = "";
-                startActivity(new Intent(this, DahiraInfoActivity.class));
-                finish();
-                break;
+        if (v.getId() == R.id.button_back) {
+            actionSelected = "";
+            startActivity(new Intent(this, DahiraInfoActivity.class));
+            finish();
         }
     }
 
@@ -122,11 +118,11 @@ public class ShowUserActivity extends AppCompatActivity implements View.OnClickL
             addNewMember();
         } else if (actionSelected.equals("searchUser")) {
             dialogSearchUser();
-        } else if (actionSelected.equals("displayUsers"))
+        } else
             showListUser();
 
 
-        HomeActivity.loadBannerAd(this, this);
+        HomeActivity.loadBannerAd(this);
     }
 
     private void showListUser() {
@@ -138,7 +134,7 @@ public class ShowUserActivity extends AppCompatActivity implements View.OnClickL
         recyclerViewUser.setHasFixedSize(true);
         recyclerViewUser.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewUser.setVisibility(View.VISIBLE);
-        userAdapter = new UserAdapter(this, listUser);
+        UserAdapter userAdapter = new UserAdapter(this, listUser);
         recyclerViewUser.setAdapter(userAdapter);
     }
 
@@ -199,7 +195,6 @@ public class ShowUserActivity extends AppCompatActivity implements View.OnClickL
             @Override
             public void onClick(View view) {
                 actionSelected = "";
-                startActivity(new Intent(ShowUserActivity.this, DahiraInfoActivity.class));
                 alertDialog.dismiss();
             }
         });
@@ -393,13 +388,11 @@ public class ShowUserActivity extends AppCompatActivity implements View.OnClickL
 
             case R.id.search_user:
                 actionSelected = "searchUser";
-                MyStaticVariables.displayDahira = "allDahira";
-                getListUser(ShowUserActivity.this);
+                startActivity(new Intent(this, ShowUserActivity.class));
                 break;
 
             case R.id.icon_add:
                 actionSelected = "addNewMember";
-                getListUser(this);
                 startActivity(new Intent(this, ShowUserActivity.class));
                 break;
         }

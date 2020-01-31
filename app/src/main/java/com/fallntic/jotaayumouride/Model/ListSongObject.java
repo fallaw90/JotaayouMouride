@@ -1,11 +1,12 @@
-package com.fallntic.jotaayumouride.Model;
+package com.fallntic.jotaayumouride.model;
 
 import java.io.Serializable;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class ListSongObject implements Serializable {
-    String documentID;
-    List<Song> listSong;
+    private String documentID;
+    private List<Song> listSong;
 
     public ListSongObject(String documentID, List<Song> listSong) {
         this.documentID = documentID;
@@ -29,4 +30,6 @@ public class ListSongObject implements Serializable {
     public void setListSong(List<Song> listSong) {
         this.listSong = listSong;
     }
+
+
 }

@@ -24,11 +24,11 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fallntic.jotaayumouride.Model.Image;
-import com.fallntic.jotaayumouride.Model.Song;
-import com.fallntic.jotaayumouride.Services.OnClearFromRecentService;
-import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
-import com.fallntic.jotaayumouride.Utility.SwipeToDeleteCallback;
+import com.fallntic.jotaayumouride.model.Image;
+import com.fallntic.jotaayumouride.model.Song;
+import com.fallntic.jotaayumouride.services.OnClearFromRecentService;
+import com.fallntic.jotaayumouride.utility.MyStaticVariables;
+import com.fallntic.jotaayumouride.utility.SwipeToDeleteCallback;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
@@ -40,37 +40,38 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.createChannel;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.setMyAdapter;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.stopCurrentPlayingMediaPlayer;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.updateStorageSize;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.broadcastReceiverMediaPlayer;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.fab_search;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.indexOnlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_next;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_play;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_previous;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listImage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listSong;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listTracks;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mAdapter;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.notificationManagerMediaPlayer;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.pb_loader;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.pb_main_loader;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.recycler;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.seekBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tb_title;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.toolbar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.toolbar_bottom;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tv_duration;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tv_empty;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tv_time;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.createChannel;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.setMyAdapter;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showAlertDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.stopCurrentPlayingMediaPlayer;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.updateStorageSize;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.broadcastReceiverMediaPlayer;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.fab_search;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.indexOnlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.iv_next;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.iv_play;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.iv_previous;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listImage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listSong;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listTracks;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.mAdapter;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.notificationManagerMediaPlayer;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.pb_loader;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.pb_main_loader;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.recycler;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.seekBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tb_title;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.toolbar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.toolbar_bottom;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_duration;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_empty;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_time;
 
 
+@SuppressWarnings("ALL")
 public class ShowSongsActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "ShowSongsActivity";
@@ -139,16 +140,14 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
             setMyAdapter(this, listSong);
         }
 
-        HomeActivity.loadBannerAd(this, this);
+        HomeActivity.loadBannerAd(this);
     }
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.button_back:
-                updateStorageSize(dahira.getCurrentSizeStorage());
-                startActivity(new Intent(ShowSongsActivity.this, DahiraInfoActivity.class));
-                break;
+        if (view.getId() == R.id.button_back) {
+            updateStorageSize(dahira.getCurrentSizeStorage());
+            startActivity(new Intent(ShowSongsActivity.this, DahiraInfoActivity.class));
         }
     }
 
@@ -363,12 +362,10 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationManagerMediaPlayer.cancelAll();
         }
-        if (broadcastReceiverMediaPlayer != null) {
-            try {
-                unregisterReceiver(broadcastReceiverMediaPlayer);
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
-            }
+        try {
+            unregisterReceiver(broadcastReceiverMediaPlayer);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
         }
     }
 }

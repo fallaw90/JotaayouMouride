@@ -16,56 +16,41 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.fallntic.jotaayumouride.Model.Announcement;
-import com.fallntic.jotaayumouride.Model.ObjNotification;
-import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
+import com.fallntic.jotaayumouride.model.Announcement;
+import com.fallntic.jotaayumouride.model.ObjNotification;
+import com.fallntic.jotaayumouride.utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Notifications.FirebaseNotificationHelper.sendNotificationToSpecificUsers;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.actionSelected;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.notifications.FirebaseNotificationHelper.sendNotificationToSpecificUsers;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showAlertDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.actionSelected;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutData;
 
 public class CreateAnnouncementActivity extends AppCompatActivity implements View.OnClickListener {
-    public static final String TAG = "CreateAnnouncementActivity";
+    private static final String TAG = "CreateAnnouncementActivity";
 
     private TextView textViewTitle;
     private EditText editTextNote;
-    private Toolbar toolbar;
+    private FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
-    public static boolean hasValidationErrors(String mDate, EditText editTextDate,
-                                              String note, EditText editTextNote) {
-        if (mDate.isEmpty()) {
-            editTextDate.setError("Entrez une date");
-            editTextDate.requestFocus();
-            return true;
-        }
-        if (note.isEmpty()) {
-            editTextNote.setError("Tapez votre annonce ici");
-            editTextNote.requestFocus();
-            return true;
-        }
-
-        return false;
-    }
-
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_announcement);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         //***************** Set logo **********************
@@ -75,10 +60,12 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
 
         checkInternetConnection(this);
 
+        firestore = FirebaseFirestore.getInstance();
+
         initViews();
         textViewTitle.setText("Creer une annonce pour le dahira " + dahira.getDahiraName());
 
-        HomeActivity.loadBannerAd(this, this);
+        HomeActivity.loadBannerAd(this);
 
         hideSoftKeyboard();
     }
@@ -93,7 +80,7 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
         initViewsProgressBar();
     }
 
-    public  void initViewsProgressBar() {
+    private void initViewsProgressBar() {
         relativeLayoutData = findViewById(R.id.relativeLayout_data);
         MyStaticVariables.relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
         MyStaticVariables.progressBar = findViewById(R.id.progressBar);
@@ -144,12 +131,7 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
         }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-    public void saveAnnouncement(final Context context) {
+    private void saveAnnouncement(final Context context) {
         final String note = editTextNote.getText().toString().trim();
 
 
@@ -173,7 +155,7 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
                     MyStaticVariables.objNotification = new ObjNotification(announcementID,
                             onlineUser.getUserID(), dahira.getDahiraID(), MyStaticVariables.TITLE_ANNOUNCEMENT_NOTIFICATION, note);
 
-                    sendNotificationToSpecificUsers(context, MyStaticVariables.objNotification);
+                    sendNotificationToSpecificUsers(MyStaticVariables.objNotification);
 
                     showAlertDialog(context, "Annonce envoyee.", intent);
                     Log.d(TAG, "Announcement saved.");
@@ -191,21 +173,18 @@ public class CreateAnnouncementActivity extends AppCompatActivity implements Vie
         } else {
             editTextNote.setError("Ecrivez votre message ici.");
             editTextNote.requestFocus();
-            return;
         }
     }
 
-    public void hideSoftKeyboard() {
+    private void hideSoftKeyboard() {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                startActivity(new Intent(this, HomeActivity.class));
-                finish();
-                break;
+        if (item.getItemId() == android.R.id.home) {
+            startActivity(new Intent(this, HomeActivity.class));
+            finish();
         }
         return true;
     }

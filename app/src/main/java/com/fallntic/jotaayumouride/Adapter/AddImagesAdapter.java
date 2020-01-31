@@ -1,4 +1,4 @@
-package com.fallntic.jotaayumouride.Adapter;
+package com.fallntic.jotaayumouride.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fallntic.jotaayumouride.R;
@@ -15,8 +16,8 @@ import java.util.List;
 
 public class AddImagesAdapter extends RecyclerView.Adapter<AddImagesAdapter.ViewHolder> {
 
-    public List<String> fileNameList;
-    public List<String> fileDoneList;
+    private final List<String> fileNameList;
+    private final List<String> fileDoneList;
 
     public AddImagesAdapter(List<String> fileNameList, List<String> fileDoneList) {
 
@@ -25,6 +26,7 @@ public class AddImagesAdapter extends RecyclerView.Adapter<AddImagesAdapter.View
 
     }
 
+    @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
@@ -58,11 +60,11 @@ public class AddImagesAdapter extends RecyclerView.Adapter<AddImagesAdapter.View
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        public TextView fileNameView;
-        public ImageView fileDoneView;
-        View mView;
+        final TextView fileNameView;
+        final ImageView fileDoneView;
+        final View mView;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
 
             mView = itemView;

@@ -1,248 +1,252 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".InstructionsActivity">
 
-    <LinearLayout
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_below="@+id/toolbar">
 
-        <include
-            android:id="@+id/toolbar"
-            layout="@layout/toolbar"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp">
 
-        <ScrollView
-            android:id="@+id/scrollView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/toolbar">
-
-            <LinearLayout
+            <TextView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="10dp"
-                android:orientation="vertical">
+                android:layout_height="wrap_content"
+                android:text="@string/intruction_tilte"
+                android:textAlignment="center"
+                android:textColor="@color/black" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Si vous avez des questions, des remarques ou des suggetions, envoyez un message vocal WhatSapp a Cheikh Mbacke Fall sur \n +1 (320) 803-0902"
-                    android:textAlignment="center"
-                    android:textColor="@color/black" />
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/imageView"
+                android:layout_width="@dimen/_100sdp"
+                android:layout_height="@dimen/_100sdp"
+                android:layout_gravity="center"
+                android:layout_marginTop="@dimen/_20sdp"
+                android:src="@drawable/logo_web"
+                app:civ_border_color="#EEEEEE"
+                app:civ_border_width="4dp"
+                app:civ_shadow="true"
+                app:civ_shadow_color="#8BC34A"
+                app:civ_shadow_radius="10" />
 
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/imageView"
-                    android:layout_width="@dimen/_100sdp"
-                    android:layout_height="@dimen/_100sdp"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="@dimen/_20sdp"
-                    android:src="@drawable/logo_web"
-                    app:civ_border_color="#EEEEEE"
-                    app:civ_border_width="4dp"
-                    app:civ_shadow="true"
-                    app:civ_shadow_color="#8BC34A"
-                    app:civ_shadow_radius="10" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/intructions"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="25sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Intructions"
-                    android:textAlignment="center"
-                    android:textStyle="bold"
-                    android:textSize="25sp"
-                    android:textColor="@color/black" />
+            <Button
+                android:id="@+id/button_video"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/_5sdp"
+                android:background="@drawable/rounded_button_solid"
+                android:padding="@dimen/_10sdp"
+                android:text="@string/instruction_video"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_10sdp"
+                android:textStyle="bold" />
 
-                <Button
-                    android:id="@+id/button_video"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_margin="@dimen/_5sdp"
-                    android:text="Cliquez ici \n pour voir les instructions en video"
-                    android:layout_centerHorizontal="true"
-                    android:background="@drawable/rounded_button_solid"
-                    android:padding="@dimen/_10sdp"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/_12sdp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/_1_utiliser_l_app_sans_se_connecter"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="1 - Utiliser l'app sans se connecter:"
-                    android:textStyle="bold"
-                    android:textSize="20sp"
-                    android:layout_marginTop="10dp"
-                    android:textColor="@color/black" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:justificationMode="inter_word"
+                android:text="@string/offline_used"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                tools:targetApi="o" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/offline_used"
-                    android:textSize="18sp"
-                    android:textColor="@color/black"
-                    android:justificationMode="inter_word"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/_2_inscription_et_connexion"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="2 - Inscription et Connexion:"
-                    android:textStyle="bold"
-                    android:textSize="20sp"
-                    android:layout_marginTop="10dp"
-                    android:textColor="@color/black" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:justificationMode="inter_word"
+                android:text="@string/login_sign_in_description"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                tools:targetApi="o" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/login_sign_in_description"
-                    android:textSize="18sp"
-                    android:textColor="@color/black"
-                    android:justificationMode="inter_word"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/_3_creer_un_dahira"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="3 - Creer un Dahira:"
-                    android:textStyle="bold"
-                    android:textSize="20sp"
-                    android:layout_marginTop="10dp"
-                    android:textColor="@color/black" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:justificationMode="inter_word"
+                android:text="@string/create_dahira_description"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                tools:targetApi="o" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/create_dahira_description"
-                    android:textSize="18sp"
-                    android:textColor="@color/black"
-                    android:justificationMode="inter_word"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/_4_ajouter_un_membre_dans_votre_dahira_dahira"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="4 - Ajouter un membre dans votre dahira Dahira:"
-                    android:textStyle="bold"
-                    android:textSize="20sp"
-                    android:layout_marginTop="10dp"
-                    android:textColor="@color/black" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:justificationMode="inter_word"
+                android:text="@string/add_member_description"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                tools:targetApi="o" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/add_member_description"
-                    android:textSize="18sp"
-                    android:textColor="@color/black"
-                    android:justificationMode="inter_word"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/_5_Designer_un_admin"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="5 - Designer un membre comme administrateur ou modifier ses donnees (supprimer le membre ou l'attribuer a une commission):"
-                    android:textStyle="bold"
-                    android:textSize="20sp"
-                    android:layout_marginTop="10dp"
-                    android:textColor="@color/black" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:justificationMode="inter_word"
+                android:text="@string/add_admin_description"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                tools:targetApi="o" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/add_admin_description"
-                    android:textSize="18sp"
-                    android:textColor="@color/black"
-                    android:justificationMode="inter_word"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/_6_enregister_une_cotisation"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="6 - Enregister une cotisation (Adiya, Sass ou Social) pour un membre:"
-                    android:textStyle="bold"
-                    android:textSize="20sp"
-                    android:layout_marginTop="10dp"
-                    android:textColor="@color/black" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:justificationMode="inter_word"
+                android:text="@string/add_cotisation_description"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                tools:targetApi="o" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/add_cotisation_description"
-                    android:textSize="18sp"
-                    android:textColor="@color/black"
-                    android:justificationMode="inter_word"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/_7_enregister_depenses_evenements_photos_ou_audios"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="7 - Enregister depenses, evenements, photos ou audios:"
-                    android:textStyle="bold"
-                    android:textSize="20sp"
-                    android:layout_marginTop="10dp"
-                    android:textColor="@color/black" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:justificationMode="inter_word"
+                android:text="@string/add_depa_description"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                tools:targetApi="o" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/add_depa_description"
-                    android:textSize="18sp"
-                    android:textColor="@color/black"
-                    android:justificationMode="inter_word"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/_8_envoyer_une_annonce"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="8 - Envoyer une annonce:"
-                    android:textStyle="bold"
-                    android:textSize="20sp"
-                    android:layout_marginTop="10dp"
-                    android:textColor="@color/black" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:justificationMode="inter_word"
+                android:text="@string/send_announcement_description"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                tools:targetApi="o" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/send_announcement_description"
-                    android:textSize="18sp"
-                    android:textColor="@color/black"
-                    android:justificationMode="inter_word"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/_9_autres_fonctionnalitees"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="9 - Autres fonctionnalitees:"
-                    android:textStyle="bold"
-                    android:textSize="20sp"
-                    android:layout_marginTop="10dp"
-                    android:textColor="@color/black" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:justificationMode="inter_word"
+                android:text="@string/other_functions_description"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                tools:targetApi="o" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/other_functions_description"
-                    android:textSize="18sp"
-                    android:textColor="@color/black"
-                    android:justificationMode="inter_word"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/_10_modifier_ou_se_desabonner_d_un_dahira"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="10 - Modifier ou Se Desabonner d'un dahira:"
-                    android:textStyle="bold"
-                    android:textSize="20sp"
-                    android:layout_marginTop="10dp"
-                    android:textColor="@color/black" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:justificationMode="inter_word"
+                android:text="@string/quit_modify_dahira_description"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                tools:targetApi="o" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/quit_modify_dahira_description"
-                    android:textSize="18sp"
-                    android:textColor="@color/black"
-                    android:justificationMode="inter_word"/>
-
-            </LinearLayout>
-        </ScrollView>
-    </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 
 </RelativeLayout>

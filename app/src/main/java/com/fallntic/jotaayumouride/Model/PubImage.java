@@ -1,5 +1,6 @@
-package com.fallntic.jotaayumouride.Model;
+package com.fallntic.jotaayumouride.model;
 
+@SuppressWarnings("ALL")
 public class PubImage {
 
     private String id_ad;

@@ -13,179 +13,223 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <ScrollView
-        android:id="@+id/scrollView"
-        android:layout_width="fill_parent"
-        android:layout_height="match_parent">
+    <RelativeLayout
+        android:id="@+id/relativeLayout_data"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <ScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="fill_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            tools:ignore="UselessParent">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Completer votre profil pour terminer"
-                android:textAlignment="center"
-                android:textColor="@color/black"
-                android:textSize="@dimen/_20sdp"/>
+                android:orientation="vertical">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_30sdp"
-                android:text="@string/camera"
-                android:textAlignment="center"/>
-
-            <ImageView
-                android:id="@+id/imageView"
-                android:layout_width="@dimen/_100sdp"
-                android:layout_height="@dimen/_100sdp"
-                android:layout_below="@+id/labelImageView"
-                android:layout_centerHorizontal="true"
-                android:layout_gravity="center"
-                android:scaleType="centerCrop"
-                app:srcCompat="@drawable/profile_image" />
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1">
-
-                <LinearLayout
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
+                    android:text="@string/completer_votre_profil_pour_terminer"
+                    android:textAlignment="center"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/_20sdp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/_30sdp"
-                    android:orientation="vertical"
-                    android:paddingLeft="15dp"
-                    android:paddingRight="15dp">
+                    android:text="@string/camera"
+                    android:textAlignment="center" />
 
-                    <EditText
-                        android:id="@+id/editText_name"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif"
-                        android:hint="@string/name"
-                        android:inputType="text"
-                        android:paddingBottom="15dp"/>
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="@dimen/_100sdp"
+                    android:layout_height="@dimen/_100sdp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/photo_profil"
+                    android:scaleType="centerCrop"
+                    app:srcCompat="@drawable/profile_image" />
 
-                    <EditText
-                        android:id="@+id/editText_address"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/_20sdp"
-                        android:fontFamily="sans-serif"
-                        android:hint="@string/address"
-                        android:inputType="text"
-                        android:paddingBottom="15dp"/>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="0.5"
-                            android:focusable="false"
-                            android:fontFamily="sans-serif"
-                            android:text="Pays" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="0.5"
-                            android:focusable="false"
-                            android:fontFamily="sans-serif"
-                            android:text="Region/Ville" />
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:orientation="horizontal">
-
-                        <EditText
-                            android:id="@+id/editText_country"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="0.5"
-                            android:focusable="false"
-                            android:fontFamily="sans-serif"
-                            android:hint="Pays"
-                            android:inputType="text"
-                            android:padding="15dp"
-                            android:text="Senegal" />
-
-                        <EditText
-                            android:id="@+id/editText_city"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="0.5"
-                            android:fontFamily="sans-serif"
-                            android:hint="Region/Ville"
-                            android:inputType="text"
-                            android:padding="15dp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
+                        android:layout_centerVertical="true"
                         android:layout_marginTop="@dimen/_30sdp"
-                        android:orientation="horizontal">
+                        android:orientation="vertical"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        tools:ignore="UselessParent">
 
-                        <Button
-                            android:id="@+id/button_back"
+                        <EditText
+                            android:id="@+id/editText_name"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif"
+                            android:hint="@string/name"
+                            android:importantForAutofill="no"
+                            android:inputType="text"
+                            android:paddingBottom="15dp" />
+
+                        <EditText
+                            android:id="@+id/editText_address"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/_20sdp"
+                            android:fontFamily="sans-serif"
+                            android:hint="@string/address"
+                            android:importantForAutofill="no"
+                            android:inputType="text"
+                            android:paddingBottom="15dp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="0.5"
+                                android:focusable="false"
+                                android:fontFamily="sans-serif"
+                                android:text="@string/pays" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="0.5"
+                                android:focusable="false"
+                                android:fontFamily="sans-serif"
+                                android:text="@string/region_ville" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:orientation="horizontal">
+
+                            <EditText
+                                android:id="@+id/editText_country"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="0.5"
+                                android:focusable="false"
+                                android:fontFamily="sans-serif"
+                                android:hint="@string/pays"
+                                android:importantForAutofill="no"
+                                android:inputType="text"
+                                android:padding="15dp"
+                                android:text="@string/senegal" />
+
+                            <EditText
+                                android:id="@+id/editText_city"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="0.5"
+                                android:fontFamily="sans-serif"
+                                android:hint="@string/region_ville"
+                                android:importantForAutofill="no"
+                                android:inputType="text"
+                                android:padding="15dp" />
+                        </LinearLayout>
+
+                        <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_margin="7dp"
-                            android:text="@string/backButton"
-                            android:textAllCaps="false"
-                            android:layout_centerHorizontal="true"
-                            android:background="@drawable/rounded_button_cancel"
-                            android:padding="@dimen/_10sdp"
-                            android:textColor="@color/white"
-                            android:textSize="@dimen/_15sdp" />
+                            android:layout_gravity="center"
+                            android:layout_marginTop="@dimen/_30sdp"
+                            android:orientation="horizontal">
 
-                        <Button
-                            android:id="@+id/button_signUp"
-                            android:layout_width="@dimen/_100sdp"
+                            <Button
+                                android:id="@+id/button_back"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="7dp"
+                                android:background="@drawable/rounded_button_cancel"
+                                android:padding="@dimen/_10sdp"
+                                android:text="@string/backButton"
+                                android:textAllCaps="false"
+                                android:textColor="@color/white"
+                                android:textSize="@dimen/_15sdp"
+                                tools:ignore="ButtonStyle" />
+
+                            <Button
+                                android:id="@+id/button_signUp"
+                                android:layout_width="@dimen/_100sdp"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="7dp"
+                                android:background="@drawable/rounded_button_solid"
+                                android:padding="@dimen/_10sdp"
+                                android:text="@string/finish"
+                                android:textAllCaps="false"
+                                android:textColor="@color/white"
+                                android:textSize="@dimen/_15sdp"
+                                tools:ignore="ButtonStyle" />
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/textView_login"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_margin="7dp"
-                            android:text="Terminer"
-                            android:textAllCaps="false"
-                            android:layout_centerHorizontal="true"
-                            android:background="@drawable/rounded_button_solid"
-                            android:padding="@dimen/_10sdp"
-                            android:textColor="@color/white"
-                            android:textSize="@dimen/_15sdp" />
+                            android:padding="15dp"
+                            android:text="@string/registeredAlready"
+                            android:textAlignment="center"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
+                            android:textColor="@color/black" />
+
 
                     </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/textView_login"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="15dp"
-                        android:text="@string/registeredAlready"
-                        android:textAlignment="center"
-                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-                        android:textColor="@color/black" />
+                </RelativeLayout>
 
+            </LinearLayout>
 
-                </LinearLayout>
+        </ScrollView>
+    </RelativeLayout>
 
-            </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/relativeLayout_progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone">
 
-        </LinearLayout>
+        <TextView
+            android:id="@+id/textView_progressBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="@dimen/_100sdp"
+            android:text="@string/patientez_svp"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_20sdp"
+            android:visibility="visible" />
 
-    </ScrollView>
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:progressBarStyleLarge"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_100sdp"
+            android:layout_below="@id/textView_progressBar"
+            android:layout_gravity="center_vertical"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/green"
+            android:indeterminateTintMode="src_atop"
+            android:progress="80"
+            android:progressDrawable="@drawable/circle" />
+    </RelativeLayout>
 
 </LinearLayout>

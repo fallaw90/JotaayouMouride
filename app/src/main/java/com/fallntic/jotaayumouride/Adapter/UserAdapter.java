@@ -1,4 +1,4 @@
-package com.fallntic.jotaayumouride.Adapter;
+package com.fallntic.jotaayumouride.adapter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,27 +12,26 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fallntic.jotaayumouride.HomeActivity;
-import com.fallntic.jotaayumouride.Model.User;
 import com.fallntic.jotaayumouride.R;
 import com.fallntic.jotaayumouride.UserInfoActivity;
-import com.fallntic.jotaayumouride.Utility.MyStaticFunctions;
+import com.fallntic.jotaayumouride.model.User;
+import com.fallntic.jotaayumouride.utility.MyStaticFunctions;
 
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.adiya;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.indexOnlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.indexSelectedUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.sass;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.selectedUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.social;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.adiya;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.indexOnlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.indexSelectedUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.sass;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.selectedUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.social;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
 
-    ImageView imageView;
-    private Context context;
-    private List<User> listUsers;
+    private final Context context;
+    private final List<User> listUsers;
 
     public UserAdapter(Context context, List<User> listUsers) {
         this.context = context;
@@ -72,7 +71,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                 holder.textViewRole.setVisibility(View.GONE);
         }
 
-        MyStaticFunctions.showImage(context, user.getImageUri(), imageView);
+        MyStaticFunctions.showImage(context, user.getImageUri(), holder.imageView);
 
     }
 
@@ -83,12 +82,13 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
     class UserViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        TextView textViewUserName;
-        TextView textViewAddress;
-        TextView textViewUserPhoneNumber;
-        TextView textViewRole;
+        public final ImageView imageView;
+        final TextView textViewUserName;
+        final TextView textViewAddress;
+        final TextView textViewUserPhoneNumber;
+        final TextView textViewRole;
 
-        public UserViewHolder(View itemView) {
+        UserViewHolder(View itemView) {
             super(itemView);
 
             textViewUserName = itemView.findViewById(R.id.textView_userName);

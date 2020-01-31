@@ -1,11 +1,13 @@
 package com.fallntic.jotaayumouride;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -17,12 +19,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,31 +34,35 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.fallntic.jotaayumouride.Adapter.CommissionListAdapter;
+import com.fallntic.jotaayumouride.adapter.CommissionListAdapter;
+import com.fallntic.jotaayumouride.model.Dahira;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.mikelau.countrypickerx.CountryPickerDialog;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.saveLogoDahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showImage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.saveLogoDahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showImage;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAllDahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.myListDahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutProgressBar;
 
+@SuppressWarnings("unused")
 public class UpdateDahiraActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "CreateDahiraActivity";
@@ -76,7 +82,6 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
     private ImageView imageViewLogo;
 
 
-    private String commission;
     private String dahiraName;
     private String dieuwrine;
     private String dahiraPhoneNumber;
@@ -84,21 +89,10 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
 
     private ListView listViewCommission;
 
-    private ArrayList<String> arrayList;
-    private ArrayAdapter<String> arrayAdapter;
+    private byte[] uploadBytes;
+    private double mProgress = 0;
 
-    private Uri uri;
-    private final int PICK_IMAGE_REQUEST = 71;
-
-    private boolean imageSaved = true, dahiraSaved = true;
-
-    //Firebase
-    private FirebaseStorage firebaseStorage;
-    private StorageReference storageReference;
-    private FirebaseAuth mAuth;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-    private CountryPickerDialog countryPicker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,16 +109,9 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
 
         checkInternetConnection(this);
 
-        firebaseStorage = FirebaseStorage.getInstance();
-        storageReference = firebaseStorage.getReference();
-
         initViews();
 
         displayViews();
-
-        //Display and modify ListView commissions
-        arrayAdapter = new ArrayAdapter<String>(this, R.layout.list_commission,
-                R.id.textView_commission, arrayList);
 
         listViewCommission.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
@@ -139,7 +126,7 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
         hideSoftKeyboard();
     }
 
-    public void initViewsProgressBar() {
+    private void initViewsProgressBar() {
         relativeLayoutData = findViewById(R.id.relativeLayout_data);
         relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
         progressBar = findViewById(R.id.progressBar);
@@ -254,34 +241,19 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 101 && resultCode == RESULT_OK && data.getData() != null) {
+        if (requestCode == 101 && resultCode == RESULT_OK && Objects.requireNonNull(data).getData() != null) {
             final Uri fileUri = data.getData();
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), fileUri);
                 imageViewLogo.setImageBitmap(bitmap);
+                uploadNewPhoto(bitmap);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-            final StorageReference fileToUpload = storageReference
-                    .child("logoDahira").child(dahira.getDahiraID());
-            fileToUpload.putFile(fileUri)
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            fileToUpload.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    dahira.setImageUri(uri.toString());
-                                    saveLogoDahira(UpdateDahiraActivity.this, uri.toString());
-                                }
-                            });
-                        }
-                    });
         }
     }
 
-    public void checkPermission() {
+    private void checkPermission() {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -321,8 +293,9 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
                         @Override
                         public void onSuccess(Void aVoid) {
                             hideProgressBar();
-                            toastMessage(UpdateDahiraActivity.this, "Changements enregistre avec succe");
                             finish();
+                            toastMessage(UpdateDahiraActivity.this, "Changements enregistre avec succe");
+                            startActivity(new Intent(UpdateDahiraActivity.this, DahiraInfoActivity.class));
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -335,7 +308,7 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
-    public void showListViewCommissions() {
+    private void showListViewCommissions() {
         String commission = editTextCommission.getText().toString().trim();
         String responsible = editTextResponsible.getText().toString().trim();
 
@@ -370,7 +343,7 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
         editTextCommission.requestFocus();
     }
 
-    public void loadListCommissions() {
+    private void loadListCommissions() {
 
         CommissionListAdapter customAdapter = new CommissionListAdapter(getApplicationContext(),
                 dahira.getListCommissions(), dahira.getListResponsibles());
@@ -413,7 +386,7 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
-        final View dialogView = inflater.inflate(R.layout.dialog_update_commission, null);
+        @SuppressLint("InflateParams") final View dialogView = inflater.inflate(R.layout.dialog_update_commission, null);
         dialogBuilder.setView(dialogView);
 
         final EditText editTextCommissione = dialogView.findViewById(R.id.editText_dialogCommission);
@@ -461,7 +434,7 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
         });
     }
 
-    public boolean hasValidationErrors() {
+    private boolean hasValidationErrors() {
 
         if (dahiraName.isEmpty()) {
             editTextDahiraName.setError("Nom dahira obligatoire");
@@ -481,7 +454,7 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
             return true;
         }
 
-        if (!dahiraPhoneNumber.isEmpty() && (!dahiraPhoneNumber.matches("[0-9,+]+"))) {
+        if (!dahiraPhoneNumber.matches("[0-9,+]+")) {
             editTextDahiraPhoneNumber.setError("Numero incorrect inclure l'indicatif svp.");
             editTextDahiraPhoneNumber.requestFocus();
             return true;
@@ -496,7 +469,126 @@ public class UpdateDahiraActivity extends AppCompatActivity implements View.OnCl
         return false;
     }
 
-    public void hideSoftKeyboard() {
+    private void hideSoftKeyboard() {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    private void uploadNewPhoto(Bitmap bitmap) {
+        Log.d(TAG, "uploadNewPhoto: uploading a new image bitmap to storage");
+        BackgroundImageResize resize = new BackgroundImageResize(bitmap);
+        Uri uri = null;
+        resize.execute(uri);
+    }
+
+    private void uploadNewPhoto(Uri imagePath) {
+        Log.d(TAG, "uploadNewPhoto: uploading a new image uri to storage.");
+        BackgroundImageResize resize = new BackgroundImageResize(null);
+        resize.execute(imagePath);
+    }
+
+    public byte[] getBytesFromBitmap(Bitmap bitmap, int quality) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, stream);
+        return stream.toByteArray();
+    }
+
+    private void executeUploadTask() {
+        Toast.makeText(UpdateDahiraActivity.this, "uploading image", Toast.LENGTH_SHORT).show();
+        //***************************************************************************************
+        final String imageName = dahira.getDahiraName() + " " + dahira.getDahiraID();
+        final StorageReference storageReference = FirebaseStorage.getInstance().getReference()
+                .child("logoDahira/" + imageName);
+
+        final UploadTask uploadTask = storageReference.putBytes(uploadBytes);
+        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                if (taskSnapshot.getMetadata() != null) {
+                    if (taskSnapshot.getMetadata().getReference() != null) {
+                        Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
+                        result.addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                //Toast.makeText(UpdateDahiraActivity.this, "Post Success", Toast.LENGTH_SHORT).show();
+                                for (Dahira d : myListDahira) {
+                                    if (d.getDahiraID().equals(dahira.getDahiraID())) {
+                                        d.setImageUri(uri.toString());
+                                        break;
+                                    }
+                                }
+                                if (listAllDahira != null) {
+                                    for (Dahira d : listAllDahira) {
+                                        if (d.getDahiraID().equals(dahira.getDahiraID())) {
+                                            d.setImageUri(uri.toString());
+                                            break;
+                                        }
+                                    }
+                                }
+                                saveLogoDahira(UpdateDahiraActivity.this, uri.toString());
+                            }
+                        });
+                    }
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(UpdateDahiraActivity.this, "could not upload photo", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
+                double currentProgress = (100 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                if (currentProgress > (mProgress + 15)) {
+                    mProgress = (100 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                    Log.d(TAG, "onProgress: upload is " + mProgress + "& done");
+                    Toast.makeText(UpdateDahiraActivity.this, mProgress + "%", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    //*********************************** Resize and upload Image ********************************************
+    @SuppressLint("StaticFieldLeak")
+    public class BackgroundImageResize extends AsyncTask<Uri, Integer, byte[]> {
+        Bitmap mBitmap;
+
+        public BackgroundImageResize(Bitmap bitmap) {
+            if (bitmap != null) {
+                this.mBitmap = bitmap;
+            }
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            Toast.makeText(UpdateDahiraActivity.this, "compressing image", Toast.LENGTH_SHORT).show();
+            showProgressBar();
+        }
+
+        @Override
+        protected byte[] doInBackground(Uri... params) {
+            Log.d(TAG, "doInBackground: started.");
+
+            if (mBitmap == null) {
+                try {
+                    mBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), params[0]);
+                } catch (IOException e) {
+                    Log.e(TAG, "doInBackground: IOException: " + e.getMessage());
+                }
+            }
+            byte[] bytes;
+            bytes = getBytesFromBitmap(mBitmap, 15);
+            return bytes;
+        }
+
+        @Override
+        protected void onPostExecute(byte[] bytes) {
+            super.onPostExecute(bytes);
+            uploadBytes = bytes;
+            hideProgressBar();
+            executeUploadTask();
+        }
     }
 }

@@ -1,9 +1,9 @@
-package com.fallntic.jotaayumouride.Utility;
+package com.fallntic.jotaayumouride.utility;
 
 import android.graphics.Bitmap;
 import android.util.Log;
 
-public class Constants {
+class Constants {
 
     private static final float BITMAP_SCALE = 0.4f;
     private static final int BLUR_RADIUS = 8;
@@ -16,10 +16,6 @@ public class Constants {
         sentBitmap = Bitmap.createScaledBitmap(sentBitmap, width, height, false);
 
         Bitmap bitmap = sentBitmap.copy(sentBitmap.getConfig(), true);
-
-        if (radius < 1) {
-            return (null);
-        }
 
         int w = bitmap.getWidth();
         int h = bitmap.getHeight();

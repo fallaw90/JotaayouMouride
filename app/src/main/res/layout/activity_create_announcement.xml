@@ -48,11 +48,13 @@
                     android:background="@drawable/edittext_background"
                     android:color="@color/black"
                     android:gravity="top|left"
-                    android:hint="Tapez votre annonce ici"
+                    android:hint="@string/tapez_votre_annonce_ici"
                     android:inputType="textCapSentences|textNoSuggestions|textMultiLine"
                     android:maxLines="20"
                     android:minLines="3"
-                    android:padding="@dimen/_10sdp" />
+                    android:importantForAutofill="no"
+                    android:padding="@dimen/_10sdp"
+                    tools:ignore="RtlHardcoded" />
             </RelativeLayout>
 
             <Button
@@ -61,7 +63,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/rel_editText_note"
                 android:layout_centerHorizontal="true"
-                android:text="Enregistrer annonce"
+                android:text="@string/enregistrer_annonce"
                 android:textAllCaps="false"
                 android:layout_marginTop="@dimen/_20sdp"
                 android:background="@drawable/rounded_button_solid"
@@ -107,7 +109,7 @@
                 android:layout_above="@+id/progressBar"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
-                android:text="Patientez SVP ..."
+                android:text="@string/patientez_svp"
                 android:textSize="@dimen/_20sdp" />
 
             <ProgressBar

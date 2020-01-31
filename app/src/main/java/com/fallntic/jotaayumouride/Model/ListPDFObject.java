@@ -1,11 +1,13 @@
-package com.fallntic.jotaayumouride.Model;
+package com.fallntic.jotaayumouride.model;
 
 import java.io.Serializable;
 import java.util.List;
 
+
+@SuppressWarnings("unused")
 public class ListPDFObject implements Serializable {
-    String documentID;
-    List<UploadPdf> listPDF_Khassida;
+    private String documentID;
+    private List<UploadPdf> listPDF_Khassida;
 
     public ListPDFObject(String documentID, List<UploadPdf> listPDF_Khassida) {
         this.documentID = documentID;
@@ -30,4 +32,6 @@ public class ListPDFObject implements Serializable {
     public void setListPDF_Khassida(List<UploadPdf> listPDF_Khassida) {
         this.listPDF_Khassida = listPDF_Khassida;
     }
+
+
 }

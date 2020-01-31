@@ -16,8 +16,6 @@ import java.util.Objects;
 
 public class InstructionsActivity extends AppCompatActivity {
 
-    private Button buttonVideo;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,7 +29,7 @@ public class InstructionsActivity extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.mipmap.logo);
 
-        buttonVideo = findViewById(R.id.button_video);
+        Button buttonVideo = findViewById(R.id.button_video);
         buttonVideo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

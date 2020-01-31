@@ -8,42 +8,43 @@
         <item
             android:id="@+id/nav_home"
             android:icon="@drawable/ic_home"
-            android:title="Accueil" />
+            android:title="@string/accueil" />
 
         <item
             android:id="@+id/nav_displayUsers"
             android:icon="@drawable/ic_users"
-            android:title="Voir les membres" />
+            android:title="@string/voir_les_membres" />
         <item
             android:id="@+id/nav_searchUser"
             android:icon="@drawable/ic_search"
-            android:title="Rechercher un membre" />
+            android:title="@string/rechercher_un_membre" />
         <item
             android:id="@+id/nav_addUser"
             android:icon="@drawable/ic_add_user"
-            android:title="Ajouter un nouveau membre" />
+            android:title="@string/ajouter_un_nouveau_membre" />
 
         <item
             android:id="@+id/nav_displayMyDahira"
             android:icon="@drawable/ic_display_dahira"
-            android:title="Mes dahira" />
+            android:title="@string/mes_dahira" />
         <item
             android:id="@+id/nav_displayAllDahira"
             android:icon="@drawable/ic_display_dahira"
-            android:title="Tous les dahiras" />
+            android:title="@string/tous_les_dahiras" />
         <item
             android:id="@+id/nav_searchDahira"
             android:icon="@drawable/ic_search"
-            android:title="Rechercher un dahira" />
+            android:title="@string/rechercher_un_dahira" />
         <item
             android:id="@+id/nav_addDahira"
             android:icon="@drawable/ic_add_dahira"
-            android:title="Creer un nouveau dahira" />
+            android:title="@string/creer_un_nouveau_dahira" />
     </group>
 
     <item
         android:id="@+id/nav_finance"
-        android:title="Finance">
+        android:title="Finance"
+        tools:ignore="HardcodedText">
         <menu>
             <item
                 android:id="@+id/nav_addContribution"
@@ -74,81 +75,81 @@
 
     <item
         android:id="@+id/nav_release"
-        android:title="Communiqués">
+        android:title="@string/communique">
         <menu>
             <item
                 android:id="@+id/nav_addAnnouncement"
                 android:icon="@drawable/ic_add_announcement"
-                android:title="Ajouter une annonce" />
+                android:title="@string/ajouter_une_annonce" />
             <item
                 android:id="@+id/nav_displayAnnouncement"
                 android:icon="@drawable/ic_announcement"
-                android:title="Voir les annonces" />
+                android:title="@string/voir_les_annonces" />
             <item
                 android:id="@+id/nav_addEvent"
                 android:icon="@drawable/ic_add_event"
-                android:title="Ajouter un evenement" />
+                android:title="@string/ajouter_un_evenement" />
             <item
                 android:id="@+id/nav_displayEvent"
                 android:icon="@drawable/ic_event"
-                android:title="Voir les evenements" />
+                android:title="@string/voir_les_evenements" />
             <item
                 android:id="@+id/nav_displayAllEvent"
                 android:icon="@drawable/ic_event"
-                android:title="Voir tous les evenements de Dakar" />
+                android:title="@string/voir_tous_les_evenements_de_dakar" />
         </menu>
     </item>
 
     <item
         android:id="@+id/nav_gallery"
-        android:title="Repertoire">
+        android:title="@string/repertoire">
         <menu>
             <item
                 android:id="@+id/nav_photo"
                 android:icon="@drawable/ic_photo_library"
-                android:title="Photos" />
+                android:title="@string/photos_item" />
             <item
                 android:id="@+id/nav_audio"
                 android:icon="@drawable/ic_audio"
-                android:title="Audio" />
+                android:title="@string/audio" />
             <item
                 android:id="@+id/nav_video"
                 android:icon="@drawable/ic_video_library"
-                android:title="Videos" />
+                android:title="@string/videos" />
         </menu>
     </item>
 
     <item
         android:id="@+id/nav_contact"
-        android:title="Contact">
+        android:title="@string/contact">
         <menu>
             <item
                 android:id="@+id/nav_callDahira"
                 android:icon="@drawable/ic_phone"
-                android:title="Appeler ce dahira" />
+                android:title="@string/appeler_ce_dahira" />
             <item
                 android:id="@+id/nav_callUser"
                 android:icon="@drawable/ic_phone"
-                android:title="Appeler ce membre" />
+                android:title="@string/appeler_ce_membre" />
         </menu>
     </item>
 
-    <item android:title="Mon compte">
+    <item android:title="@string/mon_compte">
         <menu>
             <item
                 android:id="@+id/nav_setting"
                 android:icon="@drawable/ic_setting"
-                android:title="Paramettres" />
+                android:title="@string/paramettres" />
 
             <item
                 android:id="@+id/nav_removeDahira"
                 android:icon="@drawable/ic_exit"
-                android:title="Quitter ce dahira" />
+                android:title="@string/quitter_ce_dahira" />
 
             <item
                 android:id="@+id/nav_logout"
                 android:icon="@drawable/ic_power"
-                android:title="Se deconnecter"/>
+                android:title="@string/se_deconnecter" />
         </menu>
     </item>
 

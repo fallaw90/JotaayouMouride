@@ -1,4 +1,4 @@
-package com.fallntic.jotaayumouride.Notifications;
+package com.fallntic.jotaayumouride.notifications;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -11,11 +11,11 @@ import android.support.v4.media.session.MediaSessionCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import com.fallntic.jotaayumouride.Model.Song;
 import com.fallntic.jotaayumouride.R;
-import com.fallntic.jotaayumouride.Services.NotificationActionService;
+import com.fallntic.jotaayumouride.model.Song;
+import com.fallntic.jotaayumouride.services.NotificationActionService;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.notificationMediaPlayer;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.notificationMediaPlayer;
 
 public class CreateNotificationMusic {
 

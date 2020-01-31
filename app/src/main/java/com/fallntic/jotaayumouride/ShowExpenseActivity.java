@@ -1,5 +1,6 @@
 package com.fallntic.jotaayumouride;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -21,11 +22,11 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fallntic.jotaayumouride.Adapter.ExpenseAdapter;
-import com.fallntic.jotaayumouride.Model.Expense;
-import com.fallntic.jotaayumouride.Utility.MyStaticFunctions;
-import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
-import com.fallntic.jotaayumouride.Utility.SwipeToDeleteCallback;
+import com.fallntic.jotaayumouride.adapter.ExpenseAdapter;
+import com.fallntic.jotaayumouride.model.Expense;
+import com.fallntic.jotaayumouride.utility.MyStaticFunctions;
+import com.fallntic.jotaayumouride.utility.MyStaticVariables;
+import com.fallntic.jotaayumouride.utility.SwipeToDeleteCallback;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
@@ -39,17 +40,17 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listExpenses;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.objNotification;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listExpenses;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.objNotification;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutProgressBar;
 
-
+@SuppressWarnings("unused")
 public class ShowExpenseActivity extends AppCompatActivity implements View.OnClickListener {
     private final String TAG = "ShowExpenseActivity";
 
@@ -60,6 +61,7 @@ public class ShowExpenseActivity extends AppCompatActivity implements View.OnCli
     private CoordinatorLayout coordinatorLayout;
     private ExpenseAdapter expenseAdapter;
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,22 +85,20 @@ public class ShowExpenseActivity extends AppCompatActivity implements View.OnCli
 
         enableSwipeToDelete(this);
 
-        HomeActivity.loadBannerAd(this, this);
+        HomeActivity.loadBannerAd(this);
     }
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.button_back:
-                if (objNotification != null) {
-                    objNotification = null;
-                    startActivity(new Intent(this, HomeActivity.class));
-                    finish();
-                } else {
-                    startActivity(new Intent(this, DahiraInfoActivity.class));
-                    finish();
-                }
-                break;
+        if (v.getId() == R.id.button_back) {
+            if (objNotification != null) {
+                objNotification = null;
+                startActivity(new Intent(this, HomeActivity.class));
+                finish();
+            } else {
+                startActivity(new Intent(this, DahiraInfoActivity.class));
+                finish();
+            }
         }
     }
 
@@ -111,7 +111,7 @@ public class ShowExpenseActivity extends AppCompatActivity implements View.OnCli
         initViewsProgressBar();
     }
 
-    public  void initViewsProgressBar() {
+    private void initViewsProgressBar() {
         relativeLayoutData = findViewById(R.id.relativeLayout_data);
         relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
         progressBar = findViewById(R.id.progressBar);
@@ -182,6 +182,7 @@ public class ShowExpenseActivity extends AppCompatActivity implements View.OnCli
             startActivity(new Intent(ShowExpenseActivity.this, DahiraInfoActivity.class));
     }
 
+    @SuppressLint("SetTextI18n")
     private void showListExpenses(List<Expense> listExpenses) {
         //Attach adapter to recyclerView
         if (listExpenses != null && listExpenses.size() > 0) {
@@ -234,7 +235,7 @@ public class ShowExpenseActivity extends AppCompatActivity implements View.OnCli
         itemTouchhelper.attachToRecyclerView(recyclerViewExpense);
     }
 
-    public void removeExpense(final Context context, final Expense expense) {
+    private void removeExpense(final Context context, final Expense expense) {
         showProgressBar();
         db.collection("dahiras").document(dahira.getDahiraID())
                 .collection("expenses").document(expense.getExpenseID())
@@ -267,11 +268,12 @@ public class ShowExpenseActivity extends AppCompatActivity implements View.OnCli
 
     private void sortByDate(){
         Collections.sort(listExpenses, new Comparator<Expense>() {
-            DateFormat f = new SimpleDateFormat("dd/MM/yyyy");
+            @SuppressLint("SimpleDateFormat")
+            final DateFormat f = new SimpleDateFormat("dd/MM/yyyy");
             @Override
             public int compare(Expense expense1, Expense expense2) {
                 try {
-                    return f.parse(expense1.getDate()).compareTo(f.parse(expense2.getDate()));
+                    return Objects.requireNonNull(f.parse(expense1.getDate())).compareTo(f.parse(expense2.getDate()));
                 } catch (ParseException e) {
                     throw new IllegalArgumentException(e);
                 }

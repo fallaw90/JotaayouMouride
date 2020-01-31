@@ -48,9 +48,11 @@
                     android:background="@drawable/edittext_background"
                     android:focusable="false"
                     android:fontFamily="sans-serif"
-                    android:hint="Date"
+                    android:hint="@string/date"
                     android:padding="@dimen/_10sdp"
                     android:textAlignment="center"
+                    android:importantForAutofill="no"
+                    android:inputType="date"
                     android:textSize="@dimen/_20sdp" />
 
                 <EditText
@@ -62,10 +64,11 @@
                     android:background="@drawable/edittext_background"
                     android:focusable="true"
                     android:fontFamily="sans-serif"
-                    android:hint="Montant cotisation"
+                    android:hint="@string/montant_cotisation"
                     android:inputType="numberDecimal"
                     android:padding="@dimen/_10sdp"
                     android:textAlignment="center"
+                    android:importantForAutofill="no"
                     android:textSize="@dimen/_20sdp" />
 
                 <RadioGroup
@@ -82,7 +85,7 @@
                         android:layout_gravity="center_horizontal"
                         android:buttonTint="@color/black"
                         android:checked="true"
-                        android:text="adiya"
+                        android:text="@string/adiya_radio"
                         android:textColor="@color/black"
                         android:textSize="@dimen/_20sdp" />
 
@@ -93,7 +96,7 @@
                         android:layout_marginTop="@dimen/_15sdp"
                         android:buttonTint="@color/black"
                         android:checked="false"
-                        android:text="sass"
+                        android:text="@string/sass_radio"
                         android:textColor="@color/black"
                         android:textSize="@dimen/_20sdp" />
 
@@ -104,7 +107,7 @@
                         android:layout_marginTop="@dimen/_15sdp"
                         android:buttonTint="@color/black"
                         android:checked="false"
-                        android:text="social"
+                        android:text="@string/social_radio"
                         android:textColor="@color/black"
                         android:textSize="@dimen/_20sdp" />
 
@@ -120,7 +123,7 @@
                 android:layout_marginTop="50dp"
                 android:background="@drawable/rounded_button_solid"
                 android:padding="@dimen/_10sdp"
-                android:text="Enregistrer"
+                android:text="@string/save"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
                 android:textSize="@dimen/_15sdp" />

@@ -47,7 +47,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/_5sdp"
-            android:text="Retour a l'accueil"
+            android:text="@string/backButton"
             android:layout_above="@+id/adView"
             android:layout_centerHorizontal="true"
             android:background="@drawable/rounded_button_solid"
@@ -64,7 +64,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="@dimen/_5sdp"
             ads:adSize="BANNER"
-            ads:adUnitId="@string/banner_unit_id"></com.google.android.gms.ads.AdView>
+            ads:adUnitId="@string/banner_unit_id" />
 
         <RelativeLayout
             android:id="@+id/relativeLayout_progressBar"
@@ -78,7 +78,7 @@
                 android:layout_above="@+id/progressBar"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
-                android:text="Patientez SVP ..."
+                android:text="@string/patientez_svp"
                 android:textSize="@dimen/_20sdp" />
 
             <ProgressBar

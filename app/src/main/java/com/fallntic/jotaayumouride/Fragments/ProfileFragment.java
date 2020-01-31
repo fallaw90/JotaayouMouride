@@ -1,4 +1,4 @@
-package com.fallntic.jotaayumouride.Fragments;
+package com.fallntic.jotaayumouride.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,28 +9,29 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.fallntic.jotaayumouride.LoginActivity;
 import com.fallntic.jotaayumouride.R;
-import com.fallntic.jotaayumouride.Utility.MyStaticFunctions;
-import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
+import com.fallntic.jotaayumouride.utility.MyStaticFunctions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.Objects;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.logout;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firebaseAuth;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firebaseUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.logout;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.firebaseAuth;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.firebaseUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutProgressBar;
 
+@SuppressWarnings("unused")
 public class ProfileFragment extends Fragment implements View.OnClickListener {
     private static final String TAG = "ProfileFragment";
 
@@ -44,39 +45,29 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
     private LinearLayout linEmail;
     private View view;
+    private boolean isViewInit = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         this.view = inflater.inflate(R.layout.fragment_profile, container, false);
 
+        init(this.view);
+        loadUserInformation();
+
         return this.view;
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        init();
-
-        if (onlineUser != null && onlineUser.getEmail() == null || onlineUser.getEmail().equals("")) {
-            textViewLabeEmail.setVisibility(View.GONE);
-            textViewEmail.setVisibility(View.GONE);
-        }
-
-        loadUserInformation();
-    }
-
-    private void init() {
-        textViewAdress = this.view.findViewById(R.id.textView_userAddress);
-        textViewEmail = this.view.findViewById(R.id.textView_email);
-        textViewLabeEmail = this.view.findViewById(R.id.textView_labelEmail);
-        textViewName = this.view.findViewById(R.id.textView_userName);
-        textViewPhoneNumber = this.view.findViewById(R.id.textView_userPhoneNumber);
-        imageViewProfile = this.view.findViewById(R.id.imageView);
-        linearLayoutVerificationNeeded = this.view.findViewById(R.id.linearLayout_verificationNeeded);
-        linearLayoutVerified = this.view.findViewById(R.id.linearLayout_verified);
-        linEmail = this.view.findViewById(R.id.lin_email);
+    private void init(View view) {
+        textViewAdress = view.findViewById(R.id.textView_userAddress);
+        textViewEmail = view.findViewById(R.id.textView_email);
+        textViewLabeEmail = view.findViewById(R.id.textView_labelEmail);
+        textViewName = view.findViewById(R.id.textView_userName);
+        textViewPhoneNumber = view.findViewById(R.id.textView_userPhoneNumber);
+        imageViewProfile = view.findViewById(R.id.imageView);
+        linearLayoutVerificationNeeded = view.findViewById(R.id.linearLayout_verificationNeeded);
+        linearLayoutVerified = view.findViewById(R.id.linearLayout_verified);
+        linEmail = view.findViewById(R.id.lin_email);
 
         this.view.findViewById(R.id.button_verifyEmail).setOnClickListener(this);
 
@@ -85,17 +76,15 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.button_verifyEmail:
-                MyStaticVariables.firebaseUser.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        logout(getContext());
-                        startActivity(new Intent(getContext(), LoginActivity.class));
-                        toastMessage(getContext(), "Verification Email envoyee");
-                    }
-                });
-                break;
+        if (v.getId() == R.id.button_verifyEmail) {
+            firebaseUser.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    logout(Objects.requireNonNull(getContext()));
+                    startActivity(new Intent(getContext(), LoginActivity.class));
+                    toastMessage(getContext(), "Verification Email envoyee");
+                }
+            });
         }
     }
 
@@ -103,7 +92,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
 
-        if (firebaseUser != null) {
+        if (firebaseUser != null && onlineUser != null && onlineUser.getUserID() != null) {
             if (firebaseUser.getEmail() != null && !firebaseUser.getEmail().equals("")) {
                 if (firebaseUser.isEmailVerified()) {
                     //Get the current user info
@@ -120,12 +109,16 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
             textViewPhoneNumber.setText(onlineUser.getUserPhoneNumber());
             textViewAdress.setText(onlineUser.getAddress());
             textViewEmail.setText(onlineUser.getEmail());
-
             MyStaticFunctions.showImage(getContext(), onlineUser.getImageUri(), imageViewProfile);
+
+            if (onlineUser.getEmail() == null || onlineUser.getEmail().equals("")) {
+                textViewLabeEmail.setVisibility(View.GONE);
+                textViewEmail.setVisibility(View.GONE);
+            }
         }
     }
 
-    public  void initViewsProgressBar() {
+    private void initViewsProgressBar() {
         relativeLayoutData = view.findViewById(R.id.relativeLayout_data);
         relativeLayoutProgressBar = view.findViewById(R.id.relativeLayout_progressBar);
         progressBar = view.findViewById(R.id.progressBar);

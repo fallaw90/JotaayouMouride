@@ -1,5 +1,6 @@
 package com.fallntic.jotaayumouride;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -19,8 +20,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fallntic.jotaayumouride.Adapter.DahiraAdapter;
-import com.fallntic.jotaayumouride.Model.Dahira;
+import com.fallntic.jotaayumouride.adapter.DahiraAdapter;
+import com.fallntic.jotaayumouride.model.Dahira;
 import com.hbb20.CountryCodePicker;
 
 import java.util.ArrayList;
@@ -28,21 +29,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.actionSelected;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayDahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllDahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listDahiraFound;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListDahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showAlertDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.actionSelected;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.displayDahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAllDahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listDahiraFound;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.myListDahira;
 
 public class ShowDahiraActivity extends AppCompatActivity implements View.OnClickListener {
 
     private TextView textViewTitle;
     private static RecyclerView recyclerViewDahira;
-    private DahiraAdapter dahiraAdapter;
 
-    public static void searchDahira(Context context, final String searchName) {
+    private static void searchDahira(Context context, final String searchName) {
 
         if (listDahiraFound == null)
             listDahiraFound = new ArrayList<>();
@@ -76,21 +76,11 @@ public class ShowDahiraActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.button_back:
-                startActivity(new Intent(this, HomeActivity.class));
-                finish();
-                break;
-        }
-    }
-
     public static void dialogSearchDahira(final Context context) {
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        final View dialogView = inflater.inflate(R.layout.dialog_search, null);
+        @SuppressLint("InflateParams") final View dialogView = Objects.requireNonNull(inflater).inflate(R.layout.dialog_search, null);
         dialogBuilder.setView(dialogView);
         dialogBuilder.setCancelable(false);
 
@@ -118,7 +108,6 @@ public class ShowDahiraActivity extends AppCompatActivity implements View.OnClic
                 if (dahiraName.isEmpty()) {
                     editTextDialogName.setError("Donner le nom du dahira!");
                     editTextDialogName.requestFocus();
-                    return;
                 } else {
                     searchDahira(context, dahiraName);
                     alertDialog.dismiss();
@@ -137,6 +126,14 @@ public class ShowDahiraActivity extends AppCompatActivity implements View.OnClic
                 }
             }
         });
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.button_back) {
+            startActivity(new Intent(this, HomeActivity.class));
+            finish();
+        }
     }
 
     @Override
@@ -177,7 +174,7 @@ public class ShowDahiraActivity extends AppCompatActivity implements View.OnClic
             recyclerViewDahira.setHasFixedSize(true);
             recyclerViewDahira.setLayoutManager(new LinearLayoutManager(this));
             recyclerViewDahira.setVisibility(View.VISIBLE);
-            dahiraAdapter = new DahiraAdapter(this, listDahira);
+            DahiraAdapter dahiraAdapter = new DahiraAdapter(this, listDahira);
             recyclerViewDahira.setAdapter(dahiraAdapter);
             dahiraAdapter.notifyDataSetChanged();
         } else {
@@ -193,6 +190,7 @@ public class ShowDahiraActivity extends AppCompatActivity implements View.OnClic
         //ProgressBar from static variable MainActivity
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -212,19 +210,26 @@ public class ShowDahiraActivity extends AppCompatActivity implements View.OnClic
         init();
 
         if (displayDahira != null) {
-            if (displayDahira.equals("searchDahira")) {
-                textViewTitle.setText("Dahiras trouves");
-                displayDahiras(listDahiraFound);
-            } else if (displayDahira.equals("myDahira")) {
-                textViewTitle.setText("Liste des dahiras dont vous etes membre. Cliquez sur un dahira pour continuer.");
-                displayDahiras(myListDahira);
-            } else if (displayDahira.equals("allDahira")) {
-                textViewTitle.setText("Liste des dahiras enregistre. Cliquez sur un dahira pour continuer.");
-                displayDahiras(listAllDahira);
+            switch (displayDahira) {
+                case "searchDahira":
+                    textViewTitle.setText("Dahiras trouves");
+                    displayDahiras(listDahiraFound);
+                    break;
+                case "allDahira":
+                    textViewTitle.setText("Liste des dahiras enregistre. Cliquez sur un dahira pour continuer.");
+                    displayDahiras(listAllDahira);
+                    break;
+                default:
+                    textViewTitle.setText("Liste des dahiras dont vous etes membre. Cliquez sur un dahira pour continuer.");
+                    displayDahiras(myListDahira);
+                    break;
             }
+        } else {
+            textViewTitle.setText("Liste des dahiras enregistre. Cliquez sur un dahira pour continuer.");
+            displayDahiras(listAllDahira);
         }
 
-        HomeActivity.loadBannerAd(this, this);
+        HomeActivity.loadBannerAd(this);
     }
 
     @Override

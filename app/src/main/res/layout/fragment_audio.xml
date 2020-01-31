@@ -3,12 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Fragments.AudioFragment">
+    tools:context=".fragments.AudioFragment">
 
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        tools:ignore="UselessParent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -23,7 +24,8 @@
                 android:layout_margin="@dimen/_10sdp"
                 android:padding="@dimen/_5sdp"
                 android:src="@drawable/khassaide"
-                android:background="@color/green" />
+                android:background="@color/green"
+                android:contentDescription="@string/photo" />
 
             <ImageView
                 android:id="@+id/iv_mixed"
@@ -32,6 +34,7 @@
                 android:layout_margin="@dimen/_10sdp"
                 android:background="@color/green"
                 android:padding="@dimen/_5sdp"
+                android:contentDescription="@string/photo"
                 android:src="@drawable/mix" />
 
             <ImageView
@@ -41,6 +44,7 @@
                 android:layout_margin="@dimen/_10sdp"
                 android:background="@color/green"
                 android:padding="@dimen/_5sdp"
+                android:contentDescription="@string/photo"
                 android:src="@drawable/zikr" />
         </LinearLayout>
     </ScrollView>

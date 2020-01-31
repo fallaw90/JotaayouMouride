@@ -1,5 +1,6 @@
-package com.fallntic.jotaayumouride.Adapter;
+package com.fallntic.jotaayumouride.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,18 +14,18 @@ import com.fallntic.jotaayumouride.R;
 
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.adiya;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.sass;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.social;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.typeOfContribution;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.adiya;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.sass;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.social;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.typeOfContribution;
 
 public class ContributionAdapter extends RecyclerView.Adapter<ContributionAdapter.ContributionViewHolder> {
 
     private static List<String> listDate;
     private static List<String> listAmount;
     private static List<String> listUserName;
-    private Context context;
+    private final Context context;
 
     public ContributionAdapter(Context context, List<String> listDate, List<String> listAmount, List<String> listUserName) {
         this.context = context;
@@ -53,6 +54,7 @@ public class ContributionAdapter extends RecyclerView.Adapter<ContributionAdapte
         );
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull ContributionViewHolder holder, int position) {
         if (!listDate.isEmpty())
@@ -79,49 +81,57 @@ public class ContributionAdapter extends RecyclerView.Adapter<ContributionAdapte
         listDate.remove(position);
         listAmount.remove(position);
 
-        if (listUserName.isEmpty() && listUserName.size() > position)
-            listUserName.remove(position);
+        if (listUserName.isEmpty()) {
+            listUserName.size();
+        }
 
-        if (typeOfContribution.equals("adiya")) {
-            indexAmount = adiya.getListAdiya().indexOf(amountRemoved);
-            if (adiya.getListDahiraID().get(indexAmount).equals(dahira.getDahiraID()) &&
-                    adiya.getListDate().get(indexAmount).equals(dateRemoved)) {
+        switch (typeOfContribution) {
+            case "adiya":
+                indexAmount = adiya.getListAdiya().indexOf(amountRemoved);
+                if (adiya.getListDahiraID().get(indexAmount).equals(dahira.getDahiraID()) &&
+                        adiya.getListDate().get(indexAmount).equals(dateRemoved)) {
 
-                adiya.getListDahiraID().remove(indexAmount);
-                adiya.getListDate().remove(indexAmount);
-                adiya.getListAdiya().remove(indexAmount);
-                adiya.getListUserName().remove(indexAmount);
-
-                if (listUserName.isEmpty() && listUserName.size() > position)
+                    adiya.getListDahiraID().remove(indexAmount);
+                    adiya.getListDate().remove(indexAmount);
+                    adiya.getListAdiya().remove(indexAmount);
                     adiya.getListUserName().remove(indexAmount);
-            }
 
-        } else if (typeOfContribution.equals("sass")) {
-            indexAmount = sass.getListSass().indexOf(amountRemoved);
-            if (sass.getListDahiraID().get(indexAmount).equals(dahira.getDahiraID()) &&
-                    sass.getListDate().get(indexAmount).equals(dateRemoved)) {
+                    if (listUserName.isEmpty()) {
+                        listUserName.size();
+                    }
+                }
 
-                sass.getListDahiraID().remove(indexAmount);
-                sass.getListDate().remove(indexAmount);
-                sass.getListSass().remove(indexAmount);
-                sass.getListUserName().remove(indexAmount);
+                break;
+            case "sass":
+                indexAmount = sass.getListSass().indexOf(amountRemoved);
+                if (sass.getListDahiraID().get(indexAmount).equals(dahira.getDahiraID()) &&
+                        sass.getListDate().get(indexAmount).equals(dateRemoved)) {
 
-                if (listUserName.isEmpty() && listUserName.size() > position)
+                    sass.getListDahiraID().remove(indexAmount);
+                    sass.getListDate().remove(indexAmount);
+                    sass.getListSass().remove(indexAmount);
                     sass.getListUserName().remove(indexAmount);
-            }
-        } else if (typeOfContribution.equals("social")) {
-            indexAmount = social.getListSocial().indexOf(amountRemoved);
-            if (social.getListDahiraID().get(indexAmount).equals(dahira.getDahiraID()) &&
-                    social.getListDate().get(indexAmount).equals(dateRemoved)) {
 
-                social.getListDahiraID().remove(indexAmount);
-                social.getListDate().remove(indexAmount);
-                social.getListSocial().remove(indexAmount);
-                social.getListUserName().remove(indexAmount);
+                    if (listUserName.isEmpty()) {
+                        listUserName.size();
+                    }
+                }
+                break;
+            case "social":
+                indexAmount = social.getListSocial().indexOf(amountRemoved);
+                if (social.getListDahiraID().get(indexAmount).equals(dahira.getDahiraID()) &&
+                        social.getListDate().get(indexAmount).equals(dateRemoved)) {
 
-                if (listUserName.isEmpty() && listUserName.size() > position)
+                    social.getListDahiraID().remove(indexAmount);
+                    social.getListDate().remove(indexAmount);
+                    social.getListSocial().remove(indexAmount);
                     social.getListUserName().remove(indexAmount);
-            }
+
+                    if (listUserName.isEmpty()) {
+                        listUserName.size();
+                    }
+                }
+                break;
         }
 
         notifyItemRemoved(position);
@@ -129,11 +139,11 @@ public class ContributionAdapter extends RecyclerView.Adapter<ContributionAdapte
 
     class ContributionViewHolder extends RecyclerView.ViewHolder {
 
-        TextView textViewDate;
-        TextView textViewAmount;
-        TextView textViewSavedBy;
+        final TextView textViewDate;
+        final TextView textViewAmount;
+        final TextView textViewSavedBy;
 
-        public ContributionViewHolder(View itemView) {
+        ContributionViewHolder(View itemView) {
             super(itemView);
 
             textViewDate = itemView.findViewById(R.id.textView_date);

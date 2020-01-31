@@ -1,29 +1,29 @@
-package com.fallntic.jotaayumouride.Adapter;
+package com.fallntic.jotaayumouride.adapter;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fallntic.jotaayumouride.Model.YouTubeVideos;
 import com.fallntic.jotaayumouride.R;
+import com.fallntic.jotaayumouride.model.YouTubeVideos;
 
 import java.util.List;
 
 public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
 
-    List<YouTubeVideos> youtubeVideoList;
-
-    public VideoAdapter() {
-    }
+    private final List<YouTubeVideos> youtubeVideoList;
 
     public VideoAdapter(List<YouTubeVideos> youtubeVideoList) {
         this.youtubeVideoList = youtubeVideoList;
     }
 
+    @NonNull
     @Override
     public VideoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
@@ -47,9 +47,10 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
 
     public class VideoViewHolder extends RecyclerView.ViewHolder {
 
-        WebView videoWeb;
+        final WebView videoWeb;
 
-        public VideoViewHolder(View itemView) {
+        @SuppressLint("SetJavaScriptEnabled")
+        VideoViewHolder(View itemView) {
             super(itemView);
 
             videoWeb = itemView.findViewById(R.id.videoWebView);

@@ -1,4 +1,4 @@
-package com.fallntic.jotaayumouride.Services;
+package com.fallntic.jotaayumouride.services;
 
 import android.app.Service;
 import android.content.Intent;
@@ -16,11 +16,6 @@ public class OnClearFromRecentService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         return START_NOT_STICKY;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
     }
 
     @Override

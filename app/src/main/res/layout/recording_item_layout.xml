@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -20,7 +21,7 @@
             android:paddingLeft="@dimen/_7sdp"
             android:paddingRight="@dimen/_7sdp"
             android:paddingBottom="@dimen/_2sdp"
-            android:text="Date"
+            android:text="@string/date"
             android:textAlignment="center"
             android:textColor="@color/black" />
     </LinearLayout>
@@ -44,19 +45,21 @@
                 android:id="@+id/textViewRecordingname"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/_4sdp"
+                android:paddingStart="@dimen/_4sdp"
                 android:layout_weight="0.5"
-                android:text="Cheikh Fall" />
+                android:text="@string/cheikh_fall"
+                tools:ignore="RtlSymmetry" />
 
             <TextView
                 android:id="@+id/textView_duration"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/_4sdp"
-                android:text="time"
+                android:layout_marginEnd="@dimen/_4sdp"
+                android:layout_weight="0.5"
                 android:textAlignment="textEnd"
-                android:layout_marginRight="@dimen/_4sdp"
-                android:layout_weight="0.5"/>
+                android:paddingStart="@dimen/_4sdp"
+                android:text="@string/time"
+                tools:ignore="RtlSymmetry" />
         </LinearLayout>
 
 
@@ -72,6 +75,7 @@
                     android:layout_gravity="center_vertical"
                     android:clickable="true"
                     android:focusable="true"
+                    android:contentDescription="@string/photo"
                     android:src="@drawable/ic_play" />
 
                 <SeekBar

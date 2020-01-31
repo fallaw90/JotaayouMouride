@@ -1,4 +1,4 @@
-package com.fallntic.jotaayumouride.Utility;
+package com.fallntic.jotaayumouride.utility;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -20,11 +20,11 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fallntic.jotaayumouride.Adapter.AddImagesAdapter;
 import com.fallntic.jotaayumouride.HomeActivity;
-import com.fallntic.jotaayumouride.Model.Song;
-import com.fallntic.jotaayumouride.Model.UploadPdf;
 import com.fallntic.jotaayumouride.R;
+import com.fallntic.jotaayumouride.adapter.AddImagesAdapter;
+import com.fallntic.jotaayumouride.model.Song;
+import com.fallntic.jotaayumouride.model.UploadPdf;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -41,16 +41,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.fallntic.jotaayumouride.R.id.button_finish;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listSong;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listSong;
 
+@SuppressWarnings("ALL")
 public class AddMultipleAudioActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "AddMultipleAudioActivity";
 
     private static final int RESULT_LOAD_IMAGE = 1;
-    UploadTask uploadTask;
     private RecyclerView recyclerViewImage;
     private List<String> fileNameList;
     private List<String> listDuration;
@@ -122,7 +123,7 @@ public class AddMultipleAudioActivity extends AppCompatActivity implements View.
             }
         });
 
-        HomeActivity.loadBannerAd(this, this);
+        HomeActivity.loadBannerAd(this);
 
     }
 
@@ -155,7 +156,7 @@ public class AddMultipleAudioActivity extends AppCompatActivity implements View.
         toolbar.setSubtitle("Repertoire photo");
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         recyclerViewImage = findViewById(R.id.recyclerview_image);
@@ -167,25 +168,19 @@ public class AddMultipleAudioActivity extends AppCompatActivity implements View.
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
 
-        MenuItem iconAdd;
-        iconAdd = menu.findItem(R.id.icon_add);
-
-
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        switch (item.getItemId()) {
-            case R.id.icon_add:
-                uploadMultipleImages();
-                break;
+        if (item.getItemId() == R.id.icon_add) {
+            uploadMultipleImages();
         }
         return true;
     }
 
-    protected void uploadMultipleImages() {
+    private void uploadMultipleImages() {
         fileNameList = new ArrayList<>();
         fileDoneList = new ArrayList<>();
         addImagesAdapter = new AddImagesAdapter(fileNameList, fileDoneList);
@@ -201,22 +196,19 @@ public class AddMultipleAudioActivity extends AppCompatActivity implements View.
         startActivityForResult(Intent.createChooser(intent, "Choisir une image"), RESULT_LOAD_IMAGE);
     }
 
-    public String getFileName(Uri uri) {
+    private String getFileName(Uri uri) {
         String result = null;
-        if (uri.getScheme().equals("content")) {
-            Cursor cursor = getContentResolver().query(uri, null, null,
-                    null, null);
-            try {
+        if (Objects.requireNonNull(uri.getScheme()).equals("content")) {
+            try (Cursor cursor = getContentResolver().query(uri, null, null,
+                    null, null)) {
                 if (cursor != null && cursor.moveToFirst()) {
                     result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
                 }
-            } finally {
-                cursor.close();
             }
         }
         if (result == null) {
             result = uri.getPath();
-            int cut = result.lastIndexOf('/');
+            int cut = Objects.requireNonNull(result).lastIndexOf('/');
             if (cut != -1) {
                 result = result.substring(cut + 1);
             }
@@ -227,10 +219,8 @@ public class AddMultipleAudioActivity extends AppCompatActivity implements View.
     @Override
     public void onClick(View v) {
 
-        switch (v.getId()) {
-            case button_finish:
-                startActivity(new Intent(this, HomeActivity.class));
-                break;
+        if (v.getId() == button_finish) {
+            startActivity(new Intent(this, HomeActivity.class));
         }
     }
 
@@ -263,7 +253,7 @@ public class AddMultipleAudioActivity extends AppCompatActivity implements View.
 
                     final int finalI = i;
 
-                    uploadTask = (UploadTask) fileToUpload.putFile(fileUri)
+                    UploadTask uploadTask = (UploadTask) fileToUpload.putFile(fileUri)
                             .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                 @Override
                                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -294,7 +284,7 @@ public class AddMultipleAudioActivity extends AppCompatActivity implements View.
 
     }
 
-    public void saveUploadImages() {
+    private void saveUploadImages() {
         Map<String, Object> songMap = new HashMap<>();
 
         songMap.put("documentID", "magal2019HT");
@@ -321,14 +311,13 @@ public class AddMultipleAudioActivity extends AppCompatActivity implements View.
 
         Date date = new Date(durationInMillis);
         SimpleDateFormat simpleDate = new SimpleDateFormat("mm:ss", Locale.getDefault());
-        String myTime = simpleDate.format(date);
 
-        return myTime;
+        return simpleDate.format(date);
     }
 
     private int findSongDuration(Uri audioUri) {
 
-        int timeInMilliSec = 0;
+        int timeInMilliSec;
 
         try {
 

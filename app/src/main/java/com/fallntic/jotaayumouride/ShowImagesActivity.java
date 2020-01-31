@@ -1,7 +1,6 @@
 package com.fallntic.jotaayumouride;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -17,17 +16,16 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fallntic.jotaayumouride.Adapter.ImageAdapter;
-import com.fallntic.jotaayumouride.Interfaces.CustomItemClickListener;
-import com.fallntic.jotaayumouride.Model.Image;
-import com.fallntic.jotaayumouride.Model.Song;
-import com.fallntic.jotaayumouride.Utility.PhotoFullPopupWindow;
-import com.fallntic.jotaayumouride.Utility.SwipeToDeleteCallback;
+import com.fallntic.jotaayumouride.adapter.ImageAdapter;
+import com.fallntic.jotaayumouride.interfaces.CustomItemClickListener;
+import com.fallntic.jotaayumouride.model.Image;
+import com.fallntic.jotaayumouride.model.Song;
+import com.fallntic.jotaayumouride.utility.PhotoFullPopupWindow;
+import com.fallntic.jotaayumouride.utility.SwipeToDeleteCallback;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -39,15 +37,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.updateStorageSize;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firebaseStorage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.indexOnlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listImage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listSong;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showAlertDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.updateStorageSize;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.firebaseStorage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.indexOnlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listImage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listSong;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
 
+
+@SuppressWarnings("IntegerDivisionInFloatingPointContext")
 public class ShowImagesActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "ShowImagesActivity";
     //recyclerview object
@@ -56,8 +56,8 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
     //adapter object
     private ImageAdapter imageAdapter;
     private TextView textViewEmpty, textViewDelete, textViewTitle;
-    private CoordinatorLayout coordinatorLayout;
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,7 +82,7 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
             textViewTitle.setText("Repertoire photo du dahira " + dahira.getDahiraName());
         }
 
-        if (listImage != null && listImage != null && !listImage.isEmpty()) {
+        if (listImage != null && !listImage.isEmpty()) {
 
             recyclerView.setHasFixedSize(true);
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -90,7 +90,7 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
             imageAdapter = new ImageAdapter(this, listImage, new CustomItemClickListener() {
                 @Override
                 public void onItemClick(View v, int position) {
-                    new PhotoFullPopupWindow(ShowImagesActivity.this, R.layout.popup_photo_full, v, listImage.get(position).getUri(), null);
+                    new PhotoFullPopupWindow(ShowImagesActivity.this, v, listImage.get(position).getUri(), null);
                     //toastMessage(ShowImagesActivity.this, "A clique");
                 }
             });
@@ -107,21 +107,19 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
 
         if (onlineUser != null && indexOnlineUser > -1 && onlineUser.getListDahiraID().contains(dahira.getDahiraID()) &&
                 onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
-            enableSwipeToDelete(this);
+            enableSwipeToDelete();
         } else {
             textViewDelete.setVisibility(View.GONE);
         }
 
-        HomeActivity.loadBannerAd(this, this);
+        HomeActivity.loadBannerAd(this);
     }
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.button_back:
-                updateStorageSize(dahira.getCurrentSizeStorage());
-                startActivity(new Intent(ShowImagesActivity.this, DahiraInfoActivity.class));
-                break;
+        if (view.getId() == R.id.button_back) {
+            updateStorageSize(dahira.getCurrentSizeStorage());
+            startActivity(new Intent(ShowImagesActivity.this, DahiraInfoActivity.class));
         }
     }
 
@@ -130,7 +128,6 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
         textViewDelete = findViewById(R.id.textView_delete);
         textViewTitle = findViewById(R.id.textView_title);
         recyclerView = findViewById(R.id.recyclerView);
-        coordinatorLayout = findViewById(R.id.coordinatorLayout);
 
         findViewById(R.id.button_back).setOnClickListener(this);
     }
@@ -182,7 +179,7 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
         return true;
     }
 
-    private void enableSwipeToDelete(final Context context) {
+    private void enableSwipeToDelete() {
         SwipeToDeleteCallback swipeToDeleteCallback = new SwipeToDeleteCallback(this) {
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
@@ -270,6 +267,7 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
         for (final Song song : listSong) {
             reference = storageRef.child("gallery").child("audios").child(dahira.getDahiraID()).child(song.getAudioID());
             reference.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+                @SuppressLint("SetTextI18n")
                 @Override
                 public void onSuccess(StorageMetadata storageMetadata) {
                     dahira.setCurrentSizeStorage(dahira.getCurrentSizeStorage() + storageMetadata.getSizeBytes() / 1048576);
@@ -290,6 +288,7 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
         for (final Image image : listImage) {
             reference = storageRef.child("gallery").child("picture").child(dahira.getDahiraID()).child(image.getImageName());
             reference.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+                @SuppressLint("SetTextI18n")
                 @Override
                 public void onSuccess(StorageMetadata storageMetadata) {
                     dahira.setCurrentSizeStorage(dahira.getCurrentSizeStorage() + storageMetadata.getSizeBytes() / 1048576);

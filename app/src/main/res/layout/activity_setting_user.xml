@@ -21,11 +21,12 @@
         <ScrollView
             android:id="@+id/scrollView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            tools:ignore="UselessParent">
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -38,7 +39,7 @@
                         android:id="@+id/textView_dahiraName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="5dp"
+                        android:layout_marginEnd="5dp"
                         android:textAlignment="center"
                         android:textColor="@color/black"
                         android:textSize="@dimen/_20sdp" />
@@ -47,10 +48,9 @@
                         android:id="@+id/imageView"
                         android:layout_width="200dp"
                         android:layout_height="200dp"
-                        android:layout_below="@+id/labelImageView"
-                        android:layout_centerHorizontal="true"
                         android:layout_gravity="center"
                         android:scaleType="centerCrop"
+                        android:contentDescription="@string/photo_profil"
                         app:srcCompat="@drawable/profile_image" />
 
                     <LinearLayout
@@ -64,7 +64,7 @@
                         <TextView
                             android:layout_width="155dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/userName"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -75,6 +75,8 @@
                             android:layout_height="wrap_content"
                             android:background="@drawable/edittext_background"
                             android:hint="@string/userName"
+                            android:importantForAutofill="no"
+                            android:inputType="text"
                             android:padding="10dp" />
 
                     </LinearLayout>
@@ -89,7 +91,7 @@
                             android:id="@+id/textView_address"
                             android:layout_width="155dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/address"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -100,6 +102,8 @@
                             android:layout_height="wrap_content"
                             android:background="@drawable/edittext_background"
                             android:hint="@string/phoneNumber"
+                            android:importantForAutofill="no"
+                            android:inputType="text"
                             android:padding="10dp" />
                     </LinearLayout>
 
@@ -114,7 +118,7 @@
                         <TextView
                             android:layout_width="155dp"
                             android:layout_height="50dp"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/adiyaVerse"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -125,6 +129,8 @@
                             android:layout_height="wrap_content"
                             android:background="@drawable/edittext_background"
                             android:hint="@string/adiyaVerse"
+                            android:importantForAutofill="no"
+                            android:inputType="numberDecimal"
                             android:padding="10dp" />
                     </LinearLayout>
 
@@ -139,7 +145,7 @@
                         <TextView
                             android:layout_width="155dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/sassVerse"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -150,6 +156,8 @@
                             android:layout_height="wrap_content"
                             android:background="@drawable/edittext_background"
                             android:hint="@string/sassVerse"
+                            android:importantForAutofill="no"
+                            android:inputType="numberDecimal"
                             android:padding="10dp" />
                     </LinearLayout>
 
@@ -164,7 +172,7 @@
                         <TextView
                             android:layout_width="155dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/socialVerse"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -175,6 +183,8 @@
                             android:layout_height="wrap_content"
                             android:background="@drawable/edittext_background"
                             android:hint="@string/socialVerse"
+                            android:importantForAutofill="no"
+                            android:inputType="numberDecimal"
                             android:padding="10dp" />
                     </LinearLayout>
 
@@ -190,7 +200,7 @@
                             android:id="@+id/textView_labelCommission"
                             android:layout_width="155dp"
                             android:layout_height="match_parent"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/labelCommission"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -216,7 +226,7 @@
                             android:checked="true"
                             android:text="@string/simpleMember"
                             android:textColor="@color/black"
-                            android:textSize="20dp" />
+                            android:textSize="20sp" />
 
                         <RadioButton
                             android:layout_width="wrap_content"
@@ -226,7 +236,7 @@
                             android:checked="false"
                             android:text="@string/admin"
                             android:textColor="@color/black"
-                            android:textSize="20dp" />
+                            android:textSize="20sp" />
 
                     </RadioGroup>
 
@@ -237,7 +247,6 @@
                         android:layout_marginTop="7dp"
                         android:text="@string/update"
                         android:textAllCaps="false"
-                        android:layout_centerHorizontal="true"
                         android:background="@drawable/rounded_button_solid"
                         android:padding="@dimen/_10sdp"
                         android:textColor="@color/white"
@@ -250,7 +259,6 @@
                         android:layout_marginTop="7dp"
                         android:text="@string/cancel"
                         android:textAllCaps="false"
-                        android:layout_centerHorizontal="true"
                         android:background="@drawable/rounded_button_cancel"
                         android:padding="@dimen/_10sdp"
                         android:textColor="@color/white"
@@ -264,7 +272,6 @@
                         android:background="#cf0b0b"
                         android:text="@string/delete"
                         android:textAllCaps="false"
-                        android:layout_centerHorizontal="true"
                         android:padding="@dimen/_10sdp"
                         android:textColor="@color/white"
                         android:textSize="@dimen/_15sdp" />
@@ -288,7 +295,7 @@
             android:layout_above="@+id/progressBar"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:text="Patientez SVP ..."
+            android:text="@string/patientez_svp"
             android:textSize="@dimen/_20sdp" />
 
         <ProgressBar

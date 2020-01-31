@@ -1,20 +1,19 @@
-package com.fallntic.jotaayumouride.Services;
+package com.fallntic.jotaayumouride.services;
 
 import androidx.annotation.NonNull;
 
-import com.fallntic.jotaayumouride.Model.ObjNotification;
-import com.fallntic.jotaayumouride.Notifications.FirebaseNotificationHelper;
+import com.fallntic.jotaayumouride.model.ObjNotification;
+import com.fallntic.jotaayumouride.notifications.FirebaseNotificationHelper;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.objNotification;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.objNotification;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
 
-
+@SuppressWarnings("unused")
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private final String TAG = "MyFirebaseMessagingService";
-    String dahiraID;
 
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {

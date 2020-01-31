@@ -1,4 +1,4 @@
-package com.fallntic.jotaayumouride.Adapter;
+package com.fallntic.jotaayumouride.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,15 +9,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fallntic.jotaayumouride.Model.Social;
 import com.fallntic.jotaayumouride.R;
+import com.fallntic.jotaayumouride.model.Social;
 
 import java.util.List;
 
+@SuppressWarnings("ALL")
 public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.SocialViewHolder> {
 
-    List<Social> listSocial;
-    private Context context;
+    private final List<Social> listSocial;
+    private final Context context;
     private int selectedPosition;
 
     public SocialAdapter(Context context, List<Social> listSocial) {
@@ -64,11 +65,11 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.SocialView
 
     class SocialViewHolder extends RecyclerView.ViewHolder {
 
-        TextView textViewDate;
-        TextView textViewAmount;
-        TextView textViewSavedBy;
+        final TextView textViewDate;
+        final TextView textViewAmount;
+        final TextView textViewSavedBy;
 
-        public SocialViewHolder(View itemView) {
+        SocialViewHolder(View itemView) {
             super(itemView);
 
             textViewDate = itemView.findViewById(R.id.textView_date);

@@ -1,4 +1,4 @@
-package com.fallntic.jotaayumouride.Adapter;
+package com.fallntic.jotaayumouride.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,18 +9,19 @@ import android.widget.ImageView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fallntic.jotaayumouride.Interfaces.CustomItemClickListener;
-import com.fallntic.jotaayumouride.Model.Image;
 import com.fallntic.jotaayumouride.R;
-import com.fallntic.jotaayumouride.Utility.GlideApp;
+import com.fallntic.jotaayumouride.interfaces.CustomItemClickListener;
+import com.fallntic.jotaayumouride.model.Image;
+import com.fallntic.jotaayumouride.utility.GlideApp;
 
 import java.util.List;
 
 
+@SuppressWarnings("ALL")
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
-    private Context context;
-    private List<Image> listImage;
-    private CustomItemClickListener listener;
+    private final Context context;
+    private final List<Image> listImage;
+    private final CustomItemClickListener listener;
 
     public ImageAdapter(Context context, List<Image> listImage, CustomItemClickListener listener) {
         this.context = context;
@@ -35,6 +36,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         final ImageViewHolder imageViewHolder = new ImageViewHolder(view);
 
         view.setOnClickListener(new View.OnClickListener() {
+            @SuppressWarnings("deprecation")
             @Override
             public void onClick(View view) {
                 listener.onItemClick(view, imageViewHolder.getPosition());
@@ -69,8 +71,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     }
 
     public class ImageViewHolder extends RecyclerView.ViewHolder {
-        protected ImageView imageView;
-        private View view;
+        protected final ImageView imageView;
+        private final View view;
 
         public ImageViewHolder(View itemView) {
             super(itemView);

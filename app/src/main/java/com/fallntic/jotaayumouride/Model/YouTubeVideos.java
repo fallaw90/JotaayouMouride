@@ -1,10 +1,8 @@
-package com.fallntic.jotaayumouride.Model;
+package com.fallntic.jotaayumouride.model;
 
+@SuppressWarnings("unused")
 public class YouTubeVideos {
-    String videoUrl;
-
-    public YouTubeVideos() {
-    }
+    private String videoUrl;
 
     public YouTubeVideos(String videoUrl) {
         this.videoUrl = videoUrl;

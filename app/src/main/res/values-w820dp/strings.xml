@@ -57,7 +57,7 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="rechercher">Rechercher</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
 
     <string name="about">
         <![CDATA[
@@ -110,11 +110,16 @@
         ]]>
     </string>
 
+    <string-array name="advertisements">
+        <item>Publicités</item>
+        <item>Publicités</item>
+    </string-array>
+
     <string name="offline_used">"Vous pouvez utiliser l'application Jotaayou Mouride sans posséder un compte dans l'application. Mais la seule ressource qui sera disponible pour vous est d'écouter des sons religieux tels que les Khassaide et le Coran disponible dans la page de l'accueil."</string>
     <string name="login_sign_in_description">“Rien n’est plus simple que de s\'inscrire dans cette application. Juste cliquez sur SE CONNECTER en haut a votre droit. Entrez votre numéro de téléphone, attendez le code de validation, entrez votre code et continuez. A la page suivante, suivez les instructions et enregistrez vos informations personnelle."</string>
     <string name="create_dahira_description">"Si vous êtes administrateur de votre dahira c'est à dire le gestionnaire de votre dahira, vous devez d’abord créer votre dahira et l'enregistrer dans l'application. Pour se faire, naviguez sur le menu en haut a votre gauche et cliquez sur CREER UN NOUVEAU DAHIRA. Dans la page suivante, choisissez un logo de votre dahira si disponible, sinon vous pouvez utiliser le logo déjà propose. Remplir le formulaire et cliquez sur SUIVANT. Dans la page suivante, complétez le second formulaire si nécessaire et cliquez sur TERMINER LA CREEATION DE MON DAHIRA. C'est fini yeahhhh! Votre dahira est désormais disponible dans la base de données. Congratulations!"</string>
     <string name="add_member_description">"Attention ! seuls les membres désignés comme administrateur peuvent ajouter, modifier ou supprimer un membre. Pour ajouter un membre, assurez-vous que la personne s'est d'abord inscrite dans l'application Jotaayou Mouride. Naviguez sur le MENU, cliquez sur MES DAHIRA, selectionnez le dahira dont vous êtes administrateur, cliquez encore sur le MENU puis et en fin, cliquez sur AJOUTER UN NOUVEAU MEMBRE. Sur la petite fenêtre qui s'ouvre, entrez le NUMERO DE TELEPHONE ou l'ADRESSE EMAIL du membre que vous voulez ajouter puis cliquez sur AJOUTER. Et c'est fini!"</string>
-    <string name="add_cotisation_description">"Seuls les membres designes comme administrateur peuvent ajouter une cotisation. Pour se faire, naviguez sur le MENU, MES DAHIRAS, selectionnez le dahira correspondant, naviguez encore sur le MENU, VOIR LES MEMBRES et selectionnez le membre correspondant, naviguez encore sur le MENU puis AJOUTER(ADIYA, SASS, SOCIAL). Dans la nouvelle page qui s'ouvre, choisir une date, entrez le montant de la cotisation et selectionnez le type de la cotisation (Adiya, Sass ou Social) puis ENREGISTRER. NB: Toute cotisation enregistrer sera ajoutee automatiquement dans la caisse du dahira. Ainis on aura la somme presente de la caisse a temps reel."</string>
+    <string name="add_cotisation_description" tools:ignore="Typos">"Seuls les membres designes comme administrateur peuvent ajouter une cotisation. Pour se faire, naviguez sur le MENU, MES DAHIRAS, selectionnez le dahira correspondant, naviguez encore sur le MENU, VOIR LES MEMBRES et selectionnez le membre correspondant, naviguez encore sur le MENU puis AJOUTER(ADIYA, SASS, SOCIAL). Dans la nouvelle page qui s'ouvre, choisir une date, entrez le montant de la cotisation et selectionnez le type de la cotisation (Adiya, Sass ou Social) puis ENREGISTRER. NB: Toute cotisation enregistrer sera ajoutee automatiquement dans la caisse du dahira. Ainis on aura la somme presente de la caisse a temps reel."</string>
     <string name="add_depa_description">"Seuls les membres désignés comme administrateur peuvent ajouter des évènements, des photos ou des audios. Pour se faire, naviguez sur MENU, MES DAHIRAS, sélectionnez votre dahira, sélectionnez l'élément souhaiter puis remplir les formulaires ou suivez les instructions proposées."</string>
     <string name="send_announcement_description">"Toute personne membre d'un dahira peut envoyer une annonce vocale ou ecrite qui sera visible pour tous les membres de ce dahira. Pour se faire, naviguez sur MENU, MES DAHIRAS, selectionnez votre dahira, naviguez encore sur le MENU puis AJOUTER UNE ANNONCE. Selectionnez l'image vocale ou ecrite puis enregistrer et envoyer votre annonce."</string>
     <string name="other_functions_description">"Toutes autres fonctionnalités peuvent être consultées par un membre d'un dahira donne. Assurez-vous d'être ajouté en tant que membre du dahira par l'administrateur du dahira si ce dernier est crée et enregistre dans l'app. Vous pouvez trouver le contact d'un dahira facilement en navigant sur le menu puis tous les dahira ou bien rechercher le dahira en entrant son nom puis l'appeler directement via l'application."</string>
@@ -127,4 +132,139 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="login_with_email">Cliquez ici pour se connecter avec votre adresse email</string>
+    <string name="retour_a_la_page_precedente">Retour a la page precedente</string>
+    <string name="patientez_svp">Patientez SVP …</string>
+    <string name="titre_du_song">Titre du song</string>
+    <string name="selectioner_un_song">Selectioner un song</string>
+    <string name="aucun_fichier_selectionn">Aucun fichier selectionné</string>
+    <string name="enregistrer">Enregistrer</string>
+    <string name="save">Enregistrer</string>
+    <string name="photo_profil">Photo profil</string>
+    <string name="logo_dahira">logo dahira</string>
+    <string name="photo">photo</string>
+    <string name="password">Mot de pass</string>
+    <string name="login">Se connecter</string>
+    <string name="envoyer_votre_annonce">Envoyer Votre Annonce</string>
+    <string name="annuler_votre_annonce">Annuler Votre Annonce</string>
+    <string name="entrez_votre_numero_de_telephone_pour_se_connecter_ou_s_inscrire">Entrez votre numero de telephone pour se connecter ou s\'inscrire</string>
+    <string name="telephone">Telephone</string>
+    <string name="continuer">CONTINUER</string>
+    <string name="pays">Pays</string>
+    <string name="region_ville">Region/Ville</string>
+    <string name="senegal">Senegal</string>
+    <string name="completer_votre_profil_pour_terminer">Completer votre profil pour terminer</string>
+    <string name="_00">00</string>
+    <string name="terminer_la_creation_de_mon_dahira">Terminer la creation de mon dahira</string>
+    <string name="telephone_exemple" tools:ignore="Typos">Telephone (EX: +221771866656)</string>
+    <string name="textview_title_verify_photo">Entrez le code de confirmation qui vous a ete envoye</string>
+    <string name="textview_title_input_code">Enter le code ici</string>
+    <string name="reenvoyer_le_code">REENVOYER LE CODE</string>
+    <string name="name_search">Nom</string>
+    <string name="textview_ou">OU</string>
+    <string name="filename_type">Filename.type</string>
+    <string name="khidmatoul_khadim">Khidmatoul Khadim</string>
+    <string name="dieuwrine_name">Dieuwrine: Serigne Bassirou Ndiaye</string>
+    <string name="example_771866656">771866656</string>
+    <string name="example_address">Parcelles Assainies Unite 05</string>
+    <string name="example_nbr_members">100 membres inscris</string>
+    <string name="jambaar">Jambaar</string>
+    <string name="example_name">Nom: Cheikh Fall</string>
+    <string name="administrateur">Administrateur</string>
+    <string name="song_title">Titre de la chanson</string>
+    <string name="artiste">Artiste</string>
+    <string name="_3_05">3:05</string>
+    <string name="cheikh_fall">Cheikh Fall</string>
+    <string name="time">time</string>
+    <string name="tapez_votre_annonce_ici">Tapez votre annonce ici</string>
+    <string name="enregistrer_annonce">Enregistrer annonce</string>
+    <string name="titre_de_votre_evenement">Titre de votre evenement</string>
+    <string name="lieu">Lieu</string>
+    <string name="heure_debut">Heure debut</string>
+    <string name="heure_fin">Heure fin</string>
+    <string name="tapez_votre_text_ici">Tapez votre text ici</string>
+    <string name="enregistrer_evenement">Enregistrer evenement</string>
+    <string name="label_depense">Label depense</string>
+    <string name="prix_total">Prix total</string>
+    <string name="title_radio_button">Ou est ce que tu veux deduire ce montant?</string>
+    <string name="adiya_radio">Adiya</string>
+    <string name="sass_radio">Sass</string>
+    <string name="social_radio">Social</string>
+    <string name="enregistrer_cette_depense">Enregistrer cette depense</string>
+    <string name="textview_delete_instruction">Glissez une annonce vers la gauche pour la supprimer.</string>
+    <string name="heure_debut_">Heure Debut:</string>
+    <string name="start_time">Start time</string>
+    <string name="heure_fin_">Heure Fin:</string>
+    <string name="end_time">End time</string>
+    <string name="evenement_1_enregistre_par">Evenement 1: enregistre par</string>
+    <string name="date">Date</string>
+    <string name="price">Price</string>
+    <string name="type_of_expense">Type of expense</string>
+    <string name="enregistre_par">Enregistre par</string>
+    <string name="montant_cotisation">Montant cotisation</string>
+    <string name="_2_inscription_et_connexion">2 - Inscription et Connexion:</string>
+    <string name="intruction_tilte">Si vous avez des questions, des remarques ou des suggetions, envoyez un message vocal WhatSapp a Cheikh Mbacke Fall sur   +1 (320) 803–0902</string>
+    <string name="intructions">Intructions</string>
+    <string name="instruction_video">Cliquez ici   pour voir les instructions en video</string>
+    <string name="_1_utiliser_l_app_sans_se_connecter">1 - Utiliser l\'app sans se connecter:</string>
+    <string name="_3_creer_un_dahira">3 - Creer un Dahira:</string>
+    <string name="_4_ajouter_un_membre_dans_votre_dahira_dahira">4 - Ajouter un membre dans votre dahira Dahira:</string>
+    <string name="_5_Designer_un_admin">5 - Designer un membre comme administrateur ou modifier ses donnees (supprimer le membre ou l\'attribuer a une commission):</string>
+    <string name="_6_enregister_une_cotisation">6 - Enregister une cotisation (Adiya, Sass ou Social) pour un membre:</string>
+    <string name="_7_enregister_depenses_evenements_photos_ou_audios">7 - Enregister depenses, evenements, photos ou audios:</string>
+    <string name="_8_envoyer_une_annonce">8 - Envoyer une annonce:</string>
+    <string name="_9_autres_fonctionnalitees">9 - Autres fonctionnalitees:</string>
+    <string name="_10_modifier_ou_se_desabonner_d_un_dahira">10 - Modifier ou Se Desabonner d\'un dahira:</string>
+    <string name="enregistrement_vos_photos">Enregistrement vos photos</string>
+    <string name="enregistrement_vos_listsong">Enregistrement vos listSong</string>
+    <string name="suivant">Suivant</string>
+    <string name="date_de_l_evenement">Date de l\'evenement</string>
+    <string name="info">Info</string>
+    <string name="profile">Profile</string>
+    <string name="audios">Audios</string>
+    <string name="khassida_pdf">Khassida PDF</string>
+    <string name="quran">Quran</string>
+    <string name="fonctionnement_de_l_application_en_details">Fonctionnement de l\'application en details</string>
+    <string name="list_des_adiya_verses">List des adiya verses</string>
+    <string name="montant_adiya">Montant Adiya</string>
+    <string name="magal_touba_2019">Magal Touba 2019</string>
+    <string name="ahlou_minane">Ahlou Minane</string>
+    <string name="radiass">Radiass</string>
+    <string name="serigne_moussa_ka">Serigne Moussa Ka</string>
+    <string name="serigne_mbaye_diakhate">Serigne Mbaye Diakhate</string>
+    <string name="mixed_wolofal">Mixed Wolofal</string>
+    <string name="hizbu_tarqiyya">Hizbu Tarqiyya</string>
+    <string name="hizbu_tarqiyya_darou_khoudouss">Hizbu Tarqiyya Darou Khoudouss</string>
+    <string name="accueil">Accueil</string>
+    <string name="voir_les_membres">Voir les membres</string>
+    <string name="ajouter_un_nouveau_membre">Ajouter un nouveau membre</string>
+    <string name="mes_dahira">Mes dahira</string>
+    <string name="tous_les_dahiras">Tous les dahiras</string>
+    <string name="creer_un_nouveau_dahira">Creer un nouveau dahira</string>
+    <string name="ajouter_une_annonce">Ajouter une annonce</string>
+    <string name="voir_les_annonces">Voir les annonces</string>
+    <string name="ajouter_un_evenement">Ajouter un evenement</string>
+    <string name="voir_les_evenements">Voir les evenements</string>
+    <string name="voir_tous_les_evenements_de_dakar">Voir tous les evenements de Dakar</string>
+    <string name="repertoire">Repertoire</string>
+    <string name="photos_item">Photos</string>
+    <string name="audio">Audio</string>
+    <string name="videos">Videos</string>
+    <string name="contact">Contact</string>
+    <string name="appeler_ce_dahira">Appeler ce dahira</string>
+    <string name="appeler_ce_membre">Appeler ce membre</string>
+    <string name="mon_compte">Mon compte</string>
+    <string name="paramettres">Paramettres</string>
+    <string name="quitter_ce_dahira">Quitter ce dahira</string>
+    <string name="se_deconnecter">Se deconnecter</string>
+    <string name="jotaayou_mouride">Jotaayou Mouride</string>
+    <string name="developpe_par_cheikh_mbacke_fall">Developpe par Cheikh Mbacke Fall</string>
+    <string name="announcement">Announcement</string>
+    <string name="title">Title</string>
+    <string name="note">Note</string>
+    <string name="location">Location</string>
+    <string name="faites_une_appuie_longue_sur_un_song_pour_le_telecharger">Faites une appuie longue sur un song pour le telecharger</string>
+    <string name="se_connecter">Se connecter</string>
+    <string name="rechercher_un_dahira">Rechercher un dahira</string>
+    <string name="rechercher_un_membre">Rechercher un membre</string>
+    <string name="instructions">Instructions</string>
 </resources>

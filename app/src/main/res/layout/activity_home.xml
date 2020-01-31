@@ -11,7 +11,8 @@
     <RelativeLayout
         android:id="@+id/relativeLayout_data"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        tools:ignore="DuplicateIncludedIds">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -57,30 +58,27 @@
                 <com.google.android.material.tabs.TabItem
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Info" />
+                    android:text="@string/info" />
 
                 <com.google.android.material.tabs.TabItem
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Profile" />
+                    android:text="@string/profile" />
 
                 <com.google.android.material.tabs.TabItem
-                    android:id="@+id/tab_kourel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Audios" />
+                    android:text="@string/audios" />
 
                 <com.google.android.material.tabs.TabItem
-                    android:id="@+id/tab_wolofal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Khassida PDF" />
+                    android:text="@string/khassida_pdf" />
 
                 <com.google.android.material.tabs.TabItem
-                    android:id="@+id/tab_quran"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Quran" />
+                    android:text="@string/quran" />
 
             </com.google.android.material.tabs.TabLayout>
 
@@ -102,7 +100,7 @@
             android:layout_marginBottom="@dimen/_10sdp"
             ads:adSize="BANNER"
             ads:adUnitId="@string/banner_unit_id"
-            tools:ignore="UnknownIdInLayout" />
+            tools:ignore="DuplicateIncludedIds,UnknownIdInLayout" />
 
         <include
             android:id="@+id/toolbar"
@@ -126,7 +124,7 @@
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:textColor="@color/black"
-            android:text="Patientez SVP ..."
+            android:text="@string/patientez_svp"
             android:textSize="@dimen/_20sdp" />
 
         <ProgressBar

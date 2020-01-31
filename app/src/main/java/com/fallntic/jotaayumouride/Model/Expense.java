@@ -1,7 +1,8 @@
-package com.fallntic.jotaayumouride.Model;
+package com.fallntic.jotaayumouride.model;
 
 import java.io.Serializable;
 
+@SuppressWarnings("unused")
 public class Expense implements Serializable {
 
     private String expenseID;
@@ -50,6 +51,10 @@ public class Expense implements Serializable {
 
     public String getNote() {
         return note;
+    }
+
+    public void setExpenseID(String expenseID) {
+        this.expenseID = expenseID;
     }
 
     public void setNote(String note) {

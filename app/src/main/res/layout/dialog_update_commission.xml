@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -7,10 +8,10 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
         android:orientation="vertical"
         android:paddingLeft="15dp"
-        android:paddingRight="15dp">
+        android:paddingRight="15dp"
+        tools:ignore="UselessParent">
 
         <EditText
             android:id="@+id/editText_dialogCommission"
@@ -19,6 +20,7 @@
             android:fontFamily="sans-serif"
             android:hint="@string/commission"
             android:inputType="text"
+            android:importantForAutofill="no"
             android:paddingBottom="15dp" />
 
         <EditText
@@ -28,7 +30,8 @@
             android:fontFamily="sans-serif"
             android:hint="@string/responsible"
             android:inputType="text"
-            android:paddingBottom="15dp"/>
+            android:importantForAutofill="no"
+            android:paddingBottom="15dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -44,11 +47,11 @@
                 android:layout_weight="0.5"
                 android:text="@string/btn_deleteCommission"
                 android:textAllCaps="false"
-                android:layout_centerHorizontal="true"
                 android:background="@drawable/rounded_button_cancel"
                 android:padding="@dimen/_10sdp"
                 android:textColor="@color/white"
-                android:textSize="@dimen/_15sdp" />
+                android:textSize="@dimen/_15sdp"
+                tools:ignore="ButtonStyle" />
 
             <Button
                 android:id="@+id/button_dialogUpdate"
@@ -58,11 +61,11 @@
                 android:layout_weight="0.5"
                 android:text="@string/btn_updateCommission"
                 android:textAllCaps="false"
-                android:layout_centerHorizontal="true"
                 android:background="@drawable/rounded_button_solid"
                 android:padding="@dimen/_10sdp"
                 android:textColor="@color/white"
-                android:textSize="@dimen/_15sdp" />
+                android:textSize="@dimen/_15sdp"
+                tools:ignore="ButtonStyle" />
 
         </LinearLayout>
 

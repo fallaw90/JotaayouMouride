@@ -1,12 +1,14 @@
 package com.fallntic.jotaayumouride;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -16,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,73 +27,76 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.fallntic.jotaayumouride.Model.Adiya;
-import com.fallntic.jotaayumouride.Model.Sass;
-import com.fallntic.jotaayumouride.Model.Social;
-import com.fallntic.jotaayumouride.Model.User;
+import com.fallntic.jotaayumouride.model.Adiya;
+import com.fallntic.jotaayumouride.model.Sass;
+import com.fallntic.jotaayumouride.model.Social;
+import com.fallntic.jotaayumouride.model.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.mikelau.countrypickerx.Country;
 import com.mikelau.countrypickerx.CountryPickerCallbacks;
 import com.mikelau.countrypickerx.CountryPickerDialog;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.createNewCollection;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.saveProfileImage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.userID;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.createNewCollection;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.userID;
 
+@SuppressWarnings("ALL")
 public class SignUpPhoneActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "SignUpActivity";
     private final int PICK_IMAGE_REQUEST = 71;
     private String userName;
-    private String userAddress, country, city, imageUri;
+    private final List<String> listSass = new ArrayList<String>();
+    private final List<String> listRoles = new ArrayList<String>();
     private ImageView imageView;
     private EditText editTextCountry;
     private EditText editTextCity;
     private EditText editTextUserName;
     private EditText editTextUserAddress;
-    private List<String> listSass = new ArrayList<String>();
-    private List<String> listRoles = new ArrayList<String>();
-    private List<String> listAdiya = new ArrayList<String>();
-    private List<String> listSocial = new ArrayList<String>();
-    private List<String> listDahiraID = new ArrayList<String>();
-    private List<String> listCommissions = new ArrayList<String>();
-    private List<String> listUpdatedDahiraID = new ArrayList<String>();
-    private Uri uri;
+    private final List<String> listAdiya = new ArrayList<String>();
+    private final List<String> listSocial = new ArrayList<String>();
+    private final List<String> listDahiraID = new ArrayList<String>();
+    private final List<String> listCommissions = new ArrayList<String>();
+    private final List<String> listUpdatedDahiraID = new ArrayList<String>();
+    private String userAddress;
+    private String imageUri;
     private boolean imageSaved = true, userSaved = true;
-
-    private ProgressDialog progressDialog;
 
     private FirebaseUser firebaseUser;
 
-    //Firebase
-    private FirebaseStorage firebaseStorage;
     private StorageReference storageReference;
-    private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
     private CountryPickerDialog countryPicker;
 
-    private UploadTask uploadTask;
     private Uri fileUri = null;
+    private byte[] uploadBytes;
+    private double mProgress = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,15 +115,16 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
         initViews();
 
         //Initialize Firestore object
-        mAuth = FirebaseAuth.getInstance();
-        userID = mAuth.getCurrentUser().getUid();
-        firebaseUser = mAuth.getCurrentUser();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        userID = auth.getCurrentUser().getUid();
+        firebaseUser = auth.getCurrentUser();
 
         db = FirebaseFirestore.getInstance();
-        firebaseStorage = FirebaseStorage.getInstance();
+        //Firebase
+        FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
 
-        progressDialog = new ProgressDialog(this);
+        ProgressDialog progressDialog = new ProgressDialog(this);
 
     }
 
@@ -133,6 +140,14 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
         findViewById(R.id.button_signUp).setOnClickListener(this);
         findViewById(R.id.imageView).setOnClickListener(this);
         findViewById(R.id.editText_country).setOnClickListener(this);
+
+        initViewsProgressBar();
+    }
+
+    private void initViewsProgressBar() {
+        relativeLayoutData = findViewById(R.id.relativeLayout_data);
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
     }
 
     @Override
@@ -154,24 +169,11 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
                 getCountry();
                 break;
             case R.id.button_signUp:
-                registration();
+                registerUser(fileUri);
                 break;
             case R.id.button_back:
                 finish();
                 break;
-        }
-    }
-
-    private void registration() {
-        //Info user
-        userName = editTextUserName.getText().toString().trim();
-        userAddress = editTextUserAddress.getText().toString().trim();
-        country = editTextCountry.getText().toString().trim();
-        city = editTextCity.getText().toString().trim();
-
-        if (!hasValidationErrors(userName, userAddress, city)) {
-            userAddress = userAddress.concat("\n" + city + ", " + country);
-            saveUser();
         }
     }
 
@@ -188,7 +190,6 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
         if (requestCode == 101 && resultCode == RESULT_OK && data.getData() != null) {
 
             fileUri = data.getData();
-
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), fileUri);
                 imageView.setImageBitmap(bitmap);
@@ -198,45 +199,23 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    private void uploadImage() {
-        final StorageReference fileToUpload = storageReference
-                .child("profileImage").child(onlineUser.getUserID());
-        uploadTask = (UploadTask) fileToUpload.putFile(fileUri)
-                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        fileToUpload.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                            @Override
-                            public void onSuccess(Uri uri) {
-                                saveProfileImage(SignUpPhoneActivity.this, uri.toString());
-                            }
-                        });
-                    }
-                });
-    }
-
-    private void saveUser() {
-        String token_id = FirebaseInstanceId.getInstance().getToken();
-        onlineUser = new User(userID, userName, firebaseUser.getPhoneNumber(), "", userAddress, token_id, imageUri, listDahiraID,
-                listUpdatedDahiraID, listCommissions, listAdiya, listSass, listSocial, listRoles);
-
-        showProgressDialog(this, "Enregistrement de vos informations personnelles cours ...");
+    private void saveUserToFireStore() {
         //Save user in firestore database
+        showProgressBar();
         db.collection("users").document(onlineUser.getUserID()).set(onlineUser)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                        hideProgressBar();
                         if (fileUri != null)
-                            uploadImage();
-                        dismissProgressDialog();
-                        setAllNewCollection();
+                            setAllNewCollection();
                         startActivity(new Intent(SignUpPhoneActivity.this, HomeActivity.class));
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        dismissProgressDialog();
+                        hideProgressBar();
                         userSaved = false;
                         toastMessage(getApplicationContext(), "Error adding user!");
                         Log.d(TAG, e.toString());
@@ -249,11 +228,14 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
         if (onlineUser.getUserID() != null)
             userID = onlineUser.getUserID();
 
+        showProgressBar();
+
         db.collection("listAdiya").document(userID).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (!documentSnapshot.exists()) {
+                            hideProgressBar();
                             initAllCollections();
                             Log.d(TAG, "Collections (Adiya, Sass and Social) created!");
                         } else {
@@ -264,7 +246,7 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        dismissProgressDialog();
+                        hideProgressBar();
                         Log.d(TAG, "Error creating collections Adiya, Sass and Social!");
                         Log.d(TAG, e.toString());
                     }
@@ -367,5 +349,128 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
         }
         finish();
         return true;
+    }
+
+    private void registerUser(Uri imagePath) {
+        Log.d(TAG, "uploadNewPhoto: uploading a new image uri to storage.");
+
+        //Info user
+        userName = editTextUserName.getText().toString().trim();
+        userAddress = editTextUserAddress.getText().toString().trim();
+        String country = editTextCountry.getText().toString().trim();
+        String city = editTextCity.getText().toString().trim();
+
+        if (fileUri != null)
+            imageUri = fileUri.toString();
+        else
+            imageUri = "";
+
+        if (!hasValidationErrors(userName, userAddress, city)) {
+            userAddress = userAddress.concat("\n" + city + ", " + country);
+            String token_id = FirebaseInstanceId.getInstance().getToken();
+            onlineUser = new User(userID, userName, firebaseUser.getPhoneNumber(), "", userAddress, token_id, imageUri, listDahiraID,
+                    listUpdatedDahiraID, listCommissions, listAdiya, listSass, listSocial, listRoles);
+
+            if (fileUri != null) {
+                BackgroundImageResize resize = new BackgroundImageResize(null);
+                resize.execute(imagePath);
+            } else {
+                saveUserToFireStore();
+            }
+        }
+    }
+
+    public byte[] getBytesFromBitmap(Bitmap bitmap, int quality) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, stream);
+        return stream.toByteArray();
+    }
+
+    private void executeUploadTask() {
+        showProgressBar();
+        Toast.makeText(SignUpPhoneActivity.this, "uploading image", Toast.LENGTH_SHORT).show();
+        //************************************************************************************************
+        final String imageName = onlineUser.getUserName() + " " + onlineUser.getUserID();
+        final StorageReference storageReference = FirebaseStorage.getInstance().getReference()
+                .child("profileImage/" + imageName);
+
+        final UploadTask uploadTask = storageReference.putBytes(uploadBytes);
+        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                if (taskSnapshot.getMetadata() != null) {
+                    if (taskSnapshot.getMetadata().getReference() != null) {
+                        Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
+                        result.addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                hideProgressBar();
+                                Toast.makeText(SignUpPhoneActivity.this, "Post Success", Toast.LENGTH_SHORT).show();
+                                saveUserToFireStore();
+                            }
+                        });
+                    }
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                hideProgressBar();
+                Toast.makeText(SignUpPhoneActivity.this, "could not upload photo", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
+                double currentProgress = (100 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                if (currentProgress > (mProgress + 15)) {
+                    mProgress = (100 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                    Log.d(TAG, "onProgress: upload is " + mProgress + "& done");
+                    Toast.makeText(SignUpPhoneActivity.this, mProgress + "%", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    //*********************************** Resize and upload Image ********************************************
+    @SuppressLint("StaticFieldLeak")
+    public class BackgroundImageResize extends AsyncTask<Uri, Integer, byte[]> {
+        Bitmap mBitmap;
+
+        public BackgroundImageResize(Bitmap bitmap) {
+            if (bitmap != null) {
+                this.mBitmap = bitmap;
+            }
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            Toast.makeText(SignUpPhoneActivity.this, "compressing image", Toast.LENGTH_SHORT).show();
+            showProgressBar();
+        }
+
+        @Override
+        protected byte[] doInBackground(Uri... params) {
+            Log.d(TAG, "doInBackground: started.");
+
+            if (mBitmap == null) {
+                try {
+                    mBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), params[0]);
+                } catch (IOException e) {
+                    Log.e(TAG, "doInBackground: IOException: " + e.getMessage());
+                }
+            }
+            byte[] bytes = null;
+            bytes = getBytesFromBitmap(mBitmap, 15);
+            return bytes;
+        }
+
+        @Override
+        protected void onPostExecute(byte[] bytes) {
+            super.onPostExecute(bytes);
+            uploadBytes = bytes;
+            hideProgressBar();
+            executeUploadTask();
+        }
     }
 }

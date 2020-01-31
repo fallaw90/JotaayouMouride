@@ -1,5 +1,6 @@
 package com.fallntic.jotaayumouride;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -19,93 +20,92 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.fallntic.jotaayumouride.Model.ObjNotification;
-import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
+import com.fallntic.jotaayumouride.model.ObjNotification;
+import com.fallntic.jotaayumouride.utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Notifications.FirebaseNotificationHelper.sendNotification;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getCurrentDate;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getDate;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.isDouble;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.updateDocument;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.adiya;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.boolAddToDahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.indexSelectedUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.objNotification;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.sass;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.selectedUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.social;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.typeOfContribution;
+import static com.fallntic.jotaayumouride.notifications.FirebaseNotificationHelper.sendNotification;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.getCurrentDate;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.getDate;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.isDouble;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showAlertDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showProgressDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.updateDocument;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.adiya;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.boolAddToDahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.indexSelectedUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.objNotification;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.sass;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.selectedUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.social;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.typeOfContribution;
 
 public class AddContributionActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "AddContributionActivity";
 
-    private TextView textViewTitle;
     private EditText editTextDate;
     private EditText editTextAmount;
     private RadioGroup radioGroup;
-    private RadioButton radioButton;
     private String mDate = getCurrentDate();
-    private String amount;
-    private String token;
 
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_contribution);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        //toolbar.setLogo(R.mipmap.logo);
-        setSupportActionBar(toolbar);
-
-        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.logo);
-
-        checkInternetConnection(this);
-
-        initViews();
-
-        hideSoftKeyboard();
-
-        HomeActivity.loadBannerAd(this, this);
-    }
-
-    public static void saveContribution(final Context context, final String value, final String mDate) {
+    private static void saveContribution(final Context context, final String value, final String mDate) {
 
         String notification_message = "Une somme de " + value + " a ete ajoute dans votre " + "compte " + typeOfContribution + " par " + onlineUser.getUserName();
 
-        if (typeOfContribution.equals("adiya")) {
-            adiya.getListDahiraID().add(dahira.getDahiraID());
-            adiya.getListUserName().add(onlineUser.getUserName());
-            adiya.getListAdiya().add(value);
-            adiya.getListDate().add(mDate);
-            uploadContribution(context, "adiya", adiya, notification_message);
-        } else if (typeOfContribution.equals("sass")) {
-            sass.getListDahiraID().add(dahira.getDahiraID());
-            sass.getListSass().add(value);
-            sass.getListDate().add(mDate);
-            sass.getListUserName().add(onlineUser.getUserName());
-            uploadContribution(context, "sass", sass, notification_message);
-        } else if (typeOfContribution.equals("social")) {
-            social.getListSocial().add(value);
-            social.getListDahiraID().add(dahira.getDahiraID());
-            social.getListDate().add(mDate);
-            social.getListUserName().add(onlineUser.getUserName());
-            uploadContribution(context, "social", social, notification_message);
+        switch (typeOfContribution) {
+            case "adiya":
+                adiya.getListDahiraID().add(dahira.getDahiraID());
+                adiya.getListUserName().add(onlineUser.getUserName());
+                adiya.getListAdiya().add(value);
+                adiya.getListDate().add(mDate);
+                uploadContribution(context, "adiya", adiya, notification_message);
+                break;
+            case "sass":
+                sass.getListDahiraID().add(dahira.getDahiraID());
+                sass.getListSass().add(value);
+                sass.getListDate().add(mDate);
+                sass.getListUserName().add(onlineUser.getUserName());
+                uploadContribution(context, "sass", sass, notification_message);
+                break;
+            case "social":
+                social.getListSocial().add(value);
+                social.getListDahiraID().add(dahira.getDahiraID());
+                social.getListDate().add(mDate);
+                social.getListUserName().add(onlineUser.getUserName());
+                uploadContribution(context, "social", social, notification_message);
+                break;
         }
 
+    }
+
+    private static void uploadContribution(final Context context, final String collectionName, Object data, final String notification_message) {
+        showProgressDialog(context, "Enregistrement " + collectionName + " en cours ...");
+        FirebaseFirestore.getInstance().collection(collectionName).document(selectedUser.getUserID())
+                .set(data)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        notifyUser(notification_message);
+                        final Intent intent = new Intent(context, ShowContributionActivity.class);
+                        showAlertDialog(context, typeOfContribution + " ajoute avec succe!", intent);
+                        Log.d(TAG, "New collection " + collectionName + " set successfully");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "Error initContributions function line 351");
+                    }
+                });
     }
 
     @Override
@@ -125,11 +125,6 @@ public class AddContributionActivity extends AppCompatActivity implements View.O
                 finish();
                 break;
         }
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
     }
 
     @Override
@@ -157,34 +152,35 @@ public class AddContributionActivity extends AppCompatActivity implements View.O
         }
     }
 
-    public static void uploadContribution(final Context context, final String collectionName, Object data, final String notification_message) {
-        showProgressDialog(context, "Enregistrement " + collectionName + " en cours ...");
-        FirebaseFirestore.getInstance().collection(collectionName).document(selectedUser.getUserID())
-                .set(data)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        notifyUser(context, notification_message);
-                        final Intent intent = new Intent(context, ShowContributionActivity.class);
-                        showAlertDialog(context, typeOfContribution + " ajoute avec succe!", intent);
-                        Log.d(TAG, "New collection " + collectionName + " set successfully");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "Error initContributions function line 351");
-                    }
-                });
-    }
-
-    static void notifyUser(Context context, String notification_message) {
+    static void notifyUser(String notification_message) {
         String notificationID = System.currentTimeMillis() + "";
         objNotification = new ObjNotification(notificationID,
                 selectedUser.getUserID(), dahira.getDahiraID(),
                 MyStaticVariables.TITLE_CONTRIBUTION_NOTIFICATION, notification_message);
 
-        sendNotification(context, selectedUser, objNotification);
+        sendNotification(selectedUser, objNotification);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_add_contribution);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        //toolbar.setLogo(R.mipmap.logo);
+        setSupportActionBar(toolbar);
+
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.logo);
+
+        checkInternetConnection(this);
+
+        initViews();
+
+        hideSoftKeyboard();
+
+        HomeActivity.loadBannerAd(this);
     }
 
     @Override
@@ -221,8 +217,9 @@ public class AddContributionActivity extends AppCompatActivity implements View.O
         return true;
     }
 
+    @SuppressLint("SetTextI18n")
     private void initViews() {
-        textViewTitle = findViewById(R.id.textView_title);
+        TextView textViewTitle = findViewById(R.id.textView_title);
         editTextDate = findViewById(R.id.editText_date);
         editTextAmount = findViewById(R.id.editText_amount);
         radioGroup = findViewById(R.id.radioGroup);
@@ -235,48 +232,52 @@ public class AddContributionActivity extends AppCompatActivity implements View.O
         findViewById(R.id.button_cancel).setOnClickListener(this);
     }
 
-    public void addContribution() {
+    private void addContribution() {
         mDate = editTextDate.getText().toString().trim();
-        amount = editTextAmount.getText().toString().trim();
+        String amount = editTextAmount.getText().toString().trim();
         amount = amount.replace(",", ".");
         // get selected radio button from radioGroup
         int selectedId = radioGroup.getCheckedRadioButtonId();
         // find the radiobutton by returned id
-        radioButton = findViewById(selectedId);
+        RadioButton radioButton = findViewById(selectedId);
         typeOfContribution = (String) radioButton.getText();
 
         double totalAmountUser, totalAmountDahira;
 
         if (!hasValidationErrors(amount, editTextAmount)) {
 
-            if (typeOfContribution.equals("adiya")) {
-                totalAmountDahira = Double.parseDouble(dahira.getTotalAdiya()) + Double.parseDouble(amount);
-                dahira.setTotalAdiya(Double.toString(totalAmountDahira));
-                updateDocument(this, "dahiras", dahira.getDahiraID(), "totalAdiya", dahira.getTotalAdiya());
+            switch (typeOfContribution) {
+                case "adiya":
+                    totalAmountDahira = Double.parseDouble(dahira.getTotalAdiya()) + Double.parseDouble(amount);
+                    dahira.setTotalAdiya(Double.toString(totalAmountDahira));
+                    updateDocument(this, "dahiras", dahira.getDahiraID(), "totalAdiya", dahira.getTotalAdiya());
 
-                //Update totalAdiya user
-                totalAmountUser = Double.parseDouble(selectedUser.getListAdiya().get(indexSelectedUser)) + Double.parseDouble(amount);
-                selectedUser.getListAdiya().set(indexSelectedUser, Double.toString(totalAmountUser));
-                updateDocument(this, "users", selectedUser.getUserID(), "listAdiya", selectedUser.getListAdiya());
-            } else if (typeOfContribution.equals("sass")) {
+                    //Update totalAdiya user
+                    totalAmountUser = Double.parseDouble(selectedUser.getListAdiya().get(indexSelectedUser)) + Double.parseDouble(amount);
+                    selectedUser.getListAdiya().set(indexSelectedUser, Double.toString(totalAmountUser));
+                    updateDocument(this, "users", selectedUser.getUserID(), "listAdiya", selectedUser.getListAdiya());
+                    break;
+                case "sass":
 
-                totalAmountDahira = Double.parseDouble(dahira.getTotalSass()) + Double.parseDouble(amount);
-                dahira.setTotalSass(Double.toString(totalAmountDahira));
-                updateDocument(this, "dahiras", dahira.getDahiraID(), "totalSass", dahira.getTotalSass());
+                    totalAmountDahira = Double.parseDouble(dahira.getTotalSass()) + Double.parseDouble(amount);
+                    dahira.setTotalSass(Double.toString(totalAmountDahira));
+                    updateDocument(this, "dahiras", dahira.getDahiraID(), "totalSass", dahira.getTotalSass());
 
-                //Update totalSass user
-                totalAmountUser = Double.parseDouble(selectedUser.getListSass().get(indexSelectedUser)) + Double.parseDouble(amount);
-                selectedUser.getListSass().set(indexSelectedUser, Double.toString(totalAmountUser));
-                updateDocument(this, "users", selectedUser.getUserID(), "listSass", selectedUser.getListSass());
-            } else if (typeOfContribution.equals("social")) {
-                totalAmountDahira = Double.parseDouble(dahira.getTotalSocial()) + Double.parseDouble(amount);
-                dahira.setTotalSocial(Double.toString(totalAmountDahira));
-                updateDocument(this, "dahiras", dahira.getDahiraID(), "totalSocial", dahira.getTotalSocial());
+                    //Update totalSass user
+                    totalAmountUser = Double.parseDouble(selectedUser.getListSass().get(indexSelectedUser)) + Double.parseDouble(amount);
+                    selectedUser.getListSass().set(indexSelectedUser, Double.toString(totalAmountUser));
+                    updateDocument(this, "users", selectedUser.getUserID(), "listSass", selectedUser.getListSass());
+                    break;
+                case "social":
+                    totalAmountDahira = Double.parseDouble(dahira.getTotalSocial()) + Double.parseDouble(amount);
+                    dahira.setTotalSocial(Double.toString(totalAmountDahira));
+                    updateDocument(this, "dahiras", dahira.getDahiraID(), "totalSocial", dahira.getTotalSocial());
 
-                //Update totalSocial user
-                totalAmountUser = Double.parseDouble(selectedUser.getListSocial().get(indexSelectedUser)) + Double.parseDouble(amount);
-                selectedUser.getListSocial().set(indexSelectedUser, Double.toString(totalAmountUser));
-                updateDocument(this, "users", selectedUser.getUserID(), "listSocial", selectedUser.getListSocial());
+                    //Update totalSocial user
+                    totalAmountUser = Double.parseDouble(selectedUser.getListSocial().get(indexSelectedUser)) + Double.parseDouble(amount);
+                    selectedUser.getListSocial().set(indexSelectedUser, Double.toString(totalAmountUser));
+                    updateDocument(this, "users", selectedUser.getUserID(), "listSocial", selectedUser.getListSocial());
+                    break;
             }
 
             saveContribution(AddContributionActivity.this, amount, mDate);
@@ -286,7 +287,7 @@ public class AddContributionActivity extends AppCompatActivity implements View.O
 
     private boolean hasValidationErrors(String value, EditText editTextValue) {
 
-        if (value.isEmpty() || !isDouble(value)) {
+        if (value.isEmpty() || isDouble(value)) {
             editTextValue.setError("Valeur incorrect!");
             editTextValue.requestFocus();
             return true;
@@ -295,7 +296,7 @@ public class AddContributionActivity extends AppCompatActivity implements View.O
         return false;
     }
 
-    public void hideSoftKeyboard() {
+    private void hideSoftKeyboard() {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 }

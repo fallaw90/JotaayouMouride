@@ -1,4 +1,4 @@
-package com.fallntic.jotaayumouride.Fragments;
+package com.fallntic.jotaayumouride.fragments;
 
 
 import android.os.Bundle;
@@ -12,9 +12,9 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fallntic.jotaayumouride.Adapter.PubImageAdapter;
-import com.fallntic.jotaayumouride.Model.PubImage;
 import com.fallntic.jotaayumouride.R;
+import com.fallntic.jotaayumouride.adapter.PubImageAdapter;
+import com.fallntic.jotaayumouride.model.PubImage;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -24,16 +24,15 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listPubImage;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listPubImage;
 
 public class PubFragment extends Fragment {
 
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-
     private RecyclerView recyclerViewPubImage;
     private View view;
+
+    private FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
     public PubFragment() {
         // Required empty public constructor
@@ -46,6 +45,8 @@ public class PubFragment extends Fragment {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_pub, container, false);
 
+        recyclerViewPubImage = view.findViewById(R.id.recyclerview_pub);
+
         return view;
     }
 
@@ -54,6 +55,8 @@ public class PubFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         recyclerViewPubImage = view.findViewById(R.id.recyclerview_pub);
+
+        firestore = FirebaseFirestore.getInstance();
 
         getListPubImage();
 
@@ -72,8 +75,7 @@ public class PubFragment extends Fragment {
     }
 
     private void getListPubImage() {
-        if (listPubImage == null || listPubImage.size() <= 0) {
-
+        if (firestore != null && listPubImage == null || listPubImage.size() <= 0) {
             listPubImage = new ArrayList<>();
             firestore.collection("advertisements").document("my_ads").collection("image_ads").get()
                     .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {

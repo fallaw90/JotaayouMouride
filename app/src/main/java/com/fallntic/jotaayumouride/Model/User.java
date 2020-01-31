@@ -1,9 +1,10 @@
-package com.fallntic.jotaayumouride.Model;
+package com.fallntic.jotaayumouride.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class User implements Serializable, Comparable<User> {
 
     private String userID;
@@ -14,13 +15,13 @@ public class User implements Serializable, Comparable<User> {
     private String tokenID;
     private String imageUri;
     private boolean paid;
-    private List<String> listDahiraID = new ArrayList<String>();
-    private List<String> listUpdatedDahiraID = new ArrayList<String>();
-    private List<String> listCommissions = new ArrayList<String>();
-    private List<String> listAdiya = new ArrayList<String>();
-    private List<String> listSass = new ArrayList<String>();
-    private List<String> listSocial = new ArrayList<String>();
-    private List<String> listRoles = new ArrayList<String>();
+    private List<String> listDahiraID = new ArrayList<>();
+    private List<String> listUpdatedDahiraID = new ArrayList<>();
+    private List<String> listCommissions = new ArrayList<>();
+    private List<String> listAdiya = new ArrayList<>();
+    private List<String> listSass = new ArrayList<>();
+    private List<String> listSocial = new ArrayList<>();
+    private List<String> listRoles = new ArrayList<>();
 
     public User(String userID, String userName, String userPhoneNumber, String email,
                 String address, String tokenID, String imageUri, List<String> listDahiraID,
@@ -178,5 +179,9 @@ public class User implements Serializable, Comparable<User> {
     @Override
     public int compareTo(User user) {
         return this.userName.compareToIgnoreCase(user.getUserName());
+    }
+
+    public boolean isPaid() {
+        return paid;
     }
 }

@@ -1,11 +1,13 @@
 package com.fallntic.jotaayumouride;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -17,14 +19,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,14 +34,17 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.fallntic.jotaayumouride.Adapter.CommissionListAdapter;
-import com.fallntic.jotaayumouride.Model.Dahira;
-import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
+import com.fallntic.jotaayumouride.adapter.CommissionListAdapter;
+import com.fallntic.jotaayumouride.model.Dahira;
+import com.fallntic.jotaayumouride.utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.hbb20.CountryCodePicker;
@@ -49,23 +52,24 @@ import com.mikelau.countrypickerx.Country;
 import com.mikelau.countrypickerx.CountryPickerCallbacks;
 import com.mikelau.countrypickerx.CountryPickerDialog;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.isDouble;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.saveLogoDahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahiraID;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListDahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.isDouble;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.saveLogoDahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showAlertDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.dahiraID;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
 
+@SuppressWarnings("unused")
 public class CreateDahiraActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "CreateDahiraActivity";
@@ -84,11 +88,9 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
     private EditText editTextCity;
     private TextView textViewLabelCommission;
     private TextView getTextViewLabelResponsible;
-    private TextView textViewUpdateCommission, textViewAreaCode;
+    private final List<String> listCommissionDahira = new ArrayList<>();
     private ImageView imageView;
-
-
-    private String commission, city, country;
+    private final List<String> listResponsibles = new ArrayList<>();
     private String dahiraName;
     private String dieuwrine;
     private String dahiraPhoneNumber;
@@ -100,28 +102,19 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
     private ListView listViewCommission;
 
     private ArrayList<String> arrayList;
-    private ArrayAdapter<String> arrayAdapter;
-
-    private List<String> listCommissionDahira = new ArrayList<>();
-    private List<String> listResponsibles = new ArrayList<>();
-
-    private RelativeLayout relativeLayoutData, relativeLayoutProgressBar;
-    private ProgressBar progressBar;
+    private TextView textViewUpdateCommission;
+    private String commission;
 
     private boolean imageSaved = true, dahiraSaved = true, dahiraUpdated = true;
 
-    //Firebase
-    private FirebaseStorage firebaseStorage;
     private StorageReference storageReference;
     private FirebaseAuth mAuth;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    private Toolbar toolbar;
-
     private CountryPickerDialog countryPicker;
-
-    private UploadTask uploadTask;
-    private Uri fileUri;
+    private Uri fileUri = null;
+    private byte[] uploadBytes;
+    private double mProgress = 0;
 
     private CountryCodePicker ccp;
 
@@ -131,7 +124,7 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         setContentView(R.layout.activity_create_dahira);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         //toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
 
@@ -144,7 +137,6 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         checkInternetConnection(this);
 
         //Display and modify ListView commissions
-        arrayAdapter = new ArrayAdapter<String>(this, R.layout.list_commission, R.id.textView_commission, arrayList);
         listViewCommission.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int index, long l) {
@@ -155,7 +147,8 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
             }
         });
 
-        firebaseStorage = FirebaseStorage.getInstance();
+        //Firebase
+        FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
 
         hideSoftKeyboard();
@@ -219,12 +212,6 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         findViewById(R.id.editText_country).setOnClickListener(this);
     }
 
-    public void initViewsProgressBar() {
-        relativeLayoutData = findViewById(R.id.relativeLayout_data);
-        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
-        progressBar = findViewById(R.id.progressBar);
-    }
-
     @Override
     public void onClick(View v) {
 
@@ -240,7 +227,9 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
                 showListViewCommissions();
                 break;
             case R.id.button_save:
-                saveDahira();
+                if (!hasValidationErrors()) {
+                    checkDahiraAvailability();
+                }
                 break;
             case R.id.button_back:
                 finish();
@@ -251,7 +240,7 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
-    public void checkPermission() {
+    private void checkPermission() {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -272,7 +261,7 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 101 && resultCode == RESULT_OK && data.getData() != null) {
+        if (requestCode == 101 && resultCode == RESULT_OK && Objects.requireNonNull(data).getData() != null) {
 
             fileUri = data.getData();
 
@@ -288,7 +277,7 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
     private void uploadImage() {
         final StorageReference fileToUpload = storageReference
                 .child("logoDahira").child(dahira.getDahiraID());
-        uploadTask = (UploadTask) fileToUpload.putFile(fileUri)
+        UploadTask uploadTask = (UploadTask) fileToUpload.putFile(fileUri)
                 .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -304,64 +293,24 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
     }
 
     private void saveDahira() {
-        //Info dahira
-        dahiraName = editTextDahiraName.getText().toString().trim();
-        dieuwrine = editTextDieuwrine.getText().toString().trim();
-        dahiraPhoneNumber = editTextDahiraPhoneNumber.getText().toString().trim();
-        totalAdiya = editTextAdiya.getText().toString().trim();
-        totalSass = editTextSass.getText().toString().trim();
-        totalSocial = editTextSocial.getText().toString().trim();
-        country = editTextCountry.getText().toString().trim();
-        city = editTextCity.getText().toString().trim();
-        siege = editTextSiege.getText().toString().trim();
-
-        if (totalAdiya == null || totalAdiya.isEmpty())
-            totalAdiya = "00";
-        else if (totalAdiya.contains(","))
-            totalAdiya = totalAdiya.replace(",", ".");
-
-        if (totalSass == null || totalSass.isEmpty())
-            totalSass = "00";
-        else if (totalSass.contains(","))
-            totalSass = totalSass.replace(",", ".");
-
-        if (totalSocial == null || totalSocial.isEmpty())
-            totalSocial = "00";
-        else if (totalSocial.contains(","))
-            totalSocial = totalSocial.replace(",", ".");
-
-
-        if (!hasValidationErrors()) {
-            siege = siege.concat(", " + city + " " + country);
-            dahiraPhoneNumber = ccp.getFullNumberWithPlus();
-            dahiraID = db.collection("dahiras").document().getId();
-            dahira = new Dahira(dahiraID, dahiraName, dieuwrine, dahiraPhoneNumber, siege, totalAdiya,
-                    totalSass, totalSocial, "1", "", listCommissionDahira, listResponsibles);
-
-            if (myListDahira == null)
-                myListDahira = new ArrayList<>();
-
-            showProgressBar();
-            db.collection("dahiras").document(MyStaticVariables.dahiraID).set(dahira)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            hideProgressBar();
-                            if (fileUri != null)
-                                uploadImage();
-                            updateUserListDahiraID();
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            hideProgressBar();
-                            dahiraSaved = false;
-                            toastMessage(getApplicationContext(), "Error adding dahira!");
-                            Log.d(TAG, e.toString());
-                        }
-                    });
-        }
+        showProgressBar();
+        db.collection("dahiras").document(dahiraID).set(dahira)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        hideProgressBar();
+                        updateUserListDahiraID();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        hideProgressBar();
+                        dahiraSaved = false;
+                        toastMessage(getApplicationContext(), "Error adding dahira!");
+                        Log.d(TAG, e.toString());
+                    }
+                });
     }
 
     private void updateUserListDahiraID() {
@@ -388,7 +337,7 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
                 });
     }
 
-    public void showListViewCommissions() {
+    private void showListViewCommissions() {
         String commission = editTextCommission.getText().toString().trim();
         String responsible = editTextResponsible.getText().toString().trim();
 
@@ -453,7 +402,7 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
-        final View dialogView = inflater.inflate(R.layout.dialog_update_commission, null);
+        @SuppressLint("InflateParams") final View dialogView = inflater.inflate(R.layout.dialog_update_commission, null);
         dialogBuilder.setView(dialogView);
 
         final EditText editTextCommissione = dialogView.findViewById(R.id.editText_dialogCommission);
@@ -501,10 +450,8 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         });
     }
 
-    public void getCountry() {
+    private void getCountry() {
         /* Name of your Custom JSON list */
-        int resourceId = getResources().getIdentifier("country_avail", "raw", getApplicationContext().getPackageName());
-
         countryPicker = new CountryPickerDialog(CreateDahiraActivity.this, new CountryPickerCallbacks() {
             @Override
             public void onCountrySelected(Country country, int flagResId) {
@@ -521,38 +468,69 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         countryPicker.show();
     }
 
-    public boolean hasValidationErrors() {
+    @SuppressLint("SetTextI18n")
+    private boolean hasValidationErrors() {
+        //Info dahira
+        dahiraName = editTextDahiraName.getText().toString().trim();
+        dieuwrine = editTextDieuwrine.getText().toString().trim();
+        dahiraPhoneNumber = editTextDahiraPhoneNumber.getText().toString().trim();
+        totalAdiya = editTextAdiya.getText().toString().trim();
+        totalSass = editTextSass.getText().toString().trim();
+        totalSocial = editTextSocial.getText().toString().trim();
+        String country = editTextCountry.getText().toString().trim();
+        String city = editTextCity.getText().toString().trim();
+        siege = editTextSiege.getText().toString().trim();
 
-        if (dahiraName.isEmpty()) {
+        if (totalAdiya == null || totalAdiya.isEmpty())
+            totalAdiya = "00";
+        else if (totalAdiya.contains(","))
+            totalAdiya = totalAdiya.replace(",", ".");
+
+        if (totalSass == null || totalSass.isEmpty())
+            totalSass = "00";
+        else if (totalSass.contains(","))
+            totalSass = totalSass.replace(",", ".");
+
+        if (totalSocial == null || totalSocial.isEmpty())
+            totalSocial = "00";
+        else if (totalSocial.contains(","))
+            totalSocial = totalSocial.replace(",", ".");
+
+
+        if (dahiraName == null || dahiraName.isEmpty()) {
             editTextDahiraName.setError("Nom dahira obligatoire");
             editTextDahiraName.requestFocus();
             return true;
         }
 
-        if (dieuwrine.isEmpty()) {
+        if (dieuwrine == null || dieuwrine.isEmpty()) {
             editTextDieuwrine.setError("Champ obligatoire");
             editTextDieuwrine.requestFocus();
             return true;
         }
 
-        if (dahiraPhoneNumber.isEmpty()) {
+        if (dahiraPhoneNumber == null || dahiraPhoneNumber.isEmpty()) {
             editTextDahiraPhoneNumber.setError("Champ obligatoire");
             editTextDahiraPhoneNumber.requestFocus();
             return true;
         }
 
-        if (!dahiraPhoneNumber.isEmpty() && (!dahiraPhoneNumber.matches("[0-9]+"))) {
+        if (!dahiraPhoneNumber.matches("[0-9]+")) {
             if (dahiraPhoneNumber.contains("+")) {
                 editTextDahiraPhoneNumber.setError("Ne pas inclure votre indicatif svp.");
                 editTextDahiraPhoneNumber.requestFocus();
                 return true;
             }
+        } else {
+            dahiraPhoneNumber = ccp.getFullNumberWithPlus();
         }
 
-        if (siege.isEmpty()) {
+        if (siege == null || siege.isEmpty()) {
             editTextSiege.setError("Champ obligatoire");
             editTextSiege.requestFocus();
             return true;
+        } else {
+            siege = siege.concat(", " + city + " " + country);
         }
 
         if (city.isEmpty()) {
@@ -561,31 +539,31 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
             return true;
         }
 
-        if (totalAdiya.isEmpty()) {
-            editTextSiege.setError("Non montant, entrer 0");
+        if (totalAdiya == null || totalAdiya.isEmpty()) {
+            editTextSiege.setError("Si non montant, entrer 0");
             editTextAdiya.requestFocus();
             return true;
-        } else if (!isDouble(totalAdiya)) {
+        } else if (isDouble(totalAdiya)) {
             editTextAdiya.setText("Valeur listAdiya incorrecte");
             editTextAdiya.requestFocus();
             return true;
         }
 
-        if (totalSass.isEmpty()) {
-            editTextSiege.setError("Non montant, entrer 0");
+        if (totalSass == null || totalSass.isEmpty()) {
+            editTextSiege.setError("Si non montant, entrer 0");
             editTextSass.requestFocus();
             return true;
-        } else if (!isDouble(totalSass)) {
+        } else if (isDouble(totalSass)) {
             editTextSass.setText("Valeur sass incorrecte");
             editTextSass.requestFocus();
             return true;
         }
 
-        if (totalSocial.isEmpty()) {
-            editTextSiege.setError("Non montant, entrer 0");
+        if (totalSocial == null || totalSocial.isEmpty()) {
+            editTextSiege.setError("Si non montant, entrer 0");
             editTextSass.requestFocus();
             return true;
-        } else if (!isDouble(totalSocial)) {
+        } else if (isDouble(totalSocial)) {
             editTextSocial.setText("Valeur sociale incorrecte");
             editTextSocial.requestFocus();
             return true;
@@ -594,7 +572,133 @@ public class CreateDahiraActivity extends AppCompatActivity implements View.OnCl
         return false;
     }
 
-    public void hideSoftKeyboard() {
+    private void hideSoftKeyboard() {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    }
+
+    public void checkDahiraAvailability() {
+        showProgressBar();
+        db.collection("dahiras").whereEqualTo("dahiraPhoneNumber", dahiraPhoneNumber).get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        hideProgressBar();
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            showAlertDialog(CreateDahiraActivity.this,
+                                    "Un dahira avec ce numéro de téléphone existe déjà.\n");
+                        } else {
+
+                            dahiraID = dahiraName + db.collection("dahiras").document().getId();
+                            dahira = new Dahira(dahiraID, dahiraName, dieuwrine, dahiraPhoneNumber, siege, totalAdiya,
+                                    totalSass, totalSocial, "1", "", listCommissionDahira, listResponsibles);
+                            if (fileUri != null) {
+                                BackgroundImageResize resize = new BackgroundImageResize(null);
+                                resize.execute(fileUri);
+                            } else {
+                                saveDahira();
+                            }
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        hideProgressBar();
+                    }
+                });
+    }
+
+    public byte[] getBytesFromBitmap(Bitmap bitmap, int quality) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, stream);
+        return stream.toByteArray();
+    }
+
+    public void saveAllData() {
+        showProgressBar();
+        Toast.makeText(CreateDahiraActivity.this, "uploading logo", Toast.LENGTH_SHORT).show();
+        final String imageName = dahira.getDahiraName() + dahira.getDahiraID();
+        final StorageReference storageReference = FirebaseStorage.getInstance().getReference()
+                .child("/logoDahira/" + imageName);
+
+        final UploadTask uploadTask = storageReference.putBytes(uploadBytes);
+        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                if (taskSnapshot.getMetadata() != null) {
+                    if (taskSnapshot.getMetadata().getReference() != null) {
+                        Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
+                        result.addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                hideProgressBar();
+                                Toast.makeText(CreateDahiraActivity.this, "Post Success", Toast.LENGTH_SHORT).show();
+                                saveLogoDahira(CreateDahiraActivity.this, uri.toString());
+                                saveDahira();
+                            }
+                        });
+                    }
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                hideProgressBar();
+                Toast.makeText(CreateDahiraActivity.this, "could not upload photo", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
+                double currentProgress = (100 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                if (currentProgress > (mProgress + 15)) {
+                    mProgress = (100 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                    Log.d(TAG, "onProgress: upload is " + mProgress + "& done");
+                    Toast.makeText(CreateDahiraActivity.this, mProgress + "%", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    //*********************************** Resize and upload Image ********************************************
+    @SuppressLint("StaticFieldLeak")
+    public class BackgroundImageResize extends AsyncTask<Uri, Integer, byte[]> {
+        Bitmap mBitmap;
+
+        public BackgroundImageResize(Bitmap bitmap) {
+            if (bitmap != null) {
+                this.mBitmap = bitmap;
+            }
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            Toast.makeText(CreateDahiraActivity.this, "compressing image", Toast.LENGTH_SHORT).show();
+            showProgressBar();
+        }
+
+        @Override
+        protected byte[] doInBackground(Uri... params) {
+            Log.d(TAG, "doInBackground: started.");
+
+            if (mBitmap == null) {
+                try {
+                    mBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), params[0]);
+                } catch (IOException e) {
+                    Log.e(TAG, "doInBackground: IOException: " + e.getMessage());
+                }
+            }
+            byte[] bytes;
+            bytes = getBytesFromBitmap(mBitmap, 15);
+            return bytes;
+        }
+
+        @Override
+        protected void onPostExecute(byte[] bytes) {
+            super.onPostExecute(bytes);
+            uploadBytes = bytes;
+            hideProgressBar();
+            saveAllData();
+        }
     }
 }

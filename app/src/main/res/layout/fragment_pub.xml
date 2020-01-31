@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".Fragments.PubFragment">
+    tools:context=".fragments.PubFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        tools:ignore="UselessParent">
 
         <com.tomer.fadingtextview.FadingTextView
             android:id="@+id/textView_pub"
@@ -22,21 +23,10 @@
             app:texts="@array/advertisements"
             app:timeout="1000" />
 
-        <!--<TextView
-            android:id="@+id/textView_pub"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/_5sdp"
-            android:text="Publicités"
-            android:textAlignment="center"
-            android:textColor="#031803"
-            android:textSize="@dimen/_20sdp"
-            android:textStyle="bold" />-->
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerview_pub"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/textView_pub"
             android:layout_marginTop="@dimen/_10sdp" />
 

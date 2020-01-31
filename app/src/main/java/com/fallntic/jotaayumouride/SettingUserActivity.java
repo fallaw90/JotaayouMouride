@@ -23,34 +23,32 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.fallntic.jotaayumouride.Utility.MyStaticFunctions;
+import com.fallntic.jotaayumouride.utility.MyStaticFunctions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.DahiraInfoActivity.getListUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.selectedUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showAlertDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.selectedUser;
 
+@SuppressWarnings("unused")
 public class SettingUserActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "CreateDahiraActivity";
 
     private RadioGroup radioRoleGroup;
-    private RadioButton radioRoleButton;
 
     private EditText editTextUserName;
     private EditText editTextAddress;
@@ -58,48 +56,12 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
     private EditText editTextSass;
     private EditText editTextSocial;
     private ImageView imageView;
-    private Spinner spinnerCommission;
     private Button buttonDelete;
     private String commission;
-    private int indexSelectedUser = selectedUser.getListDahiraID().indexOf(dahira.getDahiraID());
-    private int indexOnlineUser = onlineUser.getListDahiraID().indexOf(dahira.getDahiraID());
+    private final int indexSelectedUser = selectedUser.getListDahiraID().indexOf(dahira.getDahiraID());
+    private final int indexOnlineUser = onlineUser.getListDahiraID().indexOf(dahira.getDahiraID());
 
-    public static boolean hasValidationErrors(String name, EditText editTextUserName, String address,
-                                              EditText editTextAddress, String adiya, EditText editTextAdiya,
-                                              String sass, EditText editTextSass, String social, EditText editTextSocial) {
-
-        if (name.isEmpty()) {
-            editTextUserName.setError("Champ obligatoir!");
-            editTextUserName.requestFocus();
-            return true;
-        }
-
-        if (address.isEmpty()) {
-            editTextAddress.setError("Champ obligatoir!");
-            editTextAddress.requestFocus();
-            return true;
-        }
-
-        if (adiya.isEmpty()) {
-            editTextAdiya.setError("Champ obligatoir! Entrez 0 si non adiya");
-            editTextAdiya.requestFocus();
-            return true;
-        }
-
-        if (sass.isEmpty()) {
-            editTextSass.setError("Champ obligatoir! Entrez 0 si non sass");
-            editTextSass.requestFocus();
-            return true;
-        }
-
-        if (social.isEmpty()) {
-            editTextSocial.setError("Champ obligatoir! Entrez 0 si non social");
-            editTextSocial.requestFocus();
-            return true;
-        }
-
-        return false;
-    }
+    private FirebaseFirestore firestore;
 
     @Override
     protected void onDestroy() {
@@ -171,6 +133,8 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         checkInternetConnection(this);
         initViews();
 
+        firestore = FirebaseFirestore.getInstance();
+
         displayViews();
 
         hideSoftKeyboard();
@@ -179,7 +143,7 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
             findViewById(R.id.button_delete).setVisibility(View.GONE);
     }
 
-    public void initViewsProgressBar() {
+    private void initViewsProgressBar() {
         relativeLayoutData = findViewById(R.id.relativeLayout_data);
         relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
         progressBar = findViewById(R.id.progressBar);
@@ -232,13 +196,13 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         MyStaticFunctions.showImage(this, selectedUser.getImageUri(), imageView);
     }
 
-    public void setSpinner() {
-        spinnerCommission = findViewById(R.id.spinner_commission);
+    private void setSpinner() {
+        Spinner spinnerCommission = findViewById(R.id.spinner_commission);
 
         List<String> listCommissionDahira = dahira.getListCommissions();
         listCommissionDahira.add(0, "N/A");
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, listCommissionDahira);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, listCommissionDahira);
         spinnerCommission.setAdapter(adapter);
 
         spinnerCommission.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -254,11 +218,11 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         });
     }
 
-    public void updateData() {
+    private void updateData() {
         // get selected radio button from radioGroup
         int selectedId = radioRoleGroup.getCheckedRadioButtonId();
         // find the radiobutton by returned id
-        radioRoleButton = findViewById(selectedId);
+        RadioButton radioRoleButton = findViewById(selectedId);
 
         String name = editTextUserName.getText().toString().trim();
         String address = editTextAddress.getText().toString().trim();
@@ -297,7 +261,7 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    public void deleteUser() {
+    private void deleteUser() {
         showProgressBar();
         firestore.collection("users").document(selectedUser.getUserID())
                 .set(selectedUser)
@@ -306,8 +270,6 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
                     public void onSuccess(Void aVoid) {
                         hideProgressBar();
                         updateDahira();
-                        listUser = null;
-                        getListUser(SettingUserActivity.this);
                     }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -341,7 +303,7 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         });
     }
 
-    public void hideSoftKeyboard() {
+    private void hideSoftKeyboard() {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
@@ -350,7 +312,7 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
 
-        MenuItem iconBack, instructions;
+        MenuItem iconBack;
         iconBack = menu.findItem(R.id.icon_back);
         iconBack.setVisible(true);
 
@@ -377,7 +339,7 @@ public class SettingUserActivity extends AppCompatActivity implements View.OnCli
         return true;
     }
 
-    public boolean hasValidationErrors(String name, String address) {
+    private boolean hasValidationErrors(String name, String address) {
 
         if (name.isEmpty()) {
             editTextUserName.setError("Ce champ est obligatoir!");

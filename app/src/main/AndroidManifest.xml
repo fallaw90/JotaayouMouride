@@ -45,6 +45,8 @@
         <activity android:name=".LoginPhoneActivity" />
         <activity android:name=".ShowImagesActivity" />
         <activity android:name=".AddImagesActivity" />
+        <activity android:name=".utility.AddMultipleAudioActivity" />
+        <activity android:name=".utility.AddMultiplePDFActivity" />
         <activity android:name=".AddContributionActivity" />
         <activity android:name=".ShowExpenseActivity" />
         <activity android:name=".CreateExpenseActivity" />
@@ -81,8 +83,8 @@
             android:windowSoftInputMode="adjustResize" />
 
         <service
-            android:name=".Services.MyFirebaseMessagingService"
-            tools:ignore="InnerclassSeparator">
+            android:name=".services.MyFirebaseMessagingService"
+            tools:ignore="ExportedService,InnerclassSeparator">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
@@ -92,10 +94,10 @@
             android:value="@string/app_unit_id" />
 
         <receiver
-            android:name=".Services.NotificationActionService"
+            android:name=".services.NotificationActionService"
             tools:ignore="InnerclassSeparator" />
         <service
-            android:name=".Services.OnClearFromRecentService"
+            android:name=".services.OnClearFromRecentService"
             tools:ignore="InnerclassSeparator" />
     </application>
 

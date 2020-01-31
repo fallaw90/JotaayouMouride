@@ -1,5 +1,0 @@
-<resources>
-    <!-- Default screen margins, per the Android Design guidelines. -->
-    <dimen name="textView_height">30dp</dimen>
-    <dimen name="textView_width">500dp</dimen>
-</resources>

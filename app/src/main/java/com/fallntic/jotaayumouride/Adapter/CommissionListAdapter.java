@@ -1,4 +1,4 @@
-package com.fallntic.jotaayumouride.Adapter;
+package com.fallntic.jotaayumouride.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -14,15 +14,12 @@ import java.util.List;
 
 public class CommissionListAdapter extends BaseAdapter {
 
-    Context context;
+    private final List<String> listCommission;
+    private final List<String> listCommissionResponsible;
 
-    private List<String> listCommission;
-    private List<String> listCommissionResponsible;
-
-    private LayoutInflater inflater;
+    private final LayoutInflater inflater;
 
     public CommissionListAdapter(Context applicationContext, List<String> listCommission, List<String> listCommissionResponsible) {
-        this.context = applicationContext;
         this.listCommission = listCommission;
         this.listCommissionResponsible = listCommissionResponsible;
         inflater = (LayoutInflater.from(applicationContext));
@@ -42,7 +39,7 @@ public class CommissionListAdapter extends BaseAdapter {
         return position;
     }
 
-    @SuppressLint("ViewHolder")
+    @SuppressLint({"ViewHolder", "InflateParams"})
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
         view = inflater.inflate(R.layout.list_commission, null);

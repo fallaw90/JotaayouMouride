@@ -4,15 +4,15 @@
 
     <item
         android:id="@+id/login"
-        android:title="Se connecter"
+        android:title="@string/se_connecter"
         android:visible="false"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/icon_add"
         android:visible="false"
         android:icon="@drawable/ic_add"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/icon_back"
@@ -29,20 +29,20 @@
     <item
         android:id="@+id/search_dahira"
         android:icon="@mipmap/logo"
-        android:title="Rechercher un dahira"
+        android:title="@string/rechercher_un_dahira"
         android:visible="false"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/search_user"
         android:icon="@mipmap/logo"
-        android:title="Rechercher un membre"
+        android:title="@string/rechercher_un_membre"
         android:visible="false"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/instructions"
-        android:title="Instructions"
+        android:title="@string/instructions"
         android:icon="@mipmap/logo"
         app:showAsAction="never" />
 

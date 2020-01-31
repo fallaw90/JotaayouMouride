@@ -1,4 +1,4 @@
-package com.fallntic.jotaayumouride.Fragments;
+package com.fallntic.jotaayumouride.fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -16,11 +16,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.fallntic.jotaayumouride.Model.ListSongObject;
-import com.fallntic.jotaayumouride.Model.Song;
 import com.fallntic.jotaayumouride.R;
-import com.fallntic.jotaayumouride.Services.OnClearFromRecentService;
-import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
+import com.fallntic.jotaayumouride.model.ListSongObject;
+import com.fallntic.jotaayumouride.model.Song;
+import com.fallntic.jotaayumouride.services.OnClearFromRecentService;
+import com.fallntic.jotaayumouride.utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -31,36 +31,37 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.createChannel;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.setMyAdapter;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.stopCurrentPlayingMediaPlayer;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.broadcastReceiverMediaPlayer;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.fab_search;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.isTabQuranOpened;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_next;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_play;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_previous;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosQuran;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listTracks;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mediaPlayer;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myHandler;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.pb_loader;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.pb_main_loader;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.recycler;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.seekBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tb_title;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.toolbar_bottom;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tv_duration;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tv_empty;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tv_time;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.createChannel;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.setMyAdapter;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.stopCurrentPlayingMediaPlayer;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.broadcastReceiverMediaPlayer;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.fab_search;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.isTabQuranOpened;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.iv_next;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.iv_play;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.iv_previous;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosQuran;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listTracks;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.mediaPlayer;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.myHandler;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.pb_loader;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.pb_main_loader;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.recycler;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.seekBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tb_title;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.toolbar_bottom;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_duration;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_empty;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_time;
 
 
+@SuppressWarnings("ALL")
 public class QuranFragment extends Fragment implements View.OnClickListener {
 
     private static final String TAG = "PDFFragment";
@@ -96,7 +97,7 @@ public class QuranFragment extends Fragment implements View.OnClickListener {
                 if (listAudiosQuran == null)
                     listAudiosQuran = new ArrayList<>();
                 setLayoutMedia();
-                getListAudios(getContext(), listAudiosQuran, "sudais");
+                getListAudios(getContext(), listAudiosQuran);
                 break;
 
             case R.id.button_back:
@@ -114,7 +115,7 @@ public class QuranFragment extends Fragment implements View.OnClickListener {
                 if (listTracks.size() != listAudiosQuran.size() && isTabQuranOpened) {
                     stopCurrentPlayingMediaPlayer();
                     setLayoutMedia();
-                    getListAudios(getContext(), listAudiosQuran, "sudais");
+                    getListAudios(getContext(), listAudiosQuran);
                 }
             }
         }
@@ -178,7 +179,7 @@ public class QuranFragment extends Fragment implements View.OnClickListener {
 
     //*********************************** SET ADAPTER *************************************
 
-    private void getListAudios(final Context context, final List<Song> listSong, String documentID) {
+    private void getListAudios(final Context context, final List<Song> listSong) {
         //Retrieve all songs from FirebaseFirestore
         if (listTracks == null || listTracks.size() > 0) {
             listTracks = new ArrayList<>();
@@ -186,7 +187,7 @@ public class QuranFragment extends Fragment implements View.OnClickListener {
         if (listSong.isEmpty()) {
             showProgressBar();
             MyStaticVariables.collectionReference = MyStaticVariables.firestore.collection("quran");
-            MyStaticVariables.collectionReference.whereEqualTo("documentID", documentID).get()
+            MyStaticVariables.collectionReference.whereEqualTo("documentID", "sudais").get()
                     .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                         @Override
                         public void onSuccess(QuerySnapshot queryDocumentSnapshots) {

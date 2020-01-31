@@ -4,10 +4,11 @@ buildscript {
     repositories {
         google()
         jcenter()
-        
+
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.3'
+        //noinspection GradleDependency
         classpath 'com.google.gms:google-services:4.2.0'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.0.0-beta01'
 

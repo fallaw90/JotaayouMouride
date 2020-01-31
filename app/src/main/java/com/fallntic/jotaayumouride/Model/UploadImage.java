@@ -1,14 +1,15 @@
-package com.fallntic.jotaayumouride.Model;
+package com.fallntic.jotaayumouride.model;
 
 import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.util.List;
 
 @IgnoreExtraProperties
+@SuppressWarnings("unused")
 public class UploadImage {
 
-    public String dahiraID;
-    public List<String> listNameImages;
+    private String dahiraID;
+    private List<String> listNameImages;
 
     public UploadImage() {
     }
@@ -33,4 +34,6 @@ public class UploadImage {
     public void setListNameImages(List<String> listNameImages) {
         this.listNameImages = listNameImages;
     }
+
+
 }

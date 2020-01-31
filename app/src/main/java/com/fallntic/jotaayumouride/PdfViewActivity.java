@@ -14,22 +14,19 @@ import android.webkit.WebViewClient;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.fallntic.jotaayumouride.Model.UploadPdf;
+import com.fallntic.jotaayumouride.model.UploadPdf;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutProgressBar;
 
 public class PdfViewActivity extends AppCompatActivity {
-    WebView webview;
-    UploadPdf pdf_file;
-    String url;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -46,16 +43,16 @@ public class PdfViewActivity extends AppCompatActivity {
         getSupportActionBar().setHomeAsUpIndicator(R.mipmap.logo);
 
         Intent intent = getIntent();
-        pdf_file = (UploadPdf) intent.getSerializableExtra("pdf_file");
+        UploadPdf pdf_file = (UploadPdf) intent.getSerializableExtra("pdf_file");
 
         initViews();
 
-        webview = findViewById(R.id.web_view);
+        WebView webview = findViewById(R.id.web_view);
         webview.requestFocus();
         webview.getSettings().setJavaScriptEnabled(true);
 
         try {
-            url = URLEncoder.encode(pdf_file.getUrl(), "UTF-8");
+            String url = URLEncoder.encode(Objects.requireNonNull(pdf_file).getUrl(), "UTF-8");
             webview.loadUrl("https://docs.google.com/gview?embedded=true&url=" + url);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -79,7 +76,7 @@ public class PdfViewActivity extends AppCompatActivity {
             }
         });
 
-        HomeActivity.loadBannerAd(this, this);
+        HomeActivity.loadBannerAd(this);
 
     }
 

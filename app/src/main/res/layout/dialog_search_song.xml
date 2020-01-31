@@ -9,6 +9,8 @@
         android:id="@+id/et_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/rechercher" />
+        android:hint="@string/rechercher"
+        android:importantForAutofill="no"
+        android:inputType="text" />
 
 </LinearLayout>

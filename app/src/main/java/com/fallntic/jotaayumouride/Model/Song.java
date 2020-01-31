@@ -1,18 +1,21 @@
-package com.fallntic.jotaayumouride.Model;
+package com.fallntic.jotaayumouride.model;
+
+import android.annotation.SuppressLint;
 
 import com.google.firebase.database.Exclude;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+@SuppressWarnings("unused")
 public class Song implements Comparable<Song>{
     public String audioTitle;
-    public String audioDuration;
+    private String audioDuration;
     public String audioUri;
-    public String audioID;
-    public String date;
-    public boolean playing;
-    public String userID;
+    private String audioID;
+    private String date;
+    private boolean playing;
+    private String userID;
 
     public Song(String audioID, String audioTitle, String audioDuration, String audioUri) {
 
@@ -25,7 +28,7 @@ public class Song implements Comparable<Song>{
         this.audioID = audioID;
         this.playing = false;
 
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
         this.date = formatter.format(date);
     }
@@ -37,6 +40,7 @@ public class Song implements Comparable<Song>{
         return audioTitle;
     }
 
+    @SuppressWarnings("unused")
     public void setAudioTitle(String songTitle) {
         this.audioTitle = songTitle;
     }
@@ -45,6 +49,7 @@ public class Song implements Comparable<Song>{
         return audioDuration;
     }
 
+    @SuppressWarnings("unused")
     public void setAudioDuration(String songDuration) {
         this.audioDuration = songDuration;
     }
@@ -53,6 +58,7 @@ public class Song implements Comparable<Song>{
         return audioUri;
     }
 
+    @SuppressWarnings("unused")
     public void setAudioUri(String stringUri) {
         this.audioUri = stringUri;
     }
@@ -62,6 +68,7 @@ public class Song implements Comparable<Song>{
         return audioID;
     }
 
+    @SuppressWarnings("unused")
     @Exclude
     public void setAudioID(String audioID) {
         this.audioID = audioID;
@@ -79,6 +86,7 @@ public class Song implements Comparable<Song>{
         return date;
     }
 
+    @SuppressWarnings("unused")
     public void setDate(String date) {
         this.date = date;
     }
@@ -87,6 +95,7 @@ public class Song implements Comparable<Song>{
         return userID;
     }
 
+    @SuppressWarnings("unused")
     public void setUserID(String userID) {
         this.userID = userID;
     }
@@ -95,4 +104,6 @@ public class Song implements Comparable<Song>{
     public int compareTo(Song song) {
         return this.audioTitle.compareToIgnoreCase(song.getAudioTitle());
     }
+
+
 }

@@ -1,7 +1,8 @@
-package com.fallntic.jotaayumouride.Model;
+package com.fallntic.jotaayumouride.model;
 
 import java.io.Serializable;
 
+@SuppressWarnings("unused")
 public class ObjNotification implements Serializable {
 
     private String notificationID;

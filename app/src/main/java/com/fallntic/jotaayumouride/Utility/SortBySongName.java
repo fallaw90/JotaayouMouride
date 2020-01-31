@@ -1,10 +1,11 @@
-package com.fallntic.jotaayumouride.Utility;
+package com.fallntic.jotaayumouride.utility;
 
-import com.fallntic.jotaayumouride.Model.Song;
+import com.fallntic.jotaayumouride.model.Song;
 
 import java.util.Comparator;
 
-public class SortBySongName implements Comparator<Song> {
+@SuppressWarnings("unused")
+class SortBySongName implements Comparator<Song> {
 
     @Override
     public int compare(Song song, Song t1) {

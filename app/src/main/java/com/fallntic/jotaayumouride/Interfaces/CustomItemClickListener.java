@@ -1,4 +1,4 @@
-package com.fallntic.jotaayumouride.Interfaces;
+package com.fallntic.jotaayumouride.interfaces;
 
 
 import android.view.View;

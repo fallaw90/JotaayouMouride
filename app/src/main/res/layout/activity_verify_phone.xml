@@ -34,6 +34,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
                     android:layout_centerVertical="true"
+                    android:contentDescription="@string/photo"
                     app:srcCompat="@drawable/image_login" />
 
             </RelativeLayout>
@@ -52,7 +53,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="25dp"
-                    android:text="Entrez le code de confirmation qui vous a ete envoye"
+                    android:text="@string/textview_title_verify_photo"
                     android:textAlignment="center"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
                     android:textColor="@color/black" />
@@ -73,8 +74,9 @@
                     android:layout_marginTop="10dp"
                     android:digits="0123456789"
                     android:drawablePadding="10dp"
-                    android:hint="enter le code ici"
+                    android:hint="@string/textview_title_input_code"
                     android:inputType="phone"
+                    android:importantForAutofill="no"
                     android:maxLength="10" />
 
                 <Button
@@ -83,7 +85,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/editTextCode"
                     android:layout_marginTop="@dimen/_20sdp"
-                    android:text="TERMINER"
+                    android:text="@string/finish"
                     android:textAllCaps="false"
                     android:layout_centerHorizontal="true"
                     android:background="@drawable/rounded_button_solid"
@@ -98,7 +100,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/buttonSignIn"
                     android:layout_marginTop="@dimen/_20sdp"
-                    android:text="REENVOYER LE CODE"
+                    android:text="@string/reenvoyer_le_code"
                     android:textAllCaps="false"
                     android:textStyle="bold"
                     android:layout_centerHorizontal="true"
@@ -124,7 +126,7 @@
             android:layout_above="@+id/progressBar"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:text="Patientez SVP ..."
+            android:text="@string/patientez_svp"
             android:textSize="@dimen/_20sdp" />
 
         <ProgressBar

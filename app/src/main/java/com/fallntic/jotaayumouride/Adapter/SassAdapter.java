@@ -1,5 +1,6 @@
-package com.fallntic.jotaayumouride.Adapter;
+package com.fallntic.jotaayumouride.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,15 +10,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fallntic.jotaayumouride.Model.Sass;
 import com.fallntic.jotaayumouride.R;
+import com.fallntic.jotaayumouride.model.Sass;
 
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class SassAdapter extends RecyclerView.Adapter<SassAdapter.SassViewHolder> {
 
-    List<Sass> listSass;
-    private Context context;
+    private final List<Sass> listSass;
+    private final Context context;
     private int selectedPosition;
 
     public SassAdapter(Context context, List<Sass> listSass) {
@@ -33,6 +35,7 @@ public class SassAdapter extends RecyclerView.Adapter<SassAdapter.SassViewHolder
         );
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull SassViewHolder holder, int position) {
         Sass sass = listSass.get(position);
@@ -64,11 +67,11 @@ public class SassAdapter extends RecyclerView.Adapter<SassAdapter.SassViewHolder
 
     class SassViewHolder extends RecyclerView.ViewHolder {
 
-        TextView textViewDate;
-        TextView textViewAmount;
-        TextView textViewSavedBy;
+        final TextView textViewDate;
+        final TextView textViewAmount;
+        final TextView textViewSavedBy;
 
-        public SassViewHolder(View itemView) {
+        SassViewHolder(View itemView) {
             super(itemView);
 
             textViewDate = itemView.findViewById(R.id.textView_date);

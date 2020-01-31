@@ -87,7 +87,7 @@
             android:layout_above="@+id/progressBar"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:text="Patientez SVP ..."
+            android:text="@string/patientez_svp"
             android:textSize="@dimen/_20sdp" />
 
         <ProgressBar

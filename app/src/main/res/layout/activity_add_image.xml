@@ -18,7 +18,7 @@
         android:layout_below="@+id/toolbar"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="@dimen/_10sdp"
-        android:text="Enregistrement vos photos"
+        android:text="@string/enregistrement_vos_photos"
         android:textColor="@color/black"
         android:textSize="20sp"/>
 
@@ -34,7 +34,7 @@
         android:id="@+id/button_finish"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Terminer"
+        android:text="@string/finish"
         android:textAllCaps="false"
         android:layout_below="@+id/recyclerview_image"
         android:layout_marginTop="@dimen/_50sdp"

@@ -1,5 +1,6 @@
-package com.fallntic.jotaayumouride.Utility;
+package com.fallntic.jotaayumouride.utility;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -14,7 +15,6 @@ import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 
 import androidx.annotation.Nullable;
-import androidx.palette.graphics.Palette;
 
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -24,20 +24,22 @@ import com.bumptech.glide.request.target.Target;
 import com.fallntic.jotaayumouride.R;
 import com.github.chrisbanes.photoview.PhotoView;
 
+import java.util.Objects;
+
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 
 public class PhotoFullPopupWindow extends PopupWindow {
 
-    private static PhotoFullPopupWindow instance = null;
-    View view;
-    Context mContext;
-    PhotoView photoView;
-    ProgressBar loading;
-    ViewGroup parent;
+    final View view;
+    final Context mContext;
+    final PhotoView photoView;
+    final ProgressBar loading;
+    final ViewGroup parent;
 
 
-    public PhotoFullPopupWindow(Context ctx, int layout, View v, String imageUrl, Bitmap bitmap) {
-        super(((LayoutInflater) ctx.getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.popup_photo_full, null), ViewGroup.LayoutParams.MATCH_PARENT,
+    @SuppressLint("InflateParams")
+    public PhotoFullPopupWindow(Context ctx, View v, String imageUrl, Bitmap bitmap) {
+        super(((LayoutInflater) Objects.requireNonNull(ctx.getSystemService(LAYOUT_INFLATER_SERVICE))).inflate(R.layout.popup_photo_full, null), ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
 
         if (Build.VERSION.SDK_INT >= 21) {
@@ -63,16 +65,10 @@ public class PhotoFullPopupWindow extends PopupWindow {
         loading = view.findViewById(R.id.loading);
         photoView.setMaximumScale(6);
         parent = (ViewGroup) photoView.getParent();
-        // ImageUtils.setZoomable(imageView);
         //----------------------------
         if (bitmap != null) {
             loading.setVisibility(View.GONE);
-            if (Build.VERSION.SDK_INT >= 16) {
-                parent.setBackground(new BitmapDrawable(mContext.getResources(), Constants.fastblur(Bitmap.createScaledBitmap(bitmap, 50, 50, true))));// ));
-            } else {
-                onPalette(Palette.from(bitmap).generate());
-
-            }
+            parent.setBackground(new BitmapDrawable(mContext.getResources(), Constants.fastblur(Bitmap.createScaledBitmap(bitmap, 50, 50, true))));// ));
             photoView.setImageBitmap(bitmap);
         } else {
             loading.setIndeterminate(true);
@@ -91,12 +87,7 @@ public class PhotoFullPopupWindow extends PopupWindow {
 
                         @Override
                         public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
-                            if (Build.VERSION.SDK_INT >= 16) {
-                                parent.setBackground(new BitmapDrawable(mContext.getResources(), Constants.fastblur(Bitmap.createScaledBitmap(resource, 50, 50, true))));// ));
-                            } else {
-                                onPalette(Palette.from(resource).generate());
-
-                            }
+                            parent.setBackground(new BitmapDrawable(mContext.getResources(), Constants.fastblur(Bitmap.createScaledBitmap(resource, 50, 50, true))));// ));
                             photoView.setImageBitmap(resource);
 
                             loading.setVisibility(View.GONE);
@@ -113,12 +104,4 @@ public class PhotoFullPopupWindow extends PopupWindow {
         //------------------------------
 
     }
-
-    public void onPalette(Palette palette) {
-        if (null != palette) {
-            ViewGroup parent = (ViewGroup) photoView.getParent().getParent();
-            parent.setBackgroundColor(palette.getDarkVibrantColor(Color.GRAY));
-        }
-    }
-
 }

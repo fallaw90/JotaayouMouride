@@ -21,11 +21,12 @@
         <ScrollView
             android:id="@+id/scrollView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            tools:ignore="UselessParent">
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -45,11 +46,10 @@
                         android:id="@+id/imageView_logo"
                         android:layout_width="150dp"
                         android:layout_height="150dp"
-                        android:layout_below="@+id/textView_labelLogo"
-                        android:layout_centerHorizontal="true"
                         android:layout_gravity="center"
                         android:layout_margin="10dp"
                         android:scaleType="centerCrop"
+                        android:contentDescription="@string/photo_profil"
                         app:srcCompat="@drawable/profile_image" />
 
                     <LinearLayout
@@ -64,7 +64,7 @@
                             android:id="@+id/textView_commission"
                             android:layout_width="135dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/dahiraName"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -75,6 +75,8 @@
                             android:layout_height="wrap_content"
                             android:background="@drawable/edittext_background"
                             android:hint="@string/dahiraName"
+                            android:importantForAutofill="no"
+                            android:inputType="text"
                             android:padding="10dp" />
 
                     </LinearLayout>
@@ -91,7 +93,7 @@
                             android:id="@+id/textView_dieuwrine"
                             android:layout_width="135dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/dieuwrine"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -102,6 +104,8 @@
                             android:layout_height="wrap_content"
                             android:background="@drawable/edittext_background"
                             android:hint="@string/dieuwrine"
+                            android:importantForAutofill="no"
+                            android:inputType="text"
                             android:padding="10dp" />
 
                     </LinearLayout>
@@ -116,7 +120,7 @@
                             android:id="@+id/textView_phoneNumber"
                             android:layout_width="135dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/updatePhoneNumber"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -127,8 +131,9 @@
                             android:layout_height="wrap_content"
                             android:background="@drawable/edittext_background"
                             android:digits="0123456789"
-                            android:hint="Telephone (exemple: +221771866656)"
+                            android:hint="@string/telephone_exemple"
                             android:inputType="phone"
+                            android:importantForAutofill="no"
                             android:padding="10dp" />
                     </LinearLayout>
 
@@ -144,7 +149,7 @@
                             android:id="@+id/textView_siege"
                             android:layout_width="135dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/siege"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -155,6 +160,8 @@
                             android:layout_height="wrap_content"
                             android:background="@drawable/edittext_background"
                             android:hint="@string/siege"
+                            android:importantForAutofill="no"
+                            android:inputType="text"
                             android:padding="10dp" />
                     </LinearLayout>
 
@@ -180,6 +187,7 @@
                             android:fontFamily="sans-serif"
                             android:hint="@string/commission"
                             android:inputType="text"
+                            android:importantForAutofill="no"
                             android:padding="10dp" />
 
                         <EditText
@@ -192,6 +200,7 @@
                             android:fontFamily="sans-serif"
                             android:hint="@string/responsible"
                             android:inputType="text"
+                            android:importantForAutofill="no"
                             android:padding="10dp" />
 
                     </LinearLayout>
@@ -204,7 +213,6 @@
                         android:layout_margin="7dp"
                         android:text="@string/addCommission"
                         android:textAllCaps="false"
-                        android:layout_centerHorizontal="true"
                         android:background="@drawable/rounded_button_solid"
                         android:padding="@dimen/_10sdp"
                         android:textColor="@color/white"
@@ -248,7 +256,8 @@
                         android:id="@+id/listView_commission"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/black" />
+                        android:textColor="@color/black"
+                        tools:ignore="NestedScrolling" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -261,7 +270,7 @@
                         <TextView
                             android:layout_width="135dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/totalAdiya"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -273,6 +282,8 @@
                             android:background="@drawable/edittext_background"
                             android:focusable="false"
                             android:hint="@string/adiya"
+                            android:importantForAutofill="no"
+                            android:inputType="numberDecimal"
                             android:padding="10dp" />
                     </LinearLayout>
 
@@ -287,7 +298,7 @@
                         <TextView
                             android:layout_width="135dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/totalSass"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -299,6 +310,8 @@
                             android:background="@drawable/edittext_background"
                             android:focusable="false"
                             android:hint="@string/sass"
+                            android:importantForAutofill="no"
+                            android:inputType="numberDecimal"
                             android:padding="10dp" />
                     </LinearLayout>
 
@@ -313,7 +326,7 @@
                         <TextView
                             android:layout_width="135dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/totalSocial"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -325,15 +338,9 @@
                             android:background="@drawable/edittext_background"
                             android:focusable="false"
                             android:hint="@string/social"
+                            android:importantForAutofill="no"
+                            android:inputType="numberDecimal"
                             android:padding="10dp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:orientation="horizontal">
-
                     </LinearLayout>
 
                     <Button
@@ -343,7 +350,6 @@
                         android:layout_marginTop="7dp"
                         android:text="@string/update"
                         android:textAllCaps="false"
-                        android:layout_centerHorizontal="true"
                         android:background="@drawable/rounded_button_solid"
                         android:padding="@dimen/_10sdp"
                         android:textColor="@color/white"
@@ -356,7 +362,6 @@
                         android:layout_marginTop="7dp"
                         android:text="@string/backButton"
                         android:textAllCaps="false"
-                        android:layout_centerHorizontal="true"
                         android:background="@drawable/rounded_button_cancel"
                         android:padding="@dimen/_10sdp"
                         android:textColor="@color/white"
@@ -381,7 +386,7 @@
             android:layout_above="@+id/progressBar"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:text="Patientez SVP ..."
+            android:text="@string/patientez_svp"
             android:textSize="@dimen/_20sdp" />
 
         <ProgressBar

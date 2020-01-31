@@ -12,7 +12,7 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.fallntic.jotaayumouride.Model.User;
+import com.fallntic.jotaayumouride.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -29,17 +29,18 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showAlertDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutProgressBar;
 
 public class VerifyPhoneActivity extends AppCompatActivity {
     private final String TAG = "VerifyPhoneActivity";
@@ -56,7 +57,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
     private PhoneAuthProvider.ForceResendingToken resendToken;
 
     //the callback to detect the verification status
-    private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks =
+    private final PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks =
             new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
 
                 @Override
@@ -75,7 +76,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onVerificationFailed(FirebaseException e) {
+                public void onVerificationFailed(@NonNull FirebaseException e) {
 
                     if (e instanceof FirebaseAuthInvalidCredentialsException) {
                         // Invalid request
@@ -88,12 +89,11 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onCodeSent(String s, PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+                public void onCodeSent(@NonNull String s, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
                     super.onCodeSent(s, forceResendingToken);
 
                     //storing the verification id that is sent to the user
                     mVerificationId = s;
-
                     resendToken = forceResendingToken;
                 }
             };
@@ -117,7 +117,6 @@ public class VerifyPhoneActivity extends AppCompatActivity {
         Intent intent = getIntent();
         mobile = intent.getStringExtra("mobile");
         sendVerificationCode(mobile);
-
 
         //if the automatic sms detection did not work, user can also enter the code manually
         //so adding a click listener to the button
@@ -146,7 +145,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
         findViewById(R.id.button_resendCode).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                resendCode(v);
+                resendCode();
                 showAlertDialog(VerifyPhoneActivity.this, "Code reenvoyer avec succes.");
             }
         });
@@ -162,7 +161,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
         initViewsProgressBar();
     }
 
-    public  void initViewsProgressBar() {
+    private void initViewsProgressBar() {
         relativeLayoutData = findViewById(R.id.relativeLayout_data);
         relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
         progressBar = findViewById(R.id.progressBar);
@@ -214,7 +213,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
         });
     }
 
-    public void resendCode(View view) {
+    private void resendCode() {
 
         PhoneAuthProvider.getInstance().verifyPhoneNumber(
                 mobile,
@@ -225,10 +224,10 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                 resendToken);
     }
 
-    public void getUser() {
+    private void getUser() {
         showProgressBar();
         FirebaseFirestore.getInstance().collection("users").
-                whereEqualTo("userPhoneNumber", mAuth.getCurrentUser().getPhoneNumber()).get()
+                whereEqualTo("userPhoneNumber", Objects.requireNonNull(mAuth.getCurrentUser()).getPhoneNumber()).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
@@ -237,13 +236,18 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                             for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                                 onlineUser = documentSnapshot.toObject(User.class);
 
-                                Intent intent = new Intent(VerifyPhoneActivity.this, HomeActivity.class);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                startActivity(intent);
+                                if (onlineUser.getUserName() == null || !onlineUser.getUserName().equals("")) {
+                                    Intent intent = new Intent(VerifyPhoneActivity.this, SignUpPhoneActivity.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    startActivity(intent);
+                                } else {
+                                    Intent intent = new Intent(VerifyPhoneActivity.this, HomeActivity.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    startActivity(intent);
+                                }
                             }
                             Log.d(TAG, "User downloaded");
                         } else {
-
                             Intent intent = new Intent(VerifyPhoneActivity.this, SignUpPhoneActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
@@ -259,7 +263,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                 });
     }
 
-    public void hideSoftKeyboard(){
+    private void hideSoftKeyboard() {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 }

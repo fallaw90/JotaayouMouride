@@ -1,11 +1,12 @@
-package com.fallntic.jotaayumouride.Model;
+package com.fallntic.jotaayumouride.model;
 
 import java.io.Serializable;
 
+@SuppressWarnings("unused")
 public class UploadPdf implements Comparable<UploadPdf>, Serializable {
 
-    public String name;
-    public String url;
+    private String name;
+    private String url;
 
     // Default constructor required for calls to
     // DataSnapshot.getValue(User.class)
@@ -28,5 +29,13 @@ public class UploadPdf implements Comparable<UploadPdf>, Serializable {
     @Override
     public int compareTo(UploadPdf uploadPdf) {
         return this.name.compareToIgnoreCase(uploadPdf.getName());
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

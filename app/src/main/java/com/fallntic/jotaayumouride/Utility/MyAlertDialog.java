@@ -1,4 +1,4 @@
-package com.fallntic.jotaayumouride.Utility;
+package com.fallntic.jotaayumouride.utility;
 
 import android.app.Activity;
 import android.content.DialogInterface;
@@ -6,13 +6,14 @@ import android.util.Log;
 
 import androidx.appcompat.app.AlertDialog;
 
-public class MyAlertDialog {
+@SuppressWarnings("unused")
+class MyAlertDialog {
 
     private static final String TAG = MyAlertDialog.class.getSimpleName();
 
-    Activity mActivity;
+    private final Activity mActivity;
 
-    public MyAlertDialog(Activity activity) {
+    private MyAlertDialog(Activity activity) {
         mActivity = activity;
     }
 

@@ -18,10 +18,10 @@
                 android:id="@+id/imageView"
                 android:layout_width="@dimen/_80sdp"
                 android:layout_height="@dimen/_80sdp"
-                android:layout_centerHorizontal="true"
                 android:layout_gravity="center_vertical"
                 android:scaleType="centerCrop"
                 android:layout_margin="@dimen/_5sdp"
+                android:contentDescription="@string/photo"
                 app:srcCompat="@drawable/profile_image" />
 
             <LinearLayout
@@ -35,7 +35,7 @@
                     android:id="@+id/textView_userName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Nom: Cheikh Fall"
+                    android:text="@string/example_name"
                     android:textColor="@color/black"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
                     android:textStyle="bold" />
@@ -44,21 +44,21 @@
                     android:id="@+id/textView_address"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Adresse: Parcelles Assainies Unite 05, Dakar Senegal"
+                    android:text="@string/example_address"
                     android:textColor="@color/black" />
 
                 <TextView
                     android:id="@+id/textView_userPhoneNumber"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Tel: 771866656"
+                    android:text="@string/example_771866656"
                     android:textColor="@color/black" />
 
                 <TextView
                     android:id="@+id/textView_role"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Administrateur"
+                    android:text="@string/administrateur"
                     android:textColor="@color/red" />
 
             </LinearLayout>

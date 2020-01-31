@@ -1,5 +1,6 @@
-package com.fallntic.jotaayumouride.Model;
+package com.fallntic.jotaayumouride.model;
 
+@SuppressWarnings("unused")
 public class Image {
 
     private String imageID;

@@ -42,7 +42,7 @@
             android:layout_below="@+id/linearLayout"
             android:layout_marginTop="@dimen/_40sdp"
             android:padding="@dimen/_7sdp"
-            android:text="Enregistrer par " />
+            android:text="@string/enregistre_par" />
 
     </androidx.cardview.widget.CardView>
 

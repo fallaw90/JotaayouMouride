@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <item
         android:drawable="@color/white"/>
 
     <item
-        android:width="200dp"
-        android:height="200dp"
         android:drawable="@drawable/logo_web"
-        android:gravity="center" />
+        android:gravity="center"
+        tools:targetApi="Q" />
 
 </layer-list>

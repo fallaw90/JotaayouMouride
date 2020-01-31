@@ -53,7 +53,7 @@
                     android:layout_marginTop="@dimen/_10sdp"
                     android:gravity="center"
                     android:padding="@dimen/_10sdp"
-                    android:text="Glissez vers la gauche pour supprimer"
+                    android:text="@string/textview_delete_instruction"
                     android:textColor="@color/red" />
             </RelativeLayout>
         </ScrollView>
@@ -62,7 +62,7 @@
             android:id="@+id/button_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Retour a la page precedente"
+            android:text="@string/backButton"
             android:textAllCaps="false"
             android:layout_above="@+id/adView"
             android:layout_centerHorizontal="true"
@@ -79,7 +79,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="@dimen/_5sdp"
             ads:adSize="BANNER"
-            ads:adUnitId="@string/banner_unit_id"></com.google.android.gms.ads.AdView>
+            ads:adUnitId="@string/banner_unit_id" />
 
     </RelativeLayout>
 
@@ -95,7 +95,7 @@
             android:layout_above="@+id/progressBar"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:text="Patientez SVP ..."
+            android:text="@string/patientez_svp"
             android:textSize="@dimen/_20sdp" />
 
         <ProgressBar

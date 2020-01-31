@@ -1,13 +1,12 @@
 package com.fallntic.jotaayumouride;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -21,34 +20,39 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.fallntic.jotaayumouride.Utility.MyStaticFunctions;
+import com.fallntic.jotaayumouride.model.Dahira;
+import com.fallntic.jotaayumouride.utility.MyStaticFunctions;
+import com.fallntic.jotaayumouride.utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.isDouble;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.indexOnlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListDahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.isDouble;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.indexOnlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.myListDahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.progressDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutProgressBar;
 
+@SuppressWarnings("unused")
 public class UpdateAdminActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "CreateDahiraActivity";
 
-    final Handler handler = new Handler();
+    private final Handler handler = new Handler();
 
     private EditText editTextUserName;
     private EditText editTextAdiya;
@@ -56,9 +60,13 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
     private EditText editTextSocial;
     private TextView textViewDahiraName;
     private ImageView imageViewProfile;
-    private Spinner spinnerCommission;
-    private String name, amountAdiya, amountSass, amountSocial, role, commission;
+    private String amountAdiya;
+    private String amountSass;
+    private String amountSocial;
+    private String commission;
     private String totalAdiya, totalSass, totalSocial;
+
+    private FirebaseFirestore firestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +86,10 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
         initViews();
         displayViews();
 
+        firestore = FirebaseFirestore.getInstance();
+
+        new MyTask().execute();
+
         MyStaticFunctions.showImage(this, onlineUser.getImageUri(), imageViewProfile);
         //getData();
         handler.postDelayed(new Runnable() {
@@ -87,10 +99,10 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
             }
         }, 5000);
 
-
         hideSoftKeyboard();
     }
 
+    @SuppressLint("SetTextI18n")
     private void displayViews() {
         textViewDahiraName.setText("Completez votre inscription du dahira " + dahira.getDahiraName() + " pour terminer.");
         editTextUserName.setText(onlineUser.getUserName());
@@ -119,10 +131,8 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.button_save:
-                updateAdmin();
-                break;
+        if (v.getId() == R.id.button_save) {
+            updateAdmin();
         }
     }
 
@@ -130,31 +140,8 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
     public void onBackPressed() {
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-
-        MenuItem iconBack;
-        iconBack = menu.findItem(R.id.icon_back);
-
-        iconBack.setVisible(true);
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.icon_back:
-                finish();
-                break;
-        }
-        return true;
-    }
-
-    public void setSpinner() {
-        spinnerCommission = findViewById(R.id.spinner_commission);
+    private void setSpinner() {
+        Spinner spinnerCommission = findViewById(R.id.spinner_commission);
 
         List<String> listCommissionDahira = new ArrayList<>();
         if (dahira != null && dahira.getListCommissions().size() > 0)
@@ -162,7 +149,7 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
 
         listCommissionDahira.add(0, "N/A");
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, listCommissionDahira);
         spinnerCommission.setAdapter(adapter);
 
@@ -181,11 +168,10 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
 
     private void updateAdmin() {
 
-        name = editTextUserName.getText().toString().trim();
         amountAdiya = editTextAdiya.getText().toString().trim();
         amountSass = editTextSass.getText().toString().trim();
         amountSocial = editTextSocial.getText().toString().trim();
-        role = "Administrateur";
+        String role = "Administrateur";
 
         if (amountAdiya.contains(","))
             amountAdiya = amountAdiya.replace(",", ".");
@@ -219,48 +205,45 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void updateUserCollection() {
-
-        showProgressBar();
-        firestore.collection("users").document(onlineUser.getUserID())
-                .update("listUpdatedDahiraID", onlineUser.getListUpdatedDahiraID(),
-                        "userName", onlineUser.getUserName(),
-                        "userPhoneNumber", onlineUser.getUserPhoneNumber(),
-                        "address", onlineUser.getAddress(),
-                        "listCommissions", onlineUser.getListCommissions(),
-                        "listAdiya", onlineUser.getListAdiya(),
-                        "listSass", onlineUser.getListSass(),
-                        "listSocial", onlineUser.getListSocial(),
-                        "listRoles", onlineUser.getListRoles())
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        hideProgressBar();
-                        updateDahira();
-                        toastMessage(getApplicationContext(), "Enregistrement reussi.");
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                hideProgressBar();
-            }
-        });
+        if (firestore != null) {
+            showProgressBar();
+            firestore.collection("users").document(onlineUser.getUserID())
+                    .update("listUpdatedDahiraID", onlineUser.getListUpdatedDahiraID(),
+                            "userName", onlineUser.getUserName(),
+                            "userPhoneNumber", onlineUser.getUserPhoneNumber(),
+                            "address", onlineUser.getAddress(),
+                            "listCommissions", onlineUser.getListCommissions(),
+                            "listAdiya", onlineUser.getListAdiya(),
+                            "listSass", onlineUser.getListSass(),
+                            "listSocial", onlineUser.getListSocial(),
+                            "listRoles", onlineUser.getListRoles())
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            hideProgressBar();
+                            updateDahira();
+                            toastMessage(getApplicationContext(), "Enregistrement reussi.");
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    hideProgressBar();
+                }
+            });
+        }
     }
 
     private void updateDahira() {
 
         int totalMember = Integer.parseInt(dahira.getTotalMember());
 
-        dahira.setTotalMember(Integer.toString(totalMember++));
+        dahira.setTotalMember(Integer.toString(totalMember));
         dahira.setTotalAdiya(totalAdiya);
         dahira.setTotalSass(totalSass);
         dahira.setTotalSocial(totalSocial);
 
-        if (myListDahira == null) {
-            myListDahira = new ArrayList<>();
+        if (myListDahira != null)
             myListDahira.add(dahira);
-        } else {
-            myListDahira.add(dahira);
-        }
 
         showProgressBar();
         firestore.collection("dahiras").document(dahira.getDahiraID())
@@ -284,36 +267,75 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
         });
     }
 
-    public void hideSoftKeyboard() {
+    private void hideSoftKeyboard() {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
-    public void initViewsProgressBar() {
+    private void initViewsProgressBar() {
         progressDialog = new ProgressDialog(this);
         relativeLayoutData = findViewById(R.id.relativeLayout_data);
         relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
         progressBar = findViewById(R.id.progressBar);
     }
 
-    public boolean hasValidationErrors() {
-        if (amountAdiya.isEmpty() || !isDouble(amountAdiya)) {
+    private boolean hasValidationErrors() {
+        if (amountAdiya.isEmpty() || isDouble(amountAdiya)) {
             editTextAdiya.setError("Valeur incorrecte!");
             editTextAdiya.requestFocus();
             return true;
         }
 
-        if (amountSass.isEmpty() || !isDouble(amountSass)) {
+        if (amountSass.isEmpty() || isDouble(amountSass)) {
             editTextSass.setError("Valeur incorrecte!");
             editTextSass.requestFocus();
             return true;
         }
 
-        if (amountSocial.isEmpty() || !isDouble(amountSocial)) {
+        if (amountSocial.isEmpty() || isDouble(amountSocial)) {
             editTextSocial.setError("Valeur incorrecte!");
             editTextSocial.requestFocus();
             return true;
         }
 
         return false;
+    }
+
+    public void getMyDahira() {
+        if (MyStaticVariables.myListDahira == null || myListDahira.isEmpty()) {
+            myListDahira = new ArrayList<>();
+            firestore.collection("dahiras").get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                                for (DocumentSnapshot documentSnapshot : list) {
+                                    Dahira dahira = documentSnapshot.toObject(Dahira.class);
+                                    if (dahira != null && onlineUser.getListDahiraID().contains(dahira.getDahiraID())) {
+                                        myListDahira.add(dahira);
+                                    }
+                                }
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                        }
+                    });
+        }
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    class MyTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected void onPreExecute() {
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            getMyDahira();
+            return null;
+        }
     }
 }

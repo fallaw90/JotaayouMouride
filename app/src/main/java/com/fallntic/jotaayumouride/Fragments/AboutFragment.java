@@ -1,4 +1,4 @@
-package com.fallntic.jotaayumouride.Fragments;
+package com.fallntic.jotaayumouride.fragments;
 
 import android.os.Bundle;
 import android.text.Html;
@@ -12,25 +12,27 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fallntic.jotaayumouride.Adapter.VideoAdapter;
-import com.fallntic.jotaayumouride.Model.YouTubeVideos;
 import com.fallntic.jotaayumouride.R;
+import com.fallntic.jotaayumouride.adapter.VideoAdapter;
+import com.fallntic.jotaayumouride.model.YouTubeVideos;
 
 import java.util.Vector;
 
 
 public class AboutFragment extends Fragment {
 
-    RecyclerView recyclerView;
-    Vector<YouTubeVideos> youtubeVideos = new Vector<YouTubeVideos>();
-    private View view;
-    private TextView mTextViewAbout;
+    private final Vector<YouTubeVideos> youtubeVideos = new Vector<>();
+    private TextView textViewAbout;
+    private RecyclerView recyclerView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_about, container, false);
+        View view = inflater.inflate(R.layout.fragment_about, container, false);
+
+        textViewAbout = view.findViewById(R.id.about);
+        recyclerView = view.findViewById(R.id.recyclerView);
 
         return view;
     }
@@ -39,10 +41,9 @@ public class AboutFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        mTextViewAbout = view.findViewById(R.id.about);
-        mTextViewAbout.setText(Html.fromHtml(getString(R.string.about)));
 
-        recyclerView = view.findViewById(R.id.recyclerView);
+        textViewAbout.setText(Html.fromHtml(getString(R.string.about)));
+
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 

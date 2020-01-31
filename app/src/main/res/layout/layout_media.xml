@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/frameLayout"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -15,7 +15,7 @@
             android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Faites une appuie longue sur un song pour le telecharger"
+            android:text="@string/faites_une_appuie_longue_sur_un_song_pour_le_telecharger"
             android:textAlignment="center"
             android:textColor="@color/red" />
 
@@ -30,7 +30,6 @@
             android:id="@+id/tv_empty"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/toolbar"
             android:gravity="center_vertical"
             android:textAlignment="center"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
@@ -67,7 +66,8 @@
             android:backgroundTint="@color/dark_green"
             android:src="@android:drawable/ic_menu_search"
             app:fabSize="normal"
-            app:layout_anchor="@id/recyclerView_quran" />
+            app:layout_anchor="@id/recyclerView_quran"
+            tools:ignore="RtlHardcoded" />
 
         <Button
             android:id="@+id/button_back"
@@ -76,7 +76,7 @@
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="@dimen/_5sdp"
             android:layout_marginRight="@dimen/_5sdp"
-            android:text="Retour a la page precedente"
+            android:text="@string/backButton"
             android:layout_centerHorizontal="true"
             android:background="@drawable/rounded_button_solid"
             android:padding="@dimen/_10sdp"
@@ -96,7 +96,7 @@
             android:id="@+id/textView_progressBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Patientez SVP ..."
+            android:text="@string/patientez_svp"
             android:layout_gravity="center_vertical"
             android:layout_marginTop="@dimen/_100sdp"
             android:textAlignment="center"

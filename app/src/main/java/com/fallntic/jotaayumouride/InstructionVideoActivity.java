@@ -12,16 +12,15 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fallntic.jotaayumouride.Adapter.VideoAdapter;
-import com.fallntic.jotaayumouride.Model.YouTubeVideos;
+import com.fallntic.jotaayumouride.adapter.VideoAdapter;
+import com.fallntic.jotaayumouride.model.YouTubeVideos;
 
 import java.util.Objects;
 import java.util.Vector;
 
 public class InstructionVideoActivity extends AppCompatActivity {
 
-    RecyclerView recyclerView;
-    Vector<YouTubeVideos> youtubeVideos = new Vector<YouTubeVideos>();
+    private final Vector<YouTubeVideos> youtubeVideos = new Vector<>();
 
 
     @Override
@@ -37,7 +36,7 @@ public class InstructionVideoActivity extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.mipmap.logo);
 
-        recyclerView = findViewById(R.id.recyclerView);
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 

@@ -27,17 +27,18 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
 
-import com.fallntic.jotaayumouride.Adapter.PageAdapter;
-import com.fallntic.jotaayumouride.Fragments.AboutFragment;
-import com.fallntic.jotaayumouride.Fragments.AudioFragment;
-import com.fallntic.jotaayumouride.Fragments.PDFFragment;
-import com.fallntic.jotaayumouride.Fragments.ProfileFragment;
-import com.fallntic.jotaayumouride.Fragments.PubFragment;
-import com.fallntic.jotaayumouride.Fragments.QuranFragment;
-import com.fallntic.jotaayumouride.Model.Dahira;
-import com.fallntic.jotaayumouride.Model.Event;
-import com.fallntic.jotaayumouride.Utility.MyStaticFunctions;
-import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
+import com.fallntic.jotaayumouride.adapter.PageAdapter;
+import com.fallntic.jotaayumouride.fragments.AboutFragment;
+import com.fallntic.jotaayumouride.fragments.AudioFragment;
+import com.fallntic.jotaayumouride.fragments.PDFFragment;
+import com.fallntic.jotaayumouride.fragments.ProfileFragment;
+import com.fallntic.jotaayumouride.fragments.PubFragment;
+import com.fallntic.jotaayumouride.fragments.QuranFragment;
+import com.fallntic.jotaayumouride.model.Dahira;
+import com.fallntic.jotaayumouride.model.Event;
+import com.fallntic.jotaayumouride.model.User;
+import com.fallntic.jotaayumouride.utility.MyStaticFunctions;
+import com.fallntic.jotaayumouride.utility.MyStaticVariables;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -50,7 +51,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -61,6 +61,7 @@ import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,138 +70,93 @@ import java.util.Objects;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.fallntic.jotaayumouride.ShowDahiraActivity.dialogSearchDahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.isConnected;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.logout;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.stopCurrentPlayingMediaPlayer;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.broadcastReceiverMediaPlayer;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.counterHAonPause;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.counterHAonResume;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayDahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firebaseAuth;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllDahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllEvent;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mediaPlayer;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListDahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.notificationManagerMediaPlayer;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.wasHAonResume;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.wasHAonStop;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.isConnected;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.logout;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showAlertDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.stopCurrentPlayingMediaPlayer;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.actionSelected;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.broadcastReceiverMediaPlayer;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.counterHAonPause;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.counterHAonResume;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.displayDahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.displayEvent;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.firebaseAuth;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.indexOnlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.indexSelectedUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.iv_next;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.iv_play;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.iv_previous;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAllDahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAllEvent;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosAM;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosHT;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosHTDK;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosMagal2019HT;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosMagal2019HTDK;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosMixedWolofal;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosQuran;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosRadiass;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosSerigneMbayeDiakhate;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosSerigneMoussaKa;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosZikr;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listDahiraFound;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listExpenses;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listImage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listSong;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.mAdapter;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.mediaPlayer;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.myListDahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.myListEvents;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.notificationManagerMediaPlayer;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.pb_loader;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.pb_main_loader;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.seekBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.selectedUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tb_title;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.toolbar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.toolbar_bottom;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_duration;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_empty;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_time;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.typeOfContribution;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.wasHAonResume;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.wasHAonStop;
 
+@SuppressWarnings({"LoopStatementThatDoesntLoop", "SuspiciousListRemoveInLoop"})
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = "HomeActivity";
 
-    private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private PageAdapter pageAdapter;
-    private TabItem tabKourel;
-    private TabItem tabWolofal;
-    private TabItem tabQuran;
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle toggle;
     private NavigationView navigationView;
-    private View navHeader;
     private CircleImageView navImageView;
     private TextView textViewNavUserName;
     private TextView textViewNavEmail;
     private static String marqueeAd;
     private TextView textViewMarquee;
-    private String userID;
     private String dahiraToUpdate;
 
-    private static Boolean dahiraUptated = false, tokenSaved = false;
     public static AdView bannerAd;
-    public static InterstitialAd interstitialAd;
-    public static AdRequest adRequest;
+    private static InterstitialAd interstitialAd;
 
-    public static void showInterstitialAd(final Context context) {
-        if (interstitialAd.isLoaded() && (onlineUser == null || !onlineUser.hasPaid())) {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    // If Ads are loaded, show Interstitial else show nothing.
-                    interstitialAd.show();
-                    interstitialAd.setAdListener(new AdListener() {
-                        @Override
-                        public void onAdOpened() {
-                            super.onAdOpened();
-                            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-                            }
-                        }
-
-                        @Override
-                        public void onAdClosed() {
-                            super.onAdClosed();
-                            if (mediaPlayer != null) {
-                                mediaPlayer.start();
-                            }
-                        }
-                    });
-                }
-            }, 5000);
-        }
-    }
-
-    public static void loadInterstitialAd(final Context context) {
-
-        new Handler().postDelayed(new Runnable() {
-            public void run() {
-                // Prepare the Interstitial Ad
-                interstitialAd = new InterstitialAd(context);
-
-                // Insert the Ad Unit ID
-                interstitialAd.setAdUnitId(context.getString(R.string.interstitial_unit_id));
-                AdRequest adRequest = new AdRequest.Builder().build();
-                interstitialAd.loadAd(adRequest);
-                interstitialAd.setAdListener(new AdListener() {
-                    @Override
-                    public void onAdLoaded() {
-                        super.onAdLoaded();
-                        showInterstitialAd(context);
-                    }
-                });
-            }
-        }, 2000);
-    }
-
-    public void getMyDahira() {
-        if (MyStaticVariables.myListDahira == null || myListDahira.isEmpty()) {
-            myListDahira = new ArrayList<>();
-            firestore.collection("dahiras").get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            hideProgressBar();
-                            if (!queryDocumentSnapshots.isEmpty()) {
-                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
-                                for (DocumentSnapshot documentSnapshot : list) {
-                                    Dahira dahira = documentSnapshot.toObject(Dahira.class);
-                                    if (dahira != null && onlineUser.getListDahiraID().contains(dahira.getDahiraID())) {
-                                        myListDahira.add(dahira);
-                                    }
-                                }
-                            }
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            //toastMessage(context, "Error charging dahira!");
-                        }
-                    });
-        }
-    }
+    private static FirebaseFirestore firestore;
+    //********************************* Clean Database *****************************************
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+    private final List<Dahira> filteredDahiras = new ArrayList<>();
 
     private void setupOnlineViewPager(ViewPager viewPager) {
         pageAdapter.addFragment(new PubFragment(), "Info", 0);
@@ -243,97 +199,36 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    public void initViews() {
-        textViewMarquee = findViewById(R.id.marquee_text);
-        tabLayout = findViewById(R.id.tablayout);
-        tabKourel = findViewById(R.id.tab_kourel);
-        tabWolofal = findViewById(R.id.tab_wolofal);
-        tabQuran = findViewById(R.id.tab_quran);
-        viewPager = findViewById(R.id.viewPager);
+    private final List<User> allUsers = new ArrayList<>();
+    private final List<String> phoneNumbers = new ArrayList<>();
+    private final List<String> id_dahira = new ArrayList<>();
 
-        drawerLayout = findViewById(R.id.drawer_layout);
-        navigationView = findViewById(R.id.nav_view);
-        navHeader = navigationView.getHeaderView(0);
-        navImageView = navHeader.findViewById(R.id.nav_imageView);
-        textViewNavUserName = navHeader.findViewById(R.id.textView_navUserName);
-        textViewNavEmail = navHeader.findViewById(R.id.textView_navEmail);
-        toggle = new ActionBarDrawerToggle(this, drawerLayout,
-                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-
-        if (onlineUser == null) {
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-        }
-
-        pageAdapter = new PageAdapter(getSupportFragmentManager());
-
-        initViewsProgressBar();
-    }
-
-    public void hideMenuItem() {
-        Menu nav_Menu = navigationView.getMenu();
-        nav_Menu.findItem(R.id.nav_setting).setTitle("Modifier mon profil");
-
-        nav_Menu.findItem(R.id.nav_displayUsers).setVisible(false);
-        nav_Menu.findItem(R.id.nav_addUser).setVisible(false);
-        nav_Menu.findItem(R.id.nav_searchUser).setVisible(false);
-
-        nav_Menu.findItem(R.id.nav_finance).setVisible(false);
-        nav_Menu.findItem(R.id.nav_gallery).setVisible(false);
-        nav_Menu.findItem(R.id.nav_contact).setVisible(false);
-
-        nav_Menu.findItem(R.id.nav_addAnnouncement).setVisible(false);
-        nav_Menu.findItem(R.id.nav_displayAnnouncement).setVisible(false);
-        nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
-        nav_Menu.findItem(R.id.nav_displayEvent).setVisible(false);
-        nav_Menu.findItem(R.id.nav_removeDahira).setVisible(false);
-
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (toggle.onOptionsItemSelected(item))
-            return true;
-
-        switch (item.getItemId()) {
-
-            case R.id.login:
-                startActivity(new Intent(this, LoginPhoneActivity.class));
-                break;
-
-            case R.id.instructions:
-                startActivity(new Intent(this, InstructionsActivity.class));
-                break;
-        }
-
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
-    }
-
-    public void getAllDahiras() {
-        if (MyStaticVariables.listAllDahira == null || listAllDahira.isEmpty()) {
-            listAllDahira = new ArrayList<>();
-            firestore.collection("dahiras").get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+    private static void showInterstitialAd() {
+        if (interstitialAd.isLoaded() && (onlineUser == null || !onlineUser.hasPaid())) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    // If Ads are loaded, show Interstitial else show nothing.
+                    interstitialAd.show();
+                    interstitialAd.setAdListener(new AdListener() {
                         @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            if (!queryDocumentSnapshots.isEmpty()) {
-                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
-                                for (DocumentSnapshot documentSnapshot : list) {
-                                    Dahira dahira = documentSnapshot.toObject(Dahira.class);
-                                    if (dahira != null) {
-                                        dahira.setDahiraID(documentSnapshot.getId());
-                                        MyStaticVariables.listAllDahira.add(dahira);
-                                    }
-                                }
+                        public void onAdOpened() {
+                            super.onAdOpened();
+                            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                                mediaPlayer.pause();
                             }
                         }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
+
                         @Override
-                        public void onFailure(@NonNull Exception e) {
-                            //toastMessage(context, "Error charging dahira!");
+                        public void onAdClosed() {
+                            super.onAdClosed();
+                            if (mediaPlayer != null) {
+                                mediaPlayer.start();
+                            }
                         }
                     });
+                }
+            }, 5000);
         }
     }
 
@@ -381,128 +276,92 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public void saveTokenID(final String userID) {
-        if (!tokenSaved) {
-            FirebaseMessaging.getInstance().subscribeToTopic("JotaayouMouride");
-            FirebaseInstanceId.getInstance().getInstanceId()
-                    .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<InstanceIdResult> task) {
-                            if (!task.isSuccessful()) {
-                                Log.w(TAG, "getInstanceId failed", task.getException());
-                                return;
-                            }
-                            // Get new Instance ID token
-                            String token_id = task.getResult().getToken();
-                            Map<String, Object> tokenMap = new HashMap<>();
-                            tokenMap.put("tokenID", token_id);
-                            //toastMessage(ProfileActivity.this, token_id);
+    public static void loadInterstitialAd(final Context context) {
 
-                            FirebaseFirestore.getInstance().collection("users")
-                                    .document(userID).update(tokenMap)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            tokenSaved = true;
-                                            //toastMessage(HomeActivity.this, "ttoken saved");
-                                        }
-                                    });
-                            // Log and toast
-                            Log.d(TAG, token_id);
-                        }
-                    });
+        // Prepare the Interstitial Ad
+        interstitialAd = new InterstitialAd(context);
+
+        // Insert the Ad Unit ID
+        interstitialAd.setAdUnitId(context.getString(R.string.interstitial_unit_id));
+        AdRequest adRequest = new AdRequest.Builder().build();
+        interstitialAd.loadAd(adRequest);
+        interstitialAd.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                super.onAdLoaded();
+                showInterstitialAd();
+            }
+        });
+    }
+
+    public static void loadBannerAd(Activity activity) {
+
+        bannerAd = activity.findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        bannerAd.loadAd(adRequest);
+    }
+
+    private void initViews() {
+        textViewMarquee = findViewById(R.id.marquee_text);
+        tabLayout = findViewById(R.id.tablayout);
+        viewPager = findViewById(R.id.viewPager);
+
+        drawerLayout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
+        View navHeader = navigationView.getHeaderView(0);
+        navImageView = navHeader.findViewById(R.id.nav_imageView);
+        textViewNavUserName = navHeader.findViewById(R.id.textView_navUserName);
+        textViewNavEmail = navHeader.findViewById(R.id.textView_navEmail);
+        toggle = new ActionBarDrawerToggle(this, drawerLayout,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+
+        if (onlineUser == null) {
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         }
+
+        pageAdapter = new PageAdapter(getSupportFragmentManager());
+
+        initViewsProgressBar();
+    }
+
+    private void hideMenuItem() {
+        Menu nav_Menu = navigationView.getMenu();
+        nav_Menu.findItem(R.id.nav_setting).setTitle("Modifier mon profil");
+
+        nav_Menu.findItem(R.id.nav_displayUsers).setVisible(false);
+        nav_Menu.findItem(R.id.nav_addUser).setVisible(false);
+        nav_Menu.findItem(R.id.nav_searchUser).setVisible(false);
+
+        nav_Menu.findItem(R.id.nav_finance).setVisible(false);
+        nav_Menu.findItem(R.id.nav_gallery).setVisible(false);
+        nav_Menu.findItem(R.id.nav_contact).setVisible(false);
+
+        nav_Menu.findItem(R.id.nav_addAnnouncement).setVisible(false);
+        nav_Menu.findItem(R.id.nav_displayAnnouncement).setVisible(false);
+        nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
+        nav_Menu.findItem(R.id.nav_displayEvent).setVisible(false);
+        nav_Menu.findItem(R.id.nav_removeDahira).setVisible(false);
+
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (toggle.onOptionsItemSelected(item))
+            return true;
 
-        toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        switch (item.getItemId()) {
 
-        initViews();
+            case R.id.login:
+                startActivity(new Intent(this, LoginPhoneActivity.class));
+                break;
 
-        if (!isConnected(this)) {
-            toastMessage(this, "Verifier votre connexion SVP.");
-            return;
+            case R.id.instructions:
+                startActivity(new Intent(this, InstructionsActivity.class));
+                break;
         }
 
-        if (onlineUser != null && firebaseAuth != null && firebaseAuth.getCurrentUser() != null) {
-            userID = firebaseAuth.getCurrentUser().getUid();
-            new MyTask().execute();
-            setDrawerMenu();
-            setupOnlineViewPager(viewPager);
-            textViewNavUserName.setText(onlineUser.getUserName());
-            textViewNavEmail.setText(onlineUser.getEmail());
-        } else {
-            toolbar.setLogo(R.mipmap.logo);
-            setupOfflineViewPager(viewPager);
-        }
-        changeTab();
-
-        //****************************** adMob ***********************************
-        // Initialize the Mobile Ads SDK.
-        MobileAds.initialize(this, new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
-
-            }
-        });
-
-    }
-
-    public void initViewsProgressBar() {
-        relativeLayoutData = findViewById(R.id.relativeLayout_data);
-        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
-        progressBar = findViewById(R.id.progressBar);
-    }
-
-    public boolean isAdminUpdated() {
-        boolean updated = true;
-        if (!onlineUser.getListDahiraID().isEmpty()) {
-            if (onlineUser.getListUpdatedDahiraID().isEmpty()) {
-                dahiraToUpdate = onlineUser.getListDahiraID().get(0);
-                updated = false;
-            } else {
-                for (String dahiraID : onlineUser.getListDahiraID()) {
-                    if (!onlineUser.getListUpdatedDahiraID().contains(dahiraID)) {
-                        dahiraToUpdate = dahiraID;
-                        updated = false;
-                        break;
-                    }
-                }
-            }
-        }
-        return updated;
-    }
-
-    public void getDahiraToUpdate() {
-        if (!isAdminUpdated()) {
-            showProgressBar();
-            firestore.collection("dahiras").whereEqualTo("dahiraID", dahiraToUpdate).get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            hideProgressBar();
-                            for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                                dahira = documentSnapshot.toObject(Dahira.class);
-                                break;
-                            }
-                            startActivity(new Intent(HomeActivity.this, UpdateAdminActivity.class));
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            hideProgressBar();
-                            toastMessage(HomeActivity.this, "Error chargement dahiraToUpdate!");
-                            Log.d(TAG, e.toString());
-                        }
-                    });
-        }
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
     }
 
     @Override
@@ -532,10 +391,155 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         //toastMessage(this, "HomeActivity onResume");
     }
 
-    public void changeTab() {
+    private void saveTokenID(final String userID) {
+
+        FirebaseMessaging.getInstance().subscribeToTopic("JotaayouMouride");
+
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "getInstanceId failed", task.getException());
+                            return;
+                        }
+                        // Get new Instance ID token
+                        String token_id = Objects.requireNonNull(task.getResult()).getToken();
+
+                        Map<String, Object> tokenMap = new HashMap<>();
+                        tokenMap.put("tokenID", token_id);
+                        //toastMessage(ProfileActivity.this, token_id);
+
+                        FirebaseFirestore.getInstance().collection("users")
+                                .document(userID).update(tokenMap)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        dismissProgressDialog();
+                                    }
+                                });
+                        // Log and toast
+                        Log.d(TAG, token_id);
+                    }
+                });
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_home);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        initViews();
+
+        if (!isConnected(this)) {
+            toastMessage(this, "Verifier votre connexion SVP.");
+            return;
+        }
+
+        firestore = FirebaseFirestore.getInstance();
+
+        //startActivity(new Intent(this, ImageAdvertisementActivity.class));
+        //deleteOneUser("+13474795621");
+
+        textViewMarquee.setSelected(true);
+        getMarqueeText();
+
+        if (onlineUser != null && firebaseAuth != null && firebaseAuth.getCurrentUser() != null) {
+            setDrawerMenu();
+            setupOnlineViewPager(viewPager);
+            new MyTask().execute();
+        } else {
+            toolbar.setLogo(R.mipmap.logo);
+            setupOfflineViewPager(viewPager);
+        }
+        resizeMarqueeText();
+        changeTab();
+
+        //****************************** adMob ***********************************
+        // Initialize the Mobile Ads SDK.
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+                loadInterstitialAd(HomeActivity.this);
+            }
+        });
+
+        loadBannerAd(this);
+    }
+
+    private void initViewsProgressBar() {
+        relativeLayoutData = findViewById(R.id.relativeLayout_data);
+        relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
+        progressBar = findViewById(R.id.progressBar);
+    }
+
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
+    }
+
+    private boolean isAdminUpdated() {
+        boolean updated = true;
+        if (!onlineUser.getListDahiraID().isEmpty()) {
+            if (onlineUser.getListUpdatedDahiraID().isEmpty()) {
+                dahiraToUpdate = onlineUser.getListDahiraID().get(0);
+                updated = false;
+            } else {
+                for (String dahiraID : onlineUser.getListDahiraID()) {
+                    if (!onlineUser.getListUpdatedDahiraID().contains(dahiraID)) {
+                        dahiraToUpdate = dahiraID;
+                        updated = false;
+                        break;
+                    }
+                }
+            }
+        }
+        return updated;
+    }
+
+    private void getDahiraToUpdate() {
+        if (!isAdminUpdated()) {
+            showProgressBar();
+            firestore.collection("dahiras").whereEqualTo("dahiraID", dahiraToUpdate).get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            hideProgressBar();
+                            for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                dahira = documentSnapshot.toObject(Dahira.class);
+                                break;
+                            }
+                            startActivity(new Intent(HomeActivity.this, UpdateAdminActivity.class));
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            hideProgressBar();
+                            toastMessage(HomeActivity.this, "Error chargement dahiraToUpdate!");
+                            Log.d(TAG, e.toString());
+                        }
+                    });
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        //toastMessage(this, "HomeActivity onStop");
+
+        wasHAonStop = true;
+    }
+
+    private void changeTab() {
 
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @SuppressWarnings("StatementWithEmptyBody")
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
 
@@ -574,11 +578,13 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-    public static void loadBannerAd(Activity activity, Context context) {
-
-        bannerAd = activity.findViewById(R.id.adView);
-        adRequest = new AdRequest.Builder().build();
-        bannerAd.loadAd(adRequest);
+    private void resizeMarqueeText() {
+        if (textViewMarquee != null) {
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) textViewMarquee.getLayoutParams();
+            params.height = getResources().getDimensionPixelSize(R.dimen.textView_height);
+            params.width = getResources().getDimensionPixelSize(R.dimen.textView_width);
+            textViewMarquee.setLayoutParams(params);
+        }
     }
 
     @Override
@@ -591,11 +597,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.nav_displayMyDahira:
                 MyStaticVariables.displayDahira = "myDahira";
-                if (myListDahira == null || myListDahira.isEmpty()) {
+                if (myListDahira == null || myListDahira.size() <= 0) {
                     showAlertDialog(this, "Vous n'etes membre d'un " +
                             " aucun dahira pour le moment. Contactez l'administrateur de votre dahira " +
                             "pour qu'il vous ajoute en tant que membre. Ou bien, creer un dahira si vous etes " +
-                            "administrateur.");
+                            "administrateur.\n Reessayez si vous croyez que ceci est une erreur.");
                 } else {
                     startActivity(new Intent(this, ShowDahiraActivity.class));
                 }
@@ -607,7 +613,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
             case R.id.nav_displayAllDahira:
                 MyStaticVariables.displayDahira = "allDahira";
-                if (listAllDahira == null || listAllDahira.isEmpty()) {
+                if (listAllDahira == null || listAllDahira.size() <= 0) {
                     showAlertDialog(this, "Aucun dahira disponible pour le moment");
                 } else {
                     startActivity(new Intent(this, ShowDahiraActivity.class));
@@ -641,12 +647,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    @Override
-    public void onBackPressed() {
-        moveTaskToBack(true);
-    }
-
-    public void setDrawerMenu() {
+    private void setDrawerMenu() {
 
         navigationView.setItemIconTintList(null);
         navigationView.setNavigationItemSelectedListener(this);
@@ -654,7 +655,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
-        if (onlineUser != null && onlineUser.getImageUri() != null) {
+        if (onlineUser.getImageUri() != null) {
             MyStaticFunctions.showImage(this, onlineUser.getImageUri(), navImageView);
         }
         if (navigationView != null)
@@ -663,54 +664,78 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         hideMenuItem();
     }
 
-
     @Override
     public void onDestroy() {
-        super.onDestroy();
-
         if (bannerAd != null) {
             bannerAd.destroy();
         }
 
         stopCurrentPlayingMediaPlayer();
 
-        MyStaticVariables.listAudiosQuran = null;
-        MyStaticVariables.listAudiosSerigneMbayeDiakhate = null;
-        MyStaticVariables.listAudiosSerigneMoussaKa = null;
-        MyStaticVariables.listAudiosHT = null;
-        MyStaticVariables.listAudiosHTDK = null;
-        MyStaticVariables.listAudiosMagal2019HT = null;
-        MyStaticVariables.listAudiosMagal2019HTDK = null;
-        MyStaticVariables.listAudiosAM = null;
-        MyStaticVariables.listAudiosRadiass = null;
-        MyStaticVariables.listAudiosMixedWolofal = null;
-        MyStaticVariables.listAudiosZikr = null;
+
+        listAudiosMagal2019HT = null;
+        listAudiosMagal2019HTDK = null;
+        listAudiosMixedWolofal = null;
+        listAudiosZikr = null;
+        indexOnlineUser = -1;
+        indexSelectedUser = -1;
+        typeOfContribution = null;
+        actionSelected = null;
+        displayDahira = null;
+        displayEvent = null;
+        onlineUser = null;
+        selectedUser = null;
+        dahira = null;
+        listSong = null;
+        listAudiosQuran = null;
+        listAudiosSerigneMbayeDiakhate = null;
+        listAudiosSerigneMoussaKa = null;
+        listAudiosHT = null;
+        listAudiosHTDK = null;
+        listAudiosAM = null;
+        listAudiosRadiass = null;
+        listUser = null;
+        myListEvents = null;
+        listAllEvent = null;
+        myListDahira = null;
+        listAllDahira = null;
+        listDahiraFound = null;
+        listExpenses = null;
+        listImage = null;
+        relativeLayoutProgressBar = null;
+        relativeLayoutData = null;
+        firestore = null;
+        mAdapter = null;
+        toolbar = null;
+        toolbar_bottom = null;
+        tb_title = null;
+        tv_empty = null;
+        tv_duration = null;
+        iv_play = null;
+        iv_next = null;
+        iv_previous = null;
+        pb_loader = null;
+        pb_main_loader = null;
+        tv_time = null;
+        seekBar = null;
 
         //**********Notification Music********
-        if (broadcastReceiverMediaPlayer != null) {
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    notificationManagerMediaPlayer = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                    notificationManagerMediaPlayer.cancelAll();
-                }
-                unregisterReceiver(broadcastReceiverMediaPlayer);
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                notificationManagerMediaPlayer = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                Objects.requireNonNull(notificationManagerMediaPlayer).cancelAll();
             }
+            unregisterReceiver(broadcastReceiverMediaPlayer);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
         }
-    }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        //toastMessage(this, "HomeActivity onStop");
-
-
-        wasHAonStop = true;
+        //toastMessage(this, "HomeActivity Destroyed");
+        super.onDestroy();
     }
 
     private void getMarqueeText() {
-        if (marqueeAd == null) {
+        if (marqueeAd == null && firestore != null) {
             firestore.collection("advertisements").document("marquee_text").get()
                     .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
@@ -719,11 +744,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                                 DocumentSnapshot document = task.getResult();
                                 if (document != null) {
                                     marqueeAd = document.getString("text");
-                                    if (textViewMarquee != null && marqueeAd != null && !marqueeAd.equals("")) {
-                                        textViewMarquee.setSelected(true);
+                                    if (textViewMarquee != null) {
                                         textViewMarquee.setText(marqueeAd);
                                         textViewMarquee.setVisibility(View.VISIBLE);
-                                        resizeMarqueeText();
                                     }
                                 } else {
                                     Log.d("LOGGER", "No such document");
@@ -747,12 +770,244 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private void resizeMarqueeText() {
-        if (textViewMarquee != null) {
-            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) textViewMarquee.getLayoutParams();
-            params.height = getResources().getDimensionPixelSize(R.dimen.textView_height);
-            params.width = getResources().getDimensionPixelSize(R.dimen.textView_width);
-            textViewMarquee.setLayoutParams(params);
+    public void getMyDahira() {
+        if (firestore != null && myListDahira == null) {
+            myListDahira = new ArrayList<>();
+            firestore.collection("dahiras").get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                                for (DocumentSnapshot documentSnapshot : list) {
+                                    Dahira dahira = documentSnapshot.toObject(Dahira.class);
+                                    if (dahira != null && onlineUser.getListDahiraID().contains(dahira.getDahiraID())) {
+                                        myListDahira.add(dahira);
+                                    }
+                                }
+                                Collections.sort(myListDahira);
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            toastMessage(HomeActivity.this, "Error charging dahira");
+                        }
+                    });
+        }
+    }
+
+    public void getAllDahiras() {
+        if (firestore != null && MyStaticVariables.listAllDahira == null || listAllDahira.isEmpty()) {
+            listAllDahira = new ArrayList<>();
+            firestore.collection("dahiras").get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                                for (DocumentSnapshot documentSnapshot : list) {
+                                    Dahira dahira = documentSnapshot.toObject(Dahira.class);
+                                    if (dahira != null) {
+                                        dahira.setDahiraID(documentSnapshot.getId());
+                                        listAllDahira.add(dahira);
+                                    }
+                                }
+                                Collections.sort(listAllDahira);
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            //toastMessage(context, "Error charging dahira!");
+                        }
+                    });
+        }
+    }
+
+    public void clearDahiraAndUpdateUser() {
+        if (MyStaticVariables.listAllDahira == null || listAllDahira.isEmpty()) {
+            listAllDahira = new ArrayList<>();
+            firestore.collection("dahiras").get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                                for (DocumentSnapshot documentSnapshot : list) {
+                                    Dahira dahira = documentSnapshot.toObject(Dahira.class);
+                                    if (dahira != null) {
+                                        dahira.setDahiraID(documentSnapshot.getId());
+                                        listAllDahira.add(dahira);
+                                    }
+                                }
+                                //Sort the dahira by total member
+                                Collections.sort(listAllDahira);
+                                //Extract dahira by phone number
+                                for (int i = listAllDahira.size() - 1; i >= 0; i--) {
+                                    if (!phoneNumbers.contains(listAllDahira.get(i).getDahiraPhoneNumber())) {
+                                        filteredDahiras.add(listAllDahira.get(i));
+                                        phoneNumbers.add(listAllDahira.get(i).getDahiraPhoneNumber());
+                                        id_dahira.add(listAllDahira.get(i).getDahiraID());
+                                    }
+                                }
+
+                                for (Dahira dahira : listAllDahira) {
+                                    if (!id_dahira.contains(dahira.getDahiraID())) {
+                                        deleteDahira(dahira);
+                                    }
+                                }
+                            }
+
+                            for (User user : allUsers) {
+                                for (int i = 0; i < user.getListDahiraID().size(); i++) {
+                                    if (!id_dahira.contains(user.getListDahiraID().get(i))) {
+                                        //noinspection SuspiciousListRemoveInLoop
+                                        user.getListDahiraID().remove(i);
+                                        //noinspection SuspiciousListRemoveInLoop
+                                        user.getListUpdatedDahiraID().remove(i);
+                                        user.getListRoles().remove(i);
+                                        user.getListCommissions().remove(i);
+                                        user.getListAdiya().remove(i);
+                                        user.getListSass().remove(i);
+                                        user.getListSocial().remove(i);
+                                        updateUser(user);
+                                    }
+                                }
+                            }
+                            //Collections.reverse(listAllDahira);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            toastMessage(HomeActivity.this, "Error charging all dahira!");
+                        }
+                    });
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public void cleanMultipleDahira() {
+        if (MyStaticVariables.listAllDahira == null || listAllDahira.isEmpty()) {
+            listAllDahira = new ArrayList<>();
+            firestore.collection("users").get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                                for (DocumentSnapshot documentSnapshot : list) {
+                                    User user = documentSnapshot.toObject(User.class);
+                                    if (user != null) {
+                                        user.setUserID(documentSnapshot.getId());
+                                        allUsers.add(user);
+                                    }
+                                }
+                                clearDahiraAndUpdateUser();
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            toastMessage(HomeActivity.this, "Error charging all dahira!");
+                        }
+                    });
+        }
+    }
+
+    private void updateUser(final User user) {
+        firestore.collection("users").document(user.getUserID())
+                .set(user)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        toastMessage(HomeActivity.this, user.getUserName() + " updated");
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+            }
+        });
+    }
+
+    @SuppressWarnings("unused")
+    private void updateTotalMemberDahira(final Dahira dahira) {
+        firestore.collection("dahiras").document(dahira.getDahiraID())
+                .set(dahira)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        toastMessage(HomeActivity.this, dahira.getDahiraName() + " updated");
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+            }
+        });
+    }
+
+    private void deleteDahira(final Dahira dahira) {
+        showProgressBar();
+        firestore.collection("dahiras").document(dahira.getDahiraID())
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        toastMessage(HomeActivity.this, dahira.getDahiraName() + "Deleted");
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+            }
+        });
+    }
+
+    private void deleteUser(final User user) {
+        firestore.collection("users").document(user.getUserID())
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        toastMessage(HomeActivity.this, user.getUserName() + " updated");
+                        logout(HomeActivity.this);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+            }
+        });
+    }
+
+    @SuppressWarnings("unused")
+    public void deleteOneUser(final String phoneNumber) {
+        if (allUsers.isEmpty() && firestore != null) {
+            firestore.collection("users").get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                                for (DocumentSnapshot documentSnapshot : list) {
+                                    User user = documentSnapshot.toObject(User.class);
+                                    if (user != null) {
+                                        if (user.getUserPhoneNumber().equals(phoneNumber))
+                                            deleteUser(user);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            toastMessage(HomeActivity.this, "User deleted.!");
+                        }
+                    });
         }
     }
 
@@ -761,19 +1016,20 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         @Override
         protected void onPreExecute() {
             loadInterstitialAd(HomeActivity.this);
-            loadBannerAd(HomeActivity.this, HomeActivity.this);
+            loadBannerAd(HomeActivity.this);
+            getMarqueeText();
+            textViewNavUserName.setText(onlineUser.getUserName());
+            textViewNavEmail.setText(onlineUser.getEmail());
         }
 
         @Override
         protected Void doInBackground(Void... voids) {
-
-            getMarqueeText();
-            saveTokenID(userID);
+            saveTokenID(onlineUser.getUserID());
             getDahiraToUpdate();
             getMyDahira();
             getAllDahiras();
+            //cleanMultipleDahira();
             return null;
         }
     }
-
 }

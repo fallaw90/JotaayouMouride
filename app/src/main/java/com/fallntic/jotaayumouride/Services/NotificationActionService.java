@@ -1,4 +1,4 @@
-package com.fallntic.jotaayumouride.Services;
+package com.fallntic.jotaayumouride.services;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

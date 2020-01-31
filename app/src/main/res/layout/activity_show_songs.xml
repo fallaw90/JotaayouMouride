@@ -34,7 +34,7 @@
             android:gravity="center_vertical"
             android:textAlignment="center"
             android:textColor="@color/red"
-            android:text="Glissez un song vers la gauche pour la supprimer"/>
+            android:text="@string/textview_delete_instruction" />
 
         <ProgressBar
             android:id="@+id/pb_main_loader"
@@ -75,7 +75,8 @@
             android:backgroundTint="@color/dark_green"
             android:src="@android:drawable/ic_menu_search"
             app:fabSize="normal"
-            app:layout_anchor="@id/recyclerView_song" />
+            app:layout_anchor="@id/recyclerView_song"
+            tools:ignore="RtlHardcoded" />
 
         <include
             android:id="@+id/bottom_toolbar"
@@ -92,7 +93,7 @@
             android:layout_above="@+id/adView"
             android:layout_marginLeft="@dimen/_5sdp"
             android:layout_marginRight="@dimen/_5sdp"
-            android:text="Retour a la page precedente"
+            android:text="@string/backButton"
             android:layout_centerHorizontal="true"
             android:background="@drawable/rounded_button_solid"
             android:padding="@dimen/_10sdp"
@@ -108,7 +109,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="@dimen/_5sdp"
             ads:adSize="BANNER"
-            ads:adUnitId="@string/banner_unit_id"></com.google.android.gms.ads.AdView>
+            ads:adUnitId="@string/banner_unit_id" />
 
     </RelativeLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

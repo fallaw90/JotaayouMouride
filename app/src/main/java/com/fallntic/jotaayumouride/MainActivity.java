@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.AssetManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,10 +17,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.fallntic.jotaayumouride.Model.Dahira;
-import com.fallntic.jotaayumouride.Model.Event;
-import com.fallntic.jotaayumouride.Model.ObjNotification;
-import com.fallntic.jotaayumouride.Model.User;
+import com.fallntic.jotaayumouride.model.Dahira;
+import com.fallntic.jotaayumouride.model.Event;
+import com.fallntic.jotaayumouride.model.ObjNotification;
+import com.fallntic.jotaayumouride.model.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,31 +33,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.fallntic.jotaayumouride.DahiraInfoActivity.getExistingExpenses;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.TITLE_ANNOUNCEMENT_NOTIFICATION;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.TITLE_CONTRIBUTION_NOTIFICATION;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.TITLE_EVENT_NOTIFICATION;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.TITLE_EXPENSE_NOTIFICATION;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firebaseAuth;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firebaseUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.indexOnlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllEvent;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.objNotification;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.userID;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.TITLE_ANNOUNCEMENT_NOTIFICATION;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.TITLE_CONTRIBUTION_NOTIFICATION;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.TITLE_EVENT_NOTIFICATION;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.TITLE_EXPENSE_NOTIFICATION;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.displayEvent;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.firebaseAuth;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.firebaseUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.indexOnlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAllEvent;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.objNotification;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.userID;
 
+@SuppressWarnings("LoopStatementThatDoesntLoop")
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "MainActivity";
 
-    public static final String CHANNEL_FIREBASE = "jotaayou_mouride";
-    public static final String CHANNEL_Name = "Jotaayou Mouride";
-    public static final String CHANNEL_DESC = "Jotaayou Mouride Notifications";
+    private static final String CHANNEL_FIREBASE = "jotaayou_mouride";
+    private static final String CHANNEL_Name = "Jotaayou Mouride";
+    private static final String CHANNEL_DESC = "Jotaayou Mouride notifications";
 
     private TextView textView;
+
+    private FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
         textView = findViewById(R.id.textView);
 
         checkInternetConnection(this);
+
+        firestore = FirebaseFirestore.getInstance();
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
         userID = firebaseAuth.getUid();
@@ -78,8 +83,7 @@ public class MainActivity extends AppCompatActivity {
         if (firebaseUser != null) {
             createChannel();
             objNotification = (ObjNotification) getIntent().getSerializableExtra("objNotification");
-            getOnlineUser(this, userID, objNotification);
-
+            new MyTask().execute();
         } else {
             startActivity(new Intent(this, HomeActivity.class));
             finish();
@@ -98,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void getOnlineUser(final Context context, String userID, final ObjNotification objNotification) {
+    private void getOnlineUser(final Context context, String userID, final ObjNotification objNotification) {
 
         if (objNotification != null) {
             userID = objNotification.getUserID();
@@ -107,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseFirestore.getInstance().collection("users")
                 .whereEqualTo("userID", userID).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @SuppressLint("SetTextI18n")
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
@@ -126,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
+                    @SuppressLint("SetTextI18n")
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         textView.setText("Erreur reseau reessayez plutard stp.");
@@ -135,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
         dismissProgressDialog();
     }
 
-    public void getDahira(final Context context, final String dahiraID) {
+    private void getDahira(final Context context, final String dahiraID) {
         FirebaseFirestore.getInstance().collection("dahiras")
                 .whereEqualTo("dahiraID", dahiraID).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -150,17 +156,22 @@ public class MainActivity extends AppCompatActivity {
                             }
                             if (objNotification != null) {
 
-                                if (objNotification.getTitle().equals(TITLE_EXPENSE_NOTIFICATION)) {
-                                    getExistingExpenses(context, objNotification.getDahiraID());
+                                switch (objNotification.getTitle()) {
+                                    case TITLE_EXPENSE_NOTIFICATION:
+                                        getExistingExpenses(context, objNotification.getDahiraID());
 
-                                } else if (objNotification.getTitle().equals(TITLE_ANNOUNCEMENT_NOTIFICATION)) {
-                                    context.startActivity(new Intent(context, ShowAnnouncementActivity.class));
+                                        break;
+                                    case TITLE_ANNOUNCEMENT_NOTIFICATION:
+                                        context.startActivity(new Intent(context, ShowAnnouncementActivity.class));
 
-                                } else if (objNotification.getTitle().equals(TITLE_EVENT_NOTIFICATION)) {
-                                    displayEvent = "allEvents";
-                                    getAllEvents(context);
-                                } else if (objNotification.getTitle().equals(TITLE_CONTRIBUTION_NOTIFICATION)) {
-                                    context.startActivity(new Intent(context, HomeActivity.class));
+                                        break;
+                                    case TITLE_EVENT_NOTIFICATION:
+                                        displayEvent = "allEvents";
+                                        getAllEvents(context);
+                                        break;
+                                    case TITLE_CONTRIBUTION_NOTIFICATION:
+                                        context.startActivity(new Intent(context, HomeActivity.class));
+                                        break;
                                 }
                             } else {
                                 context.startActivity(new Intent(context, HomeActivity.class));
@@ -172,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    public void getAllEvents(final Context context) {
+    private void getAllEvents(final Context context) {
         if (listAllEvent == null) {
             listAllEvent = new ArrayList<>();
 
@@ -214,4 +225,22 @@ public class MainActivity extends AppCompatActivity {
         return getResources().getAssets();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        dismissProgressDialog();
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    class MyTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected void onPreExecute() {
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            getOnlineUser(MainActivity.this, userID, objNotification);
+            return null;
+        }
+    }
 }

@@ -34,7 +34,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/_20sdp"
                     android:gravity="center"
-                    android:text="List des adiya verses"
+                    android:text="@string/list_des_adiya_verses"
                     android:textColor="@color/black"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
 
@@ -52,7 +52,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="0.5"
                         android:gravity="center"
-                        android:text="Date"
+                        android:text="@string/date"
                         android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
 
                     <TextView
@@ -60,7 +60,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="0.5"
                         android:gravity="center"
-                        android:text="Montant Adiya"
+                        android:text="@string/montant_adiya"
                         android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
                 </LinearLayout>
 
@@ -81,7 +81,7 @@
             android:layout_marginTop="@dimen/_20sdp"
             android:layout_marginBottom="@dimen/_10sdp"
             android:gravity="center"
-            android:text="Glissez vers la gauche pour supprimer"
+            android:text="@string/textview_delete_instruction"
             android:textColor="@color/red" />
 
         <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
@@ -92,7 +92,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="@dimen/_5sdp"
             ads:adSize="BANNER"
-            ads:adUnitId="@string/banner_unit_id"></com.google.android.gms.ads.AdView>
+            ads:adUnitId="@string/banner_unit_id" />
 
     </RelativeLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

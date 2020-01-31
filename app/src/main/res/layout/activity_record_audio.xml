@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
     tools:context=".RecordAudioActivity">
 
     <include
@@ -45,11 +44,12 @@
                 android:background="?android:attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
+                android:contentDescription="@string/photo"
                 android:src="@drawable/ic_play" />
 
             <SeekBar
                 android:id="@+id/seekBar"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
@@ -76,6 +76,7 @@
                 android:background="?android:attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
+                android:contentDescription="@string/photo"
                 android:src="@mipmap/icon_mic" />
 
             <ImageView
@@ -87,6 +88,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:src="@mipmap/icon_stop"
+                android:contentDescription="@string/photo"
                 android:visibility="gone" />
 
         </LinearLayout>
@@ -106,7 +108,7 @@
                 android:layout_margin="@dimen/_5sdp"
                 android:background="@drawable/rounded_button_save"
                 android:padding="@dimen/_7sdp"
-                android:text="Envoyer Votre Annonce"
+                android:text="@string/envoyer_votre_annonce"
                 android:textColor="@color/white"
                 android:textStyle="bold"
                 android:visibility="gone" />
@@ -118,7 +120,7 @@
                 android:layout_margin="@dimen/_5sdp"
                 android:background="@drawable/rounded_button_cancel"
                 android:padding="@dimen/_7sdp"
-                android:text="Annuler Votre Annonce"
+                android:text="@string/annuler_votre_annonce"
                 android:textColor="@color/white"
                 android:textStyle="bold" />
 
@@ -129,7 +131,6 @@
             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_25sdp"
-            android:layout_below="@+id/editText_titleSong"
             android:layout_marginTop="@dimen/_20sdp"
             android:indeterminate="true"
             android:indeterminateTint="@color/green"
@@ -147,6 +148,6 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="@dimen/_5sdp"
         ads:adSize="BANNER"
-        ads:adUnitId="@string/banner_unit_id"></com.google.android.gms.ads.AdView>
+        ads:adUnitId="@string/banner_unit_id" />
 
 </RelativeLayout>

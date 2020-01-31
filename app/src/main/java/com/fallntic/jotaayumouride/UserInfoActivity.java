@@ -1,5 +1,6 @@
 package com.fallntic.jotaayumouride;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -18,42 +19,42 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import com.fallntic.jotaayumouride.Model.Adiya;
-import com.fallntic.jotaayumouride.Model.Sass;
-import com.fallntic.jotaayumouride.Model.Social;
-import com.fallntic.jotaayumouride.Utility.MyStaticFunctions;
-import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
+import com.fallntic.jotaayumouride.model.Adiya;
+import com.fallntic.jotaayumouride.model.Sass;
+import com.fallntic.jotaayumouride.model.Social;
+import com.fallntic.jotaayumouride.utility.MyStaticFunctions;
+import com.fallntic.jotaayumouride.utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
+
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.call;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getCurrentDate;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.logout;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.actionSelected;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.adiya;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.indexOnlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.indexSelectedUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listExpenses;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListEvents;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.sass;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.selectedUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.social;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.typeOfContribution;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.call;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.logout;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showAlertDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.actionSelected;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.adiya;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.displayEvent;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.indexOnlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.indexSelectedUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listExpenses;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.myListEvents;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.sass;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.selectedUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.social;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.typeOfContribution;
 
+@SuppressWarnings("unused")
 public class UserInfoActivity extends AppCompatActivity implements View.OnClickListener,
         NavigationView.OnNavigationItemSelectedListener {
     private final String TAG = "UserInfoActivity";
@@ -73,22 +74,10 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
     private LinearLayout linearLayoutSass;
     private LinearLayout linearLayoutSocial;
 
-    private FirebaseStorage firebaseStorage;
-    private StorageReference storageReference;
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-    boolean boolAdiya = false, boolSass = false, boolSocial = false;
-
-    private String mDate = getCurrentDate();
-
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle toggle;
     private NavigationView navigationView;
-    private View navHeader;
-    private CircleImageView navImageView;
-    private TextView textViewNavUserName;
-    private TextView textViewNavEmail, textViewLabeEmail;
-    private Toolbar toolbar;
+    private TextView textViewLabeEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +85,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         setContentView(R.layout.activity_user_info);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         initViews();
@@ -128,9 +117,6 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         indexOnlineUser = onlineUser.getListDahiraID().indexOf(dahira.getDahiraID());
         indexSelectedUser = selectedUser.getListDahiraID().indexOf(dahira.getDahiraID());
 
-        firebaseStorage = FirebaseStorage.getInstance();
-        storageReference = firebaseStorage.getReference();
-
         textViewName = findViewById(R.id.textView_userName);
         textViewDahiraName = findViewById(R.id.textView_dahiraName);
         textViewPhoneNumber = findViewById(R.id.textView_phoneNumber);
@@ -150,6 +136,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         findViewById(R.id.button_back).setOnClickListener(this);
     }
 
+    @SuppressLint("SetTextI18n")
     private void displayViews() {
         textViewName.setText(selectedUser.getUserName());
         textViewDahiraName.setText("Dahira" + dahira.getDahiraName());
@@ -184,11 +171,9 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.button_back:
-                actionSelected = "displayUsers";
-                startActivity(new Intent(UserInfoActivity.this, ShowUserActivity.class));
-                break;
+        if (v.getId() == R.id.button_back) {
+            actionSelected = "displayUsers";
+            startActivity(new Intent(UserInfoActivity.this, ShowUserActivity.class));
         }
     }
 
@@ -219,7 +204,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (toggle.onOptionsItemSelected(item))
             return true;
 
@@ -358,10 +343,10 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         navigationView = findViewById(R.id.nav_view);
         navigationView.setItemIconTintList(null);
         navigationView.setNavigationItemSelectedListener(this);
-        navHeader = navigationView.getHeaderView(0);
-        navImageView = navHeader.findViewById(R.id.nav_imageView);
-        textViewNavUserName = navHeader.findViewById(R.id.textView_navUserName);
-        textViewNavEmail = navHeader.findViewById(R.id.textView_navEmail);
+        View navHeader = navigationView.getHeaderView(0);
+        CircleImageView navImageView = navHeader.findViewById(R.id.nav_imageView);
+        TextView textViewNavUserName = navHeader.findViewById(R.id.textView_navUserName);
+        TextView textViewNavEmail = navHeader.findViewById(R.id.textView_navEmail);
         toggle = new ActionBarDrawerToggle(this, drawerLayout,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
@@ -371,7 +356,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         textViewNavEmail.setText(onlineUser.getEmail());
         navigationView.setCheckedItem(R.id.nav_displayMyDahira);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         hideMenuItem();
     }
@@ -411,7 +396,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         nav_Menu.findItem(R.id.nav_removeDahira).setVisible(false);
     }
 
-    public void getAdiya() {
+    private void getAdiya() {
         if (adiya == null) {
             adiya = new Adiya();
 
@@ -427,7 +412,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
-    public void getSass() {
+    private void getSass() {
         if (sass == null) {
             sass = new Sass();
 
@@ -443,7 +428,7 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
-    public void getSocial() {
+    private void getSocial() {
         if (social == null) {
             social = new Social();
 

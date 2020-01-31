@@ -18,10 +18,10 @@
                 android:id="@+id/imageView"
                 android:layout_width="@dimen/_80sdp"
                 android:layout_height="@dimen/_80sdp"
-                android:layout_centerHorizontal="true"
                 android:layout_gravity="center_vertical"
                 android:scaleType="centerCrop"
                 android:layout_margin="@dimen/_5sdp"
+                android:contentDescription="@string/photo"
                 app:srcCompat="@drawable/logo_dahira" />
 
             <LinearLayout
@@ -35,7 +35,7 @@
                     android:id="@+id/textview_dahiraName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Khidmatoul Khadim"
+                    android:text="@string/khidmatoul_khadim"
                     android:textColor="@color/black"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
                     android:textStyle="bold" />
@@ -44,25 +44,25 @@
                     android:id="@+id/textview_dieuwrine"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Dieuwrine: Serigne Bassirou Ndiaye" />
+                    android:text="@string/dieuwrine_name" />
 
                 <TextView
                     android:id="@+id/textview_phoneNumber"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="771866656" />
+                    android:text="@string/example_771866656" />
 
                 <TextView
                     android:id="@+id/textview_siege"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Parcelles Assainies Unite 05" />
+                    android:text="@string/example_address" />
 
                 <TextView
                     android:id="@+id/textView_totalMembers"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="100 membres inscris" />
+                    android:text="@string/example_nbr_members" />
 
             </LinearLayout>
 

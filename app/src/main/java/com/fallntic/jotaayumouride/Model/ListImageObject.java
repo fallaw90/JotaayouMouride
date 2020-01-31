@@ -1,8 +1,9 @@
-package com.fallntic.jotaayumouride.Model;
+package com.fallntic.jotaayumouride.model;
 
 import java.io.Serializable;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class ListImageObject implements Serializable {
 
     private String dahiraID;
@@ -30,4 +31,6 @@ public class ListImageObject implements Serializable {
     public void setListImage(List<Image> listImage) {
         this.listImage = listImage;
     }
+
+
 }

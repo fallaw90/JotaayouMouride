@@ -16,7 +16,6 @@
         android:id="@+id/textView_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/toolbar"
         android:layout_margin="@dimen/_5sdp"
         android:layout_marginTop="@dimen/_15sdp"
         android:gravity="center"
@@ -36,7 +35,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                tools:ignore="UselessParent">
 
                 <EditText
                     android:id="@+id/editText_date"
@@ -47,10 +47,12 @@
                     android:layout_marginTop="15dp"
                     android:background="@drawable/edittext_background"
                     android:focusable="false"
-                    android:hint="Date"
+                    android:hint="@string/date"
                     android:inputType="none"
                     android:padding="@dimen/_10sdp"
-                    android:textAlignment="center" />
+                    android:importantForAutofill="no"
+                    android:textAlignment="center"
+                    tools:ignore="TextFields" />
 
                 <EditText
                     android:id="@+id/editText_note"
@@ -61,11 +63,13 @@
                     android:background="@drawable/edittext_background"
                     android:color="@color/black"
                     android:gravity="top|left"
-                    android:hint="Label depense"
+                    android:hint="@string/label_depense"
                     android:inputType="textCapSentences|textNoSuggestions|textMultiLine"
                     android:maxLines="20"
                     android:minLines="3"
-                    android:padding="@dimen/_10sdp" />
+                    android:importantForAutofill="no"
+                    android:padding="@dimen/_10sdp"
+                    tools:ignore="RtlHardcoded" />
 
                 <EditText
                     android:id="@+id/editText_price"
@@ -75,9 +79,10 @@
                     android:layout_margin="@dimen/_5sdp"
                     android:layout_marginTop="15dp"
                     android:background="@drawable/edittext_background"
-                    android:hint="Prix total"
+                    android:hint="@string/prix_total"
                     android:padding="@dimen/_10sdp"
                     android:inputType="numberDecimal"
+                    android:importantForAutofill="no"
                     android:textAlignment="center" />
 
                 <TextView
@@ -85,7 +90,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:padding="@dimen/_10sdp"
-                    android:text="Ou est ce que tu veux deduire ce montant?"
+                    android:text="@string/title_radio_button"
                     android:textAlignment="center"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
                     android:textColor="@color/black" />
@@ -102,9 +107,9 @@
                         android:layout_gravity="center_horizontal"
                         android:buttonTint="@color/black"
                         android:checked="true"
-                        android:text="Adiya"
+                        android:text="@string/adiya_radio"
                         android:textColor="@color/black"
-                        android:textSize="20dp" />
+                        android:textSize="20sp" />
 
                     <RadioButton
                         android:layout_width="wrap_content"
@@ -113,9 +118,9 @@
                         android:layout_marginTop="@dimen/_15sdp"
                         android:buttonTint="@color/black"
                         android:checked="false"
-                        android:text="Sass"
+                        android:text="@string/sass_radio"
                         android:textColor="@color/black"
-                        android:textSize="20dp" />
+                        android:textSize="20sp" />
 
                     <RadioButton
                         android:layout_width="wrap_content"
@@ -124,9 +129,9 @@
                         android:layout_marginTop="@dimen/_15sdp"
                         android:buttonTint="@color/black"
                         android:checked="false"
-                        android:text="Social"
+                        android:text="@string/social_radio"
                         android:textColor="@color/black"
-                        android:textSize="20dp" />
+                        android:textSize="20sp" />
 
                 </RadioGroup>
 
@@ -135,9 +140,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="7dp"
-                    android:text="Enregistrer cette depense"
+                    android:text="@string/enregistrer_cette_depense"
                     android:textAllCaps="false"
-                    android:layout_centerHorizontal="true"
                     android:background="@drawable/rounded_button_solid"
                     android:padding="@dimen/_10sdp"
                     android:textColor="@color/white"
@@ -150,7 +154,6 @@
                     android:layout_margin="7dp"
                     android:text="@string/btn_cancel"
                     android:textAllCaps="false"
-                    android:layout_centerHorizontal="true"
                     android:background="@drawable/rounded_button_cancel"
                     android:padding="@dimen/_10sdp"
                     android:textColor="@color/white"
@@ -172,7 +175,7 @@
             android:layout_above="@+id/progressBar"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:text="Patientez SVP ..."
+            android:text="@string/patientez_svp"
             android:textSize="@dimen/_20sdp" />
 
         <ProgressBar

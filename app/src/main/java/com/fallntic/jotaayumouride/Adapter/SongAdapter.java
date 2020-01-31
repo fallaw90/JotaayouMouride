@@ -1,4 +1,4 @@
-package com.fallntic.jotaayumouride.Adapter;
+package com.fallntic.jotaayumouride.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -7,20 +7,21 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fallntic.jotaayumouride.Model.Song;
 import com.fallntic.jotaayumouride.R;
+import com.fallntic.jotaayumouride.model.Song;
 
 import java.util.List;
 
 
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> {
 
-    private Context context;
-    private List<Song> songList;
-    private RecyclerItemClickListener listener;
+    private final Context context;
+    private final List<Song> songList;
+    private final RecyclerItemClickListener listener;
     private int selectedPosition;
 
     public SongAdapter(Context context, List<Song> songList, RecyclerItemClickListener listener) {
@@ -31,6 +32,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
     }
 
+    @NonNull
     @Override
     public SongViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
@@ -40,7 +42,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     }
 
     @Override
-    public void onBindViewHolder(SongViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull SongViewHolder holder, int position) {
 
         Song song = songList.get(position);
         if (song != null) {
@@ -54,7 +56,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             }
 
             holder.tv_title.setText(song.getAudioTitle());
-            //String duration = Utility.convertDuration(song.getAudioDuration());
+            //String duration = utility.convertDuration(song.getAudioDuration());
             holder.tv_duration.setText(song.getAudioDuration());
 
             holder.bind(song, listener);
@@ -91,25 +93,25 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
         void onClickListener(Song song, int position);
 
-        boolean onLongClickListener(Song song, int position);
+        @SuppressWarnings("unused")
+        void onLongClickListener(Song song);
     }
 
     public static class SongViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView tv_title, tv_artist, tv_duration;
-        private ImageView iv_artwork, iv_play_active;
+        private final TextView tv_title;
+        private final TextView tv_duration;
+        private final ImageView iv_play_active;
 
-        public SongViewHolder(View itemView) {
+        SongViewHolder(View itemView) {
             super(itemView);
             tv_title = itemView.findViewById(R.id.tv_title);
-            tv_artist = itemView.findViewById(R.id.tv_artist);
             tv_duration = itemView.findViewById(R.id.tv_duration);
-            iv_artwork = itemView.findViewById(R.id.iv_artwork);
             iv_play_active = itemView.findViewById(R.id.iv_play_active);
 
         }
 
-        public void bind(final Song song, final RecyclerItemClickListener listener) {
+        void bind(final Song song, final RecyclerItemClickListener listener) {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -120,7 +122,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
-                    listener.onLongClickListener(song, getLayoutPosition());
+                    listener.onLongClickListener(song);
                     return true;
                 }
             });

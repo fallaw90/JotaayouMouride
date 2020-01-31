@@ -1,15 +1,16 @@
-package com.fallntic.jotaayumouride.Model;
+package com.fallntic.jotaayumouride.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class Social implements Serializable {
 
-    private List<String> listDahiraID = new ArrayList<String>();
-    private List<String> listDate = new ArrayList<String>();
-    private List<String> listSocial = new ArrayList<String>();
-    private List<String> listUserName = new ArrayList<String>();
+    private List<String> listDahiraID = new ArrayList<>();
+    private List<String> listDate = new ArrayList<>();
+    private List<String> listSocial = new ArrayList<>();
+    private List<String> listUserName = new ArrayList<>();
 
     public Social(List<String> listDahiraID, List<String> listDate, List<String> listSocial, List<String> listUserName) {
         this.listDahiraID = listDahiraID;
@@ -52,4 +53,6 @@ public class Social implements Serializable {
     public void setListUserName(List<String> listUserName) {
         this.listUserName = listUserName;
     }
+
+
 }

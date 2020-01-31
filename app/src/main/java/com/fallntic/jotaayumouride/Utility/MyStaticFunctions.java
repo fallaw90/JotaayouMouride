@@ -1,4 +1,4 @@
-package com.fallntic.jotaayumouride.Utility;
+package com.fallntic.jotaayumouride.utility;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -39,15 +39,15 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.fallntic.jotaayumouride.Adapter.SongAdapter;
 import com.fallntic.jotaayumouride.DahiraInfoActivity;
 import com.fallntic.jotaayumouride.HomeActivity;
-import com.fallntic.jotaayumouride.Model.Image;
-import com.fallntic.jotaayumouride.Model.ListImageObject;
-import com.fallntic.jotaayumouride.Model.ListSongObject;
-import com.fallntic.jotaayumouride.Model.Song;
-import com.fallntic.jotaayumouride.Notifications.CreateNotificationMusic;
 import com.fallntic.jotaayumouride.R;
+import com.fallntic.jotaayumouride.adapter.SongAdapter;
+import com.fallntic.jotaayumouride.model.Image;
+import com.fallntic.jotaayumouride.model.ListImageObject;
+import com.fallntic.jotaayumouride.model.ListSongObject;
+import com.fallntic.jotaayumouride.model.Song;
+import com.fallntic.jotaayumouride.notifications.CreateNotificationMusic;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -74,55 +74,66 @@ import java.util.Objects;
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
 import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
 import static com.fallntic.jotaayumouride.MainActivity.TAG;
-import static com.fallntic.jotaayumouride.Notifications.CreateNotificationMusic.NOTIFICATION_MP_ID;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.UpdateSongTime;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.collectionReference;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.counterHAonPause;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.currentIndex;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.currentSongLength;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayDahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.fab_search;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firstLaunch;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.isNotificationMPUsed;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.isPlaying;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_next;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_play;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.iv_previous;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllDahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllEvent;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosAM;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosHT;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosHTDK;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosQuran;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosRadiass;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosSerigneMbayeDiakhate;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAudiosSerigneMoussaKa;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listDahiraFound;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listExpenses;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listImage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listSong;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listTracks;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mAdapter;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.mediaPlayer;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myHandler;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListDahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListEvents;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.notificationManagerMediaPlayer;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.pb_loader;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.recycler;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.seekBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tb_title;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.testVal;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.tv_time;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.updateStorage;
+import static com.fallntic.jotaayumouride.notifications.CreateNotificationMusic.NOTIFICATION_MP_ID;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.UpdateSongTime;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.actionSelected;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.collectionReference;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.counterHAonPause;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.currentIndex;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.currentSongLength;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.displayDahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.displayEvent;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.fab_search;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.firestore;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.firstLaunch;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.indexOnlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.indexSelectedUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.isNotificationMPUsed;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.isPlaying;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.iv_next;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.iv_play;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.iv_previous;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAllDahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAllEvent;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosAM;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosHT;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosHTDK;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosQuran;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosRadiass;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosSerigneMbayeDiakhate;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosSerigneMoussaKa;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listDahiraFound;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listExpenses;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listImage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listSong;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listTracks;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.mAdapter;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.mediaPlayer;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.myHandler;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.myListDahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.myListEvents;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.notificationManagerMediaPlayer;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.pb_loader;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.pb_main_loader;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.recycler;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.seekBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.selectedUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tb_title;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.testVal;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.toolbar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.toolbar_bottom;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_duration;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_empty;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_time;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.typeOfContribution;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.updateStorage;
 
+@SuppressWarnings("ALL")
 public class MyStaticFunctions {
 
     /**
@@ -131,6 +142,7 @@ public class MyStaticFunctions {
      *
      * @param context
      */
+
     public static void getListSongs(final Context context) {
         //Retrieve all songs from FirebaseFirestore
         if (listSong == null) {
@@ -202,8 +214,9 @@ public class MyStaticFunctions {
     public static void checkInternetConnection(Context context) {
         if (!isConnected(context)) {
             Intent intent = new Intent(context, HomeActivity.class);
-            showAlertDialog(context, "Oops! Pas de connexion, " +
-                    "verifier votre connexion internet puis reesayez SVP.", intent);
+            toastMessage(context, "Oops! Pas de connexion, " +
+                    "verifier votre connexion internet puis reesayez SVP.");
+            context.startActivity(intent);
             return;
         }
     }
@@ -226,13 +239,17 @@ public class MyStaticFunctions {
 
     //************************** ProgressBar ************************************
     public static void showProgressBar() {
-        relativeLayoutData.setVisibility(View.GONE);
-        relativeLayoutProgressBar.setVisibility(View.VISIBLE);
+        if (relativeLayoutData != null && relativeLayoutProgressBar != null) {
+            relativeLayoutData.setVisibility(View.GONE);
+            relativeLayoutProgressBar.setVisibility(View.VISIBLE);
+        }
     }
 
     public static void hideProgressBar() {
-        relativeLayoutData.setVisibility(View.VISIBLE);
-        relativeLayoutProgressBar.setVisibility(View.GONE);
+        if (relativeLayoutData != null && relativeLayoutProgressBar != null) {
+            relativeLayoutData.setVisibility(View.VISIBLE);
+            relativeLayoutProgressBar.setVisibility(View.GONE);
+        }
     }
 
     public static void showImage(final Context context, String uri, ImageView imageView) {
@@ -407,12 +424,16 @@ public class MyStaticFunctions {
     }
 
     //***************************** Mmedia Player *******************************************
-    public static void getListAudios(final Context context, final List<Song> listSong, String documentID) {
+    public static void getListAudios(final Context context, List<Song> listSong, String documentID) {
         //Retrieve all songs from FirebaseFirestore
+        if (listSong == null)
+            listSong = new ArrayList<>();
+
         listTracks = new ArrayList<>();
         if (listSong.isEmpty()) {
             showProgressBar();
             MyStaticVariables.collectionReference = MyStaticVariables.firestore.collection("audios");
+            final List<Song> finalListSong = listSong;
             MyStaticVariables.collectionReference.whereEqualTo("documentID", documentID).get()
                     .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                         @Override
@@ -423,12 +444,12 @@ public class MyStaticFunctions {
                                 List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
                                 for (DocumentSnapshot documentSnapshot : list) {
                                     listSongObject = documentSnapshot.toObject(ListSongObject.class);
-                                    listSong.addAll(listSongObject.getListSong());
+                                    finalListSong.addAll(listSongObject.getListSong());
                                     break;
                                 }
-                                Collections.sort(listSong);
-                                listTracks.addAll(listSong);
-                                setMyAdapter(context, listSong);
+                                Collections.sort(finalListSong);
+                                listTracks.addAll(finalListSong);
+                                setMyAdapter(context, finalListSong);
                             }
                         }
                     }).addOnFailureListener(new OnFailureListener() {
@@ -481,7 +502,6 @@ public class MyStaticFunctions {
                     mediaPlayer.reset();
                     onTrackPause(context);
                 }
-                mediaPlayer = new MediaPlayer();
                 mediaPlayer.setDataSource(song.getAudioUri());
                 mediaPlayer.prepareAsync();
                 loadInterstitialAd(context);
@@ -505,10 +525,9 @@ public class MyStaticFunctions {
             }
 
             @Override
-            public boolean onLongClickListener(Song song, int position) {
-                downloadFile(context, song.getAudioTitle(), song.getAudioUri());
-                toastMessage(context, "Telechargement en cours ...");
-                return true;
+            public void onLongClickListener(Song song) {
+                //downloadFile(context, song.getAudioTitle(), song.getAudioUri());
+                toastMessage(context, "Les téléchargements sont temporairement désactivés, merci de reéssayer plus tard.");
             }
         });
         recycler.setAdapter(mAdapter);
@@ -664,28 +683,28 @@ public class MyStaticFunctions {
     }
 
     public static void onTrackPrevious(Context context) {
-        if (currentIndex < listTracks.size()) {
+        if (listTracks != null && currentIndex < listTracks.size()) {
             CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
                     R.drawable.ic_pause_black_24dp, currentIndex, listTracks.size() - 1);
         }
     }
 
     public static void onTrackPlay(Context context) {
-        if (currentIndex < listTracks.size()) {
+        if (listTracks != null && currentIndex < listTracks.size()) {
             CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
                     R.drawable.ic_pause_black_24dp, currentIndex, listTracks.size() - 1);
         }
     }
 
     public static void onTrackPause(Context context) {
-        if (currentIndex < listTracks.size()) {
+        if (listTracks != null && currentIndex < listTracks.size()) {
             CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
                     R.drawable.ic_play_arrow_black_24dp, currentIndex, listTracks.size() - 1);
         }
     }
 
     public static void onTrackNext(Context context) {
-        if (currentIndex < listTracks.size()) {
+        if (listTracks != null && currentIndex < listTracks.size()) {
             CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
                     R.drawable.ic_pause_black_24dp, currentIndex, listTracks.size() - 1);
         }
@@ -695,7 +714,7 @@ public class MyStaticFunctions {
         testVal++;
         if (mediaPlayer != null) {
             if (testVal == 1) {
-                if (currentIndex + 1 < listTracks.size()) {
+                if (listTracks != null && currentIndex < listTracks.size()) {
                     Song next = listTracks.get(currentIndex + 1);
                     changeSelectedSong(currentIndex + 1);
                     prepareSong(context, next);
@@ -715,15 +734,17 @@ public class MyStaticFunctions {
         testVal++;
         if (mediaPlayer != null) {
             if (testVal == 1) {
-                if (currentIndex - 1 >= 0) {
-                    Song previous = listTracks.get(currentIndex - 1);
-                    changeSelectedSong(currentIndex - 1);
-                    prepareSong(context, previous);
-                } else {
-                    changeSelectedSong(listTracks.size() - 1);
-                    prepareSong(context, listTracks.get(listTracks.size() - 1));
+                if (listTracks != null && currentIndex < listTracks.size()) {
+                    if (currentIndex - 1 >= 0) {
+                        Song previous = listTracks.get(currentIndex - 1);
+                        changeSelectedSong(currentIndex - 1);
+                        prepareSong(context, previous);
+                    } else {
+                        changeSelectedSong(listTracks.size() - 1);
+                        prepareSong(context, listTracks.get(listTracks.size() - 1));
+                    }
+                    onTrackPrevious(context);
                 }
-                onTrackPrevious(context);
             }
         }
         if (testVal > 1) {
@@ -739,29 +760,29 @@ public class MyStaticFunctions {
                     mediaPlayer.pause();
                     isPlaying = false;
                     onTrackPause(context);
-                    iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_play));
                 }
 
                 if (counterHAonPause > 0 && testVal == 1) {
                     mediaPlayer.pause();
                     isPlaying = false;
                     onTrackPause(context);
-                    iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_play));
                 }
+                if (iv_play != null)
+                    iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_play));
 
             } else {
                 if (isNotificationMPUsed && counterHAonPause == 0) {
                     mediaPlayer.start();
                     isPlaying = true;
                     onTrackPlay(context);
-                    iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_pause));
                 }
                 if (counterHAonPause > 0 && testVal == 1) {
                     mediaPlayer.start();
                     isPlaying = true;
                     onTrackPlay(context);
-                    iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_pause));
                 }
+                if (iv_play != null)
+                    iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_pause));
             }
         }
         if (testVal > 1) {
@@ -881,15 +902,14 @@ public class MyStaticFunctions {
     }
 
     public static void logout(Context context) {
-        MyStaticVariables.typeOfContribution = "";
-        MyStaticVariables.indexOnlineUser = -1;
-        MyStaticVariables.indexSelectedUser = -1;
-        MyStaticVariables.actionSelected = "";
-        displayDahira = "";
-        displayEvent = "";
-
+        indexOnlineUser = -1;
+        indexSelectedUser = -1;
+        typeOfContribution = null;
+        actionSelected = null;
+        displayDahira = null;
+        displayEvent = null;
         onlineUser = null;
-        MyStaticVariables.selectedUser = null;
+        selectedUser = null;
         dahira = null;
         listSong = null;
         listAudiosQuran = null;
@@ -907,6 +927,29 @@ public class MyStaticFunctions {
         listDahiraFound = null;
         listExpenses = null;
         listImage = null;
+        relativeLayoutProgressBar = null;
+        relativeLayoutData = null;
+        firestore = null;
+        mAdapter = null;
+        toolbar = null;
+        toolbar_bottom = null;
+        tb_title = null;
+        tv_empty = null;
+        tv_duration = null;
+        tb_title = null;
+        tv_empty = null;
+        tv_duration = null;
+        tb_title = null;
+        tv_empty = null;
+        tv_duration = null;
+        iv_play = null;
+        iv_next = null;
+        iv_previous = null;
+        pb_loader = null;
+        pb_main_loader = null;
+        tv_time = null;
+        seekBar = null;
+        notificationManagerMediaPlayer = null;
         FirebaseAuth.getInstance().signOut();
         context.startActivity(new Intent(context, HomeActivity.class));
     }
@@ -975,7 +1018,7 @@ public class MyStaticFunctions {
         }
 
         if (!phoneNumber.isEmpty() && (!phoneNumber.matches("[0-9]+") ||
-                phoneNumber.length() != 9 || !checkPrefix(phoneNumber))) {
+                phoneNumber.length() != 9 || checkPrefix(phoneNumber))) {
             editTextPhoneNumber.setError("Numero de telephone incorrect");
             editTextPhoneNumber.requestFocus();
             return true;
@@ -987,19 +1030,19 @@ public class MyStaticFunctions {
             return true;
         }
 
-        if (adiya.isEmpty() || !isDouble(adiya)) {
+        if (adiya.isEmpty() || isDouble(adiya)) {
             editTextAdiya.setError("Valeur incorrecte!");
             editTextAdiya.requestFocus();
             return true;
         }
 
-        if (sass.isEmpty() || !isDouble(sass)) {
+        if (sass.isEmpty() || isDouble(sass)) {
             editTextSass.setError("Valeur incorrecte!");
             editTextSass.requestFocus();
             return true;
         }
 
-        if (social.isEmpty() || !isDouble(social)) {
+        if (social.isEmpty() || isDouble(social)) {
             editTextSocial.setError("Valeur incorrecte!");
             editTextSocial.requestFocus();
             return true;
@@ -1032,7 +1075,7 @@ public class MyStaticFunctions {
         }
 
         if (!dahiraPhoneNumber.isEmpty() && (!dahiraPhoneNumber.matches("[0-9]+") ||
-                dahiraPhoneNumber.length() != 9 || !checkPrefix(dahiraPhoneNumber))) {
+                dahiraPhoneNumber.length() != 9 || checkPrefix(dahiraPhoneNumber))) {
             editTextDahiraPhoneNumber.setError("Numero de telephone incorrect");
             editTextDahiraPhoneNumber.requestFocus();
             return true;
@@ -1048,7 +1091,7 @@ public class MyStaticFunctions {
             editTextSiege.setError("Non montant, entrer 0");
             editTextAdiya.requestFocus();
             return true;
-        } else if (!isDouble(totalAdiya)) {
+        } else if (isDouble(totalAdiya)) {
             editTextAdiya.setText("Valeur listAdiya incorrecte");
             editTextAdiya.requestFocus();
             return true;
@@ -1058,7 +1101,7 @@ public class MyStaticFunctions {
             editTextSiege.setError("Non montant, entrer 0");
             editTextSass.requestFocus();
             return true;
-        } else if (!isDouble(totalSass)) {
+        } else if (isDouble(totalSass)) {
             editTextSass.setText("Valeur sass incorrecte");
             editTextSass.requestFocus();
             return true;
@@ -1068,7 +1111,7 @@ public class MyStaticFunctions {
             editTextSiege.setError("Non montant, entrer 0");
             editTextSass.requestFocus();
             return true;
-        } else if (!isDouble(totalSocial)) {
+        } else if (isDouble(totalSocial)) {
             editTextSocial.setText("Valeur sociale incorrecte");
             editTextSocial.requestFocus();
             return true;
@@ -1092,7 +1135,7 @@ public class MyStaticFunctions {
                 break;
         }
 
-        return validatePrefix;
+        return !validatePrefix;
     }
 
     public static boolean isDouble(String str) {
@@ -1100,20 +1143,19 @@ public class MyStaticFunctions {
         double value;
         try {
             value = Double.parseDouble(str);
-            return true;
+            return false;
             // it means it is double
         } catch (Exception e1) {
             // this means it is not double
             e1.printStackTrace();
-            return false;
+            return true;
         }
     }
 
     public static String getCurrentDate() {
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat mdformat = new SimpleDateFormat("dd/MM/yyyy");
-        String strDate = mdformat.format(calendar.getTime());
-        return strDate;
+        return mdformat.format(calendar.getTime());
     }
 
     public static void getDate(Context context, final EditText editText) {

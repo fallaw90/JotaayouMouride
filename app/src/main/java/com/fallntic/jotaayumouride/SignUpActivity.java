@@ -25,10 +25,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.fallntic.jotaayumouride.Model.Adiya;
-import com.fallntic.jotaayumouride.Model.Sass;
-import com.fallntic.jotaayumouride.Model.Social;
-import com.fallntic.jotaayumouride.Model.User;
+import com.fallntic.jotaayumouride.model.Adiya;
+import com.fallntic.jotaayumouride.model.Sass;
+import com.fallntic.jotaayumouride.model.Social;
+import com.fallntic.jotaayumouride.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -52,20 +52,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.createNewCollection;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.saveProfileImage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.userID;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.createNewCollection;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.saveProfileImage;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showAlertDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.userID;
 
+@SuppressWarnings("unused")
 public class SignUpActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "SignUpActivity";
@@ -75,7 +76,8 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     private String confPwd;
     private String userName;
     private String userAddress;
-    private String userPhoneNumber, country, city, areaCode;
+    private final List<String> listSass = new ArrayList<>();
+    private final List<String> listRoles = new ArrayList<>();
     private ImageView imageView;
     private EditText editTextCity;
     private EditText editTextEmail;
@@ -86,26 +88,20 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     private EditText editTextUserPhoneNumber;
     private EditText editTextConfirmPassword;
     private CountryCodePicker ccp;
-    private List<String> listSass = new ArrayList<String>();
-    private List<String> listRoles = new ArrayList<String>();
-    private List<String> listAdiya = new ArrayList<String>();
-    private List<String> listSocial = new ArrayList<String>();
-    private List<String> listDahiraID = new ArrayList<String>();
-    private List<String> listCommissions = new ArrayList<String>();
-    private List<String> listUpdatedDahiraID = new ArrayList<String>();
+    private final List<String> listAdiya = new ArrayList<>();
+    private final List<String> listSocial = new ArrayList<>();
+    private final List<String> listDahiraID = new ArrayList<>();
+    private final List<String> listCommissions = new ArrayList<>();
+    private final List<String> listUpdatedDahiraID = new ArrayList<>();
+    private String userPhoneNumber;
+    private String city;
+    private boolean userSaved = true;
 
-    private Uri uri;
-    private final int PICK_IMAGE_REQUEST = 71;
-    private boolean imageSaved = true, userSaved = true;
-
-    //Firebase
-    private FirebaseStorage firebaseStorage;
     private StorageReference storageReference;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
     private CountryPickerDialog countryPicker;
-    private UploadTask uploadTask;
     private String imageUri;
     private Uri fileUri;
 
@@ -132,7 +128,8 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         //Initialize Firestore object
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-        firebaseStorage = FirebaseStorage.getInstance();
+        //Firebase
+        FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
 
         //Check access gallery permission
@@ -195,7 +192,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         email = editTextEmail.getText().toString().trim();
         pwd = editTextPassword.getText().toString().trim();
         confPwd = editTextConfirmPassword.getText().toString().trim();
-        country = editTextCountry.getText().toString().trim();
+        String country = editTextCountry.getText().toString().trim();
         city = editTextCity.getText().toString().trim();
 
         if (!hasValidationErrors()) {
@@ -209,12 +206,11 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
                             hideProgressBar();
                             if (task.isSuccessful()) {
-                                if (task.getResult().isEmpty()) {
+                                if (Objects.requireNonNull(task.getResult()).isEmpty()) {
                                     saveAllData();
                                 } else {
                                     showAlertDialog(SignUpActivity.this,
                                             "Numero telephone deja utilise");
-                                    return;
                                 }
                             } else {
                                 hideProgressBar();
@@ -222,19 +218,17 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                             }
                         }
                     });
-        } else {
-            return;
         }
     }
 
-    public void saveAllData() {
+    private void saveAllData() {
         mAuth.createUserWithEmailAndPassword(email, pwd).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 //while (!task.isSuccessful());
                 if (task.isSuccessful()) {
                     //Get ID of current user.
-                    userID = mAuth.getCurrentUser().getUid();
+                    userID = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
                     //Save user info on the FireBase database
                     saveUser();
                     if (isRegistrationSuccessful()) {
@@ -246,7 +240,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                         showAlertDialog(SignUpActivity.this, "Adresse email deja utilise");
 
                     } else {
-                        toastMessage(getApplicationContext(), task.getException().getMessage());
+                        toastMessage(getApplicationContext(), Objects.requireNonNull(task.getException()).getMessage());
                     }
                 }
             }
@@ -263,7 +257,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 101 && resultCode == RESULT_OK && data.getData() != null) {
+        if (requestCode == 101 && resultCode == RESULT_OK && Objects.requireNonNull(data).getData() != null) {
 
             fileUri = data.getData();
 
@@ -276,10 +270,10 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    public void uploadImage() {
+    private void uploadImage() {
         final StorageReference fileToUpload = storageReference
-                .child("profileImage").child(userID);
-        uploadTask = (UploadTask) fileToUpload.putFile(fileUri)
+                .child("profileImage").child(userName + " " + userID);
+        UploadTask uploadTask = (UploadTask) fileToUpload.putFile(fileUri)
                 .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -299,7 +293,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
 
         showProgressBar();
         //Save user in firestore database
-        db.collection("users").document(userID)
+        db.collection("users").document(userName + userID)
                 .set(onlineUser)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -321,12 +315,12 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private boolean isRegistrationSuccessful() {
-        if (userSaved && imageSaved) {
+        if (userSaved) {
             return true;
         } else {
             deleteUser();
             deleteProfileImage();
-            mAuth.getCurrentUser().delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+            Objects.requireNonNull(mAuth.getCurrentUser()).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if (task.isSuccessful()) {
@@ -353,7 +347,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                             dismissProgressDialog();
                         } else {
                             hideProgressBar();
-                            toastMessage(getApplicationContext(), task.getException().getMessage());
+                            toastMessage(getApplicationContext(), Objects.requireNonNull(task.getException()).getMessage());
                         }
                     }
                 });
@@ -371,13 +365,13 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                             toastMessage(getApplicationContext(), "Image supprimee");
                         } else {
                             hideProgressBar();
-                            toastMessage(getApplicationContext(), task.getException().getMessage());
+                            toastMessage(getApplicationContext(), Objects.requireNonNull(task.getException()).getMessage());
                         }
                     }
                 });
     }
 
-    public void setAllNewCollection() {
+    private void setAllNewCollection() {
         showProgressBar();
         db.collection("listAdiya").document(userID).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -402,7 +396,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 });
     }
 
-    public void initAllCollections() {
+    private void initAllCollections() {
         Adiya adiya = new Adiya(new ArrayList<String>(), new ArrayList<String>(),
                 new ArrayList<String>(), new ArrayList<String>());
         Sass sass = new Sass(new ArrayList<String>(), new ArrayList<String>(),
@@ -485,7 +479,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         return false;
     }
 
-    public void checkPermission() {
+    private void checkPermission() {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -498,11 +492,11 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    public void hideSoftKeyboard() {
+    private void hideSoftKeyboard() {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
-    public void initViewsProgressBar() {
+    private void initViewsProgressBar() {
         relativeLayoutData = findViewById(R.id.relativeLayout_data);
         relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
         progressBar = findViewById(R.id.progressBar);
@@ -530,17 +524,15 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 break;
 
             case R.id.icon_back:
-                startActivity(new Intent(this, LoginActivity.class));
                 finish();
+                startActivity(new Intent(this, LoginActivity.class));
                 break;
         }
         return true;
     }
 
-    public void getCountry() {
+    private void getCountry() {
         /* Name of your Custom JSON list */
-        int resourceId = getResources().getIdentifier("country_avail", "raw", getApplicationContext().getPackageName());
-
         countryPicker = new CountryPickerDialog(SignUpActivity.this, new CountryPickerCallbacks() {
             @Override
             public void onCountrySelected(Country country, int flagResId) {

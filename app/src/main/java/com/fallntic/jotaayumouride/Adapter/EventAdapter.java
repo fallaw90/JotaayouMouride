@@ -1,5 +1,6 @@
-package com.fallntic.jotaayumouride.Adapter;
+package com.fallntic.jotaayumouride.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,16 +10,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fallntic.jotaayumouride.Model.Event;
 import com.fallntic.jotaayumouride.R;
+import com.fallntic.jotaayumouride.model.Event;
 
 import java.util.List;
 
 
 public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHolder> {
 
-    private Context context;
-    private List<Event> listEvent;
+    private final Context context;
+    private final List<Event> listEvent;
 
     public EventAdapter(Context context, List<Event> listEvent) {
         this.context = context;
@@ -33,6 +34,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         );
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
 
@@ -61,15 +63,15 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     }
 
     class EventViewHolder extends RecyclerView.ViewHolder {
-        TextView textViewTitle;
-        TextView textViewtDate;
-        TextView textViewLocation;
-        TextView textViewNote;
-        TextView textViewStartTime;
-        TextView textViewEndTime;
-        TextView textViewUserName;
+        final TextView textViewTitle;
+        final TextView textViewtDate;
+        final TextView textViewLocation;
+        final TextView textViewNote;
+        final TextView textViewStartTime;
+        final TextView textViewEndTime;
+        final TextView textViewUserName;
 
-        public EventViewHolder(View itemView) {
+        EventViewHolder(View itemView) {
             super(itemView);
 
             textViewUserName = itemView.findViewById(R.id.textView_userName);

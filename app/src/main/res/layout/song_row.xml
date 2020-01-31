@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clickable="true"
@@ -14,11 +15,13 @@
         android:layout_marginEnd="10dp"
         android:layout_marginRight="10dp"
         android:layout_width="50dp"
-        android:src="@drawable/music_placeholder" />
+        android:contentDescription="@string/photo"
+        android:src="@drawable/music_placeholder"
+        tools:ignore="RtlHardcoded" />
 
     <TextView
         android:id="@+id/tv_title"
-        android:text="Titre de la chanson"
+        android:text="@string/song_title"
         android:layout_width="wrap_content"
         android:textSize="16sp"
         android:layout_height="wrap_content"
@@ -26,16 +29,17 @@
         android:layout_toRightOf="@id/iv_artwork"
         android:paddingEnd="50dp"
         android:paddingRight="50dp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        tools:ignore="RtlHardcoded,RtlSymmetry" />
 
     <TextView
-        android:id="@+id/tv_artist"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/tv_title"
         android:layout_toEndOf="@id/iv_artwork"
         android:layout_toRightOf="@id/iv_artwork"
-        android:text="Artiste" />
+        android:text="@string/artiste"
+        tools:ignore="RtlHardcoded" />
 
     <TextView
         android:id="@+id/tv_duration"
@@ -43,7 +47,8 @@
         android:layout_alignParentRight="true"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:text="3:05" />
+        android:text="@string/_3_05"
+        tools:ignore="RelativeOverlap,RtlHardcoded" />
 
     <ImageView
         android:id="@+id/iv_play_active"
@@ -53,6 +58,8 @@
         android:layout_below="@id/tv_duration"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:visibility="invisible" />
+        android:contentDescription="@string/photo"
+        android:visibility="invisible"
+        tools:ignore="RtlHardcoded" />
 
 </RelativeLayout>

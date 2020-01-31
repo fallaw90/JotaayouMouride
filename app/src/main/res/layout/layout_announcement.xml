@@ -20,7 +20,7 @@
             android:paddingLeft="@dimen/_7sdp"
             android:paddingRight="@dimen/_7sdp"
             android:paddingBottom="@dimen/_2sdp"
-            android:text="Date"
+            android:text="@string/date"
             android:textAlignment="center"
             android:textColor="@color/black" />
     </LinearLayout>
@@ -41,13 +41,13 @@
                 android:id="@+id/textView_userName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Cheikh Fall" />
+                android:text="@string/cheikh_fall" />
 
             <TextView
                 android:id="@+id/textView_note"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Announcement"
+                android:text="@string/announcement"
                 android:textColor="@color/black" />
 
         </LinearLayout>

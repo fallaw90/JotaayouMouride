@@ -1,5 +1,6 @@
-package com.fallntic.jotaayumouride.Adapter;
+package com.fallntic.jotaayumouride.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,25 +12,24 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fallntic.jotaayumouride.HomeActivity;
-import com.fallntic.jotaayumouride.Model.Dahira;
 import com.fallntic.jotaayumouride.R;
+import com.fallntic.jotaayumouride.model.Dahira;
 
 import java.util.List;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getListSongs;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showImage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.indexOnlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listImage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listSong;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.getListSongs;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showImage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.indexOnlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listImage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listSong;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
 
 public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraViewHolder> {
+    @SuppressWarnings("unused")
     public static final String TAG = "DahiraAdapter";
-    private Context context;
-    private List<Dahira> dahiraList;
-
-    private ImageView imageView;
+    private final Context context;
+    private final List<Dahira> dahiraList;
 
     public DahiraAdapter(Context context, List<Dahira> dahiraList) {
         this.context = context;
@@ -44,17 +44,20 @@ public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraView
         );
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull DahiraViewHolder holder, int position) {
         Dahira dahira = dahiraList.get(position);
 
+        showImage(context, dahira.getImageUri(), holder.imageView);
         holder.textViewDahiraName.setText("Dahira " + dahira.getDahiraName());
         holder.textViewDieuwrine.setText("Dieuwrine: " + dahira.getDieuwrine());
         holder.textViewPhoneNumber.setText("Telephone: " + dahira.getDahiraPhoneNumber());
         holder.textViewSiege.setText("Siege: " + dahira.getSiege());
-        holder.textViewTotalMembers.setText("Membres inscrits: " + dahira.getTotalMember());
 
-        showImage(context, dahira.getImageUri(), imageView);
+        if (onlineUser != null && onlineUser.getUserPhoneNumber().equals("+13208030902")) {
+            holder.textViewTotalMembers.setText("Membres inscrits: " + dahira.getTotalMember());
+        }
     }
 
     @Override
@@ -64,13 +67,14 @@ public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraView
 
     class DahiraViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        TextView textViewDahiraName;
-        TextView textViewDieuwrine;
-        TextView textViewPhoneNumber;
-        TextView textViewSiege;
-        TextView textViewTotalMembers;
+        public final ImageView imageView;
+        final TextView textViewDahiraName;
+        final TextView textViewDieuwrine;
+        final TextView textViewPhoneNumber;
+        final TextView textViewSiege;
+        final TextView textViewTotalMembers;
 
-        public DahiraViewHolder(View itemView) {
+        DahiraViewHolder(View itemView) {
             super(itemView);
 
             textViewDahiraName = itemView.findViewById(R.id.textview_dahiraName);
@@ -79,6 +83,11 @@ public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraView
             textViewSiege = itemView.findViewById(R.id.textview_siege);
             imageView = itemView.findViewById(R.id.imageView);
             textViewTotalMembers = itemView.findViewById(R.id.textView_totalMembers);
+
+            assert onlineUser != null;
+            if ((dahira != null && !onlineUser.getListDahiraID().contains(dahira.getDahiraID())) || !onlineUser.getUserPhoneNumber().equals("+13208030902")) {
+                textViewTotalMembers.setVisibility(View.GONE);
+            }
 
             itemView.setOnClickListener(this);
 
@@ -104,7 +113,6 @@ public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraView
 
             getListSongs(context);
             HomeActivity.loadInterstitialAd(context);
-
         }
     }
 }

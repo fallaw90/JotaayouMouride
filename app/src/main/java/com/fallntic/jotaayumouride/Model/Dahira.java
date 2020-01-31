@@ -1,8 +1,9 @@
-package com.fallntic.jotaayumouride.Model;
+package com.fallntic.jotaayumouride.model;
 
 import java.io.Serializable;
 import java.util.List;
 
+@SuppressWarnings({"ALL", "unused"})
 public class Dahira implements Serializable, Comparable<Dahira> {
 
     private String dahiraID;
@@ -132,9 +133,17 @@ public class Dahira implements Serializable, Comparable<Dahira> {
         this.listResponsibles = listResponsibles;
     }
 
-    @Override
+    /*@Override
     public int compareTo(Dahira dahira) {
         return this.dahiraName.compareToIgnoreCase(dahira.getDahiraName());
+    }*/
+
+    @Override
+    public int compareTo(Dahira dahira) {
+        if (getDahiraName() == null || dahira.getDahiraName() == null) {
+            return 0;
+        }
+        return getDahiraName().compareTo(dahira.getDahiraName());
     }
 
     public double getCurrentSizeStorage() {
@@ -160,4 +169,6 @@ public class Dahira implements Serializable, Comparable<Dahira> {
     public void setImageUri(String imageUri) {
         this.imageUri = imageUri;
     }
+
+
 }

@@ -1,5 +1,6 @@
 package com.fallntic.jotaayumouride;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -21,9 +22,9 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fallntic.jotaayumouride.Adapter.EventAdapter;
-import com.fallntic.jotaayumouride.Model.Event;
-import com.fallntic.jotaayumouride.Utility.SwipeToDeleteCallback;
+import com.fallntic.jotaayumouride.adapter.EventAdapter;
+import com.fallntic.jotaayumouride.model.Event;
+import com.fallntic.jotaayumouride.utility.SwipeToDeleteCallback;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
@@ -37,24 +38,25 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.deleteDocument;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getCurrentDate;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.indexOnlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.listAllEvent;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListEvents;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.objNotification;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.deleteDocument;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.getCurrentDate;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.displayEvent;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.indexOnlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAllEvent;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.myListEvents;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.objNotification;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutProgressBar;
 
+@SuppressWarnings("unused")
 public class ShowEventActivity extends AppCompatActivity implements View.OnClickListener {
     private final String TAG = "ShowEventActivity";
 
@@ -64,6 +66,24 @@ public class ShowEventActivity extends AppCompatActivity implements View.OnClick
     private RecyclerView recyclerViewMyEvent;
     private CoordinatorLayout coordinatorLayout;
     private EventAdapter eventAdapter;
+
+    private static void sortEventByDate(ArrayList arrayList) {
+        if (arrayList == null)
+            arrayList = new ArrayList<>();
+        Collections.sort(arrayList, new Comparator<Event>() {
+            @SuppressLint("SimpleDateFormat")
+            final DateFormat f = new SimpleDateFormat("dd/MM/yyyy");
+
+            @Override
+            public int compare(Event event1, Event event2) {
+                try {
+                    return Objects.requireNonNull(f.parse(event2.getDate())).compareTo(f.parse(event1.getDate()));
+                } catch (ParseException e) {
+                    throw new IllegalArgumentException(e);
+                }
+            }
+        });
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,24 +105,7 @@ public class ShowEventActivity extends AppCompatActivity implements View.OnClick
         loadEvents(this);
 
 
-        HomeActivity.loadBannerAd(this, this);
-    }
-
-    public static void sortEventByDate(ArrayList arrayList) {
-        if (arrayList == null)
-            arrayList = new ArrayList<>();
-        Collections.sort(arrayList, new Comparator<Event>() {
-            DateFormat f = new SimpleDateFormat("dd/MM/yyyy");
-
-            @Override
-            public int compare(Event event1, Event event2) {
-                try {
-                    return f.parse(event2.getDate()).compareTo(f.parse(event1.getDate()));
-                } catch (ParseException e) {
-                    throw new IllegalArgumentException(e);
-                }
-            }
-        });
+        HomeActivity.loadBannerAd(this);
     }
 
     private void initViews() {
@@ -114,7 +117,7 @@ public class ShowEventActivity extends AppCompatActivity implements View.OnClick
         initViewsProgressBar();
     }
 
-    public  void initViewsProgressBar() {
+    private void initViewsProgressBar() {
         relativeLayoutData = findViewById(R.id.relativeLayout_data);
         relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
         progressBar = findViewById(R.id.progressBar);
@@ -160,17 +163,15 @@ public class ShowEventActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.button_back:
-                finish();
-                if (displayEvent.equals("allEvents") || objNotification != null) {
-                    objNotification = null;
-                    startActivity(new Intent(ShowEventActivity.this, HomeActivity.class));
-                }
-                if (displayEvent.equals("myEvents")) {
-                    startActivity(new Intent(ShowEventActivity.this, DahiraInfoActivity.class));
-                }
-                break;
+        if (v.getId() == R.id.button_back) {
+            finish();
+            if (displayEvent.equals("allEvents") || objNotification != null) {
+                objNotification = null;
+                startActivity(new Intent(ShowEventActivity.this, HomeActivity.class));
+            }
+            if (displayEvent.equals("myEvents")) {
+                startActivity(new Intent(ShowEventActivity.this, DahiraInfoActivity.class));
+            }
         }
     }
 
@@ -252,7 +253,7 @@ public class ShowEventActivity extends AppCompatActivity implements View.OnClick
         itemTouchhelper.attachToRecyclerView(recyclerViewMyEvent);
     }
 
-    public void removeEvent(final Event event) {
+    private void removeEvent(final Event event) {
         showProgressBar();
         db.collection("dahiras").document(dahira.getDahiraID())
                 .collection("myEvents").document(event.getEventID())
@@ -282,6 +283,7 @@ public class ShowEventActivity extends AppCompatActivity implements View.OnClick
         });
     }
 
+    @SuppressLint("SetTextI18n")
     private void loadEvents(Context context) {
 
         if (myListEvents != null || listAllEvent != null) {
@@ -312,15 +314,14 @@ public class ShowEventActivity extends AppCompatActivity implements View.OnClick
     }
 
     private void removePastEvent(){
-        DateFormat f = new SimpleDateFormat("dd/MM/yyyy");
+        @SuppressLint("SimpleDateFormat") DateFormat f = new SimpleDateFormat("dd/MM/yyyy");
         for (int i = 0; i < listAllEvent.size(); i++){
             try {
-                int k = f.parse(listAllEvent.get(i).getDate()).compareTo(f.parse(getCurrentDate()));
+                int k = Objects.requireNonNull(f.parse(listAllEvent.get(i).getDate())).compareTo(f.parse(getCurrentDate()));
                 if (k < 0){
                     listAllEvent.remove(i);
                 }
             } catch (ParseException e) {
-                i--;
                 throw new IllegalArgumentException(e);
             }
         }

@@ -15,8 +15,7 @@
     <RelativeLayout
         android:id="@+id/relativeLayout_data"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/toolbar">
+        android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/textView_title"
@@ -36,7 +35,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical">
 
                 <EditText
@@ -48,10 +47,12 @@
                     android:layout_marginTop="15dp"
                     android:background="@drawable/edittext_background"
                     android:focusable="false"
-                    android:hint="Date de l'evenement"
+                    android:hint="@string/date_de_l_evenement"
                     android:inputType="none"
                     android:padding="@dimen/_10sdp"
-                    android:textAlignment="center" />
+                    android:importantForAutofill="no"
+                    android:textAlignment="center"
+                    tools:ignore="TextFields" />
 
                 <EditText
                     android:id="@+id/editText_titleEvent"
@@ -61,10 +62,13 @@
                     android:layout_marginTop="15dp"
                     android:background="@drawable/edittext_background"
                     android:gravity="top|left"
-                    android:hint="Titre de votre evenement"
+                    android:hint="@string/titre_de_votre_evenement"
                     android:maxLines="2"
                     android:minLines="1"
-                    android:padding="@dimen/_10sdp" />
+                    android:importantForAutofill="no"
+                    android:inputType="text"
+                    android:padding="@dimen/_10sdp"
+                    tools:ignore="RtlHardcoded" />
 
                 <EditText
                     android:id="@+id/editText_location"
@@ -74,10 +78,13 @@
                     android:layout_marginTop="15dp"
                     android:background="@drawable/edittext_background"
                     android:gravity="top|left"
-                    android:hint="Lieu"
+                    android:hint="@string/lieu"
                     android:maxLines="2"
                     android:minLines="1"
-                    android:padding="@dimen/_10sdp" />
+                    android:importantForAutofill="no"
+                    android:inputType="text"
+                    android:padding="@dimen/_10sdp"
+                    tools:ignore="RtlHardcoded" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -92,7 +99,7 @@
                         android:layout_gravity="bottom"
                         android:layout_weight="0.5"
                         android:padding="@dimen/_10sdp"
-                        android:text="Heure debut"
+                        android:text="@string/heure_debut"
                         android:textAlignment="center"
                         android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
                         android:textColor="@color/black" />
@@ -102,7 +109,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom"
                         android:layout_weight="0.5"
-                        android:text="Heure fin"
+                        android:text="@string/heure_fin"
                         android:textAlignment="center"
                         android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
                         android:textColor="@color/black" />
@@ -124,9 +131,10 @@
                         android:layout_weight="0.5"
                         android:background="@drawable/edittext_background"
                         android:focusable="false"
-                        android:hint="Heure debut"
+                        android:hint="@string/heure_debut"
                         android:inputType="none"
                         android:padding="@dimen/_10sdp"
+                        android:importantForAutofill="no"
                         android:textAlignment="center" />
 
                     <EditText
@@ -137,9 +145,10 @@
                         android:layout_weight="0.5"
                         android:background="@drawable/edittext_background"
                         android:focusable="false"
-                        android:hint="Heure fin"
+                        android:hint="@string/heure_fin"
                         android:inputType="none"
                         android:padding="@dimen/_10sdp"
+                        android:importantForAutofill="no"
                         android:textAlignment="center" />
                 </LinearLayout>
 
@@ -152,20 +161,21 @@
                     android:background="@drawable/edittext_background"
                     android:color="@color/black"
                     android:gravity="top|left"
-                    android:hint="Tapez votre text ici"
+                    android:hint="@string/tapez_votre_text_ici"
                     android:inputType="textCapSentences|textNoSuggestions|textMultiLine"
                     android:maxLines="20"
                     android:minLines="3"
-                    android:padding="@dimen/_10sdp" />
+                    android:importantForAutofill="no"
+                    android:padding="@dimen/_10sdp"
+                    tools:ignore="RtlHardcoded" />
 
                 <Button
                     android:id="@+id/button_save"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="7dp"
-                    android:text="Enregistrer evenement"
+                    android:text="@string/enregistrer_evenement"
                     android:textAllCaps="false"
-                    android:layout_centerHorizontal="true"
                     android:background="@drawable/rounded_button_solid"
                     android:padding="@dimen/_10sdp"
                     android:textColor="@color/white"
@@ -178,7 +188,6 @@
                     android:layout_margin="7dp"
                     android:text="@string/btn_cancel"
                     android:textAllCaps="false"
-                    android:layout_centerHorizontal="true"
                     android:background="@drawable/rounded_button_cancel"
                     android:padding="@dimen/_10sdp"
                     android:textColor="@color/white"
@@ -200,7 +209,7 @@
             android:layout_above="@+id/progressBar"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:text="Patientez SVP ..."
+            android:text="@string/patientez_svp"
             android:textSize="@dimen/_20sdp" />
 
         <ProgressBar

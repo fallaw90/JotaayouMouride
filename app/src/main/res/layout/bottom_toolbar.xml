@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.appcompat.widget.Toolbar
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
     android:background="@color/background_toolbar"
     android:minHeight="100dp"
-    android:theme="@style/Base.ThemeOverlay.AppCompat.Dark.ActionBar">
+    android:theme="@style/Base.ThemeOverlay.AppCompat.Dark.ActionBar"
+    tools:ignore="Overdraw">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -46,18 +48,21 @@
                 android:id="@+id/iv_previous"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
+                android:contentDescription="@string/photo"
                 android:src="@drawable/selector_previous" />
 
             <ImageView
                 android:id="@+id/iv_play"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
+                android:contentDescription="@string/photo"
                 android:src="@drawable/selector_play" />
 
             <ImageView
                 android:id="@+id/iv_next"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
+                android:contentDescription="@string/photo"
                 android:src="@drawable/selector_next" />
 
 

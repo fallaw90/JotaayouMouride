@@ -21,7 +21,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <TextView
@@ -37,15 +37,14 @@
                 android:id="@+id/imageView"
                 android:layout_width="@dimen/_100sdp"
                 android:layout_height="@dimen/_100sdp"
-                android:layout_centerHorizontal="true"
                 app:srcCompat="@drawable/profile_image"
-                android:layout_below="@+id/labelImageView"
                 android:layout_gravity="center"
+                android:contentDescription="@string/photo_profil"
                 android:scaleType="centerCrop" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_weight="1">
 
                 <LinearLayout
@@ -54,7 +53,8 @@
                     android:layout_centerVertical="true"
                     android:orientation="vertical"
                     android:paddingLeft="15dp"
-                    android:paddingRight="15dp">
+                    android:paddingRight="15dp"
+                    tools:ignore="UselessParent">
 
                     <TextView
                         android:layout_width="match_parent"
@@ -71,6 +71,7 @@
                         android:hint="@string/name"
                         android:inputType="text"
                         android:paddingBottom="15dp"
+                        android:importantForAutofill="no"
                         android:textColorHint="@color/black" />
 
                     <LinearLayout
@@ -93,7 +94,8 @@
                             android:layout_height="wrap_content"
                             android:digits="0123456789"
                             android:inputType="phone"
-                            android:hint="Telephone" />
+                            android:hint="@string/telephone"
+                            android:importantForAutofill="no" />
 
                     </LinearLayout>
 
@@ -104,7 +106,8 @@
                         android:fontFamily="sans-serif"
                         android:hint="@string/email"
                         android:inputType="textEmailAddress"
-                        android:paddingBottom="15dp"/>
+                        android:importantForAutofill="no"
+                        android:paddingBottom="15dp" />
 
                     <EditText
                         android:id="@+id/editText_password"
@@ -113,7 +116,8 @@
                         android:fontFamily="sans-serif"
                         android:hint="@string/mdp"
                         android:inputType="textPassword"
-                        android:paddingBottom="15dp"/>
+                        android:importantForAutofill="no"
+                        android:paddingBottom="15dp" />
 
                     <EditText
                         android:id="@+id/editText_confirmPassword"
@@ -122,7 +126,8 @@
                         android:fontFamily="sans-serif"
                         android:hint="@string/confimerMdp"
                         android:inputType="textPassword"
-                        android:paddingBottom="15dp"/>
+                        android:importantForAutofill="no"
+                        android:paddingBottom="15dp" />
 
                     <EditText
                         android:id="@+id/editText_address"
@@ -131,7 +136,8 @@
                         android:fontFamily="sans-serif"
                         android:hint="@string/address"
                         android:inputType="text"
-                        android:paddingBottom="15dp"/>
+                        android:importantForAutofill="no"
+                        android:paddingBottom="15dp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -145,7 +151,7 @@
                             android:layout_weight="0.5"
                             android:focusable="false"
                             android:fontFamily="sans-serif"
-                            android:text="Pays" />
+                            android:text="@string/pays" />
 
                         <TextView
                             android:layout_width="match_parent"
@@ -153,7 +159,7 @@
                             android:layout_weight="0.5"
                             android:focusable="false"
                             android:fontFamily="sans-serif"
-                            android:text="Region/Ville" />
+                            android:text="@string/region_ville" />
 
                     </LinearLayout>
 
@@ -170,10 +176,11 @@
                             android:layout_weight="0.5"
                             android:focusable="false"
                             android:fontFamily="sans-serif"
-                            android:hint="Pays"
+                            android:hint="@string/pays"
                             android:inputType="text"
                             android:paddingBottom="15dp"
-                            android:text="Senegal" />
+                            android:importantForAutofill="no"
+                            android:text="@string/senegal" />
 
                         <EditText
                             android:id="@+id/editText_city"
@@ -181,8 +188,9 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="0.5"
                             android:fontFamily="sans-serif"
-                            android:hint="Region/Ville"
+                            android:hint="@string/region_ville"
                             android:inputType="text"
+                            android:importantForAutofill="no"
                             android:paddingBottom="15dp" />
                     </LinearLayout>
 
@@ -200,11 +208,11 @@
                             android:layout_margin="7dp"
                             android:text="@string/backButton"
                             android:textAllCaps="false"
-                            android:layout_centerHorizontal="true"
                             android:background="@drawable/rounded_button_cancel"
                             android:padding="@dimen/_10sdp"
                             android:textColor="@color/white"
-                            android:textSize="@dimen/_15sdp" />
+                            android:textSize="@dimen/_15sdp"
+                            tools:ignore="ButtonStyle" />
 
                         <Button
                             android:id="@+id/button_signUp"
@@ -213,11 +221,11 @@
                             android:layout_margin="7dp"
                             android:text="@string/finish"
                             android:textAllCaps="false"
-                            android:layout_centerHorizontal="true"
                             android:background="@drawable/rounded_button_solid"
                             android:padding="@dimen/_10sdp"
                             android:textColor="@color/white"
-                            android:textSize="@dimen/_15sdp" />
+                            android:textSize="@dimen/_15sdp"
+                            tools:ignore="ButtonStyle" />
 
                     </LinearLayout>
 
@@ -251,7 +259,7 @@
             android:layout_above="@+id/progressBar"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:text="Patientez SVP ..."
+            android:text="@string/patientez_svp"
             android:textSize="@dimen/_20sdp"/>
 
         <ProgressBar

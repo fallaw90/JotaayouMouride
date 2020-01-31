@@ -1,5 +1,6 @@
 package com.fallntic.jotaayumouride;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -10,7 +11,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -18,32 +18,31 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.fallntic.jotaayumouride.Model.Event;
-import com.fallntic.jotaayumouride.Model.ObjNotification;
-import com.fallntic.jotaayumouride.Utility.MyStaticVariables;
+import com.fallntic.jotaayumouride.model.Event;
+import com.fallntic.jotaayumouride.model.ObjNotification;
+import com.fallntic.jotaayumouride.utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Notifications.FirebaseNotificationHelper.sendNotificationToAllUsers;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getCurrentDate;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getDate;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.getTime;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.hideProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showAlertDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.showProgressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.displayEvent;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.firestore;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.myListEvents;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.progressBar;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutData;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.relativeLayoutProgressBar;
+import static com.fallntic.jotaayumouride.notifications.FirebaseNotificationHelper.sendNotificationToAllUsers;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.getCurrentDate;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.getDate;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.getTime;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showAlertDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.displayEvent;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.myListEvents;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutProgressBar;
 
 public class CreateEventActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -51,18 +50,18 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
 
     private EditText ed_titleEvent, ed_date, ed_location, ed_note, ed_startTime, ed_endTime;
-    private String mDate, title, note, location, startTime, endTime;
+    private String note;
     private TextView tv_title;
-    private Button btn_delete;
-    private Toolbar toolbar;
+
+    private FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
 
-    public static boolean hasValidationErrors(String title, EditText editTextTitleEvent,
-                                              String mDate, EditText editTextDate,
-                                              String location, EditText editTextLocation,
-                                              String startTime, EditText editTextStartTime,
-                                              String endTime, EditText editTextEndTime,
-                                              String note, EditText editTextNote) {
+    private static boolean hasValidationErrors(String title, EditText editTextTitleEvent,
+                                               String mDate, EditText editTextDate,
+                                               String location, EditText editTextLocation,
+                                               String startTime, EditText editTextStartTime,
+                                               String endTime, EditText editTextEndTime,
+                                               String note, EditText editTextNote) {
 
         if (title.isEmpty()) {
             editTextTitleEvent.setError("Entrez un titre");
@@ -98,19 +97,22 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         return false;
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_event);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //toolbar.setLogo(R.mipmap.logo);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.mipmap.logo);
 
         checkInternetConnection(this);
+
+        firestore = FirebaseFirestore.getInstance();
 
         initViews();
         tv_title.setText("Creation d'un nouveau evenement pour le dahira " + dahira.getDahiraName());
@@ -161,7 +163,6 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         ed_startTime = findViewById(R.id.editText_startTime);
         ed_endTime = findViewById(R.id.editText_endTime);
         ed_note = findViewById(R.id.editText_note);
-        btn_delete = findViewById(R.id.button_delete);
 
         findViewById(R.id.editText_startTime).setOnClickListener(this);
         findViewById(R.id.editText_endTime).setOnClickListener(this);
@@ -172,15 +173,10 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         initViewsProgressBar();
     }
 
-    public  void initViewsProgressBar() {
+    private void initViewsProgressBar() {
         relativeLayoutData = findViewById(R.id.relativeLayout_data);
         relativeLayoutProgressBar = findViewById(R.id.relativeLayout_progressBar);
         progressBar = findViewById(R.id.progressBar);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 
     @Override
@@ -211,26 +207,26 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         startActivity(new Intent(this, DahiraInfoActivity.class));
     }
 
-    public void saveEvent(final Context context) {
-        mDate = ed_date.getText().toString().trim();
-        title = ed_titleEvent.getText().toString().trim();
+    private void saveEvent(final Context context) {
+        String date = ed_date.getText().toString().trim();
+        String title = ed_titleEvent.getText().toString().trim();
         note = ed_note.getText().toString().trim();
-        location = ed_location.getText().toString().trim();
-        startTime = ed_startTime.getText().toString().trim();
-        endTime = ed_endTime.getText().toString().trim();
+        String location = ed_location.getText().toString().trim();
+        String startTime = ed_startTime.getText().toString().trim();
+        String endTime = ed_endTime.getText().toString().trim();
 
-        if (!hasValidationErrors(title, ed_titleEvent, mDate, ed_date, location, ed_location,
+        if (!hasValidationErrors(title, ed_titleEvent, date, ed_date, location, ed_location,
                 startTime, ed_startTime, endTime, ed_endTime, note, ed_note)) {
 
             final String eventID = onlineUser.getUserName() + System.currentTimeMillis();
-            Event event = new Event(eventID, onlineUser.getUserName(), mDate, title, note,
-                                location, startTime, endTime);
+            Event event = new Event(eventID, onlineUser.getUserName(), date, title, note,
+                    location, startTime, endTime);
 
             saveToDahiraDocument(context, event);
         }
     }
 
-    public void saveToDahiraDocument(final Context context, final Event event){
+    private void saveToDahiraDocument(final Context context, final Event event) {
         showProgressBar();
         FirebaseFirestore.getInstance().collection("dahiras").
                 document(dahira.getDahiraID())
@@ -241,7 +237,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                     @Override
                     public void onSuccess(Void aVoid) {
                         //send notificationMediaPlayer.
-                       saveToEventCollection(context, event);
+                        saveToEventCollection(context, event);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -254,7 +250,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 });
     }
 
-    public void saveToEventCollection(final Context context, final Event event){
+    private void saveToEventCollection(final Context context, final Event event) {
         showProgressBar();
         firestore.collection("events")
                 .document(event.getEventID())
@@ -268,7 +264,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                                 onlineUser.getUserID(), dahira.getDahiraID(),
                                 MyStaticVariables.TITLE_EVENT_NOTIFICATION, note);
 
-                        sendNotificationToAllUsers(context, MyStaticVariables.objNotification);
+                        sendNotificationToAllUsers(MyStaticVariables.objNotification);
 
                         myListEvents.add(event);
                         displayEvent = "myEvents";
@@ -287,7 +283,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 });
     }
 
-    public void hideSoftKeyboard(){
+    private void hideSoftKeyboard() {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 }

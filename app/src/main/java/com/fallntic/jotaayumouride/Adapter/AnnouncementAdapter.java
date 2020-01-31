@@ -1,4 +1,4 @@
-package com.fallntic.jotaayumouride.Adapter;
+package com.fallntic.jotaayumouride.adapter;
 
 import android.content.Context;
 import android.media.MediaPlayer;
@@ -15,24 +15,25 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.transition.TransitionManager;
 
-import com.fallntic.jotaayumouride.Model.Announcement;
-import com.fallntic.jotaayumouride.Model.Song;
 import com.fallntic.jotaayumouride.R;
+import com.fallntic.jotaayumouride.model.Announcement;
+import com.fallntic.jotaayumouride.model.Song;
 
 import java.io.IOException;
 import java.util.List;
 
 
+@SuppressWarnings("ALL")
 public class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final String TAG = "AnnouncementAdapter";
     private final int TEXT_ANNOUNCEMENT = 1;
     private final int AUDIO_ANNOUNCEMENT = 2;
     boolean samePosition = false;
-    private Context context;
+    private final Context context;
     private MediaPlayer mPlayer;
     private boolean isPlaying = false;
     private int last_index = -1;
-    private List<Object> listAnnouncement;
+    private final List<Object> listAnnouncement;
 
     public AnnouncementAdapter(Context context, List<Object> listAnnouncement) {
         this.context = context;
@@ -137,16 +138,17 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
     }
 
-    public class AnnouncementAudioViewHolder extends RecyclerView.ViewHolder {
+    class AnnouncementAudioViewHolder extends RecyclerView.ViewHolder {
 
-        ImageView imageViewPlay;
-        SeekBar seekBar;
-        TextView textViewName, textViewDuration, textViewDate;
+        final ImageView imageViewPlay;
+        final SeekBar seekBar;
+        final TextView textViewName;
+        final TextView textViewDuration;
+        final TextView textViewDate;
         AnnouncementAudioViewHolder holder;
         private String recordingUri;
-        private int lastProgress = 0;
-        private Handler mHandler = new Handler();
-        Runnable runnable = new Runnable() {
+        private final Handler mHandler = new Handler();
+        final Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 seekUpdation(holder);
@@ -239,7 +241,6 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 int mCurrentPosition = mPlayer.getCurrentPosition();
                 holder.seekBar.setMax(mPlayer.getDuration());
                 holder.seekBar.setProgress(mCurrentPosition);
-                lastProgress = mCurrentPosition;
             }
             mHandler.postDelayed(runnable, 100);
         }
@@ -279,9 +280,9 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     }
 
     class AnnouncementTextViewHolder extends RecyclerView.ViewHolder {
-        TextView textViewUserName;
-        TextView textViewtDate;
-        TextView textViewNote;
+        final TextView textViewUserName;
+        final TextView textViewtDate;
+        final TextView textViewNote;
 
         AnnouncementTextViewHolder(View itemView) {
             super(itemView);

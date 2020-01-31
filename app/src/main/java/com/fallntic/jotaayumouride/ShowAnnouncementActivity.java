@@ -22,10 +22,10 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fallntic.jotaayumouride.Adapter.AnnouncementAdapter;
-import com.fallntic.jotaayumouride.Model.Announcement;
-import com.fallntic.jotaayumouride.Model.Song;
-import com.fallntic.jotaayumouride.Utility.SwipeToDeleteCallback;
+import com.fallntic.jotaayumouride.adapter.AnnouncementAdapter;
+import com.fallntic.jotaayumouride.model.Announcement;
+import com.fallntic.jotaayumouride.model.Song;
+import com.fallntic.jotaayumouride.utility.SwipeToDeleteCallback;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
@@ -44,13 +44,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.checkInternetConnection;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.dismissProgressDialog;
-import static com.fallntic.jotaayumouride.Utility.MyStaticFunctions.toastMessage;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.dahira;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.indexOnlineUser;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.objNotification;
-import static com.fallntic.jotaayumouride.Utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.dismissProgressDialog;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.indexOnlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.objNotification;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
 
 public class ShowAnnouncementActivity extends AppCompatActivity {
     private final String TAG = "ListAnnouncementActivity";
@@ -58,13 +58,13 @@ public class ShowAnnouncementActivity extends AppCompatActivity {
     private TextView textViewDahiraName, textViewDelete;
     private boolean isAnnouncementExist = false;
     private RecyclerView recyclerViewAnnoucement;
-    private Toolbar toolbar;
     private AnnouncementAdapter announcementAdapter;
     private List<Object> listAnnouncement;
     private FirebaseFirestore db;
     private FirebaseStorage firebaseStorage;
     private CoordinatorLayout coordinatorLayout;
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,7 +72,7 @@ public class ShowAnnouncementActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         //**************************Toolbar*********************
-        toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         //toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
 
@@ -95,10 +95,10 @@ public class ShowAnnouncementActivity extends AppCompatActivity {
             textViewDelete.setVisibility(View.VISIBLE);
         }
 
-        HomeActivity.loadBannerAd(this, this);
+        HomeActivity.loadBannerAd(this);
     }
 
-    public void initialization() {
+    private void initialization() {
 
         recyclerViewAnnoucement = findViewById(R.id.recyclerview_announcement);
         textViewDahiraName = findViewById(R.id.textView_dahiraName);
@@ -182,10 +182,11 @@ public class ShowAnnouncementActivity extends AppCompatActivity {
         });
     }
 
-    public void getListAudio() {
+    private void getListAudio() {
         db.collection("announcements").document(dahira.getDahiraID())
                 .collection("audios").get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @SuppressLint("SetTextI18n")
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         if (!queryDocumentSnapshots.isEmpty()) {
@@ -202,7 +203,6 @@ public class ShowAnnouncementActivity extends AppCompatActivity {
                                     dahira.getDahiraName() + " est vide. Cliquez sue l'icone " +
                                     "(+) pour envoyer une nouvelle annonce.");
                             textViewDelete.setVisibility(View.GONE);
-                            return;
                         } else {
                             announcementAdapter.notifyDataSetChanged();
                         }
@@ -291,7 +291,7 @@ public class ShowAnnouncementActivity extends AppCompatActivity {
         itemTouchhelper.attachToRecyclerView(recyclerViewAnnoucement);
     }
 
-    public void removeTextAnnouncement(Announcement announcement) {
+    private void removeTextAnnouncement(Announcement announcement) {
         db.collection("announcements").document(dahira.getDahiraID())
                 .collection("text").document(announcement.getAnnouncementID())
                 .delete()
@@ -317,7 +317,7 @@ public class ShowAnnouncementActivity extends AppCompatActivity {
         });
     }
 
-    public void removeAudioAnnouncement(final Song song) {
+    private void removeAudioAnnouncement(final Song song) {
         db.collection("announcements").document(dahira.getDahiraID())
                 .collection("audios").document(song.getAudioID())
                 .delete()
@@ -345,7 +345,7 @@ public class ShowAnnouncementActivity extends AppCompatActivity {
         });
     }
 
-    public void removeInFirebaseStorage(Song song) {
+    private void removeInFirebaseStorage(Song song) {
         if (song.audioUri != null) {
 
             StorageReference storageRef = firebaseStorage
@@ -369,10 +369,12 @@ public class ShowAnnouncementActivity extends AppCompatActivity {
         }
     }
 
-    public void sortAnnouncementByDate() {
+    private void sortAnnouncementByDate() {
         Collections.sort(listAnnouncement, new Comparator<Object>() {
-            DateFormat f = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+            @SuppressLint("SimpleDateFormat")
+            final DateFormat f = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
+            @SuppressLint("Assert")
             @Override
             public int compare(Object obj1, Object obj2) {
                 try {
@@ -389,16 +391,19 @@ public class ShowAnnouncementActivity extends AppCompatActivity {
                         s2 = (Song) obj2;
 
                     if (a1 != null && a2 != null)
-                        return f.parse(a2.getDate()).compareTo(f.parse(a1.getDate()));
+                        return Objects.requireNonNull(f.parse(a2.getDate())).compareTo(f.parse(a1.getDate()));
 
-                    if (a1 != null && s2 != null)
+                    if (a1 != null && s2 != null) {
+                        assert false;
                         return f.parse(a2.getDate()).compareTo(f.parse(s1.getDate()));
+                    }
+
 
                     if (a2 != null && s1 != null)
-                        return f.parse(a2.getDate()).compareTo(f.parse(s1.getDate()));
+                        return Objects.requireNonNull(f.parse(a2.getDate())).compareTo(f.parse(s1.getDate()));
 
                     if (s1 != null && s2 != null)
-                        return f.parse(s2.getDate()).compareTo(f.parse(s1.getDate()));
+                        return Objects.requireNonNull(f.parse(s2.getDate())).compareTo(f.parse(s1.getDate()));
 
                     return 0;
 
@@ -409,4 +414,3 @@ public class ShowAnnouncementActivity extends AppCompatActivity {
         });
     }
 }
-

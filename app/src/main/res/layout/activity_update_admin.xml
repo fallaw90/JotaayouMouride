@@ -21,7 +21,8 @@
         <ScrollView
             android:id="@+id/scrollView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            tools:ignore="UselessParent">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -46,10 +47,9 @@
                         android:id="@+id/imageView"
                         android:layout_width="100dp"
                         android:layout_height="100dp"
-                        android:layout_below="@+id/labelImageView"
-                        android:layout_centerHorizontal="true"
                         android:layout_gravity="center"
                         android:scaleType="centerCrop"
+                        android:contentDescription="@string/photo_profil"
                         app:srcCompat="@drawable/profile_image" />
 
                     <LinearLayout
@@ -63,7 +63,7 @@
                         <TextView
                             android:layout_width="135dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/userName"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -74,6 +74,8 @@
                             android:layout_height="wrap_content"
                             android:background="@drawable/edittext_background"
                             android:hint="@string/userName"
+                            android:importantForAutofill="no"
+                            android:inputType="text"
                             android:padding="10dp" />
 
                     </LinearLayout>
@@ -89,7 +91,7 @@
                         <TextView
                             android:layout_width="135dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/adiyaVerse"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -100,7 +102,10 @@
                             android:layout_height="wrap_content"
                             android:background="@drawable/edittext_background"
                             android:padding="10dp"
-                            android:text="00" />
+                            android:importantForAutofill="no"
+                            android:inputType="numberDecimal"
+                            android:text="@string/_00"
+                            tools:ignore="LabelFor" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -114,7 +119,7 @@
                         <TextView
                             android:layout_width="135dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/sassVerse"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -125,7 +130,10 @@
                             android:layout_height="wrap_content"
                             android:background="@drawable/edittext_background"
                             android:padding="10dp"
-                            android:text="00" />
+                            android:importantForAutofill="no"
+                            android:inputType="numberDecimal"
+                            android:text="@string/_00"
+                            tools:ignore="LabelFor" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -139,7 +147,7 @@
                         <TextView
                             android:layout_width="135dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/socialVerse"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -150,7 +158,10 @@
                             android:layout_height="wrap_content"
                             android:background="@drawable/edittext_background"
                             android:padding="10dp"
-                            android:text="00" />
+                            android:importantForAutofill="no"
+                            android:inputType="numberDecimal"
+                            android:text="@string/_00"
+                            tools:ignore="LabelFor" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -165,7 +176,7 @@
                             android:id="@+id/textView_labelCommission"
                             android:layout_width="135dp"
                             android:layout_height="match_parent"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginEnd="5dp"
                             android:text="@string/labelCommission"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_15sdp" />
@@ -182,9 +193,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="7dp"
-                        android:text="Terminer la creation de mon dahira"
+                        android:text="@string/terminer_la_creation_de_mon_dahira"
                         android:textAllCaps="false"
-                        android:layout_centerHorizontal="true"
                         android:background="@drawable/rounded_button_solid"
                         android:padding="@dimen/_10sdp"
                         android:textColor="@color/white"
@@ -210,7 +220,7 @@
             android:layout_above="@+id/progressBar"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:text="Patientez SVP ..."
+            android:text="@string/patientez_svp"
             android:textSize="@dimen/_20sdp" />
 
         <ProgressBar
