@@ -397,6 +397,10 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
                 startActivity(new Intent(this, HomeActivity.class));
                 break;
 
+            case R.id.about:
+                startActivity(new Intent(this, AboutActivity.class));
+                break;
+
             case R.id.button_back:
                 finish();
                 if (dahira != null && dahira.getDahiraID() != null && !dahira.getDahiraID().equals("")) {

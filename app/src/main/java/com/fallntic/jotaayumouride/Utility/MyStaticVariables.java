@@ -125,8 +125,8 @@ public class MyStaticVariables {
     public static boolean isPlaying = false;
     public static MediaPlayer mediaPlayer = new MediaPlayer();
     public static TextView tv_time;
-    public static SeekBar seekBar;
     public static boolean firstLaunch = true;
+    public static SeekBar seekBar;
     public static Handler myHandler;
     public static final Runnable UpdateSongTime = new Runnable() {
         public void run() {

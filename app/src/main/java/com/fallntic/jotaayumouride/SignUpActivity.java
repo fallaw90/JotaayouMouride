@@ -527,6 +527,10 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 finish();
                 startActivity(new Intent(this, LoginActivity.class));
                 break;
+
+            case R.id.about:
+                startActivity(new Intent(this, AboutActivity.class));
+                break;
         }
         return true;
     }

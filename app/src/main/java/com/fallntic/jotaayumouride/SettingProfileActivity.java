@@ -260,6 +260,10 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
             case R.id.instructions:
                 startActivity(new Intent(this, InstructionsActivity.class));
                 break;
+
+            case R.id.about:
+                startActivity(new Intent(this, AboutActivity.class));
+                break;
         }
         return true;
     }

@@ -256,7 +256,7 @@ public class MyStaticFunctions {
         GlideApp.with(context)
                 .load(uri)
                 .placeholder(R.drawable.logo_web)
-                .centerCrop()
+                .fitCenter()
                 .into(imageView);
     }
 
@@ -285,7 +285,6 @@ public class MyStaticFunctions {
     public static void saveLogoDahira(final Context context, final String uri) {
         final Map<String, Object> mapUri = new HashMap<>();
         mapUri.put("imageUri", uri);
-
         firestore.collection("dahiras").document(dahira.getDahiraID())
                 .update(mapUri).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -502,6 +501,8 @@ public class MyStaticFunctions {
                     mediaPlayer.reset();
                     onTrackPause(context);
                 }
+                if (mediaPlayer.isLooping())
+                    mediaPlayer = new MediaPlayer();
                 mediaPlayer.setDataSource(song.getAudioUri());
                 mediaPlayer.prepareAsync();
                 loadInterstitialAd(context);
@@ -576,10 +577,12 @@ public class MyStaticFunctions {
     }
 
     public static void changeSelectedSong(int index) {
-        mAdapter.notifyItemChanged(mAdapter.getSelectedPosition());
-        currentIndex = index;
-        mAdapter.setSelectedPosition(currentIndex);
-        mAdapter.notifyItemChanged(currentIndex);
+        if (mAdapter != null && index >= 0 && index < listTracks.size()) {
+            mAdapter.notifyItemChanged(mAdapter.getSelectedPosition());
+            currentIndex = index;
+            mAdapter.setSelectedPosition(currentIndex);
+            mAdapter.notifyItemChanged(currentIndex);
+        }
     }
 
     public static void togglePlay(Context context, MediaPlayer mp) {
@@ -713,8 +716,8 @@ public class MyStaticFunctions {
     public static void pushNext(Context context) {
         testVal++;
         if (mediaPlayer != null) {
-            if (testVal == 1) {
-                if (listTracks != null && currentIndex < listTracks.size()) {
+            if (testVal == 1 && listTracks != null && listTracks.size() >= 0) {
+                if (currentIndex < listTracks.size()) {
                     Song next = listTracks.get(currentIndex + 1);
                     changeSelectedSong(currentIndex + 1);
                     prepareSong(context, next);

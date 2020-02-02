@@ -1,6 +1,8 @@
 package com.fallntic.jotaayumouride.fragments;
 
 
+import android.annotation.SuppressLint;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fallntic.jotaayumouride.R;
-import com.fallntic.jotaayumouride.adapter.PubImageAdapter;
+import com.fallntic.jotaayumouride.adapter.AdvertisementAdapter;
 import com.fallntic.jotaayumouride.model.PubImage;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -25,14 +27,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.firestore;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listPubImage;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.progressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutData;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutProgressBar;
 
 public class PubFragment extends Fragment {
 
     private RecyclerView recyclerViewPubImage;
     private View view;
-
-    private FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
     public PubFragment() {
         // Required empty public constructor
@@ -47,22 +51,26 @@ public class PubFragment extends Fragment {
 
         recyclerViewPubImage = view.findViewById(R.id.recyclerview_pub);
 
+        initViewsProgressBar(view);
+
+        firestore = FirebaseFirestore.getInstance();
+
+
         return view;
+    }
+
+    private void initViewsProgressBar(View view) {
+        relativeLayoutData = view.findViewById(R.id.relativeLayout_data);
+        relativeLayoutProgressBar = view.findViewById(R.id.relativeLayout_progressBar);
+        progressBar = view.findViewById(R.id.progressBar);
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        recyclerViewPubImage = view.findViewById(R.id.recyclerview_pub);
+        new MyTask().execute();
 
-        firestore = FirebaseFirestore.getInstance();
-
-        getListPubImage();
-
-        /*if (listPubImage != null && listPubImage.size() > 0){
-            showListPubImage();
-        }*/
     }
 
     private void showListPubImage() {
@@ -70,14 +78,18 @@ public class PubFragment extends Fragment {
         recyclerViewPubImage.setHasFixedSize(true);
         recyclerViewPubImage.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerViewPubImage.setVisibility(View.VISIBLE);
-        PubImageAdapter pubImageAdapter = new PubImageAdapter(getContext(), listPubImage);
-        recyclerViewPubImage.setAdapter(pubImageAdapter);
+        AdvertisementAdapter advertisementAdapter = new AdvertisementAdapter(getContext(), listPubImage);
+        recyclerViewPubImage.setAdapter(advertisementAdapter);
     }
+
 
     private void getListPubImage() {
         if (firestore != null && listPubImage == null || listPubImage.size() <= 0) {
             listPubImage = new ArrayList<>();
-            firestore.collection("advertisements").document("my_ads").collection("image_ads").get()
+            firestore.collection("advertisements")
+                    .document("my_ads")
+                    .collection("image_ads")
+                    .get()
                     .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                         @Override
                         public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
@@ -87,7 +99,6 @@ public class PubFragment extends Fragment {
                                     PubImage pubImage = documentSnapshot.toObject(PubImage.class);
                                     listPubImage.add(pubImage);
                                 }
-                                showListPubImage();
                             }
                         }
                     })
@@ -97,8 +108,27 @@ public class PubFragment extends Fragment {
                             toastMessage(getContext(), "Error charging pubs!");
                         }
                     });
-        } else {
+        }
+    }
+
+
+    @SuppressLint("StaticFieldLeak")
+    class MyTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            getListPubImage();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
             showListPubImage();
         }
     }
+
 }

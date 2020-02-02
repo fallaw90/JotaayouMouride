@@ -51,17 +51,11 @@ public class AddAudioActivity extends AppCompatActivity {
 
     private EditText editTextTitle;
     private TextView textViewSelectedFile;
-
     private Uri audioUri;
-
     private CollectionReference collectionReference;
-
     private StorageReference mStorage;
-
     private StorageTask uploadTask;
-
     private ProgressBar progressBar;
-
     private String uploadID;
     private TextView textView_titleLayout;
 
@@ -119,7 +113,6 @@ public class AddAudioActivity extends AppCompatActivity {
     }
 
     public void openAudioFile() {
-
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         intent.setType("audio/*");
@@ -131,7 +124,6 @@ public class AddAudioActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == 101 && resultCode == RESULT_OK && Objects.requireNonNull(data).getData() != null) {
-
             audioUri = data.getData();
             String fileName = getFileName(audioUri);
             textViewSelectedFile.setText(fileName);
@@ -139,7 +131,6 @@ public class AddAudioActivity extends AppCompatActivity {
     }
 
     private String getFileName(Uri uri) {
-
         String result = null;
         if (Objects.requireNonNull(audioUri.getScheme()).equals("content")) {
             try (Cursor cursor = getContentResolver().query(uri, null, null,
@@ -148,7 +139,6 @@ public class AddAudioActivity extends AppCompatActivity {
                     result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
                 }
             }
-
             if (result == null) {
                 result = uri.getPath();
                 int cut = Objects.requireNonNull(result).lastIndexOf('/');
@@ -157,9 +147,7 @@ public class AddAudioActivity extends AppCompatActivity {
                     result = result.substring(cut + 1);
                 }
             }
-
         }
-
         return result;
     }
 
@@ -257,20 +245,14 @@ public class AddAudioActivity extends AppCompatActivity {
     }
 
     private int findSongDuration(Uri audioUri) {
-
         int timeInMilliSec;
-
         try {
-
             MediaMetadataRetriever retriever = new MediaMetadataRetriever();
             retriever.setDataSource(this, audioUri);
             String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
             timeInMilliSec = Integer.parseInt(time);
-
             retriever.release();
-
             return timeInMilliSec;
-
         } catch (Exception e) {
             e.printStackTrace();
             return 0;

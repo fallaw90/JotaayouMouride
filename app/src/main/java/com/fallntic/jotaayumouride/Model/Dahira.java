@@ -143,7 +143,7 @@ public class Dahira implements Serializable, Comparable<Dahira> {
         if (getDahiraName() == null || dahira.getDahiraName() == null) {
             return 0;
         }
-        return getDahiraName().compareTo(dahira.getDahiraName());
+        return getDahiraName().compareToIgnoreCase(dahira.getDahiraName());
     }
 
     public double getCurrentSizeStorage() {

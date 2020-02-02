@@ -216,6 +216,10 @@ public class UserInfoActivity extends AppCompatActivity implements View.OnClickL
             case R.id.instructions:
                 startActivity(new Intent(this, InstructionsActivity.class));
                 break;
+
+            case R.id.about:
+                startActivity(new Intent(this, AboutActivity.class));
+                break;
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);

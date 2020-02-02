@@ -30,6 +30,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.fallntic.jotaayumouride.adapter.PageAdapter;
 import com.fallntic.jotaayumouride.fragments.AboutFragment;
 import com.fallntic.jotaayumouride.fragments.AudioFragment;
+import com.fallntic.jotaayumouride.fragments.HomeFragment;
 import com.fallntic.jotaayumouride.fragments.PDFFragment;
 import com.fallntic.jotaayumouride.fragments.ProfileFragment;
 import com.fallntic.jotaayumouride.fragments.PubFragment;
@@ -159,23 +160,25 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private final List<Dahira> filteredDahiras = new ArrayList<>();
 
     private void setupOnlineViewPager(ViewPager viewPager) {
-        pageAdapter.addFragment(new PubFragment(), "Info", 0);
-        pageAdapter.addFragment(new ProfileFragment(), "Profile", 1);
-        pageAdapter.addFragment(new AudioFragment(), "Audios", 2);
-        pageAdapter.addFragment(new PDFFragment(), "Khassida PDF", 3);
-        pageAdapter.addFragment(new QuranFragment(), "Quran", 4);
-        Objects.requireNonNull(tabLayout.getTabAt(1)).setText("Profil");
+        pageAdapter.addFragment(new HomeFragment(), "Home", 0);
+        pageAdapter.addFragment(new PubFragment(), "Info", 1);
+        pageAdapter.addFragment(new ProfileFragment(), "Profile", 2);
+        pageAdapter.addFragment(new AudioFragment(), "Audios", 3);
+        pageAdapter.addFragment(new PDFFragment(), "Khassida PDF", 4);
+        pageAdapter.addFragment(new QuranFragment(), "Quran", 5);
+        Objects.requireNonNull(tabLayout.getTabAt(2)).setText("Profil");
         viewPager.setOffscreenPageLimit(4);
         viewPager.setAdapter(pageAdapter);
     }
 
     private void setupOfflineViewPager(ViewPager viewPager) {
-        pageAdapter.addFragment(new PubFragment(), "Info", 0);
-        pageAdapter.addFragment(new AboutFragment(), "About", 1);
-        pageAdapter.addFragment(new AudioFragment(), "Audios", 2);
-        pageAdapter.addFragment(new PDFFragment(), "Khassida PDF", 3);
-        pageAdapter.addFragment(new QuranFragment(), "Quran", 4);
-        Objects.requireNonNull(tabLayout.getTabAt(1)).setText("About");
+        pageAdapter.addFragment(new HomeFragment(), "Home", 0);
+        pageAdapter.addFragment(new PubFragment(), "Info", 1);
+        pageAdapter.addFragment(new AboutFragment(), "About", 2);
+        pageAdapter.addFragment(new AudioFragment(), "Audios", 3);
+        pageAdapter.addFragment(new PDFFragment(), "Khassida PDF", 4);
+        pageAdapter.addFragment(new QuranFragment(), "Quran", 5);
+        Objects.requireNonNull(tabLayout.getTabAt(2)).setText("About");
 
         viewPager.setOffscreenPageLimit(4);
         viewPager.setAdapter(pageAdapter);
@@ -358,6 +361,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             case R.id.instructions:
                 startActivity(new Intent(this, InstructionsActivity.class));
                 break;
+
+            case R.id.about:
+                startActivity(new Intent(this, AboutActivity.class));
+                break;
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
@@ -442,7 +449,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
         firestore = FirebaseFirestore.getInstance();
 
-        //startActivity(new Intent(this, ImageAdvertisementActivity.class));
+        //startActivity(new Intent(this, AdvertisementActivity.class));
         //deleteOneUser("+13474795621");
 
         textViewMarquee.setSelected(true);

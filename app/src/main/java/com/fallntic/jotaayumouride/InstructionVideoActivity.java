@@ -76,6 +76,10 @@ public class InstructionVideoActivity extends AppCompatActivity {
             case R.id.icon_back:
                 finish();
                 break;
+
+            case R.id.about:
+                startActivity(new Intent(this, AboutActivity.class));
+                break;
         }
         return true;
     }

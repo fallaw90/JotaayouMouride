@@ -395,6 +395,10 @@ public class ShowUserActivity extends AppCompatActivity implements View.OnClickL
                 actionSelected = "addNewMember";
                 startActivity(new Intent(this, ShowUserActivity.class));
                 break;
+
+            case R.id.about:
+                startActivity(new Intent(this, AboutActivity.class));
+                break;
         }
 
         return true;

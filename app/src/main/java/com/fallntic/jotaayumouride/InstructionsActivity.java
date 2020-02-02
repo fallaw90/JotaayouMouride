@@ -23,7 +23,6 @@ public class InstructionsActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        //toolbar.setLogo(R.mipmap.logo);
         setSupportActionBar(toolbar);
 
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
@@ -64,6 +63,10 @@ public class InstructionsActivity extends AppCompatActivity {
 
             case R.id.icon_back:
                 finish();
+                break;
+
+            case R.id.about:
+                startActivity(new Intent(this, AboutActivity.class));
                 break;
         }
         return true;

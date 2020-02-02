@@ -219,4 +219,11 @@
     <string name="rechercher_un_membre">Rechercher un membre</string>
     <string name="instructions">Instructions</string>
     <string name="communique">Communiqués</string>
+    <string name="choisir_image_bayit_du_jour">Choisir image bayit du jour</string>
+    <string name="ajouter_un_song_yobalou_bess_bi">Ajouter un song yobalou bess bi</string>
+    <string name="yobalou_bess_bi">YOBALOU BESS BI</string>
+    <string name="about_menu">A propos</string>
+    <string name="home">HOME</string>
+
+    <string name="bayit_du_jour">BAYIT DU JOUR</string>
 </resources>

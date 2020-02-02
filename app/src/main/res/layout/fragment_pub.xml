@@ -6,30 +6,34 @@
     android:layout_height="match_parent"
     tools:context=".fragments.PubFragment">
 
-    <RelativeLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:ignore="UselessParent">
+        android:layout_height="match_parent">
 
-        <com.tomer.fadingtextview.FadingTextView
-            android:id="@+id/textView_pub"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="@dimen/_5sdp"
-            android:textAlignment="center"
-            android:textColor="#031803"
-            android:textSize="@dimen/_20sdp"
-            android:textStyle="bold"
-            app:texts="@array/advertisements"
-            app:timeout="1000" />
+            tools:ignore="UselessParent">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerview_pub"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/textView_pub"
-            android:layout_marginTop="@dimen/_10sdp" />
+            <com.tomer.fadingtextview.FadingTextView
+                android:id="@+id/fadingTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/_5sdp"
+                android:textAlignment="center"
+                android:textColor="#031803"
+                android:textSize="@dimen/_20sdp"
+                android:textStyle="bold"
+                app:texts="@array/advertisements"
+                app:timeout="5000" />
 
-    </RelativeLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerview_pub"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/fadingTextView"
+                android:layout_margin="@dimen/_5sdp" />
 
+        </RelativeLayout>
+    </ScrollView>
 </FrameLayout>

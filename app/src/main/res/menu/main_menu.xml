@@ -46,4 +46,10 @@
         android:icon="@mipmap/logo"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/about"
+        android:icon="@mipmap/logo"
+        android:title="@string/about_menu"
+        app:showAsAction="never" />
+
 </menu>

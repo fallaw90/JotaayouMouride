@@ -23,51 +23,123 @@
         android:appComponentFactory="whateverString"
         android:icon="@mipmap/logo"
         android:label="@string/app_name"
+        android:persistent="true"
         android:roundIcon="@mipmap/logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:persistent="true"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning"
         tools:replace="android:appComponentFactory"
         tools:targetApi="p">
-        <activity android:name=".ImageAdvertisementActivity" />
-        <activity android:name=".InstructionVideoActivity" />
-        <activity android:name=".PdfViewActivity" />
-        <activity android:name=".InstructionsActivity" />
-        <activity android:name=".AddMultipleAudioActivity" />
-        <activity android:name=".HomeActivity" />
-        <activity android:name=".ShowAnnouncementActivity" />
-        <activity android:name=".RecordAudioActivity" />
-        <activity android:name=".ShowSongsActivity" />
-        <activity android:name=".AddAudioActivity" />
-        <activity android:name=".SignUpPhoneActivity" />
-        <activity android:name=".VerifyPhoneActivity" />
-        <activity android:name=".LoginPhoneActivity" />
-        <activity android:name=".ShowImagesActivity" />
-        <activity android:name=".AddImagesActivity" />
-        <activity android:name=".utility.AddMultipleAudioActivity" />
-        <activity android:name=".utility.AddMultiplePDFActivity" />
-        <activity android:name=".AddContributionActivity" />
-        <activity android:name=".ShowExpenseActivity" />
-        <activity android:name=".CreateExpenseActivity" />
-        <activity android:name=".ShowEventActivity" />
-        <activity android:name=".CreateEventActivity" />
-        <activity android:name=".CreateAnnouncementActivity" />
-        <activity android:name=".ShowContributionActivity" />
-        <activity android:name=".SettingUserActivity" />
-        <activity android:name=".UserInfoActivity" />
-        <activity android:name=".UpdateAdminActivity" />
-        <activity android:name=".SettingProfileActivity" />
-        <activity android:name=".DahiraInfoActivity" />
-        <activity android:name=".ShowUserActivity" />
-        <activity android:name=".ShowDahiraActivity" />
-        <activity android:name=".UpdateDahiraActivity" />
-        <activity android:name=".SignUpActivity" />
-        <activity android:name=".CreateDahiraActivity" />
-        <activity android:name=".LoginActivity" />
+        <activity android:name=".AboutActivity"></activity>
+        <activity
+            android:name=".AdvertisementActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".InstructionVideoActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".PdfViewActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".InstructionsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".AddMultipleAudioActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".HomeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ShowAnnouncementActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".RecordAudioActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ShowSongsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".AddAudioActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".SignUpPhoneActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".VerifyPhoneActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".LoginPhoneActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ShowImagesActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".AddImagesActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".utility.AddMultipleAudioActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".utility.AddMultiplePDFActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".AddContributionActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ShowExpenseActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".CreateExpenseActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ShowEventActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".CreateEventActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".CreateAnnouncementActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ShowContributionActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".SettingUserActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".UserInfoActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".UpdateAdminActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".SettingProfileActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".DahiraInfoActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ShowUserActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ShowDahiraActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".UpdateDahiraActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".SignUpActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".CreateDahiraActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".LoginActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".SplashActivity"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -80,6 +152,7 @@
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
             android:exported="true"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
 
         <service
@@ -96,6 +169,7 @@
         <receiver
             android:name=".services.NotificationActionService"
             tools:ignore="InnerclassSeparator" />
+
         <service
             android:name=".services.OnClearFromRecentService"
             tools:ignore="InnerclassSeparator" />
