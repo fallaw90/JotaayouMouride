@@ -487,27 +487,32 @@ public class MyStaticFunctions {
 
         String str_duration = song.getAudioDuration().replace(":", "");
         currentSongLength = Integer.parseInt(str_duration);
-        pb_loader.setVisibility(View.VISIBLE);
+        if (pb_loader != null)
+            pb_loader.setVisibility(View.VISIBLE);
         tb_title.setVisibility(View.GONE);
-        iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_play));
-        tb_title.setText(song.getAudioTitle());
-        tv_time.setText(song.getAudioDuration());
+        if (iv_play != null)
+            iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_play));
+        if (tb_title != null)
+            tb_title.setText(song.getAudioTitle());
+        if (tv_time != null)
+            tv_time.setText(song.getAudioDuration());
         mediaPlayer.reset();
-
         try {
             if (mediaPlayer != null) {
-                if (mediaPlayer.isPlaying()) {
+                if (isPlaying) {
                     mediaPlayer.stop();
                     mediaPlayer.reset();
                     onTrackPause(context);
+                    isPlaying = false;
                 }
                 if (mediaPlayer.isLooping())
                     mediaPlayer = new MediaPlayer();
                 mediaPlayer.setDataSource(song.getAudioUri());
                 mediaPlayer.prepareAsync();
-                loadInterstitialAd(context);
             }
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (IllegalStateException e) {
             e.printStackTrace();
         }
     }
@@ -532,7 +537,6 @@ public class MyStaticFunctions {
             }
         });
         recycler.setAdapter(mAdapter);
-
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
@@ -545,6 +549,7 @@ public class MyStaticFunctions {
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
+                isPlaying = false;
                 if (currentIndex + 1 < listSong.size()) {
                     Song next = listSong.get(currentIndex + 1);
                     changeSelectedSong(currentIndex + 1);
@@ -555,6 +560,7 @@ public class MyStaticFunctions {
                     changeSelectedSong(0);
                     prepareSong(context, next);
                 }
+                loadInterstitialAd(context);
             }
         });
 
@@ -603,6 +609,7 @@ public class MyStaticFunctions {
                 seekBar.setProgress(mp.getCurrentPosition());
                 myHandler.postDelayed(UpdateSongTime, 100);
                 onTrackPlay(context);
+                loadInterstitialAd(context);
             }
         }
     }
@@ -625,6 +632,7 @@ public class MyStaticFunctions {
                         if (mediaPlayer != null) {
                             mediaPlayer.start();
                             isPlaying = true;
+                            //loadInterstitialAd(context);
                         }
                         firstLaunch = false;
                     }
@@ -717,7 +725,7 @@ public class MyStaticFunctions {
         testVal++;
         if (mediaPlayer != null) {
             if (testVal == 1 && listTracks != null && listTracks.size() >= 0) {
-                if (currentIndex < listTracks.size()) {
+                if (currentIndex + 1 < listTracks.size()) {
                     Song next = listTracks.get(currentIndex + 1);
                     changeSelectedSong(currentIndex + 1);
                     prepareSong(context, next);

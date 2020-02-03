@@ -11,6 +11,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.fallntic.jotaayumouride.HomeActivity;
 import com.fallntic.jotaayumouride.R;
 import com.fallntic.jotaayumouride.model.Song;
 import com.fallntic.jotaayumouride.services.NotificationActionService;
@@ -65,6 +66,15 @@ public class CreateNotificationMusic {
                 drw_next = R.drawable.ic_skip_next_black_24dp;
             }
 
+            //**********************************Open the app****************************************
+            Intent intent = new Intent(context, HomeActivity.class);
+            int uniqueInt = (int) (System.currentTimeMillis() & 0xfffffff);
+            PendingIntent pendingIntent = PendingIntent.getActivity(
+                    context,
+                    uniqueInt,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+
             //create notificationMediaPlayer
             notificationMediaPlayer = new NotificationCompat.Builder(context, NOTIFICATION_MP_ID)
                     .setSmallIcon(R.drawable.ic_music_note)
@@ -77,6 +87,7 @@ public class CreateNotificationMusic {
                     .addAction(drw_previous, "Previous", pendingIntentPrevious)
                     .addAction(playbutton, "Play", pendingIntentPlay)
                     .addAction(drw_next, "Next", pendingIntentNext)
+                    .setContentIntent(pendingIntent)
                     .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
                             .setShowActionsInCompactView(0, 1, 2)
                             .setMediaSession(mediaSessionCompat.getSessionToken()))
