@@ -511,8 +511,13 @@ public class HomeFragment extends Fragment {
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (mPlayer != null && fromUser) {
-                    mPlayer.seekTo(progress);
+                if (mPlayer != null && fromUser && isPlaying) {
+                    try {
+                        mPlayer.seekTo(progress);
+                    } catch (IllegalStateException e) {
+                        e.printStackTrace();
+                    }
+
                 }
             }
 
@@ -544,9 +549,6 @@ public class HomeFragment extends Fragment {
     }
 
     private void startPlaying(String audioURI) {
-
-        mPlayer = new MediaPlayer();
-
         if (audioURI != null) {
             try {
                 if (mediaPlayer != null && !isOtherMPPaused) {
@@ -554,6 +556,7 @@ public class HomeFragment extends Fragment {
                     isOtherMPPaused = true;
                 }
 
+                mPlayer = new MediaPlayer();
                 mPlayer.setDataSource(audioURI);
                 mPlayer.prepare();
                 mPlayer.start();
@@ -565,6 +568,8 @@ public class HomeFragment extends Fragment {
                     imageViewPlay.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.selector_stop));
             } catch (IOException e) {
                 Log.e("LOG_TAG", "prepare() failed");
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
             }
 
             mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
