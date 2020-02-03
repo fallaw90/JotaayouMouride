@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.OpenableColumns;
@@ -18,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -29,7 +29,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fallntic.jotaayumouride.HomeActivity;
 import com.fallntic.jotaayumouride.R;
 import com.fallntic.jotaayumouride.adapter.VideoAdapter;
 import com.fallntic.jotaayumouride.model.YouTubeVideos;
@@ -45,9 +44,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -56,24 +53,19 @@ import java.util.Objects;
 import java.util.Vector;
 
 import static android.app.Activity.RESULT_OK;
-import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.hideProgressBar;
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showImage;
-import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showProgressBar;
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.firebaseAuth;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.firebaseStorage;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.mediaPlayer;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
-import static com.fallntic.jotaayumouride.utility.MyStaticVariables.progressBar;
-import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutData;
-import static com.fallntic.jotaayumouride.utility.MyStaticVariables.relativeLayoutProgressBar;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.storageReference;
 
 public class HomeFragment extends Fragment {
 
     private static final int PICK_IMAGE_REQUEST = 375;
     private static final int PICK_AUDIO_REQUEST = 254;
-    private static String imageUriYobalouBessBi, imageUriBayitDuJour, audioURI, titleYobalouBessBi, duration;
+    private static String imageUriYobalouBessBi, imageUriBayitDuJour, audioURI, fileName, audioDuration;
     private static Uri fileURI;
     private static String title_youtube, link_youtube;
     //Youtube
@@ -86,13 +78,15 @@ public class HomeFragment extends Fragment {
     private Button buttonImageBayitDuJour, buttonAudioYobalouBessBi;
     private UploadTask uploadTask;
     private boolean isButtonClicked, isFileSelected;
-    private String fileName, choice = "";
+    private String choice = "";
     private TextView textViewTitleYouTube;
     private RecyclerView recyclerViewerYouTube;
     //****************************
+    private RelativeLayout relativeLayoutData, relativeLayoutProgressBar;
+    private ProgressBar progressBar;
     private RelativeLayout relativeLayoutYobalouBessBi, relativeLayoutPubYobalouBessBi;
     private ImageView imageViewPlay;
-    private TextView textViewTitle;
+    private TextView textViewSongName;
     private TextView textViewDuration;
     private TextView textViewDate, textViewSelectedFile;
     private boolean isOtherMPPaused, isPlaying;
@@ -129,7 +123,7 @@ public class HomeFragment extends Fragment {
         imageViewPlay = view.findViewById(R.id.imageViewPlay);
         imageViewYobalouBessBi = view.findViewById(R.id.imageView_audio);
         seekBar = view.findViewById(R.id.seekBar);
-        textViewTitle = view.findViewById(R.id.textViewRecordingname);
+        textViewSongName = view.findViewById(R.id.textViewRecordingname);
         textViewDuration = view.findViewById(R.id.textView_duration);
         textViewDate = view.findViewById(R.id.textView_date);
         textViewSelectedFile = view.findViewById(R.id.textView_selectedFile);
@@ -143,6 +137,8 @@ public class HomeFragment extends Fragment {
         firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
 
+        getBayitDuJour();
+        getYobalouBessBi();
 
         return view;
     }
@@ -156,8 +152,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        new MyTask().execute();
 
         buttonImageBayitDuJour.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("SetTextI18n")
@@ -190,10 +184,11 @@ public class HomeFragment extends Fragment {
                 } else if (choice.equals("song_yobalou_bess_bi")) {
                     if (isFileSelected) {
                         isFileSelected = false;
-                        saveFile("yobalou_bess_bi", "Yobalou bess bi");
-                        buttonImageBayitDuJour.setText("Ajouter un song yobalou bess bi");
+                        saveFile("yobalou_bess_bi", "yobalou_bess_bi");
+                        buttonAudioYobalouBessBi.setText("Ajouter un song yobalou bess bi");
                     } else {
                         isButtonClicked = false;
+                        buttonAudioYobalouBessBi.setText("Enregistrer ce fichier");
                     }
                 }
             }
@@ -221,11 +216,22 @@ public class HomeFragment extends Fragment {
             }
         });
 
-
-        getBayitDuJour();
-        getYobalouBessBi();
         handleSeekbar();
         //getYoutubeLink();
+    }
+
+    public void showProgressBar() {
+        if (relativeLayoutData != null && relativeLayoutProgressBar != null) {
+            relativeLayoutData.setVisibility(View.GONE);
+            relativeLayoutProgressBar.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void hideProgressBar() {
+        if (relativeLayoutData != null && relativeLayoutProgressBar != null) {
+            relativeLayoutData.setVisibility(View.VISIBLE);
+            relativeLayoutProgressBar.setVisibility(View.GONE);
+        }
     }
 
     public void showYobalouBessBi() {
@@ -236,13 +242,9 @@ public class HomeFragment extends Fragment {
         }
 
         if (audioURI != null && !audioURI.equals("")) {
-            Calendar calendar = Calendar.getInstance();
-            String currentDate = DateFormat.getDateInstance(DateFormat.FULL).format(calendar.getTime());
-            textViewDate.setText(currentDate);
             textViewDate.setVisibility(View.GONE);
-
-            textViewTitle.setText(titleYobalouBessBi);
-            textViewDuration.setText(duration);
+            textViewSongName.setText(fileName);
+            textViewDuration.setText(audioDuration);
             showImage(getActivity(), imageUriYobalouBessBi, imageViewYobalouBessBi);
         } else {
             relativeLayoutYobalouBessBi.setVisibility(View.GONE);
@@ -302,9 +304,9 @@ public class HomeFragment extends Fragment {
                         DocumentSnapshot document = task.getResult();
                         if (document != null) {
                             imageUriYobalouBessBi = document.getString("imageURI");
-                            titleYobalouBessBi = document.getString("title");
+                            fileName = document.getString("title");
                             audioURI = document.getString("audioURI");
-                            duration = document.getString("duration");
+                            audioDuration = document.getString("duration");
                             showYobalouBessBi();
                         }
                     } else {
@@ -363,7 +365,7 @@ public class HomeFragment extends Fragment {
             fileURI = data.getData();
             isFileSelected = true;
             if (choice.equals("image_yobalou_bess_bi")) {
-                saveFile("yobalou_bess_bi", "Image yobalou bess bi");
+                saveFile("yobalou_bess_bi", "image_yobalou_bess_bi");
                 showImage(getActivity(), fileURI.toString(), imageViewYobalouBessBi);
             } else if (choice.equals("bayit_du_jour")) {
                 showImage(getActivity(), fileURI.toString(), imageViewBayitDuJour);
@@ -378,7 +380,7 @@ public class HomeFragment extends Fragment {
             buttonAudioYobalouBessBi.setText("Enregistrer ce fichier");
             isFileSelected = true;
             int millis = findSongDuration(fileURI);
-            duration = getDurationFromMilli(millis);
+            audioDuration = getDurationFromMilli(millis);
         }
     }
 
@@ -420,8 +422,9 @@ public class HomeFragment extends Fragment {
                                         showImage(getActivity(), imageUriBayitDuJour, imageViewBayitDuJour);
                                         saveFileToFirebaseFirestore(getActivity(), "bayit_du_jour", "bayit_du_jour", uri.toString());
                                     } else if (folder.equals("yobalou_bess_bi")) {
+                                        if (choice.equals("image_yobalou_bess_bi"))
+                                            showImage(getActivity(), imageUriYobalouBessBi, imageViewYobalouBessBi);
                                         imageUriYobalouBessBi = uri.toString();
-                                        showImage(getActivity(), imageUriYobalouBessBi, imageViewYobalouBessBi);
                                         saveFileToFirebaseFirestore(getActivity(), "yobalou_bess_bi", "yobalou_bess_bi", uri.toString());
                                     }
                                 }
@@ -441,19 +444,24 @@ public class HomeFragment extends Fragment {
         final Map<String, Object> mapUri = new HashMap<>();
         if (choice.equals("song_yobalou_bess_bi")) {
             audioURI = uri;
+            fileName = fileName.replace(".mp3", "");
             mapUri.put("audioURI", uri);
-            mapUri.put("duration", duration);
+            mapUri.put("duration", audioDuration);
+            mapUri.put("title", fileName);
         } else
             mapUri.put("imageURI", uri);
 
         firestore.collection(collecion).document(document)
                 .update(mapUri).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 hideProgressBar();
                 toastMessage(context, "Fichier enregistre avec succes!");
-                if (!choice.equals("song_yobalou_bess_bi")) {
-                    context.startActivity(new Intent(context, HomeActivity.class));
+                if (choice.equals("song_yobalou_bess_bi")) {
+                    textViewDuration.setText(audioDuration);
+                    textViewSongName.setText(fileName);
+                    textViewSelectedFile.setText("Aucun fichier sélectionné");
                 }
                 isButtonClicked = false;
                 isFileSelected = false;
@@ -462,6 +470,7 @@ public class HomeFragment extends Fragment {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                hideProgressBar();
                 toastMessage(context, "Erreur enregistrement image!");
             }
         });
@@ -589,23 +598,6 @@ public class HomeFragment extends Fragment {
 
         } else {
             toastMessage(getActivity(), "Lien audio non disponible.");
-        }
-    }
-
-    @SuppressLint("StaticFieldLeak")
-    class MyTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected void onPreExecute() {
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
         }
     }
 }

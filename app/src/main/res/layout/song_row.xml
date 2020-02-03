@@ -30,24 +30,19 @@
         android:paddingEnd="50dp"
         android:paddingRight="50dp"
         android:textStyle="bold"
+        android:layout_centerInParent="true"
+        android:maxLines="1"
+        android:textColor="@color/black"
         tools:ignore="RtlHardcoded,RtlSymmetry" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tv_title"
-        android:layout_toEndOf="@id/iv_artwork"
-        android:layout_toRightOf="@id/iv_artwork"
-        android:text="@string/artiste"
-        tools:ignore="RtlHardcoded" />
 
     <TextView
         android:id="@+id/tv_duration"
         android:layout_width="wrap_content"
+        android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
         android:text="@string/_3_05"
+        android:textColor="@color/black"
         tools:ignore="RelativeOverlap,RtlHardcoded" />
 
     <ImageView

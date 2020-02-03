@@ -50,17 +50,15 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             if (selectedPosition == position) {
                 holder.itemView.setBackgroundColor(ContextCompat.getColor(context, R.color.green));
                 holder.iv_play_active.setVisibility(View.VISIBLE);
+                holder.tv_title.setText(song.getAudioTitle().replace(".mp3", ""));
             } else {
                 holder.itemView.setBackgroundColor(ContextCompat.getColor(context, android.R.color.transparent));
                 holder.iv_play_active.setVisibility(View.INVISIBLE);
+                holder.tv_duration.setText(song.getAudioDuration());
+                holder.tv_title.setText(song.getAudioTitle().replace(".mp3", ""));
             }
 
-            holder.tv_title.setText(song.getAudioTitle());
-            //String duration = utility.convertDuration(song.getAudioDuration());
-            holder.tv_duration.setText(song.getAudioDuration());
-
             holder.bind(song, listener);
-
         }
 
     }

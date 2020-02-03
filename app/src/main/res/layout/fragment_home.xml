@@ -11,6 +11,7 @@
         android:layout_height="match_parent">
 
         <RelativeLayout
+            android:id="@+id/relativeLayout_data"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:ignore="UselessParent">
@@ -65,7 +66,7 @@
 
                 <TextView
                     android:id="@+id/textView_selectedFile"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:layout_margin="@dimen/_10sdp"
@@ -131,4 +132,36 @@
 
         </RelativeLayout>
     </ScrollView>
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout_progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/textView_progressBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center_vertical"
+            android:text="@string/patientez_svp"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_20sdp"
+            android:visibility="visible" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:progressBarStyleLarge"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_100sdp"
+            android:layout_below="@id/textView_progressBar"
+            android:layout_gravity="center_vertical"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/green"
+            android:indeterminateTintMode="src_atop"
+            android:progress="80"
+            android:progressDrawable="@drawable/circle" />
+    </RelativeLayout>
 </FrameLayout>

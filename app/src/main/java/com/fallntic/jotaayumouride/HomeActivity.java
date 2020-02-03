@@ -126,7 +126,6 @@ import static com.fallntic.jotaayumouride.utility.MyStaticVariables.selectedUser
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tb_title;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.toolbar;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.toolbar_bottom;
-import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_duration;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_empty;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_time;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.typeOfContribution;
@@ -510,12 +509,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
     private void getDahiraToUpdate() {
         if (!isAdminUpdated()) {
-            showProgressBar();
             firestore.collection("dahiras").whereEqualTo("dahiraID", dahiraToUpdate).get()
                     .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                         @Override
                         public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            hideProgressBar();
                             for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                                 dahira = documentSnapshot.toObject(Dahira.class);
                                 break;
@@ -526,7 +523,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            hideProgressBar();
                             toastMessage(HomeActivity.this, "Error chargement dahiraToUpdate!");
                             Log.d(TAG, e.toString());
                         }
@@ -717,7 +713,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         toolbar_bottom = null;
         tb_title = null;
         tv_empty = null;
-        tv_duration = null;
         iv_play = null;
         iv_next = null;
         iv_previous = null;

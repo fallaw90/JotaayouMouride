@@ -66,7 +66,6 @@ import static com.fallntic.jotaayumouride.utility.MyStaticVariables.seekBar;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tb_title;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.toolbar;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.toolbar_bottom;
-import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_duration;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_empty;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_time;
 
@@ -165,7 +164,6 @@ public class ShowSongsActivity extends AppCompatActivity implements View.OnClick
     private void initializeViews() {
         toolbar_bottom = findViewById(R.id.bottom_toolbar);
         tb_title = findViewById(R.id.tb_title);
-        tv_duration = findViewById(R.id.tv_duration);
         tv_empty = findViewById(R.id.tv_empty);
         iv_play = findViewById(R.id.iv_play);
         iv_next = findViewById(R.id.iv_next);

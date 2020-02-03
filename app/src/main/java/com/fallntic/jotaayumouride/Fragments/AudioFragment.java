@@ -56,7 +56,6 @@ import static com.fallntic.jotaayumouride.utility.MyStaticVariables.seekBar;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.songChosen;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tb_title;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.toolbar_bottom;
-import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_duration;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_empty;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_time;
 
@@ -187,7 +186,6 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
     private void initViewsMedia() {
         toolbar_bottom = view.findViewById(R.id.bottom_toolbar);
         tb_title = view.findViewById(R.id.tb_title);
-        tv_duration = view.findViewById(R.id.tv_duration);
         tv_empty = view.findViewById(R.id.tv_empty);
         iv_play = view.findViewById(R.id.iv_play);
         iv_next = view.findViewById(R.id.iv_next);

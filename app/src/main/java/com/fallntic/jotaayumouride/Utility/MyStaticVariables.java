@@ -117,7 +117,7 @@ public class MyStaticVariables {
     public static RecyclerView recycler;
     public static int currentIndex = 0;
     public static Toolbar toolbar, toolbar_bottom;
-    public static TextView tb_title, tv_empty, tv_duration;
+    public static TextView tb_title, tv_empty;
     public static ImageView iv_play, iv_next, iv_previous;
     public static ProgressBar pb_loader, pb_main_loader;
     public static long currentSongLength;

@@ -49,16 +49,20 @@
                     android:layout_weight="0.5"
                     android:paddingStart="@dimen/_4sdp"
                     android:text="@string/cheikh_fall"
+                    android:maxLines="1"
+                    android:textColor="@color/black"
                     tools:ignore="RtlSymmetry" />
 
                 <TextView
                     android:id="@+id/textView_duration"
-                    android:layout_width="match_parent"
+                    android:layout_width="@dimen/_100sdp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/_4sdp"
                     android:layout_weight="0.5"
                     android:paddingStart="@dimen/_4sdp"
                     android:text="@string/time"
+                    android:maxLines="1"
+                    android:textColor="@color/black"
                     android:textAlignment="textEnd"
                     tools:ignore="RtlSymmetry" />
             </LinearLayout>
