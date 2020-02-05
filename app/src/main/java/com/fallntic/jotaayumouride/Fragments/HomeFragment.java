@@ -416,8 +416,8 @@ public class HomeFragment extends Fragment {
                 != null && buttonImageBayitDuJour != null) {
 
             if (onlineUser.getUserPhoneNumber().equals("+13208030902")
-                    || onlineUser.getUserPhoneNumber().equals("+1221769009029")
-                    || onlineUser.getUserPhoneNumber().equals("+1221783896272")) {
+                    || onlineUser.getUserPhoneNumber().equals("+221769009029")
+                    || onlineUser.getUserPhoneNumber().equals("+221783896272")) {
                 buttonImageBayitDuJour.setVisibility(View.VISIBLE);
             }
         }
