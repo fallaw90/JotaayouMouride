@@ -226,4 +226,7 @@
     <string name="home">HOME</string>
 
     <string name="bayit_du_jour">BAYIT DU JOUR</string>
+    <string name="abdou_rahman_sudais">Abdou Rahman Sudais</string>
+    <string name="today_date">today\'s date</string>
+    <string name="ajouter_video_pub">Ajouter video pub</string>
 </resources>

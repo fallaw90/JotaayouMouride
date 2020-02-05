@@ -34,7 +34,6 @@ import com.fallntic.jotaayumouride.fragments.HomeFragment;
 import com.fallntic.jotaayumouride.fragments.PDFFragment;
 import com.fallntic.jotaayumouride.fragments.ProfileFragment;
 import com.fallntic.jotaayumouride.fragments.PubFragment;
-import com.fallntic.jotaayumouride.fragments.QuranFragment;
 import com.fallntic.jotaayumouride.model.Dahira;
 import com.fallntic.jotaayumouride.model.Event;
 import com.fallntic.jotaayumouride.model.User;
@@ -138,7 +137,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
     private TabLayout tabLayout;
     private ViewPager viewPager;
-    private PageAdapter pageAdapter;
+    public PageAdapter pageAdapter;
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle toggle;
@@ -164,7 +163,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         pageAdapter.addFragment(new ProfileFragment(), "Profile", 2);
         pageAdapter.addFragment(new AudioFragment(), "Audios", 3);
         pageAdapter.addFragment(new PDFFragment(), "Khassida PDF", 4);
-        pageAdapter.addFragment(new QuranFragment(), "Quran", 5);
         Objects.requireNonNull(tabLayout.getTabAt(2)).setText("Profil");
         viewPager.setOffscreenPageLimit(4);
         viewPager.setAdapter(pageAdapter);
@@ -176,10 +174,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         pageAdapter.addFragment(new AboutFragment(), "About", 2);
         pageAdapter.addFragment(new AudioFragment(), "Audios", 3);
         pageAdapter.addFragment(new PDFFragment(), "Khassida PDF", 4);
-        pageAdapter.addFragment(new QuranFragment(), "Quran", 5);
         Objects.requireNonNull(tabLayout.getTabAt(2)).setText("About");
-
-        viewPager.setOffscreenPageLimit(4);
+        viewPager.setOffscreenPageLimit(5);
         viewPager.setAdapter(pageAdapter);
     }
 
@@ -560,6 +556,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
 
                 } else if (tab.getPosition() == 3) {
+                    pageAdapter.notifyDataSetChanged();
                     //stopCurrentPlayingMediaPlayer();
                     //toastMessage(HomeActivity.this, "Wolofal Fragment");
 

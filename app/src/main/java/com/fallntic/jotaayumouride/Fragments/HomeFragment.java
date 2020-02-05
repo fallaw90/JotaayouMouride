@@ -32,6 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.fallntic.jotaayumouride.R;
 import com.fallntic.jotaayumouride.adapter.VideoAdapter;
 import com.fallntic.jotaayumouride.model.YouTubeVideos;
+import com.fallntic.jotaayumouride.utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -65,22 +66,22 @@ public class HomeFragment extends Fragment {
 
     private static final int PICK_IMAGE_REQUEST = 375;
     private static final int PICK_AUDIO_REQUEST = 254;
-    private static String imageUriYobalouBessBi, imageUriBayitDuJour, audioURI, fileName, audioDuration;
-    private static Uri fileURI;
-    private static String title_youtube, link_youtube;
+    public static String imageUriYobalouBessBi, uriBayitDuJour, uriAudio, fileName, audioDuration, uriPrayerTime, titlePrayerTime;
+    public static String descriptionVideoDeLaSemaine, titleVideoDeLaSemaine, codeLinkVideoDeLaSemaine;
+    public static Uri fileURI;
     //Youtube
     private final Vector<YouTubeVideos> youtubeVideos = new Vector<>();
     public SeekBar seekBar;
     public Handler myHandler = new Handler();
     private View view;
-    private FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-    private ImageView imageViewBayitDuJour, imageViewYobalouBessBi;
+    private FirebaseFirestore firestore;
+    private ImageView imageViewBayitDuJour, imageViewYobalouBessBi, imageViewPrayerTime;
     private Button buttonImageBayitDuJour, buttonAudioYobalouBessBi;
     private UploadTask uploadTask;
     private boolean isButtonClicked, isFileSelected;
     private String choice = "";
-    private TextView textViewTitleYouTube;
-    private RecyclerView recyclerViewerYouTube;
+    private TextView textViewTitleVideoDeLaSemaine, textViewDescriptionVideoDeLaSemaine, textViewTitlePrayerTime;
+    private RecyclerView recyclerViewerVideoDeLaSemaine;
     //****************************
     private RelativeLayout relativeLayoutData, relativeLayoutProgressBar;
     private ProgressBar progressBar;
@@ -89,7 +90,7 @@ public class HomeFragment extends Fragment {
     private TextView textViewSongName;
     private TextView textViewDuration;
     private TextView textViewDate, textViewSelectedFile;
-    private boolean isOtherMPPaused, isPlaying;
+    private boolean isPlaying;
     private MediaPlayer mPlayer;
     public final Runnable UpdateSongTime = new Runnable() {
         public void run() {
@@ -110,7 +111,6 @@ public class HomeFragment extends Fragment {
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -118,9 +118,13 @@ public class HomeFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_home, container, false);
 
         buttonImageBayitDuJour = view.findViewById(R.id.button_upload_bayit_du_jour);
+        textViewDescriptionVideoDeLaSemaine = view.findViewById(R.id.textView_description_video_semaine);
         imageViewBayitDuJour = view.findViewById(R.id.imageView_bayit_du_jour);
-
+        textViewTitleVideoDeLaSemaine = view.findViewById(R.id.textView_title_video_semaine);
+        recyclerViewerVideoDeLaSemaine = view.findViewById(R.id.recyclerView_videoDeLaSemaine);
         imageViewPlay = view.findViewById(R.id.imageViewPlay);
+        textViewTitlePrayerTime = view.findViewById(R.id.textView_prayer_time);
+        imageViewPrayerTime = view.findViewById(R.id.imageView_prayer_time);
         imageViewYobalouBessBi = view.findViewById(R.id.imageView_audio);
         seekBar = view.findViewById(R.id.seekBar);
         textViewSongName = view.findViewById(R.id.textViewRecordingname);
@@ -133,10 +137,17 @@ public class HomeFragment extends Fragment {
 
         initViewsProgressBar(view);
 
+        if (youtubeVideos.size() > 0)
+            youtubeVideos.clear();
+        youtubeVideos.add(new YouTubeVideos("<iframe scrolling=\"no\" width=\"100%\" height=\"100%\" src=\"https://www.youtube.com/embed/" + codeLinkVideoDeLaSemaine + "\" frameborder=\"1\"  allowfullscreen></iframe>"));
+
+
         firestore = FirebaseFirestore.getInstance();
         firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
 
+        getVideoDeLaSemaine();
+        getPrayerTime();
         getBayitDuJour();
         getYobalouBessBi();
 
@@ -210,14 +221,133 @@ public class HomeFragment extends Fragment {
                 if (isPlaying) {
                     stopPlaying();
                 } else {
-                    startPlaying(audioURI);
+                    startPlaying(uriAudio);
                     Log.d("isPlayin", "False");
+                }
+            }
+        });
+
+        imageViewPrayerTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (onlineUser != null && onlineUser.getUserPhoneNumber().equals("+13208030902")) {
+                    choice = "prayer_time";
+                    chooseImage();
                 }
             }
         });
 
         handleSeekbar();
         //getYoutubeLink();
+    }
+
+    public void getPrayerTime() {
+        if (uriPrayerTime == null) {
+            showProgressBar();
+            DocumentReference docRef = firestore.collection("images")
+                    .document("prayer_time");
+            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    hideProgressBar();
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document != null) {
+                            uriPrayerTime = document.getString("imageURI");
+                            titlePrayerTime = document.getString("title");
+                            showPrayerTime();
+                        }
+                    } else {
+                        Log.d("LOGGER", "get failed with ", task.getException());
+                    }
+                }
+            });
+        } else if (!uriBayitDuJour.equals("")) {
+            showPrayerTime();
+        }
+    }
+
+    public void getVideoDeLaSemaine() {
+        if (codeLinkVideoDeLaSemaine == null) {
+            showProgressBar();
+            DocumentReference docRef = firestore.collection("videos")
+                    .document("video_de_la_semaine");
+            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    hideProgressBar();
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document != null) {
+                            codeLinkVideoDeLaSemaine = document.getString("code");
+                            titleVideoDeLaSemaine = document.getString("title");
+                            descriptionVideoDeLaSemaine = document.getString("description");
+                            showVideoDeLaSemaine();
+                        }
+                    } else {
+                        Log.d("LOGGER", "get failed with ", task.getException());
+                        toastMessage(getContext(), "Erreur chargement reessayez svp.");
+                    }
+                }
+            });
+        } else if (!codeLinkVideoDeLaSemaine.equals("")) {
+            showVideoDeLaSemaine();
+        }
+    }
+
+    public void getBayitDuJour() {
+        if (uriBayitDuJour == null) {
+            showProgressBar();
+            DocumentReference docRef = firestore.collection("bayit_du_jour")
+                    .document("bayit_du_jour");
+            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    hideProgressBar();
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document != null) {
+                            uriBayitDuJour = document.getString("imageURI");
+                            showBayitDuJour();
+                        }
+                    } else {
+                        Log.d("LOGGER", "get failed with ", task.getException());
+                        toastMessage(getContext(), "Erreur chargement reessayez svp.");
+                    }
+                }
+            });
+        } else if (!uriBayitDuJour.equals("")) {
+            showBayitDuJour();
+        }
+    }
+
+    public void getYobalouBessBi() {
+        if (uriAudio == null) {
+            showProgressBar();
+            DocumentReference docRef = firestore.collection("yobalou_bess_bi")
+                    .document("yobalou_bess_bi");
+            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    hideProgressBar();
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document != null) {
+                            imageUriYobalouBessBi = document.getString("imageURI");
+                            fileName = document.getString("title");
+                            uriAudio = document.getString("audioURI");
+                            audioDuration = document.getString("duration");
+                            showYobalouBessBi();
+                        }
+                    } else {
+                        Log.d("LOGGER", "get failed with ", task.getException());
+                        toastMessage(getContext(), "Erreur chargement reessayez svp.");
+                    }
+                }
+            });
+        } else if (!imageUriYobalouBessBi.equals("")) {
+            showYobalouBessBi();
+        }
     }
 
     public void showProgressBar() {
@@ -234,6 +364,30 @@ public class HomeFragment extends Fragment {
         }
     }
 
+    public void showVideoDeLaSemaine() {
+        if (codeLinkVideoDeLaSemaine != null && !codeLinkVideoDeLaSemaine.equals("")) {
+            textViewTitleVideoDeLaSemaine.setText(titleVideoDeLaSemaine);
+            textViewDescriptionVideoDeLaSemaine.setText(descriptionVideoDeLaSemaine);
+            recyclerViewerVideoDeLaSemaine.setHasFixedSize(true);
+            recyclerViewerVideoDeLaSemaine.setLayoutManager(new LinearLayoutManager(getContext()));
+            VideoAdapter videoAdapter = new VideoAdapter(youtubeVideos);
+            recyclerViewerVideoDeLaSemaine.setAdapter(videoAdapter);
+        } else {
+            textViewTitleVideoDeLaSemaine.setVisibility(View.GONE);
+            recyclerViewerVideoDeLaSemaine.setVisibility(View.GONE);
+        }
+    }
+
+    public void showPrayerTime() {
+        if (uriPrayerTime != null && !uriPrayerTime.equals("")) {
+            textViewTitlePrayerTime.setText(titlePrayerTime);
+            showImage(getActivity(), uriPrayerTime, imageViewPrayerTime);
+        } else {
+            textViewTitlePrayerTime.setVisibility(View.GONE);
+            imageViewPrayerTime.setVisibility(View.GONE);
+        }
+    }
+
     public void showYobalouBessBi() {
         if (onlineUser != null && firebaseAuth != null && firebaseAuth.getCurrentUser() != null && relativeLayoutYobalouBessBi != null) {
             if (onlineUser.getUserPhoneNumber().equals("+13208030902")) {
@@ -241,7 +395,7 @@ public class HomeFragment extends Fragment {
             }
         }
 
-        if (audioURI != null && !audioURI.equals("")) {
+        if (uriAudio != null && !uriAudio.equals("")) {
             textViewDate.setVisibility(View.GONE);
             textViewSongName.setText(fileName);
             textViewDuration.setText(audioDuration);
@@ -252,71 +406,20 @@ public class HomeFragment extends Fragment {
     }
 
     public void showBayitDuJour() {
-        if (imageViewBayitDuJour != null && imageUriBayitDuJour != null && !imageUriBayitDuJour.equals("")) {
-            showImage(getActivity(), imageUriBayitDuJour, imageViewBayitDuJour);
+        if (imageViewBayitDuJour != null && uriBayitDuJour != null && !uriBayitDuJour.equals("")) {
+            showImage(getActivity(), uriBayitDuJour, imageViewBayitDuJour);
         } else {
             imageViewBayitDuJour.setVisibility(View.GONE);
         }
 
-        if (onlineUser != null && firebaseAuth != null && firebaseAuth.getCurrentUser() != null && buttonImageBayitDuJour != null) {
-            if (onlineUser.getUserPhoneNumber().equals("+13208030902") || onlineUser.getUserPhoneNumber().equals("+1221769009029")) {
+        if (onlineUser != null && firebaseAuth != null && firebaseAuth.getCurrentUser()
+                != null && buttonImageBayitDuJour != null) {
+
+            if (onlineUser.getUserPhoneNumber().equals("+13208030902")
+                    || onlineUser.getUserPhoneNumber().equals("+1221769009029")
+                    || onlineUser.getUserPhoneNumber().equals("+1221783896272")) {
                 buttonImageBayitDuJour.setVisibility(View.VISIBLE);
             }
-        }
-    }
-
-    public void getBayitDuJour() {
-        if (imageUriBayitDuJour == null) {
-            showProgressBar();
-            DocumentReference docRef = firestore.collection("bayit_du_jour")
-                    .document("bayit_du_jour");
-            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    hideProgressBar();
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document != null) {
-                            imageUriBayitDuJour = document.getString("imageURI");
-                            showBayitDuJour();
-                        }
-                    } else {
-                        Log.d("LOGGER", "get failed with ", task.getException());
-                        toastMessage(getContext(), "Erreur chargement reessayez svp.");
-                    }
-                }
-            });
-        } else if (!imageUriBayitDuJour.equals("")) {
-            showBayitDuJour();
-        }
-    }
-
-    public void getYobalouBessBi() {
-        if (imageUriYobalouBessBi == null) {
-            showProgressBar();
-            DocumentReference docRef = firestore.collection("yobalou_bess_bi")
-                    .document("yobalou_bess_bi");
-            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    hideProgressBar();
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document != null) {
-                            imageUriYobalouBessBi = document.getString("imageURI");
-                            fileName = document.getString("title");
-                            audioURI = document.getString("audioURI");
-                            audioDuration = document.getString("duration");
-                            showYobalouBessBi();
-                        }
-                    } else {
-                        Log.d("LOGGER", "get failed with ", task.getException());
-                        toastMessage(getContext(), "Erreur chargement reessayez svp.");
-                    }
-                }
-            });
-        } else if (!imageUriYobalouBessBi.equals("")) {
-            showYobalouBessBi();
         }
     }
 
@@ -351,7 +454,7 @@ public class HomeFragment extends Fragment {
 
     public void chooseAudio() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        intent.putExtra(Intent.ACTION_GET_CONTENT, true);
         intent.setType("audio/*");
         startActivityForResult(intent, PICK_AUDIO_REQUEST);
     }
@@ -370,6 +473,9 @@ public class HomeFragment extends Fragment {
             } else if (choice.equals("bayit_du_jour")) {
                 showImage(getActivity(), fileURI.toString(), imageViewBayitDuJour);
                 buttonImageBayitDuJour.setText("Enregistrer cette image");
+            } else if (choice.equals("prayer_time")) {
+                showImage(getActivity(), fileURI.toString(), imageViewPrayerTime);
+                saveFile("images", "prayer_time");
             }
         }
 
@@ -406,8 +512,14 @@ public class HomeFragment extends Fragment {
 
     private void saveFile(final String folder, String imageName) {
         showProgressBar();
-        final StorageReference fileToUpload = storageReference
-                .child(folder).child(imageName);
+
+        final StorageReference fileToUpload;
+        if (choice.equals("prayer_time")) {
+            fileToUpload = storageReference.child(folder).child(imageName).child(imageName);
+        } else {
+            fileToUpload = storageReference.child(folder).child(imageName);
+        }
+
         uploadTask = (UploadTask) fileToUpload.putFile(fileURI)
                 .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
@@ -417,15 +529,17 @@ public class HomeFragment extends Fragment {
                             public void onSuccess(Uri uri) {
                                 hideProgressBar();
                                 if (uri != null) {
-                                    if (folder.equals("bayit_du_jour")) {
-                                        imageUriBayitDuJour = uri.toString();
-                                        showImage(getActivity(), imageUriBayitDuJour, imageViewBayitDuJour);
+                                    if (choice.equals("bayit_du_jour")) {
+                                        uriBayitDuJour = uri.toString();
+                                        showImage(getActivity(), uriBayitDuJour, imageViewBayitDuJour);
                                         saveFileToFirebaseFirestore(getActivity(), "bayit_du_jour", "bayit_du_jour", uri.toString());
-                                    } else if (folder.equals("yobalou_bess_bi")) {
+                                    } else if (choice.equals("yobalou_bess_bi")) {
                                         if (choice.equals("image_yobalou_bess_bi"))
                                             showImage(getActivity(), imageUriYobalouBessBi, imageViewYobalouBessBi);
                                         imageUriYobalouBessBi = uri.toString();
                                         saveFileToFirebaseFirestore(getActivity(), "yobalou_bess_bi", "yobalou_bess_bi", uri.toString());
+                                    } else if (choice.equals("prayer_time")) {
+                                        saveFileToFirebaseFirestore(getActivity(), "images", "prayer_time", uri.toString());
                                     }
                                 }
                             }
@@ -443,9 +557,9 @@ public class HomeFragment extends Fragment {
         showProgressBar();
         final Map<String, Object> mapUri = new HashMap<>();
         if (choice.equals("song_yobalou_bess_bi")) {
-            audioURI = uri;
+            uriAudio = uri;
             fileName = fileName.replace(".mp3", "");
-            mapUri.put("audioURI", uri);
+            mapUri.put("uriAudio", uri);
             mapUri.put("duration", audioDuration);
             mapUri.put("title", fileName);
         } else
@@ -474,45 +588,6 @@ public class HomeFragment extends Fragment {
                 toastMessage(context, "Erreur enregistrement image!");
             }
         });
-    }
-
-    public void getYoutubeLink() {
-        if (link_youtube == null && title_youtube == null) {
-            DocumentReference docRef = firestore.collection("video_du_jour")
-                    .document("youtube_video");
-            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        link_youtube = document.getString("link");
-                        title_youtube = document.getString("title");
-                        setYoutubeVideo();
-                    } else {
-                        Log.d("LOGGER", "get failed with ", task.getException());
-                    }
-                }
-            });
-        } else if (link_youtube.equals("") || title_youtube.equals("")) {
-            textViewTitleYouTube.setVisibility(View.GONE);
-            recyclerViewerYouTube.setVisibility(View.GONE);
-        } else {
-            setYoutubeVideo();
-        }
-    }
-
-    public void setYoutubeVideo() {
-        if (link_youtube != null && title_youtube != null) {
-            textViewTitleYouTube.setText(title_youtube);
-            recyclerViewerYouTube.setHasFixedSize(true);
-            recyclerViewerYouTube.setLayoutManager(new LinearLayoutManager(getContext()));
-            youtubeVideos.add(new YouTubeVideos("<iframe scrolling=\"no\" width=\"100%\" height=\"100%\" src=\"" + link_youtube + "\" frameborder=\"1\"  allowfullscreen></iframe>"));
-            VideoAdapter videoAdapter = new VideoAdapter(youtubeVideos);
-            recyclerViewerYouTube.setAdapter(videoAdapter);
-        } else {
-            recyclerViewerYouTube.setVisibility(View.GONE);
-            textViewTitleYouTube.setVisibility(View.GONE);
-        }
     }
 
     //**************************************************************************////////*
@@ -549,23 +624,23 @@ public class HomeFragment extends Fragment {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (isOtherMPPaused) {
+        if (MyStaticVariables.isPlaying) {
             if (mediaPlayer != null) {
                 mediaPlayer.start();
-                isOtherMPPaused = false;
+                MyStaticVariables.isPlaying = false;
             }
         }
     }
 
     private void startPlaying(String audioURI) {
         if (audioURI != null) {
-            try {
-                if (mediaPlayer != null && !isOtherMPPaused) {
-                    mediaPlayer.pause();
-                    isOtherMPPaused = true;
-                }
+            mPlayer = new MediaPlayer();
 
-                mPlayer = new MediaPlayer();
+            try {
+                if (mediaPlayer != null && !MyStaticVariables.isPlaying) {
+                    mediaPlayer.pause();
+                    MyStaticVariables.isPlaying = true;
+                }
                 mPlayer.setDataSource(audioURI);
                 mPlayer.prepare();
                 mPlayer.start();
@@ -586,10 +661,10 @@ public class HomeFragment extends Fragment {
                 public void onCompletion(MediaPlayer mp) {
                     if (imageViewPlay != null)
                         imageViewPlay.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_play));
-                    if (isOtherMPPaused) {
+                    if (MyStaticVariables.isPlaying) {
                         if (mediaPlayer != null) {
                             mediaPlayer.start();
-                            isOtherMPPaused = false;
+                            MyStaticVariables.isPlaying = false;
                         }
                     }
                     isPlaying = false;
@@ -600,4 +675,6 @@ public class HomeFragment extends Fragment {
             toastMessage(getActivity(), "Lien audio non disponible.");
         }
     }
+
+
 }

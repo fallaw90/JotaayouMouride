@@ -11,13 +11,18 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.GridView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.fallntic.jotaayumouride.R;
+import com.fallntic.jotaayumouride.adapter.SongCategory;
+import com.fallntic.jotaayumouride.adapter.ViewHolderSongCategory;
+import com.fallntic.jotaayumouride.model.GridViewSongCategory;
 import com.fallntic.jotaayumouride.services.OnClearFromRecentService;
 
 import java.util.ArrayList;
@@ -28,7 +33,6 @@ import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.getListAudio
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.stopCurrentPlayingMediaPlayer;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.broadcastReceiverMediaPlayer;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.fab_search;
-import static com.fallntic.jotaayumouride.utility.MyStaticVariables.isTabAudioOpened;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.iv_next;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.iv_play;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.iv_previous;
@@ -43,7 +47,6 @@ import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosRa
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosSerigneMbayeDiakhate;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosSerigneMoussaKa;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAudiosZikr;
-import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listTracks;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.mediaPlayer;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.myHandler;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.pb_loader;
@@ -61,94 +64,90 @@ import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_time;
 
 
 @SuppressWarnings("ALL")
-public class AudioFragment extends Fragment implements View.OnClickListener {
+public class AudioFragment extends Fragment implements AdapterView.OnItemClickListener {
     private static final String TAG = "AudioFragment";
     private View view;
+    private static GridView gridView;
+    private Button buttonBack;
 
     @SuppressLint("RestrictedApi")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_audio, container, false);
-        initViewsMainKhassida();
+
+        gridView = view.findViewById(R.id.gridview);
+        gridView.setAdapter(new SongCategory(getActivity()));
+        gridView.setOnItemClickListener(this);
+
         return view;
     }
 
     @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        ViewHolderSongCategory holder = (ViewHolderSongCategory) view.getTag();
+        GridViewSongCategory gridViewSongCategory = (GridViewSongCategory) holder.imageViewSongCategory.getTag();
 
-            case R.id.iv_khassaide:
+        switch (holder.textViewSongCategory.getText().toString()) {
+            case "Khassaïde":
                 chooseKhassaide();
                 break;
 
-            case R.id.iv_mixed:
+            case "Wolofal":
                 chooseWolofal();
                 break;
 
-            case R.id.iv_zikr:
+            case "Zikr":
                 setLayoutMedia();
                 if (listAudiosZikr == null)
                     listAudiosZikr = new ArrayList<>();
                 songChosen = "zikr";
-                getListAudios(getContext(), listAudiosZikr, "zikr");
+                getListAudios(getContext(), listAudiosZikr, "audios", "zikr");
                 break;
 
-            case R.id.button_back:
-                setMainInitialFragmentLayout();
+            case "Coran":
+                chooseCoran();
                 break;
-        }
-    }
-
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-
-        if (isVisibleToUser) {
-            if (listTracks != null && listAudiosQuran != null && songChosen != null) {
-                if (listTracks.size() == listAudiosQuran.size() && isTabAudioOpened) {
-                    stopCurrentPlayingMediaPlayer();
-                    setLayoutMedia();
-                    refreshPlayList();
-                }
-            }
         }
     }
 
     private void refreshPlayList() {
         switch (songChosen) {
             case "zikr":
-                getListAudios(getContext(), listAudiosZikr, "zikr");
+                getListAudios(getContext(), listAudiosZikr, "audios", "zikr");
                 break;
             case "magal2019HT":
-                getListAudios(getContext(), listAudiosMagal2019HT, "magal2019HT");
+                getListAudios(getContext(), listAudiosMagal2019HT, "audios", "magal2019HT");
                 break;
             case "magal2019HTDKH":
-                getListAudios(getContext(), listAudiosMagal2019HTDK, "magal2019HTDKH");
+                getListAudios(getContext(), listAudiosMagal2019HTDK, "audios", "magal2019HTDKH");
                 break;
             case "ht":
-                getListAudios(getContext(), listAudiosHT, "ht");
+                getListAudios(getContext(), listAudiosHT, "audios", "ht");
                 break;
             case "htdk":
-                getListAudios(getContext(), listAudiosHTDK, "htdk");
+                getListAudios(getContext(), listAudiosHTDK, "audios", "htdk");
                 break;
             case "ahlouMinan":
-                getListAudios(getContext(), listAudiosAM, "ahlouMinan");
+                getListAudios(getContext(), listAudiosAM, "audios", "ahlouMinan");
                 break;
             case "moustaphaGningue":
-                getListAudios(getContext(), listAudiosRadiass, "moustaphaGningue");
+                getListAudios(getContext(), listAudiosRadiass, "audios", "moustaphaGningue");
                 break;
             case "serigneMoussaKa":
-                getListAudios(getContext(), listAudiosSerigneMoussaKa, "serigneMoussaKa");
+                getListAudios(getContext(), listAudiosSerigneMoussaKa, "audios", "serigneMoussaKa");
                 break;
             case "serigneMbayeDiakhate":
-                getListAudios(getContext(), listAudiosSerigneMbayeDiakhate, "serigneMbayeDiakhate");
+                getListAudios(getContext(), listAudiosSerigneMbayeDiakhate, "audios", "serigneMbayeDiakhate");
                 break;
             case "mixedWolofal":
-                getListAudios(getContext(), listAudiosMixedWolofal, "mixedWolofal");
+                getListAudios(getContext(), listAudiosMixedWolofal, "audios", "mixedWolofal");
+                break;
+            case "sudais":
+                getListAudios(getContext(), listAudiosMixedWolofal, "quran", "sudais");
                 break;
             default:
-                setMainInitialFragmentLayout();
+                setMainAudiolFragmentLayout();
                 break;
         }
     }
@@ -161,29 +160,31 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
         ViewGroup rootView = (ViewGroup) getView();
         rootView.removeAllViews();
         rootView.addView(this.view);
-        initViewsMedia();
+        initViewsMedia(this.view);
         stopCurrentPlayingMediaPlayer();
-        isTabAudioOpened = true;
+
+        buttonBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setMainAudiolFragmentLayout();
+            }
+        });
     }
 
-    private void setMainInitialFragmentLayout() {
+    private void setMainAudiolFragmentLayout() {
         LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.view = inflater.inflate(R.layout.fragment_audio, null);
         ViewGroup rootView = (ViewGroup) getView();
         rootView.removeAllViews();
+        this.view = inflater.inflate(R.layout.fragment_audio, null);
         rootView.addView(this.view);
-        initViewsMainKhassida();
-        songChosen = null;
-        isTabAudioOpened = false;
+
+        gridView = view.findViewById(R.id.gridview);
+        gridView.setAdapter(new SongCategory(getActivity()));
+        gridView.setOnItemClickListener(this);
+
     }
 
-    private void initViewsMainKhassida() {
-        view.findViewById(R.id.iv_khassaide).setOnClickListener(this);
-        view.findViewById(R.id.iv_mixed).setOnClickListener(this);
-        view.findViewById(R.id.iv_zikr).setOnClickListener(this);
-    }
-
-    private void initViewsMedia() {
+    private void initViewsMedia(View view) {
         toolbar_bottom = view.findViewById(R.id.bottom_toolbar);
         tb_title = view.findViewById(R.id.tb_title);
         tv_empty = view.findViewById(R.id.tv_empty);
@@ -197,7 +198,7 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
         tv_time = view.findViewById(R.id.tv_time);
         fab_search = view.findViewById(R.id.fab_search);
         recycler = view.findViewById(R.id.recyclerView_quran);
-        view.findViewById(R.id.button_back).setOnClickListener(this);
+        buttonBack = view.findViewById(R.id.button_back);
 
         if (myHandler == null)
             myHandler = new Handler();
@@ -216,8 +217,6 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
             Objects.requireNonNull(getContext()).registerReceiver(broadcastReceiverMediaPlayer, new IntentFilter("TRACKS_TRACKS"));
             getContext().startService(new Intent(getContext(), OnClearFromRecentService.class));
         }
-
-
     }
 
     public void initViewsProgressBar() {
@@ -246,7 +245,7 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
                 if (listAudiosMagal2019HT == null)
                     listAudiosMagal2019HT = new ArrayList<>();
                 songChosen = "magal2019HT";
-                getListAudios(getContext(), listAudiosMagal2019HT, "magal2019HT");
+                getListAudios(getContext(), listAudiosMagal2019HT, "audios", "magal2019HT");
                 alertDialog.dismiss();
             }
         });
@@ -258,7 +257,7 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
                 if (listAudiosMagal2019HTDK == null)
                     listAudiosMagal2019HTDK = new ArrayList<>();
                 songChosen = "magal2019HTDKH";
-                getListAudios(getContext(), listAudiosMagal2019HTDK, "magal2019HTDKH");
+                getListAudios(getContext(), listAudiosMagal2019HTDK, "audios", "magal2019HTDKH");
                 alertDialog.dismiss();
             }
         });
@@ -295,7 +294,7 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
                 if (listAudiosHT == null)
                     listAudiosHT = new ArrayList<>();
                 songChosen = "ht";
-                getListAudios(getContext(), listAudiosHT, "ht");
+                getListAudios(getContext(), listAudiosHT, "audios", "ht");
                 alertDialog.dismiss();
             }
         });
@@ -307,7 +306,7 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
                 if (listAudiosHTDK == null)
                     listAudiosHTDK = new ArrayList<>();
                 songChosen = "htdk";
-                getListAudios(getContext(), listAudiosHTDK, "htdk");
+                getListAudios(getContext(), listAudiosHTDK, "audios", "htdk");
                 alertDialog.dismiss();
             }
         });
@@ -319,7 +318,7 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
                 if (listAudiosAM == null)
                     listAudiosAM = new ArrayList<>();
                 songChosen = "ahlouMinan";
-                getListAudios(getContext(), listAudiosAM, "ahlouMinan");
+                getListAudios(getContext(), listAudiosAM, "audios", "ahlouMinan");
                 alertDialog.dismiss();
             }
         });
@@ -331,7 +330,7 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
                 if (listAudiosRadiass == null)
                     listAudiosRadiass = new ArrayList<>();
                 songChosen = "moustaphaGningue";
-                getListAudios(getContext(), listAudiosRadiass, "moustaphaGningue");
+                getListAudios(getContext(), listAudiosRadiass, "audios", "moustaphaGningue");
                 alertDialog.dismiss();
             }
         });
@@ -359,7 +358,7 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
                     listAudiosSerigneMoussaKa = new ArrayList<>();
                 setLayoutMedia();
                 songChosen = "serigneMoussaKa";
-                getListAudios(getContext(), listAudiosSerigneMoussaKa, "serigneMoussaKa");
+                getListAudios(getContext(), listAudiosSerigneMoussaKa, "audios", "serigneMoussaKa");
                 alertDialog.dismiss();
             }
         });
@@ -371,7 +370,7 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
                 if (listAudiosSerigneMbayeDiakhate == null)
                     listAudiosSerigneMbayeDiakhate = new ArrayList<>();
                 songChosen = "serigneMbayeDiakhate";
-                getListAudios(getContext(), listAudiosSerigneMbayeDiakhate, "serigneMbayeDiakhate");
+                getListAudios(getContext(), listAudiosSerigneMbayeDiakhate, "audios", "serigneMbayeDiakhate");
                 alertDialog.dismiss();
             }
         });
@@ -383,7 +382,33 @@ public class AudioFragment extends Fragment implements View.OnClickListener {
                 if (listAudiosMixedWolofal == null)
                     listAudiosMixedWolofal = new ArrayList<>();
                 songChosen = "mixedWolofal";
-                getListAudios(getContext(), listAudiosMixedWolofal, "mixedWolofal");
+                getListAudios(getContext(), listAudiosMixedWolofal, "audios", "mixedWolofal");
+                alertDialog.dismiss();
+            }
+        });
+    }
+
+    private void chooseCoran() {
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(Objects.requireNonNull(getContext()));
+        LayoutInflater inflater = getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.dialog_audio_coran, null);
+        dialogBuilder.setView(dialogView);
+
+        Button buttonSudais = dialogView.findViewById(R.id.button_sudais);
+
+        final AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.show();
+
+        buttonSudais.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setLayoutMedia();
+                if (listAudiosQuran == null)
+                    listAudiosQuran = new ArrayList<>();
+                setLayoutMedia();
+                songChosen = "sudais";
+                getListAudios(getContext(), listAudiosQuran, "quran", "sudais");
                 alertDialog.dismiss();
             }
         });

@@ -17,13 +17,17 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.fallntic.jotaayumouride.fragments.HomeFragment;
 import com.fallntic.jotaayumouride.model.Dahira;
 import com.fallntic.jotaayumouride.model.Event;
 import com.fallntic.jotaayumouride.model.ObjNotification;
 import com.fallntic.jotaayumouride.model.User;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -33,6 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.fallntic.jotaayumouride.DahiraInfoActivity.getExistingExpenses;
+import static com.fallntic.jotaayumouride.fragments.PubFragment.getListPubImage;
+import static com.fallntic.jotaayumouride.fragments.PubFragment.videoUri;
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.dismissProgressDialog;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.TITLE_ANNOUNCEMENT_NOTIFICATION;
@@ -85,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
             objNotification = (ObjNotification) getIntent().getSerializableExtra("objNotification");
             new MyTask().execute();
         } else {
+            new MyTask().execute();
             startActivity(new Intent(this, HomeActivity.class));
             finish();
         }
@@ -231,6 +238,107 @@ public class MainActivity extends AppCompatActivity {
         dismissProgressDialog();
     }
 
+    public void getPrayerTime() {
+        DocumentReference docRef = firestore.collection("images")
+                .document("prayer_time");
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document != null) {
+                        HomeFragment.uriPrayerTime = document.getString("imageURI");
+                        HomeFragment.titlePrayerTime = document.getString("title");
+                    }
+                } else {
+                    Log.d("LOGGER", "get failed with ", task.getException());
+                }
+            }
+        });
+    }
+
+    public void getVideoDeLaSemaine() {
+        DocumentReference docRef = firestore.collection("videos")
+                .document("video_de_la_semaine");
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document != null) {
+                        HomeFragment.codeLinkVideoDeLaSemaine = document.getString("code");
+                        HomeFragment.titleVideoDeLaSemaine = document.getString("title");
+                        HomeFragment.descriptionVideoDeLaSemaine = document.getString("description");
+                        //showVideoDeLaSemaine();
+                    }
+                } else {
+                    Log.d("LOGGER", "get failed with ", task.getException());
+                }
+            }
+        });
+    }
+
+    public void getBayitDuJour() {
+        DocumentReference docRef = firestore.collection("bayit_du_jour")
+                .document("bayit_du_jour");
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document != null) {
+                        HomeFragment.uriBayitDuJour = document.getString("imageURI");
+                        //showBayitDuJour();
+                    }
+                } else {
+                    Log.d("LOGGER", "get failed with ", task.getException());
+                }
+            }
+        });
+    }
+
+    public void getYobalouBessBi() {
+        DocumentReference docRef = firestore.collection("yobalou_bess_bi")
+                .document("yobalou_bess_bi");
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document != null) {
+                        HomeFragment.imageUriYobalouBessBi = document.getString("imageURI");
+                        HomeFragment.fileName = document.getString("title");
+                        HomeFragment.uriAudio = document.getString("audioURI");
+                        HomeFragment.audioDuration = document.getString("duration");
+                        //showYobalouBessBi();
+                    }
+                } else {
+                    Log.d("LOGGER", "get failed with ", task.getException());
+                }
+            }
+        });
+    }
+
+    public void getVideoPub() {
+        if (videoUri == null) {
+            DocumentReference docRef = firestore.collection("videos")
+                    .document("video_pub");
+            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document != null) {
+                            videoUri = document.getString("videoURI");
+                        }
+                    } else {
+                        Log.d("LOGGER", "get failed with ", task.getException());
+                    }
+                }
+            });
+        }
+    }
+
     @SuppressLint("StaticFieldLeak")
     class MyTask extends AsyncTask<Void, Void, Void> {
         @Override
@@ -239,8 +347,16 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... voids) {
-            getOnlineUser(MainActivity.this, userID, objNotification);
+            getBayitDuJour();
+            getYobalouBessBi();
+            getPrayerTime();
+            getVideoDeLaSemaine();
+            getVideoPub();
+            getListPubImage(MainActivity.this);
+            if (firebaseUser != null)
+                getOnlineUser(MainActivity.this, userID, objNotification);
             return null;
         }
     }
+
 }

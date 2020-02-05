@@ -221,9 +221,22 @@
     <string name="communique">Communiqués</string>
     <string name="choisir_image_bayit_du_jour">Choisir image bayit du jour</string>
     <string name="ajouter_un_song_yobalou_bess_bi">Ajouter un song yobalou bess bi</string>
-    <string name="yobalou_bess_bi">YOBALOU BESS BI</string>
+    <string name="yobalou_bess_bi">Yobalou bess bi</string>
     <string name="about_menu">A propos</string>
     <string name="home">HOME</string>
+    <string name="bayit_du_jour">Bayit du jour</string>
+    <string name="abdou_rahman_sudais">Abdou Rahman Sudais</string>
+    <string name="prayer_time">Waxtou djouli yi</string>
+    <string name="today_date">today\'s date</string>
+    <string name="video_de_la_semaine">Video du jour</string>
+    <string name="pub_anouncement">Pour publier vos événements, activités et produits dans l\'application Jotaayou Mouride  Contactez via WhatsApp +1(320) 803-0902</string>
+    <string name="ajouter_video_pub">Ajouter une vidéo pub</string>
 
-    <string name="bayit_du_jour">BAYIT DU JOUR</string>
+    <!--GridView-->
+    <string-array name="gridview_audio">
+        <item>Khassaïde</item>
+        <item>Wolofal</item>
+        <item>Zikr</item>
+        <item>Coran</item>
+    </string-array>
 </resources>

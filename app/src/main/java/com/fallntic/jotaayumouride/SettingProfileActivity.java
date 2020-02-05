@@ -114,10 +114,12 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
     }
 
     private void displayViews() {
-        editTextUserName.setText(onlineUser.getUserName());
-        editTextAddress.setText(onlineUser.getAddress());
+        if (editTextAddress != null && editTextUserName != null && onlineUser != null) {
+            editTextUserName.setText(onlineUser.getUserName());
+            editTextAddress.setText(onlineUser.getAddress());
 
-        MyStaticFunctions.showImage(this, onlineUser.getImageUri(), imageView);
+            MyStaticFunctions.showImage(this, onlineUser.getImageUri(), imageView);
+        }
     }
 
     @Override

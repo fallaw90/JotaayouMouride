@@ -422,7 +422,7 @@ public class MyStaticFunctions {
     }
 
     //***************************** Mmedia Player *******************************************
-    public static void getListAudios(final Context context, List<Song> listSong, String documentID) {
+    public static void getListAudios(final Context context, List<Song> listSong, String collection, String documentID) {
         //Retrieve all songs from FirebaseFirestore
         if (listSong == null)
             listSong = new ArrayList<>();
@@ -430,7 +430,7 @@ public class MyStaticFunctions {
         listTracks = new ArrayList<>();
         if (listSong.isEmpty()) {
             showProgressBar();
-            MyStaticVariables.collectionReference = MyStaticVariables.firestore.collection("audios");
+            MyStaticVariables.collectionReference = MyStaticVariables.firestore.collection(collection);
             final List<Song> finalListSong = listSong;
             MyStaticVariables.collectionReference.whereEqualTo("documentID", documentID).get()
                     .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {

@@ -11,6 +11,7 @@
         android:layout_height="match_parent">
 
         <RelativeLayout
+            android:id="@+id/relativeLayout_data"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:ignore="UselessParent">
@@ -27,13 +28,103 @@
                 app:texts="@array/advertisements"
                 app:timeout="5000" />
 
+            <TextView
+                android:id="@+id/textView_inf_pub"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/fadingTextView"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:layout_marginBottom="@dimen/_10sdp"
+                android:text="@string/pub_anouncement"
+                android:textAlignment="center"
+                android:textColor="@color/red"
+                android:textSize="@dimen/_10sdp" />
+
+            <FrameLayout
+                android:id="@+id/frameLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textView_inf_pub">
+
+                <VideoView
+                    android:id="@+id/video_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_250sdp"
+                    android:layout_margin="@dimen/_5sdp" />
+
+            </FrameLayout>
+
+            <Button
+                android:id="@+id/button_video_pub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/frameLayout"
+                android:layout_alignParentStart="true"
+                android:layout_margin="@dimen/_10sdp"
+                android:background="@drawable/rounded_button_solid"
+                android:padding="@dimen/_5sdp"
+                android:text="@string/ajouter_video_pub"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_10sdp"
+                android:textStyle="bold"
+                android:visibility="visible" />
+
+            <TextView
+                android:id="@+id/textView_selectedFile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/frameLayout"
+                android:layout_alignParentEnd="true"
+                android:layout_margin="@dimen/_15sdp"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:layout_marginLeft="@dimen/_20sdp"
+                android:text="@string/aucun_fichier_selectionn"
+                android:textColor="@color/black"
+                tools:ignore="RelativeOverlap,RtlHardcoded" />
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerview_pub"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@+id/fadingTextView"
-                android:layout_margin="@dimen/_5sdp" />
+                android:layout_below="@+id/textView_selectedFile"
+                android:layout_marginStart="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginEnd="@dimen/_5sdp" />
 
         </RelativeLayout>
     </ScrollView>
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout_progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/textView_progressBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center_vertical"
+            android:text="@string/patientez_svp"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_20sdp"
+            android:visibility="visible" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:progressBarStyleLarge"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_100sdp"
+            android:layout_below="@id/textView_progressBar"
+            android:layout_gravity="center_vertical"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/green"
+            android:indeterminateTintMode="src_atop"
+            android:progress="80"
+            android:progressDrawable="@drawable/circle" />
+    </RelativeLayout>
 </FrameLayout>

@@ -40,6 +40,8 @@ public class AboutActivity extends AppCompatActivity {
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        if (youtubeVideos.size() > 0)
+            youtubeVideos.clear();
         youtubeVideos.add(new YouTubeVideos("<iframe scrolling=\"no\" width=\"100%\" height=\"100%\" src=\"https://www.youtube.com/embed/hU5EETPYB2Y\" frameborder=\"1\"  allowfullscreen></iframe>"));
         VideoAdapter videoAdapter = new VideoAdapter(youtubeVideos);
         recyclerView.setAdapter(videoAdapter);

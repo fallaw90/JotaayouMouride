@@ -14,7 +14,6 @@
         android:layout_margin="@dimen/_10sdp"
         android:background="@color/green"
         android:padding="@dimen/_5sdp"
-        android:contentDescription="@string/photo"
-        android:src="@drawable/sudais" />
+        android:contentDescription="@string/photo" />
 
 </LinearLayout>
