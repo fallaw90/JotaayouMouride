@@ -115,7 +115,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         firestore = FirebaseFirestore.getInstance();
 
         initViews();
-        tv_title.setText("Creation d'un nouveau evenement pour le dahira " + dahira.getDahiraName());
+        tv_title.setText("Création d'un nouveau événement pour le dahira " + dahira.getDahiraName());
         ed_date.setText(getCurrentDate());
 
         hideSoftKeyboard();
@@ -139,7 +139,10 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
         switch (item.getItemId()) {
             case android.R.id.home:
-                startActivity(new Intent(this, HomeActivity.class));
+                Intent intent = new Intent(this, HomeActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 finish();
                 break;
 
@@ -193,10 +196,10 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 getDate(this, ed_date);
                 break;
             case R.id.editText_startTime:
-                getTime(this, ed_startTime, "Heure du debut de votre evenement");
+                getTime(this, ed_startTime, "Heure du debut de votre événement ");
                 break;
             case R.id.editText_endTime:
-                getTime(this, ed_endTime, "Heure de la fin de votre evenement");
+                getTime(this, ed_endTime, "Heure de la fin de votre événement ");
                 break;
         }
     }
@@ -244,7 +247,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         hideProgressBar();
-                        toastMessage(context, "Erreur d'enregistrement de votre evenement.");
+                        toastMessage(context, "Erreur d'enregistrement de votre événement .");
                         startActivity(new Intent(context, DahiraInfoActivity.class));
                     }
                 });
@@ -269,7 +272,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                         myListEvents.add(event);
                         displayEvent = "myEvents";
                         final Intent intent = new Intent(context, ShowEventActivity.class);
-                        showAlertDialog(context, "Evenement enregistre.", intent);
+                        showAlertDialog(context, "Evénement enregistré.", intent);
                         Log.d(TAG, "Event saved.");
                     }
                 })
@@ -277,7 +280,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         hideProgressBar();
-                        toastMessage(context, "Erreur d'enregistrement de votre evenement.");
+                        toastMessage(context, "Erreur d'enregistrement de votre événement.");
                         startActivity(new Intent(context, DahiraInfoActivity.class));
                     }
                 });

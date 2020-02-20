@@ -72,7 +72,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
-import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
+import static com.fallntic.jotaayumouride.HomeActivity.showInterstitialAd;
 import static com.fallntic.jotaayumouride.MainActivity.TAG;
 import static com.fallntic.jotaayumouride.notifications.CreateNotificationMusic.NOTIFICATION_MP_ID;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.UpdateSongTime;
@@ -179,7 +179,7 @@ public class MyStaticFunctions {
     }
 
     public static void getListImages(final Context context) {
-        if (listImage == null) {
+        if (firestore != null && dahira != null && dahira.getDahiraID() != null && !dahira.getDahiraID().equals("") && listImage == null) {
             listImage = new ArrayList<>();
             showProgressBar();
             firestore.collection("images").whereEqualTo("dahiraID", dahira.getDahiraID()).get()
@@ -190,8 +190,10 @@ public class MyStaticFunctions {
                             if (!queryDocumentSnapshots.isEmpty()) {
                                 for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                                     ListImageObject listImageObject = documentSnapshot.toObject(ListImageObject.class);
-                                    listImage.addAll(listImageObject.getListImage());
-                                    break;
+                                    if (listImageObject != null) {
+                                        listImage.addAll(listImageObject.getListImage());
+                                        break;
+                                    }
                                 }
                                 Log.d(TAG, "Image name downloaded");
                             }
@@ -252,11 +254,13 @@ public class MyStaticFunctions {
     }
 
     public static void showImage(final Context context, String uri, ImageView imageView) {
-        GlideApp.with(context)
-                .load(uri)
-                .placeholder(R.drawable.logo_web)
-                .fitCenter()
-                .into(imageView);
+        if (uri != null && imageView != null) {
+            GlideApp.with(context)
+                    .load(uri)
+                    .placeholder(R.drawable.logo_web)
+                    .fitCenter()
+                    .into(imageView);
+        }
     }
 
     public static void saveProfileImage(final Context context, final String uri) {
@@ -488,7 +492,8 @@ public class MyStaticFunctions {
         currentSongLength = Integer.parseInt(str_duration);
         if (pb_loader != null)
             pb_loader.setVisibility(View.VISIBLE);
-        tb_title.setVisibility(View.GONE);
+        if (tb_title != null)
+            tb_title.setVisibility(View.GONE);
         if (iv_play != null)
             iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_play));
         if (tb_title != null)
@@ -559,7 +564,7 @@ public class MyStaticFunctions {
                     changeSelectedSong(0);
                     prepareSong(context, next);
                 }
-                loadInterstitialAd(context);
+                showInterstitialAd(context);
             }
         });
 
@@ -598,17 +603,23 @@ public class MyStaticFunctions {
                 isPlaying = false;
                 onTrackPause(context);
             } else {
-                seekBar.setMax(mp.getDuration());
-                pb_loader.setVisibility(View.GONE);
-                tb_title.setVisibility(View.VISIBLE);
+                if (seekBar != null) {
+                    seekBar.setMax(mp.getDuration());
+                    seekBar.setProgress(mp.getCurrentPosition());
+                }
+                if (pb_loader != null)
+                    pb_loader.setVisibility(View.GONE);
+                if (tb_title != null)
+                    tb_title.setVisibility(View.VISIBLE);
+                if (iv_play != null)
+                    iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_pause));
+                if (myHandler != null && UpdateSongTime != null)
+                    myHandler.postDelayed(UpdateSongTime, 100);
                 mp.start();
                 isPlaying = true;
                 firstLaunch = false;
-                iv_play.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.selector_pause));
-                seekBar.setProgress(mp.getCurrentPosition());
-                myHandler.postDelayed(UpdateSongTime, 100);
                 onTrackPlay(context);
-                loadInterstitialAd(context);
+                showInterstitialAd(context);
             }
         }
     }
@@ -693,7 +704,7 @@ public class MyStaticFunctions {
     }
 
     public static void onTrackPrevious(Context context) {
-        if (listTracks != null && currentIndex < listTracks.size()) {
+        if (listTracks != null && currentIndex >= 0 && currentIndex < listTracks.size()) {
             CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
                     R.drawable.ic_pause_black_24dp, currentIndex, listTracks.size() - 1);
         }
@@ -707,14 +718,14 @@ public class MyStaticFunctions {
     }
 
     public static void onTrackPause(Context context) {
-        if (listTracks != null && currentIndex < listTracks.size()) {
+        if (listTracks != null && currentIndex >= 0 && currentIndex < listTracks.size()) {
             CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
                     R.drawable.ic_play_arrow_black_24dp, currentIndex, listTracks.size() - 1);
         }
     }
 
     public static void onTrackNext(Context context) {
-        if (listTracks != null && currentIndex < listTracks.size()) {
+        if (listTracks != null && currentIndex >= 0 && currentIndex < listTracks.size()) {
             CreateNotificationMusic.createNotification(context, listTracks.get(currentIndex),
                     R.drawable.ic_pause_black_24dp, currentIndex, listTracks.size() - 1);
         }
@@ -723,7 +734,7 @@ public class MyStaticFunctions {
     public static void pushNext(Context context) {
         testVal++;
         if (mediaPlayer != null) {
-            if (testVal == 1 && listTracks != null && listTracks.size() >= 0) {
+            if (testVal == 1 && listTracks != null && listTracks.size() > 0) {
                 if (currentIndex + 1 < listTracks.size()) {
                     Song next = listTracks.get(currentIndex + 1);
                     changeSelectedSong(currentIndex + 1);
@@ -743,8 +754,8 @@ public class MyStaticFunctions {
     public static void pushPrevious(Context context) {
         testVal++;
         if (mediaPlayer != null) {
-            if (testVal == 1) {
-                if (listTracks != null && currentIndex < listTracks.size()) {
+            if (testVal == 1 && listTracks != null && listTracks.size() > 0) {
+                if (currentIndex < listTracks.size()) {
                     if (currentIndex - 1 >= 0) {
                         Song previous = listTracks.get(currentIndex - 1);
                         changeSelectedSong(currentIndex - 1);

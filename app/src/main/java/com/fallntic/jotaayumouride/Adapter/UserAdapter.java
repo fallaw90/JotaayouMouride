@@ -110,7 +110,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                 adiya = null;
                 sass = null;
                 social = null;
-                HomeActivity.loadInterstitialAd(context);
+                HomeActivity.showInterstitialAd(context);
                 Intent intent = new Intent(context, UserInfoActivity.class);
                 context.startActivity(intent);
             }

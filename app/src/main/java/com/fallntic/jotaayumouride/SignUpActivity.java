@@ -233,6 +233,8 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                     saveUser();
                     if (isRegistrationSuccessful()) {
                         Intent intent = new Intent(SignUpActivity.this, HomeActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                         startActivity(intent);
                     }
                 } else {
@@ -520,7 +522,10 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
 
         switch (item.getItemId()) {
             case android.R.id.home:
-                startActivity(new Intent(this, HomeActivity.class));
+                Intent intent = new Intent(this, HomeActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 break;
 
             case R.id.icon_back:

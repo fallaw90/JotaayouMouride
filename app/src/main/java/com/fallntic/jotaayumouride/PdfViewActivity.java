@@ -133,8 +133,10 @@ public class PdfViewActivity extends AppCompatActivity {
 
         switch (item.getItemId()) {
             case android.R.id.home:
-                startActivity(new Intent(this, HomeActivity.class));
-                finish();
+                Intent intent = new Intent(this, HomeActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 break;
 
             case R.id.icon_back:
@@ -143,7 +145,7 @@ public class PdfViewActivity extends AppCompatActivity {
 
             case R.id.instructions:
                 //Load ads
-                HomeActivity.loadInterstitialAd(this);
+                HomeActivity.showInterstitialAd(this);
                 startActivity(new Intent(this, InstructionsActivity.class));
                 break;
 

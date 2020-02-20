@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.fallntic.jotaayumouride.HomeActivity;
 import com.fallntic.jotaayumouride.R;
 import com.fallntic.jotaayumouride.model.ListSongObject;
 import com.fallntic.jotaayumouride.model.Song;
@@ -31,8 +32,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.createChannel;
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.isConnected;
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.setMyAdapter;
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showProgressBar;
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.stopCurrentPlayingMediaPlayer;
@@ -73,7 +76,24 @@ public class QuranFragment extends Fragment implements View.OnClickListener {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_quran, container, false);
 
+        if (!isConnected(getContext())) {
+            toastMessage(getContext(), "Verifier votre connexion SVP.");
+            startActivity(new Intent(getContext(), HomeActivity.class));
+        }
+
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        checkInternetConnection(getActivity());
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        checkInternetConnection(getActivity());
     }
 
     @Override

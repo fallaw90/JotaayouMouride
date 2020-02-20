@@ -2,6 +2,7 @@ package com.fallntic.jotaayumouride;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -57,7 +58,10 @@ public class InstructionsActivity extends AppCompatActivity {
         switch (item.getItemId()) {
 
             case android.R.id.home:
-                startActivity(new Intent(this, HomeActivity.class));
+                Intent intent = new Intent(this, HomeActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 finish();
                 break;
 
@@ -70,5 +74,10 @@ public class InstructionsActivity extends AppCompatActivity {
                 break;
         }
         return true;
+    }
+
+    @Override
+    public AssetManager getAssets() {
+        return getResources().getAssets();
     }
 }

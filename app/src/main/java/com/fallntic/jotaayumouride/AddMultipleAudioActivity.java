@@ -178,7 +178,10 @@ public class AddMultipleAudioActivity extends AppCompatActivity implements View.
     public void onClick(View v) {
 
         if (v.getId() == button_finish) {
-            startActivity(new Intent(this, HomeActivity.class));
+            Intent intent = new Intent(this, HomeActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
             finish();
         }
     }

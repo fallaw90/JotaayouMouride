@@ -431,7 +431,8 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 nav_Menu.findItem(R.id.nav_setting).setVisible(false);
                 nav_Menu.findItem(R.id.nav_searchUser).setVisible(false);
                 nav_Menu.findItem(R.id.nav_removeDahira).setVisible(false);
-            } else if (onlineUser.getListRoles().size() > indexOnlineUser && !onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
+            } else if (onlineUser.getListRoles().size() > indexOnlineUser &&
+                    !onlineUser.getListRoles().get(indexOnlineUser).equals("Administrateur")) {
                 nav_Menu.findItem(R.id.nav_setting).setVisible(false);
                 nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
                 nav_Menu.findItem(R.id.nav_addExpense).setVisible(false);
@@ -529,7 +530,10 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                         displayDahira = "myDahira";
                         myListDahira.clear();
                         myListDahira = null;
+
                         Intent intent = new Intent(context, HomeActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                         showAlertDialog(context, "Desabonnement reussi.", intent);
                     }
                 }).addOnFailureListener(new OnFailureListener() {
@@ -576,7 +580,10 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
         switch (item.getItemId()) {
 
             case R.id.nav_home:
-                startActivity(new Intent(this, HomeActivity.class));
+                Intent intent = new Intent(this, HomeActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 finish();
                 break;
 
@@ -610,7 +617,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 break;
 
             case R.id.nav_displayExpenses:
-                HomeActivity.loadInterstitialAd(this);
+                HomeActivity.showInterstitialAd(this);
                 getExistingExpenses(DahiraInfoActivity.this, dahira.getDahiraID());
                 break;
 
@@ -619,7 +626,7 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 break;
 
             case R.id.nav_displayAnnouncement:
-                HomeActivity.loadInterstitialAd(this);
+                HomeActivity.showInterstitialAd(this);
                 startActivity(new Intent(this, ShowAnnouncementActivity.class));
                 break;
 
@@ -631,24 +638,24 @@ public class DahiraInfoActivity extends AppCompatActivity implements View.OnClic
                 break;
 
             case R.id.nav_displayEvent:
-                HomeActivity.loadInterstitialAd(this);
+                HomeActivity.showInterstitialAd(this);
                 displayEvent = "myEvents";
                 getAllEvents(this);
                 getMyEvents(this);
                 break;
 
             case R.id.nav_photo:
-                HomeActivity.loadInterstitialAd(this);
+                HomeActivity.showInterstitialAd(this);
                 startActivity(new Intent(DahiraInfoActivity.this, ShowImagesActivity.class));
                 break;
 
             case R.id.nav_audio:
-                HomeActivity.loadInterstitialAd(this);
+                HomeActivity.showInterstitialAd(this);
                 startActivity(new Intent(DahiraInfoActivity.this, ShowSongsActivity.class));
                 break;
 
             case R.id.nav_video:
-                HomeActivity.loadInterstitialAd(this);
+                HomeActivity.showInterstitialAd(this);
                 showAlertDialog(this, "Cette page est en cours de contruction." +
                         "Revenez plutard SVP.");
                 break;

@@ -160,8 +160,10 @@ public class ShowImagesActivity extends AppCompatActivity implements View.OnClic
 
         switch (item.getItemId()) {
             case android.R.id.home:
-                startActivity(new Intent(this, HomeActivity.class));
-                finish();
+                Intent intent = new Intent(this, HomeActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 break;
 
             case R.id.icon_add:

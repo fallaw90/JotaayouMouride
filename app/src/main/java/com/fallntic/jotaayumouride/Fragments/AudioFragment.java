@@ -8,6 +8,7 @@ import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,7 @@ import com.fallntic.jotaayumouride.services.OnClearFromRecentService;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.createChannel;
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.getListAudios;
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.stopCurrentPlayingMediaPlayer;
@@ -80,7 +82,31 @@ public class AudioFragment extends Fragment implements AdapterView.OnItemClickLi
         gridView.setAdapter(new SongCategory(getActivity()));
         gridView.setOnItemClickListener(this);
 
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                createChannel(getContext());
+                Objects.requireNonNull(getContext()).registerReceiver(broadcastReceiverMediaPlayer, new IntentFilter("TRACKS_TRACKS"));
+                getContext().startService(new Intent(getContext(), OnClearFromRecentService.class));
+            }
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            Log.e("LOG_TAG", "prepare() failed");
+        }
+
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        checkInternetConnection(getActivity());
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        checkInternetConnection(getActivity());
     }
 
     @Override
@@ -212,11 +238,6 @@ public class AudioFragment extends Fragment implements AdapterView.OnItemClickLi
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createChannel(getContext());
-            Objects.requireNonNull(getContext()).registerReceiver(broadcastReceiverMediaPlayer, new IntentFilter("TRACKS_TRACKS"));
-            getContext().startService(new Intent(getContext(), OnClearFromRecentService.class));
-        }
     }
 
     public void initViewsProgressBar() {

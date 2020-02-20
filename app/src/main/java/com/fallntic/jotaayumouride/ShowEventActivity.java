@@ -127,8 +127,10 @@ public class ShowEventActivity extends AppCompatActivity implements View.OnClick
     public void onBackPressed() {
         if (displayEvent.equals("allEvents") || objNotification != null){
             objNotification = null;
-            startActivity(new Intent(this, HomeActivity.class));
-            finish();
+            Intent intent = new Intent(this, HomeActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
         }
         if (displayEvent.equals("myEvents") ){
             startActivity(new Intent(ShowEventActivity.this, DahiraInfoActivity.class));
@@ -196,8 +198,10 @@ public class ShowEventActivity extends AppCompatActivity implements View.OnClick
 
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
-                startActivity(new Intent(this, HomeActivity.class));
+                Intent intent = new Intent(this, HomeActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 break;
 
             case R.id.icon_add:
@@ -269,7 +273,7 @@ public class ShowEventActivity extends AppCompatActivity implements View.OnClick
                         deleteDocument(ShowEventActivity.this, "events", event.getEventID());
 
                         Snackbar snackbar = Snackbar.make(coordinatorLayout,
-                                "Evenement supprimee.", Snackbar.LENGTH_LONG);
+                                "Evénement supprimé.", Snackbar.LENGTH_LONG);
                         snackbar.setActionTextColor(Color.GREEN);
                         snackbar.show();
 
@@ -279,7 +283,7 @@ public class ShowEventActivity extends AppCompatActivity implements View.OnClick
             public void onFailure(@NonNull Exception e) {
                 hideProgressBar();
                 Snackbar snackbar = Snackbar.make(coordinatorLayout,
-                        "Erreur de la suppression de l'evenement. " + e.getMessage(), Snackbar.LENGTH_LONG);
+                        "Erreur de la suppression de l'événement. " + e.getMessage(), Snackbar.LENGTH_LONG);
                 snackbar.setActionTextColor(Color.GREEN);
                 snackbar.show();
                 startActivity(new Intent(ShowEventActivity.this, ShowEventActivity.class));
@@ -297,7 +301,7 @@ public class ShowEventActivity extends AppCompatActivity implements View.OnClick
 
             if (displayEvent.equals("myEvents")) {
                 eventAdapter = new EventAdapter(this, myListEvents);
-                textViewDahiraName.setText("Liste des evenements du dahira " + dahira.getDahiraName());
+                textViewDahiraName.setText("Liste des événements du dahira " + dahira.getDahiraName());
                 enableSwipeToDelete();
 
             } else if (displayEvent.equals("allEvents")) {

@@ -156,8 +156,10 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
             startActivity(new Intent(RecordAudioActivity.this, DahiraInfoActivity.class));
             finish();
         } else {
-            startActivity(new Intent(this, HomeActivity.class));
-            finish();
+            Intent intent = new Intent(this, HomeActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
         }
         return true;
     }
@@ -393,8 +395,10 @@ public class RecordAudioActivity extends AppCompatActivity implements View.OnCli
 
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
-                startActivity(new Intent(this, HomeActivity.class));
+                Intent intent = new Intent(this, HomeActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 break;
 
             case R.id.about:

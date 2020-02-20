@@ -39,8 +39,10 @@ import java.util.List;
 import java.util.Objects;
 
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
-import static com.fallntic.jotaayumouride.HomeActivity.loadInterstitialAd;
+import static com.fallntic.jotaayumouride.HomeActivity.showInterstitialAd;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.isConnected;
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showProgressBar;
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listUploadPDF;
@@ -84,9 +86,26 @@ public class PDFFragment extends Fragment {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_pdf, container, false);
 
+        if (!isConnected(getContext())) {
+            toastMessage(getContext(), "Verifier votre connexion SVP.");
+            startActivity(new Intent(getContext(), HomeActivity.class));
+        }
+
         listView = view.findViewById(R.id.listView);
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        checkInternetConnection(getActivity());
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        checkInternetConnection(getActivity());
     }
 
     @Override
@@ -106,7 +125,7 @@ public class PDFFragment extends Fragment {
                 //getting the upload
                 pdf_file = listUploadPDF.get(i);
                 openPDF(getContext(), pdf_file);
-                loadInterstitialAd(getContext());
+                showInterstitialAd(getContext());
             }
         });
     }
@@ -206,7 +225,14 @@ public class PDFFragment extends Fragment {
         builder.setPositiveButton("Telecharger", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                beginDownload(context, pdf_file);
+                try {
+                    beginDownload(context, pdf_file);
+                } catch (IllegalStateException e) {
+                    System.out.println("IllegalStateException:  " + e.getMessage());
+                } catch (Exception e) {
+                    System.out.println("Exception: " + e.getMessage());
+                }
+
             }
         });
 

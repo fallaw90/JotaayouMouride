@@ -40,10 +40,11 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
 
         Event event = listEvent.get(position);
 
-        holder.textViewUserName.setText("Enregistre par " + event.getUserName());
+        //holder.textViewUserName.setText("Enregistré par " + event.getUserName());
+        holder.textViewUserName.setVisibility(View.GONE);
         holder.textViewTitle.setText(event.getTitle());
-        holder.textViewtDate.setText(event.getDate());
-        holder.textViewLocation.setText(event.getLocation());
+        holder.textViewtDate.setText("Date: le " + event.getDate());
+        holder.textViewLocation.setText("Lieu: " + event.getLocation());
         holder.textViewNote.setText(event.getNote());
         holder.textViewStartTime.setText(event.getStartTime());
         holder.textViewEndTime.setText(event.getEndTime());
@@ -58,7 +59,6 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     public void removeItem(int position) {
 
         listEvent.remove(position);
-
         notifyItemRemoved(position);
     }
 

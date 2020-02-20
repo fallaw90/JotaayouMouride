@@ -18,6 +18,8 @@ import com.fallntic.jotaayumouride.model.YouTubeVideos;
 
 import java.util.Vector;
 
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
+
 
 public class AboutFragment extends Fragment {
 
@@ -35,6 +37,18 @@ public class AboutFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerView);
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        checkInternetConnection(getActivity());
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        checkInternetConnection(getActivity());
     }
 
     @Override

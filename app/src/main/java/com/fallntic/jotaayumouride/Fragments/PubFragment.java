@@ -12,22 +12,30 @@ import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.MediaController;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.fallntic.jotaayumouride.HomeActivity;
 import com.fallntic.jotaayumouride.R;
 import com.fallntic.jotaayumouride.adapter.AdvertisementAdapter;
 import com.fallntic.jotaayumouride.model.PubImage;
+import com.fallntic.jotaayumouride.utility.MyStaticVariables;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -47,7 +55,11 @@ import java.util.Map;
 import java.util.Objects;
 
 import static android.app.Activity.RESULT_OK;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.hideProgressBar;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.isConnected;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.onTrackPause;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.onTrackPlay;
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showProgressBar;
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.firebaseStorage;
@@ -70,13 +82,19 @@ public class PubFragment extends Fragment {
     private UploadTask uploadTask;
     private TextView textViewSelectedFile;
     private boolean isFileSelected, isVideoPlaying;
+    private MediaController mediaController;
+    private RelativeLayout relativeLayout;
+    private ScrollView scrollView;
+    private FrameLayout frameLayout;
+    private ImageView imageViewPlay;
+    private boolean isVideoLaunched, mainMediaPlayerExist;
 
     public PubFragment() {
         // Required empty public constructor
     }
 
-    public static void getListPubImage(final Context context) {
-        if (firestore != null && listPubImage == null || listPubImage.size() <= 0) {
+    public void getListPubImage(final Context context) {
+        if (firestore != null && listPubImage == null) {
             listPubImage = new ArrayList<>();
             firestore.collection("advertisements")
                     .document("my_ads")
@@ -91,6 +109,8 @@ public class PubFragment extends Fragment {
                                     PubImage pubImage = documentSnapshot.toObject(PubImage.class);
                                     listPubImage.add(pubImage);
                                 }
+                                if (listPubImage.size() > 0)
+                                    showListPubImage();
                             }
                         }
                     })
@@ -100,19 +120,33 @@ public class PubFragment extends Fragment {
                             toastMessage(context, "Error charging pubs!");
                         }
                     });
+        } else if (listPubImage.size() > 0) {
+            showListPubImage();
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_pub, container, false);
 
+        if (!isConnected(getContext())) {
+            toastMessage(getContext(), "Verifier votre connexion SVP.");
+            startActivity(new Intent(getContext(), HomeActivity.class));
+        }
+
         recyclerViewPubImage = view.findViewById(R.id.recyclerview_pub);
         videoView = view.findViewById(R.id.video_view);
         butttonVideoPub = view.findViewById(R.id.button_video_pub);
         textViewSelectedFile = view.findViewById(R.id.textView_selectedFile);
+        relativeLayout = view.findViewById(R.id.relativeLayout_data);
+        scrollView = view.findViewById(R.id.myScrollView);
+        frameLayout = view.findViewById(R.id.frameLayout);
+        imageViewPlay = view.findViewById(R.id.imageViewPlay);
+
+        mediaController = new MediaController(getActivity());
 
         initViewsProgressBar(view);
 
@@ -122,8 +156,10 @@ public class PubFragment extends Fragment {
 
         if (onlineUser != null && onlineUser.getUserPhoneNumber().equals("+13208030902")) {
             butttonVideoPub.setVisibility(View.VISIBLE);
+            textViewSelectedFile.setVisibility(View.VISIBLE);
         } else {
             butttonVideoPub.setVisibility(View.GONE);
+            textViewSelectedFile.setVisibility(View.GONE);
         }
 
         butttonVideoPub.setOnClickListener(new View.OnClickListener() {
@@ -138,8 +174,66 @@ public class PubFragment extends Fragment {
             }
         });
 
+        imageViewPlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isVideoPlaying) {
 
+                    isVideoPlaying = false;
+                    videoView.stopPlayback();
+                    imageViewPlay.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_play));
+
+                    if (mainMediaPlayerExist) {
+                        MyStaticVariables.mediaPlayer.start();
+                        MyStaticVariables.isPlaying = true;
+                        onTrackPlay(getActivity());
+                    }
+                } else {
+                    if (MyStaticVariables.isPlaying) {
+                        MyStaticVariables.mediaPlayer.pause();
+                        MyStaticVariables.isPlaying = false;
+                        mainMediaPlayerExist = true;
+                        onTrackPause(getActivity());
+                    }
+                    playVideo();
+                    imageViewPlay.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.selector_stop));
+                }
+            }
+        });
+
+        frameLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mediaController.hide();
+                if (isVideoPlaying) {
+                    imageViewPlay.setVisibility(View.VISIBLE);
+                    imageViewPlay.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.selector_stop));
+                } else {
+                    imageViewPlay.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_play));
+                }
+            }
+        });
+
+        frameLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                mediaController.hide();
+                if (isVideoPlaying) {
+                    imageViewPlay.setVisibility(View.VISIBLE);
+                    imageViewPlay.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.selector_stop));
+                } else {
+                    imageViewPlay.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_play));
+                }
+                return false;
+            }
+        });
+
+        getListPubImage(getContext());
         getVideoPub();
+
+        scrollView.setFocusableInTouchMode(true);
+        scrollView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+
         return view;
     }
 
@@ -163,23 +257,35 @@ public class PubFragment extends Fragment {
         }
     }
 
-    public void showVideo() {
-        videoView.setVideoURI(Uri.parse(videoUri));
-        MediaController mediaController = new MediaController(getActivity());
-        videoView.setMediaController(mediaController);
-        mediaController.setAnchorView(videoView);
-        //videoView.setMediaController(null);
-        videoView.requestFocus();
-        videoView.start();
-        mediaController.hide();
-        isVideoPlaying = true;
+    @SuppressLint("ClickableViewAccessibility")
+    public void playVideo() {
+        try {
+            if (videoView != null && videoUri != null && !videoUri.equals("")) {
+                videoView.setVideoURI(Uri.parse(videoUri));
+                mediaController.setAnchorView(videoView);
+                videoView.setMediaController(mediaController);
+                mediaController.hide();
+                videoView.requestFocus();
+                videoView.start();
+                isVideoPlaying = true;
+                isVideoLaunched = true;
 
-        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                mp.setLooping(true);
+                videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mp) {
+                        mp.setLooping(true);
+                    }
+                });
+            } else {
+                isVideoPlaying = false;
+                videoView.setVisibility(View.GONE);
+                imageViewPlay.setVisibility(View.GONE);
             }
-        });
+        } catch (IllegalStateException e) {
+            System.out.println("IllegalStateException:  " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage());
+        }
     }
 
     private String getFileName(Uri uri) {
@@ -228,7 +334,7 @@ public class PubFragment extends Fragment {
                 });
     }
 
-    private void initViewsProgressBar(View view) {
+    public void initViewsProgressBar(View view) {
         relativeLayoutData = view.findViewById(R.id.relativeLayout_data);
         relativeLayoutProgressBar = view.findViewById(R.id.relativeLayout_progressBar);
         progressBar = view.findViewById(R.id.progressBar);
@@ -249,6 +355,8 @@ public class PubFragment extends Fragment {
         recyclerViewPubImage.setVisibility(View.VISIBLE);
         AdvertisementAdapter advertisementAdapter = new AdvertisementAdapter(getContext(), listPubImage);
         recyclerViewPubImage.setAdapter(advertisementAdapter);
+
+        scrollView.fullScroll(ScrollView.FOCUS_UP);
     }
 
     public void saveFileToFirebaseFirestore(String videoUri) {
@@ -288,9 +396,6 @@ public class PubFragment extends Fragment {
                         DocumentSnapshot document = task.getResult();
                         if (document != null) {
                             videoUri = document.getString("videoURI");
-                            if (videoUri != null && !videoUri.equals("")) {
-                                showVideo();
-                            }
                         }
                     } else {
                         Log.d("LOGGER", "get failed with ", task.getException());
@@ -302,8 +407,15 @@ public class PubFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        checkInternetConnection(getActivity());
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
+        checkInternetConnection(getActivity());
         getVideoPub();
     }
 
@@ -311,14 +423,28 @@ public class PubFragment extends Fragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
-            if (videoUri != null && !videoUri.equals("")) {
-                showVideo();
-            } else {
-                videoView.setVisibility(View.GONE);
+            if (MyStaticVariables.isPlaying) {
+                MyStaticVariables.mediaPlayer.pause();
+                MyStaticVariables.isPlaying = false;
+                mainMediaPlayerExist = true;
+                onTrackPause(getActivity());
             }
-        } else if (isVideoPlaying) {
+            playVideo();
+        } else if (videoView != null && isVideoPlaying) {
             videoView.stopPlayback();
-            isVideoPlaying = false;
+            if (mainMediaPlayerExist) {
+                try {
+                    MyStaticVariables.mediaPlayer.start();
+                    MyStaticVariables.isPlaying = true;
+                    onTrackPlay(getActivity());
+                    mainMediaPlayerExist = false;
+                } catch (IllegalStateException e) {
+                    System.out.println("IllegalStateException:  " + e.getMessage());
+                } catch (Exception e) {
+                    System.out.println("Exception: " + e.getMessage());
+                }
+
+            }
         }
     }
 
@@ -331,13 +457,13 @@ public class PubFragment extends Fragment {
 
         @Override
         protected Void doInBackground(Void... voids) {
-            getListPubImage(getActivity());
+            //getListPubImage(getActivity());
             return null;
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            showListPubImage();
+            //showListPubImage();
         }
     }
 }

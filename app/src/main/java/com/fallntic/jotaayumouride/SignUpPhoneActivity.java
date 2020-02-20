@@ -209,7 +209,6 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
                         hideProgressBar();
                         if (fileUri != null)
                             setAllNewCollection();
-                        startActivity(new Intent(SignUpPhoneActivity.this, HomeActivity.class));
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -219,9 +218,13 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
                         userSaved = false;
                         toastMessage(getApplicationContext(), "Error adding user!");
                         Log.d(TAG, e.toString());
-                        startActivity(new Intent(SignUpPhoneActivity.this, HomeActivity.class));
                     }
                 });
+
+        Intent intent = new Intent(this, HomeActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
     }
 
     public void setAllNewCollection() {
@@ -340,7 +343,10 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
             case android.R.id.home:
 
             case R.id.icon_back:
-                startActivity(new Intent(this, HomeActivity.class));
+                Intent intent = new Intent(this, HomeActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 break;
 
             case R.id.instructions:
@@ -456,7 +462,10 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
         @Override
         protected byte[] doInBackground(Uri... params) {
             Log.d(TAG, "doInBackground: started.");
-
+            if (mBitmap != null) {
+                mBitmap.recycle();
+                mBitmap = null;
+            }
             if (mBitmap == null) {
                 try {
                     mBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), params[0]);
@@ -465,7 +474,9 @@ public class SignUpPhoneActivity extends AppCompatActivity implements View.OnCli
                 }
             }
             byte[] bytes = null;
-            bytes = getBytesFromBitmap(mBitmap, 15);
+            if (mBitmap != null) {
+                bytes = getBytesFromBitmap(mBitmap, 15);
+            }
             return bytes;
         }
 

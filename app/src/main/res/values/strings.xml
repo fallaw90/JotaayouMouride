@@ -231,6 +231,8 @@
     <string name="video_de_la_semaine">Video du jour</string>
     <string name="pub_anouncement">Pour publier vos événements, activités et produits dans l\'application Jotaayou Mouride  Contactez via WhatsApp +1(320) 803-0902</string>
     <string name="ajouter_video_pub">Ajouter une vidéo pub</string>
+    <string name="reessayez">Reessayez</string>
+    <string name="no_internet">Vous n\'avez pas de connexion internet.</string>
 
     <!--GridView-->
     <string-array name="gridview_audio">

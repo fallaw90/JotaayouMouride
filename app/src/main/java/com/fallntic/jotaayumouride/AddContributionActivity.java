@@ -201,7 +201,10 @@ public class AddContributionActivity extends AppCompatActivity implements View.O
 
         switch (item.getItemId()) {
             case android.R.id.home:
-                startActivity(new Intent(this, HomeActivity.class));
+                Intent intent = new Intent(this, HomeActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 finish();
                 break;
 

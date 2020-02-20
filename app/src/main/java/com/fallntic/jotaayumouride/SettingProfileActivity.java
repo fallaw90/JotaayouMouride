@@ -197,8 +197,6 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
                         public void onSuccess(Void aVoid) {
                             hideProgressBar();
                             toastMessage(SettingProfileActivity.this, "Enregistrement reussi");
-                            startActivity(new Intent(SettingProfileActivity.this, HomeActivity.class));
-                            finish();
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -208,8 +206,11 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
                             System.out.println("Error update data");
                         }
                     });
-            startActivity(new Intent(SettingProfileActivity.this, HomeActivity.class));
-            finish();
+
+            Intent intent = new Intent(this, HomeActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
         }
     }
 
@@ -251,8 +252,10 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
 
         switch (item.getItemId()) {
             case android.R.id.home:
-                startActivity(new Intent(this, HomeActivity.class));
-                finish();
+                Intent intent = new Intent(this, HomeActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 break;
 
             case R.id.icon_back:
@@ -291,45 +294,47 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
     }
 
     private void executeUploadTask() {
-        Toast.makeText(SettingProfileActivity.this, "uploading image", Toast.LENGTH_SHORT).show();
-        //***************************************************************************************
-        final String imageName = onlineUser.getUserName() + " " + onlineUser.getUserID();
-        final StorageReference storageReference = FirebaseStorage.getInstance().getReference()
-                .child("profileImage/" + imageName);
+        if (onlineUser != null && onlineUser.getUserName() != null && !onlineUser.getUserName().equals("")) {
+            Toast.makeText(SettingProfileActivity.this, "uploading image", Toast.LENGTH_SHORT).show();
+            //***************************************************************************************
+            final String imageName = onlineUser.getUserName() + " " + onlineUser.getUserID();
+            final StorageReference storageReference = FirebaseStorage.getInstance().getReference()
+                    .child("profileImage/" + imageName);
 
-        final UploadTask uploadTask = storageReference.putBytes(uploadBytes);
-        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                if (taskSnapshot.getMetadata() != null) {
-                    if (taskSnapshot.getMetadata().getReference() != null) {
-                        Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
-                        result.addOnSuccessListener(new OnSuccessListener<Uri>() {
-                            @Override
-                            public void onSuccess(Uri uri) {
-                                Toast.makeText(SettingProfileActivity.this, "Post Success", Toast.LENGTH_SHORT).show();
-                                saveProfileImage(SettingProfileActivity.this, uri.toString());
-                            }
-                        });
+            final UploadTask uploadTask = storageReference.putBytes(uploadBytes);
+            uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    if (taskSnapshot.getMetadata() != null) {
+                        if (taskSnapshot.getMetadata().getReference() != null) {
+                            Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
+                            result.addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    Toast.makeText(SettingProfileActivity.this, "Post Success", Toast.LENGTH_SHORT).show();
+                                    saveProfileImage(SettingProfileActivity.this, uri.toString());
+                                }
+                            });
+                        }
                     }
                 }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(SettingProfileActivity.this, "could not upload photo", Toast.LENGTH_SHORT).show();
-            }
-        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
-                double currentProgress = (100 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                if (currentProgress > (mProgress + 15)) {
-                    mProgress = (100 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                    Log.d(TAG, "onProgress: upload is " + mProgress + "& done");
-                    Toast.makeText(SettingProfileActivity.this, mProgress + "%", Toast.LENGTH_SHORT).show();
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(SettingProfileActivity.this, "could not upload photo", Toast.LENGTH_SHORT).show();
                 }
-            }
-        });
+            }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
+                    double currentProgress = (100 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                    if (currentProgress > (mProgress + 15)) {
+                        mProgress = (100 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                        Log.d(TAG, "onProgress: upload is " + mProgress + "& done");
+                        Toast.makeText(SettingProfileActivity.this, mProgress + "%", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
     }
 
     //*********************************** Resize and upload Image ********************************************
@@ -370,7 +375,15 @@ public class SettingProfileActivity extends AppCompatActivity implements View.On
             super.onPostExecute(bytes);
             uploadBytes = bytes;
             hideProgressBar();
-            executeUploadTask();
+            if (onlineUser != null)
+                executeUploadTask();
+            else {
+                toastMessage(SettingProfileActivity.this, "Erreur: reessayez svp.");
+                Intent intent = new Intent(SettingProfileActivity.this, HomeActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+            }
         }
     }
 }

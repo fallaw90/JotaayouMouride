@@ -84,8 +84,8 @@ public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraView
             imageView = itemView.findViewById(R.id.imageView);
             textViewTotalMembers = itemView.findViewById(R.id.textView_totalMembers);
 
-            assert onlineUser != null;
-            if ((dahira != null && !onlineUser.getListDahiraID().contains(dahira.getDahiraID())) || !onlineUser.getUserPhoneNumber().equals("+13208030902")) {
+            if ((dahira != null && onlineUser != null && !onlineUser.getListDahiraID().contains(dahira.getDahiraID()))
+                    || !onlineUser.getUserPhoneNumber().equals("+13208030902")) {
                 textViewTotalMembers.setVisibility(View.GONE);
             }
 
@@ -112,7 +112,7 @@ public class DahiraAdapter extends RecyclerView.Adapter<DahiraAdapter.DahiraView
                 indexOnlineUser = -1;
 
             getListSongs(context);
-            HomeActivity.loadInterstitialAd(context);
+            HomeActivity.showInterstitialAd(context);
         }
     }
 }

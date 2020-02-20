@@ -17,11 +17,15 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.fallntic.jotaayumouride.fragments.HomeFragment;
 import com.fallntic.jotaayumouride.model.Dahira;
 import com.fallntic.jotaayumouride.model.Event;
 import com.fallntic.jotaayumouride.model.ObjNotification;
 import com.fallntic.jotaayumouride.model.User;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -37,7 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.fallntic.jotaayumouride.DahiraInfoActivity.getExistingExpenses;
-import static com.fallntic.jotaayumouride.fragments.PubFragment.getListPubImage;
+import static com.fallntic.jotaayumouride.HomeActivity.interstitialAd;
 import static com.fallntic.jotaayumouride.fragments.PubFragment.videoUri;
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.dismissProgressDialog;
@@ -45,14 +49,25 @@ import static com.fallntic.jotaayumouride.utility.MyStaticVariables.TITLE_ANNOUN
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.TITLE_CONTRIBUTION_NOTIFICATION;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.TITLE_EVENT_NOTIFICATION;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.TITLE_EXPENSE_NOTIFICATION;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.audioDuration;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.codeLinkVideoDeLaSemaine;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.dahira;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.descriptionVideoDeLaSemaine;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.displayEvent;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.fileName;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.firebaseAuth;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.firebaseUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.firestore;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.imageUriYobalouBessBi;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.indexOnlineUser;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.listAllEvent;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.objNotification;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.titlePrayerTime;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.titleVideoDeLaSemaine;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.uriAudio;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.uriBayitDuJour;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.uriPrayerTime;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.userID;
 
 @SuppressWarnings("LoopStatementThatDoesntLoop")
@@ -64,8 +79,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String CHANNEL_DESC = "Jotaayou Mouride notifications";
 
     private TextView textView;
-
-    private FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,9 +105,27 @@ public class MainActivity extends AppCompatActivity {
             new MyTask().execute();
         } else {
             new MyTask().execute();
-            startActivity(new Intent(this, HomeActivity.class));
+            Intent intent = new Intent(this, HomeActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
             finish();
         }
+
+        //************************************* adMob **********************************************
+        // Initialize the Mobile Ads SDK.
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+
+        interstitialAd = new InterstitialAd(this);
+        // Insert the Ad Unit ID
+        interstitialAd.setAdUnitId(this.getString(R.string.interstitial_unit_id));
+        //Load Ad
+        interstitialAd.loadAd(new AdRequest.Builder().build());
+        //******************************************************************************************
     }
 
     private void createChannel() {
@@ -114,7 +145,6 @@ public class MainActivity extends AppCompatActivity {
         if (objNotification != null) {
             userID = objNotification.getUserID();
         }
-
         FirebaseFirestore.getInstance().collection("users")
                 .whereEqualTo("userID", userID).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -129,7 +159,10 @@ public class MainActivity extends AppCompatActivity {
                             if (objNotification != null) {
                                 getDahira(context, objNotification.getDahiraID());
                             } else {
-                                context.startActivity(new Intent(context, HomeActivity.class));
+                                Intent intent = new Intent(context, HomeActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                startActivity(intent);
                                 finish();
                             }
                         } else {
@@ -166,23 +199,28 @@ public class MainActivity extends AppCompatActivity {
                                 switch (objNotification.getTitle()) {
                                     case TITLE_EXPENSE_NOTIFICATION:
                                         getExistingExpenses(context, objNotification.getDahiraID());
-
                                         break;
                                     case TITLE_ANNOUNCEMENT_NOTIFICATION:
                                         context.startActivity(new Intent(context, ShowAnnouncementActivity.class));
-
+                                        finish();
                                         break;
                                     case TITLE_EVENT_NOTIFICATION:
                                         displayEvent = "allEvents";
                                         getAllEvents(context);
                                         break;
                                     case TITLE_CONTRIBUTION_NOTIFICATION:
-                                        context.startActivity(new Intent(context, HomeActivity.class));
+                                        Intent intent = new Intent(context, HomeActivity.class);
+                                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                        startActivity(intent);
+                                        finish();
                                         break;
                                 }
                             } else {
-                                context.startActivity(new Intent(context, HomeActivity.class));
-                                finish();
+                                Intent intent = new Intent(context, HomeActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                startActivity(intent);
                             }
                             Log.d(TAG, "Dahira downloaded");
                         }
@@ -206,10 +244,15 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 if (objNotification != null) {
                                     displayEvent = "allEvents";
-                                    context.startActivity(new Intent(context, ShowEventActivity.class));
+                                    Intent intent = new Intent(context, ShowEventActivity.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                    startActivity(intent);
                                     finish();
                                 } else {
-                                    context.startActivity(new Intent(context, HomeActivity.class));
+                                    Intent intent = new Intent(context, HomeActivity.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                    startActivity(intent);
                                     finish();
                                 }
 
@@ -219,7 +262,10 @@ public class MainActivity extends AppCompatActivity {
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    context.startActivity(new Intent(context, HomeActivity.class));
+                    Intent intent = new Intent(context, HomeActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
                     finish();
                     Log.d(TAG, "Error downloading events");
                 }
@@ -247,8 +293,8 @@ public class MainActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document != null) {
-                        HomeFragment.uriPrayerTime = document.getString("imageURI");
-                        HomeFragment.titlePrayerTime = document.getString("title");
+                        uriPrayerTime = document.getString("imageURI");
+                        titlePrayerTime = document.getString("title");
                     }
                 } else {
                     Log.d("LOGGER", "get failed with ", task.getException());
@@ -266,9 +312,9 @@ public class MainActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document != null) {
-                        HomeFragment.codeLinkVideoDeLaSemaine = document.getString("code");
-                        HomeFragment.titleVideoDeLaSemaine = document.getString("title");
-                        HomeFragment.descriptionVideoDeLaSemaine = document.getString("description");
+                        codeLinkVideoDeLaSemaine = document.getString("code");
+                        titleVideoDeLaSemaine = document.getString("title");
+                        descriptionVideoDeLaSemaine = document.getString("description");
                         //showVideoDeLaSemaine();
                     }
                 } else {
@@ -287,7 +333,7 @@ public class MainActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document != null) {
-                        HomeFragment.uriBayitDuJour = document.getString("imageURI");
+                        uriBayitDuJour = document.getString("imageURI");
                         //showBayitDuJour();
                     }
                 } else {
@@ -306,10 +352,10 @@ public class MainActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document != null) {
-                        HomeFragment.imageUriYobalouBessBi = document.getString("imageURI");
-                        HomeFragment.fileName = document.getString("title");
-                        HomeFragment.uriAudio = document.getString("audioURI");
-                        HomeFragment.audioDuration = document.getString("duration");
+                        imageUriYobalouBessBi = document.getString("imageURI");
+                        fileName = document.getString("title");
+                        uriAudio = document.getString("audioURI");
+                        audioDuration = document.getString("duration");
                         //showYobalouBessBi();
                     }
                 } else {
@@ -352,7 +398,7 @@ public class MainActivity extends AppCompatActivity {
             getPrayerTime();
             getVideoDeLaSemaine();
             getVideoPub();
-            getListPubImage(MainActivity.this);
+            //getListPubImage(MainActivity.this);
             if (firebaseUser != null)
                 getOnlineUser(MainActivity.this, userID, objNotification);
             return null;

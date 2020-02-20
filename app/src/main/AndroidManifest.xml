@@ -29,6 +29,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning"
         tools:replace="android:appComponentFactory"
+        android:largeHeap="true"
         tools:targetApi="p">
         <activity
             android:name=".AboutActivity"

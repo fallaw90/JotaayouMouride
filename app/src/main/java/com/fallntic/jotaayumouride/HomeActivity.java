@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.res.AssetManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,8 +16,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -43,9 +47,6 @@ import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -79,6 +80,7 @@ import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showProgress
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.stopCurrentPlayingMediaPlayer;
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.actionSelected;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.adCounter;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.broadcastReceiverMediaPlayer;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.counterHAonPause;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.counterHAonResume;
@@ -88,6 +90,7 @@ import static com.fallntic.jotaayumouride.utility.MyStaticVariables.displayEvent
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.firebaseAuth;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.indexOnlineUser;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.indexSelectedUser;
+import static com.fallntic.jotaayumouride.utility.MyStaticVariables.isPlaying;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.iv_next;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.iv_play;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.iv_previous;
@@ -128,7 +131,6 @@ import static com.fallntic.jotaayumouride.utility.MyStaticVariables.toolbar_bott
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_empty;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.tv_time;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.typeOfContribution;
-import static com.fallntic.jotaayumouride.utility.MyStaticVariables.wasHAonResume;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.wasHAonStop;
 
 @SuppressWarnings({"LoopStatementThatDoesntLoop", "SuspiciousListRemoveInLoop"})
@@ -148,9 +150,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private static String marqueeAd;
     private TextView textViewMarquee;
     private String dahiraToUpdate;
+    public static InterstitialAd interstitialAd;
+    private RelativeLayout relNoConnection, relConnection;
 
     public static AdView bannerAd;
-    private static InterstitialAd interstitialAd;
+    private Button buttonTry;
 
     private static FirebaseFirestore firestore;
     //********************************* Clean Database *****************************************
@@ -201,8 +205,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private final List<String> phoneNumbers = new ArrayList<>();
     private final List<String> id_dahira = new ArrayList<>();
 
-    private static void showInterstitialAd() {
+    public static void showInterstitialAd(Context context) {
         if (interstitialAd.isLoaded() && (onlineUser == null || !onlineUser.hasPaid())) {
+            Toast.makeText(context, "Add will display in 5 seconds", Toast.LENGTH_SHORT).show();
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -212,18 +217,35 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                         @Override
                         public void onAdOpened() {
                             super.onAdOpened();
-                            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-                                mediaPlayer.pause();
+                            try {
+                                if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                                    mediaPlayer.pause();
+                                    adCounter++;
+                                }
+                            } catch (IllegalStateException e) {
+                                System.out.println("IllegalStateException:  " + e.getMessage());
+                            } catch (Exception e) {
+                                System.out.println("Exception: " + e.getMessage());
                             }
                         }
 
                         @Override
                         public void onAdClosed() {
-                            super.onAdClosed();
-                            if (mediaPlayer != null) {
-                                mediaPlayer.start();
+                            // Load the next interstitial.
+                            try {
+                                if (mediaPlayer != null) {
+                                    mediaPlayer.start();
+                                    adCounter = 0;
+                                }
+                            } catch (IllegalStateException e) {
+                                System.out.println("IllegalStateException:  " + e.getMessage());
+                            } catch (Exception e) {
+                                System.out.println("Exception: " + e.getMessage());
+                            } finally {
+                                interstitialAd.loadAd(new AdRequest.Builder().build());
                             }
                         }
+
                     });
                 }
             }, 5000);
@@ -274,32 +296,18 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public static void loadInterstitialAd(final Context context) {
-
-        // Prepare the Interstitial Ad
-        interstitialAd = new InterstitialAd(context);
-
-        // Insert the Ad Unit ID
-        interstitialAd.setAdUnitId(context.getString(R.string.interstitial_unit_id));
-        AdRequest adRequest = new AdRequest.Builder().build();
-        interstitialAd.loadAd(adRequest);
-        interstitialAd.setAdListener(new AdListener() {
-            @Override
-            public void onAdLoaded() {
-                super.onAdLoaded();
-                showInterstitialAd();
-            }
-        });
-    }
 
     public static void loadBannerAd(Activity activity) {
-
         bannerAd = activity.findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         bannerAd.loadAd(adRequest);
     }
 
     private void initViews() {
+        textViewMarquee = findViewById(R.id.marquee_text);
+        relConnection = findViewById(R.id.relativeLayout_data);
+        relNoConnection = findViewById(R.id.rel_noConnection);
+        buttonTry = findViewById(R.id.button_try);
         textViewMarquee = findViewById(R.id.marquee_text);
         tabLayout = findViewById(R.id.tablayout);
         viewPager = findViewById(R.id.viewPager);
@@ -339,7 +347,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         nav_Menu.findItem(R.id.nav_addEvent).setVisible(false);
         nav_Menu.findItem(R.id.nav_displayEvent).setVisible(false);
         nav_Menu.findItem(R.id.nav_removeDahira).setVisible(false);
-
     }
 
     @Override
@@ -361,7 +368,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 startActivity(new Intent(this, AboutActivity.class));
                 break;
         }
-
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -372,31 +378,13 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         if (bannerAd != null) {
             bannerAd.pause();
         }
-
         counterHAonPause++;
         //toastMessage(this, "HomeActivity onPause");
         super.onPause();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (bannerAd != null) {
-            bannerAd.resume();
-        }
-
-        if (wasHAonStop) {
-            counterHAonResume++;
-        }
-
-        wasHAonResume = true;
-        //toastMessage(this, "HomeActivity onResume");
-    }
-
     private void saveTokenID(final String userID) {
-
         FirebaseMessaging.getInstance().subscribeToTopic("JotaayouMouride");
-
         FirebaseInstanceId.getInstance().getInstanceId()
                 .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
                     @Override
@@ -407,7 +395,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                         }
                         // Get new Instance ID token
                         String token_id = Objects.requireNonNull(task.getResult()).getToken();
-
                         Map<String, Object> tokenMap = new HashMap<>();
                         tokenMap.put("tokenID", token_id);
                         //toastMessage(ProfileActivity.this, token_id);
@@ -437,15 +424,31 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
         initViews();
 
+        buttonTry.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //restart();
+                startActivity(new Intent(HomeActivity.this, MainActivity.class));
+            }
+        });
+
         if (!isConnected(this)) {
-            toastMessage(this, "Verifier votre connexion SVP.");
+            toastMessage(this, "Verifiez votre connexion SVP.");
+            toolbar.setLogo(R.mipmap.logo);
+            relNoConnection.setVisibility(View.VISIBLE);
+            relConnection.setVisibility(View.GONE);
             return;
+        } else {
+            relNoConnection.setVisibility(View.GONE);
+            relConnection.setVisibility(View.VISIBLE);
         }
+
 
         firestore = FirebaseFirestore.getInstance();
 
         //startActivity(new Intent(this, AdvertisementActivity.class));
         //deleteOneUser("+13474795621");
+        //checkList();
 
         textViewMarquee.setSelected(true);
         getMarqueeText();
@@ -461,16 +464,27 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         resizeMarqueeText();
         changeTab();
 
-        //****************************** adMob ***********************************
-        // Initialize the Mobile Ads SDK.
-        MobileAds.initialize(this, new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
-                loadInterstitialAd(HomeActivity.this);
-            }
-        });
-
+        //************************************* adMob **********************************************
+        showInterstitialAd(HomeActivity.this);
         loadBannerAd(this);
+        //******************************************************************************************
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (bannerAd != null) {
+            bannerAd.resume();
+        }
+
+        if (wasHAonStop) {
+            counterHAonResume++;
+        }
     }
 
     private void initViewsProgressBar() {
@@ -526,14 +540,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        //toastMessage(this, "HomeActivity onStop");
-
-        wasHAonStop = true;
-    }
-
     private void changeTab() {
 
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
@@ -557,11 +563,12 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
                 } else if (tab.getPosition() == 3) {
                     pageAdapter.notifyDataSetChanged();
+                    showInterstitialAd(HomeActivity.this);
                     //stopCurrentPlayingMediaPlayer();
                     //toastMessage(HomeActivity.this, "Wolofal Fragment");
 
                 } else if (tab.getPosition() == 4) {
-
+                    showInterstitialAd(HomeActivity.this);
                 } else {
 
                 }
@@ -592,8 +599,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         switch (item.getItemId()) {
 
             case R.id.nav_home:
-                loadInterstitialAd(this);
-                startActivity(new Intent(this, HomeActivity.class));
+                showInterstitialAd(this);
+                Intent intent = new Intent(this, HomeActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 break;
             case R.id.nav_displayMyDahira:
                 MyStaticVariables.displayDahira = "myDahira";
@@ -621,7 +631,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 break;
 
             case R.id.nav_displayAllEvent:
-                loadInterstitialAd(this);
+                showInterstitialAd(this);
                 displayEvent = "allEvents";
                 getAllEvents(this);
                 break;
@@ -731,6 +741,19 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
         //toastMessage(this, "HomeActivity Destroyed");
         super.onDestroy();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        try {
+            if (mediaPlayer == null || !isPlaying) {
+                if (notificationManagerMediaPlayer != null) {
+                    notificationManagerMediaPlayer.cancelAll();
+                }
+            }
+        } catch (Exception ignored) {
+        }
     }
 
     private void getMarqueeText() {
@@ -843,7 +866,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                                     }
                                 }
                                 //Sort the dahira by total member
-                                Collections.sort(listAllDahira);
+                                //Collections.sort(listAllDahira);
                                 //Extract dahira by phone number
                                 for (int i = listAllDahira.size() - 1; i >= 0; i--) {
                                     if (!phoneNumbers.contains(listAllDahira.get(i).getDahiraPhoneNumber())) {
@@ -862,16 +885,22 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
                             for (User user : allUsers) {
                                 for (int i = 0; i < user.getListDahiraID().size(); i++) {
-                                    if (!id_dahira.contains(user.getListDahiraID().get(i))) {
+                                    if (!id_dahira.contains(user.getListDahiraID().get(i)) && i < user.getListDahiraID().size()) {
                                         //noinspection SuspiciousListRemoveInLoop
                                         user.getListDahiraID().remove(i);
                                         //noinspection SuspiciousListRemoveInLoop
-                                        user.getListUpdatedDahiraID().remove(i);
-                                        user.getListRoles().remove(i);
-                                        user.getListCommissions().remove(i);
-                                        user.getListAdiya().remove(i);
-                                        user.getListSass().remove(i);
-                                        user.getListSocial().remove(i);
+                                        if (i < user.getListUpdatedDahiraID().size())
+                                            user.getListUpdatedDahiraID().remove(i);
+                                        if (i < user.getListRoles().size())
+                                            user.getListRoles().remove(i);
+                                        if (i < user.getListCommissions().size())
+                                            user.getListCommissions().remove(i);
+                                        if (i < user.getListAdiya().size())
+                                            user.getListAdiya().remove(i);
+                                        if (i < user.getListSass().size())
+                                            user.getListSass().remove(i);
+                                        if (i < user.getListSocial().size())
+                                            user.getListSocial().remove(i);
                                         updateUser(user);
                                     }
                                 }
@@ -888,7 +917,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    @SuppressWarnings("unused")
     public void cleanMultipleDahira() {
         if (MyStaticVariables.listAllDahira == null || listAllDahira.isEmpty()) {
             listAllDahira = new ArrayList<>();
@@ -906,6 +934,72 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                                     }
                                 }
                                 clearDahiraAndUpdateUser();
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            toastMessage(HomeActivity.this, "Error charging all dahira!");
+                        }
+                    });
+        }
+    }
+
+    public void checkList() {
+        if (MyStaticVariables.listAllDahira == null || listAllDahira.isEmpty()) {
+            listAllDahira = new ArrayList<>();
+            firestore.collection("users").get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                                for (DocumentSnapshot documentSnapshot : list) {
+                                    User user = documentSnapshot.toObject(User.class);
+                                    if (user != null) {
+                                        user.setUserID(documentSnapshot.getId());
+                                        allUsers.add(user);
+                                    }
+                                }
+
+                                int i = 0;
+                                for (User user : allUsers) {
+                                    if (user.getListDahiraID().size() == user.getListCommissions().size() && user.getListDahiraID().size() == user.getListRoles().size() &&
+                                            user.getListAdiya().size() == user.getListSass().size() && user.getListSocial().size() == user.getListUpdatedDahiraID().size()) {
+                                        toastMessage(HomeActivity.this, "No errors");
+                                    } else {
+                                        toastMessage(HomeActivity.this, i++ + " errors");
+                                        if (user.getListDahiraID().size() > 0) {
+                                            String id = user.getListDahiraID().get(0);
+                                            user.getListRoles().clear();
+                                            user.getListSocial().clear();
+                                            user.getListUpdatedDahiraID().clear();
+                                            user.getListSass().clear();
+                                            user.getListAdiya().clear();
+                                            user.getListCommissions().clear();
+                                            user.getListDahiraID().clear();
+
+                                            user.getListRoles().add("Administrateur");
+                                            user.getListSocial().add("0");
+                                            user.getListUpdatedDahiraID().add(id);
+                                            user.getListSass().add("0");
+                                            user.getListAdiya().add("0");
+                                            user.getListCommissions().add("N/A");
+                                            user.getListDahiraID().add(id);
+                                            updateUser(user);
+                                        } else {
+                                            user.getListRoles().clear();
+                                            user.getListSocial().clear();
+                                            user.getListUpdatedDahiraID().clear();
+                                            user.getListSass().clear();
+                                            user.getListAdiya().clear();
+                                            user.getListCommissions().clear();
+                                            user.getListDahiraID().clear();
+                                            updateUser(user);
+                                        }
+                                    }
+                                }
                             }
                         }
                     })
@@ -1014,8 +1108,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     class MyTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected void onPreExecute() {
-            loadInterstitialAd(HomeActivity.this);
-            loadBannerAd(HomeActivity.this);
             getMarqueeText();
             textViewNavUserName.setText(onlineUser.getUserName());
             textViewNavEmail.setText(onlineUser.getEmail());
@@ -1030,5 +1122,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             //cleanMultipleDahira();
             return null;
         }
+    }
+
+    @Override
+    public AssetManager getAssets() {
+        return getResources().getAssets();
     }
 }

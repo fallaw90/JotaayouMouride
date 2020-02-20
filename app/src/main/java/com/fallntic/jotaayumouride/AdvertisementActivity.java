@@ -38,7 +38,6 @@ import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.hideProgress
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.showProgressBar;
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.firebaseStorage;
-import static com.fallntic.jotaayumouride.utility.MyStaticVariables.onlineUser;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.storageReference;
 
 
@@ -78,23 +77,24 @@ public class AdvertisementActivity extends AppCompatActivity {
 
 
     private void saveToFirestore(final Context context, final String uri) {
-        final Map<String, Object> mapUri = new HashMap<>();
-        mapUri.put("image_uri", uri);
-        onlineUser.setImageUri(uri);
-        firestore.collection("advertisements").document("my_ads").collection("image_ads")
-                .add(mapUri).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentReference> task) {
-                Log.d(TAG, "Image name saved");
-                toastMessage(context, "Photo profil enregistre.");
-            }
-        })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "Error downloading image name");
-                    }
-                });
+        if (firestore != null && uri != null) {
+            final Map<String, Object> mapUri = new HashMap<>();
+            mapUri.put("image_uri", uri);
+            firestore.collection("advertisements").document("my_ads").collection("image_ads")
+                    .add(mapUri).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentReference> task) {
+                    Log.d(TAG, "Image name saved");
+                    toastMessage(context, "Photo profil enregistre.");
+                }
+            })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(TAG, "Error downloading image name");
+                        }
+                    });
+        }
     }
 
     @Override
@@ -149,11 +149,9 @@ public class AdvertisementActivity extends AppCompatActivity {
     private void executeUploadTask() {
         Toast.makeText(AdvertisementActivity.this, "uploading image", Toast.LENGTH_SHORT).show();
 
-
         //***************************************************************************************
-        final String imageId = "Jambaar " + System.currentTimeMillis();
+        final String imageId = "Sofie" + System.currentTimeMillis();
 
-        //StorageReference imageId = storageReference.child("advertisements").child("Jambaar " + System.currentTimeMillis());
         final StorageReference storageReference = FirebaseStorage.getInstance().getReference()
                 .child("advertisements/" + imageId);
 
@@ -222,7 +220,7 @@ public class AdvertisementActivity extends AppCompatActivity {
                 }
             }
             byte[] bytes = null;
-            bytes = getBytesFromBitmap(mBitmap, 15);
+            bytes = getBytesFromBitmap(mBitmap, 100);
             return bytes;
         }
 

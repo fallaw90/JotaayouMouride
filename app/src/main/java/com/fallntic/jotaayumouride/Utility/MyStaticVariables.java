@@ -145,12 +145,12 @@ public class MyStaticVariables {
     };
 
     //************* Notification Music ********************
-    public static int testVal = 0;
+    public static int testVal = 0, adCounter = 0;
     public static int counterHAonPause = 0;
     public static int counterHAonResume = 0;
-    public static boolean isNotificationMPUsed = false;
+    public static boolean isNotificationMPUsed;
     public static boolean wasHAonStop = false;
-    public static boolean wasHAonResume = false;
+    public static boolean isOnResume = false;
     public static boolean isTabQuranOpened = false;
     public static boolean isTabAudioOpened = false;
     public static String songChosen;
@@ -194,6 +194,17 @@ public class MyStaticVariables {
     public static int indexOnlineUser = -1;
     public static int indexSelectedUser = -1;
     public static ProgressDialog progressDialog;
+    public static String videoPubUri;
+    public static String imageUriYobalouBessBi;
+    public static String uriBayitDuJour;
+    public static String uriAudio;
+    public static String fileName;
+    public static String audioDuration;
+    public static String uriPrayerTime;
+    public static String titlePrayerTime;
+    public static String descriptionVideoDeLaSemaine;
+    public static String titleVideoDeLaSemaine;
+    public static String codeLinkVideoDeLaSemaine;
 
     @SuppressLint("DefaultLocale")
     private static String convertDuration(long duration) {

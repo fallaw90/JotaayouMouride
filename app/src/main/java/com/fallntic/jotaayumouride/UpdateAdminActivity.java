@@ -104,8 +104,12 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
 
     @SuppressLint("SetTextI18n")
     private void displayViews() {
-        textViewDahiraName.setText("Completez votre inscription du dahira " + dahira.getDahiraName() + " pour terminer.");
-        editTextUserName.setText(onlineUser.getUserName());
+        if (textViewDahiraName != null) {
+            textViewDahiraName.setText("Completez votre inscription du dahira " + dahira.getDahiraName() + " pour terminer.");
+        }
+        if (editTextUserName != null) {
+            editTextUserName.setText(onlineUser.getUserName());
+        }
     }
 
     private void initViews() {
@@ -256,8 +260,12 @@ public class UpdateAdminActivity extends AppCompatActivity implements View.OnCli
                     public void onSuccess(Void aVoid) {
                         hideProgressBar();
                         indexOnlineUser = onlineUser.getListDahiraID().indexOf(dahira.getDahiraID());
-                        startActivity(new Intent(UpdateAdminActivity.this, HomeActivity.class));
                         toastMessage(getApplicationContext(), "Enregistrement reussi.");
+
+                        Intent intent = new Intent(UpdateAdminActivity.this, HomeActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                        startActivity(intent);
                     }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override

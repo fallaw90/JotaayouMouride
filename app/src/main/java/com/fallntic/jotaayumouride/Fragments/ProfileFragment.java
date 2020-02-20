@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.fallntic.jotaayumouride.HomeActivity;
 import com.fallntic.jotaayumouride.LoginActivity;
 import com.fallntic.jotaayumouride.R;
 import com.fallntic.jotaayumouride.utility.MyStaticFunctions;
@@ -22,6 +23,8 @@ import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.checkInternetConnection;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.isConnected;
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.logout;
 import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
 import static com.fallntic.jotaayumouride.utility.MyStaticVariables.firebaseAuth;
@@ -52,10 +55,27 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                              Bundle savedInstanceState) {
         this.view = inflater.inflate(R.layout.fragment_profile, container, false);
 
+        if (!isConnected(getContext())) {
+            toastMessage(getContext(), "Verifier votre connexion SVP.");
+            startActivity(new Intent(getContext(), HomeActivity.class));
+        }
+
         init(this.view);
         loadUserInformation();
 
         return this.view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        checkInternetConnection(getActivity());
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        checkInternetConnection(getActivity());
     }
 
     private void init(View view) {

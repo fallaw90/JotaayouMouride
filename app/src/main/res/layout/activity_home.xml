@@ -9,135 +9,173 @@
     tools:context=".HomeActivity">
 
     <RelativeLayout
-        android:id="@+id/relativeLayout_data"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:ignore="DuplicateIncludedIds">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_above="@+id/adView"
-            android:layout_marginBottom="@dimen/_10sdp"
-            android:orientation="vertical">
-
-            <include
-                android:id="@+id/toolbar"
-                layout="@layout/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:tabSelectedTextColor="@color/green"
-                app:tabTextColor="@android:color/black" />
-
-            <TextView
-                android:id="@+id/marquee_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:ellipsize="marquee"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:marqueeRepeatLimit="marquee_forever"
-                android:paddingTop="@dimen/_3sdp"
-                android:scrollHorizontally="true"
-                android:singleLine="true"
-                android:textAlignment="center"
-                android:textColor="@color/red"
-                android:textSize="@dimen/_15sdp"
-                android:visibility="gone"
-                android:textStyle="bold" />
-
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/tablayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:tabGravity="fill"
-                app:tabIndicatorHeight="5dp"
-                app:tabMode="scrollable">
-
-                <com.google.android.material.tabs.TabItem
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/home" />
-
-                <com.google.android.material.tabs.TabItem
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/info" />
-
-                <com.google.android.material.tabs.TabItem
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/profile" />
-
-                <com.google.android.material.tabs.TabItem
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/audios" />
-
-                <com.google.android.material.tabs.TabItem
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/khassida_pdf" />
-            </com.google.android.material.tabs.TabLayout>
-
-            <androidx.viewpager.widget.ViewPager
-                android:id="@+id/viewPager"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-            </androidx.viewpager.widget.ViewPager>
-        </LinearLayout>
-
-        <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/adView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/button_back"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="@dimen/_10sdp"
-            ads:adSize="BANNER"
-            ads:adUnitId="@string/banner_unit_id"
-            tools:ignore="DuplicateIncludedIds,UnknownIdInLayout" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
         <include
             android:id="@+id/toolbar"
-            layout="@layout/layout_ads"
+            layout="@layout/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:tabSelectedTextColor="@color/green" />
+            app:tabSelectedTextColor="@color/green"
+            app:tabTextColor="@android:color/black" />
 
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/relativeLayout_progressBar"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone">
-
-        <TextView
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:id="@+id/relativeLayout_data"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/progressBar"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:textColor="@color/black"
-            android:text="@string/patientez_svp"
-            android:textSize="@dimen/_20sdp" />
+            android:layout_below="@+id/toolbar"
+            tools:ignore="DuplicateIncludedIds">
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:progressBarStyleLarge"
-            android:layout_width="@dimen/_100sdp"
-            android:layout_height="@dimen/_100sdp"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:indeterminate="true"
-            android:indeterminateTint="@color/green"
-            android:indeterminateTintMode="src_atop"
-            android:progress="80"
-            android:progressDrawable="@drawable/circle" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_above="@+id/adView"
+                android:layout_marginBottom="@dimen/_10sdp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/marquee_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:ellipsize="marquee"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:paddingTop="@dimen/_3sdp"
+                    android:scrollHorizontally="true"
+                    android:singleLine="true"
+                    android:textAlignment="center"
+                    android:textColor="@color/red"
+                    android:textSize="@dimen/_15sdp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/tablayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:tabGravity="fill"
+                    app:tabIndicatorHeight="5dp"
+                    app:tabMode="scrollable">
+
+                    <com.google.android.material.tabs.TabItem
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/home" />
+
+                    <com.google.android.material.tabs.TabItem
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/info" />
+
+                    <com.google.android.material.tabs.TabItem
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/profile" />
+
+                    <com.google.android.material.tabs.TabItem
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/audios" />
+
+                    <com.google.android.material.tabs.TabItem
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/khassida_pdf" />
+                </com.google.android.material.tabs.TabLayout>
+
+                <androidx.viewpager.widget.ViewPager
+                    android:id="@+id/viewPager"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                </androidx.viewpager.widget.ViewPager>
+            </LinearLayout>
+
+            <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/adView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/button_back"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="@dimen/_10sdp"
+                ads:adSize="BANNER"
+                ads:adUnitId="@string/banner_unit_id"
+                tools:ignore="DuplicateIncludedIds,UnknownIdInLayout" />
+
+            <include
+                android:id="@+id/toolbar"
+                layout="@layout/layout_ads"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:tabSelectedTextColor="@color/green" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/relativeLayout_progressBar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/progressBar"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:text="@string/patientez_svp"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_20sdp" />
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:progressBarStyleLarge"
+                android:layout_width="@dimen/_100sdp"
+                android:layout_height="@dimen/_100sdp"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:indeterminate="true"
+                android:indeterminateTint="@color/green"
+                android:indeterminateTintMode="src_atop"
+                android:progress="80"
+                android:progressDrawable="@drawable/circle" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rel_noConnection"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/textView_noConnection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="@string/no_internet"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_15sdp" />
+
+            <Button
+                android:id="@+id/button_try"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textView_noConnection"
+                android:layout_centerInParent="true"
+                android:layout_margin="@dimen/_5sdp"
+                android:background="@drawable/rounded_button_solid"
+                android:padding="@dimen/_10sdp"
+                android:text="@string/reessayez"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_10sdp"
+                android:textStyle="bold" />
+        </RelativeLayout>
+
     </RelativeLayout>
 
     <com.google.android.material.navigation.NavigationView

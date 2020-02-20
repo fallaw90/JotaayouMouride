@@ -93,8 +93,10 @@ public class ShowExpenseActivity extends AppCompatActivity implements View.OnCli
         if (v.getId() == R.id.button_back) {
             if (objNotification != null) {
                 objNotification = null;
-                startActivity(new Intent(this, HomeActivity.class));
-                finish();
+                Intent intent = new Intent(this, HomeActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
             } else {
                 startActivity(new Intent(this, DahiraInfoActivity.class));
                 finish();
@@ -133,8 +135,10 @@ public class ShowExpenseActivity extends AppCompatActivity implements View.OnCli
 
         switch (item.getItemId()) {
             case android.R.id.home:
-                startActivity(new Intent(this, HomeActivity.class));
-                finish();
+                Intent intent = new Intent(this, HomeActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 break;
 
             case R.id.icon_add:
@@ -181,7 +185,10 @@ public class ShowExpenseActivity extends AppCompatActivity implements View.OnCli
     public void onBackPressed() {
         if (objNotification != null) {
             objNotification = null;
-            startActivity(new Intent(ShowExpenseActivity.this, HomeActivity.class));
+            Intent intent = new Intent(this, HomeActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
         } else
             startActivity(new Intent(ShowExpenseActivity.this, DahiraInfoActivity.class));
     }

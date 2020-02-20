@@ -18,6 +18,9 @@ import com.fallntic.jotaayumouride.model.YouTubeVideos;
 
 import java.util.Vector;
 
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.isConnected;
+import static com.fallntic.jotaayumouride.utility.MyStaticFunctions.toastMessage;
+
 public class AboutActivity extends AppCompatActivity {
 
     private final Vector<YouTubeVideos> youtubeVideos = new Vector<>();
@@ -32,6 +35,15 @@ public class AboutActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.mipmap.logo);
+
+        if (!isConnected(this)) {
+            toastMessage(this, "Verifier votre connexion SVP.");
+            Intent intent = new Intent(this, HomeActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+            finish();
+        }
 
         TextView textViewAbout = findViewById(R.id.about);
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
